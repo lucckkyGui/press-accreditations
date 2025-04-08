@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +13,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Header = () => {
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    toast.success("Wylogowano pomyślnie");
+    navigate("/");
+  };
+  
+  const handleProfileClick = () => {
+    navigate("/settings");
+  };
+
   return (
     <header className="border-b border-border p-4">
       <div className="flex justify-between items-center">
@@ -41,10 +56,13 @@ const Header = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profil</DropdownMenuItem>
-              <DropdownMenuItem>Ustawienia</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleProfileClick}>Profil</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")}>Ustawienia</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Wyloguj</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                <LogOut className="h-4 w-4 mr-2" />
+                Wyloguj
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

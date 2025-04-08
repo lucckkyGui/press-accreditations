@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import InvitationEditor from "./pages/InvitationEditor";
 import Login from "./pages/Login";
+import HomePage from "./pages/HomePage";
 
 // Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
@@ -24,12 +25,15 @@ const App = () => {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
       // Sprawdzamy, czy użytkownik jest zalogowany - w MVP używamy lokalnego storage
       const checkAuth = () => {
         const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const role = localStorage.getItem("userRole");
         setIsAuthenticated(isLoggedIn);
+        setUserRole(role);
         setIsLoading(false);
       };
 
@@ -46,7 +50,26 @@ const App = () => {
       return <Navigate to="/login" />;
     }
 
+    // Dla gości dozwolone są tylko niektóre ścieżki
+    if (userRole === "guest") {
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/scanner") {
+        return <Navigate to="/scanner" />;
+      }
+    }
+
     return <>{children}</>;
+  };
+
+  // Komponent trasy dla gości
+  const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+    const userRole = localStorage.getItem("userRole");
+    
+    if (userRole === "guest") {
+      return <>{children}</>;
+    }
+    
+    return <Navigate to="/" />;
   };
 
   return (
@@ -56,9 +79,14 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={
+              localStorage.getItem("isLoggedIn") === "true" 
+                ? <Dashboard /> 
+                : <HomePage />
+            } />
             <Route path="/login" element={<Login />} />
             
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
             <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
             <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
