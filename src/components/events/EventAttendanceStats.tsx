@@ -35,7 +35,8 @@ const EventAttendanceStats = ({
             <span>Obecni</span>
             <span className="font-medium">{checkedIn} / {total} ({checkedInPercent}%)</span>
           </div>
-          <Progress value={checkedInPercent} className="h-2 bg-muted" indicatorClassName="bg-green-500" />
+          <Progress value={checkedInPercent} className="h-2 bg-muted" />
+          <div className="h-1 w-full bg-green-500 rounded-full" style={{ width: `${checkedInPercent}%` }} />
         </div>
         
         <div className="space-y-2">
@@ -43,7 +44,8 @@ const EventAttendanceStats = ({
             <span>Potwierdzeni</span>
             <span className="font-medium">{confirmed} / {total} ({confirmedPercent}%)</span>
           </div>
-          <Progress value={confirmedPercent} className="h-2 bg-muted" indicatorClassName="bg-blue-500" />
+          <Progress value={confirmedPercent} className="h-2 bg-muted" />
+          <div className="h-1 w-full bg-blue-500 rounded-full" style={{ width: `${confirmedPercent}%` }} />
         </div>
         
         <div className="space-y-2">
@@ -51,7 +53,8 @@ const EventAttendanceStats = ({
             <span>Zaproszeni</span>
             <span className="font-medium">{invited} / {total} ({invitedPercent}%)</span>
           </div>
-          <Progress value={invitedPercent} className="h-2 bg-muted" indicatorClassName="bg-amber-500" />
+          <Progress value={invitedPercent} className="h-2 bg-muted" />
+          <div className="h-1 w-full bg-amber-500 rounded-full" style={{ width: `${invitedPercent}%` }} />
         </div>
         
         <div className="space-y-2">
@@ -59,7 +62,8 @@ const EventAttendanceStats = ({
             <span>Odrzuceni</span>
             <span className="font-medium">{declined} / {total} ({declinedPercent}%)</span>
           </div>
-          <Progress value={declinedPercent} className="h-2 bg-muted" indicatorClassName="bg-red-500" />
+          <Progress value={declinedPercent} className="h-2 bg-muted" />
+          <div className="h-1 w-full bg-red-500 rounded-full" style={{ width: `${declinedPercent}%` }} />
         </div>
       </CardContent>
     </Card>
