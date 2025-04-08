@@ -8,13 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Wifi, WifiOff } from "lucide-react";
+import { AlertCircle, Check, Cloud, CloudOff, Wifi, WifiOff } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface ScanEntry {
   id: string;
   guest: Guest;
   timestamp: Date;
   successful: boolean;
+  synced: boolean;
 }
 
 const Scanner = () => {
@@ -26,28 +28,83 @@ const Scanner = () => {
   });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingScans, setPendingScans] = useState<ScanEntry[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   
   useEffect(() => {
     // Nasłuchiwanie zmian stanu połączenia
     const handleOnline = () => {
       setIsOnline(true);
-      // W rzeczywistej aplikacji tutaj byłaby synchronizacja z serwerem
-      toast.success("Połączono z internetem. Synchronizacja danych...");
+      toast.success("Połączono z internetem. Dane będą synchronizowane automatycznie.", {
+        duration: 3000,
+      });
+      
+      // Automatyczna synchronizacja po powrocie online
+      if (pendingScans.length > 0) {
+        syncPendingScans();
+      }
     };
     
     const handleOffline = () => {
       setIsOnline(false);
-      toast.warning("Brak połączenia z internetem. Tryb offline aktywny.");
+      toast.warning("Brak połączenia z internetem. Tryb offline aktywny.", {
+        duration: 5000,
+      });
     };
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    
+    // Ładowanie historii z localStorage przy inicjalizacji
+    loadScanHistory();
     
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+  
+  // Nowa funkcja ładująca historię skanowania z localStorage
+  const loadScanHistory = () => {
+    try {
+      const savedHistory = localStorage.getItem('scanHistory');
+      const savedPendingScans = localStorage.getItem('pendingScans');
+      const savedStats = localStorage.getItem('scanStats');
+      const savedLastSync = localStorage.getItem('lastSyncTime');
+      
+      if (savedHistory) {
+        const parsedHistory = JSON.parse(savedHistory);
+        // Konwersja stringów dat na obiekty Date
+        const formattedHistory = parsedHistory.map((entry: any) => ({
+          ...entry,
+          timestamp: new Date(entry.timestamp)
+        }));
+        setScanHistory(formattedHistory);
+      }
+      
+      if (savedPendingScans) {
+        const parsedPending = JSON.parse(savedPendingScans);
+        // Konwersja stringów dat na obiekty Date
+        const formattedPending = parsedPending.map((entry: any) => ({
+          ...entry,
+          timestamp: new Date(entry.timestamp)
+        }));
+        setPendingScans(formattedPending);
+      }
+      
+      if (savedStats) {
+        setStats(JSON.parse(savedStats));
+      }
+      
+      if (savedLastSync) {
+        setLastSyncTime(new Date(JSON.parse(savedLastSync)));
+      }
+    } catch (error) {
+      console.error("Błąd podczas ładowania danych z localStorage:", error);
+      toast.error("Wystąpił błąd podczas ładowania zapisanych danych.");
+    }
+  };
   
   const handleScanSuccess = (guest: Guest) => {
     // Symulacja losowego sukcesu/porażki dla MVP
@@ -57,16 +114,23 @@ const Scanner = () => {
       id: Date.now().toString(),
       guest,
       timestamp: new Date(),
-      successful
+      successful,
+      synced: isOnline
     };
     
-    setScanHistory(prev => [newScanEntry, ...prev]);
+    // Aktualizuj historię skanowań
+    const updatedHistory = [newScanEntry, ...scanHistory];
+    setScanHistory(updatedHistory);
+    localStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
     
-    setStats(prev => ({
-      total: prev.total + 1,
-      successful: successful ? prev.successful + 1 : prev.successful,
-      failed: !successful ? prev.failed + 1 : prev.failed
-    }));
+    // Aktualizuj statystyki
+    const updatedStats = {
+      total: stats.total + 1,
+      successful: successful ? stats.successful + 1 : stats.successful,
+      failed: !successful ? stats.failed + 1 : stats.failed
+    };
+    setStats(updatedStats);
+    localStorage.setItem('scanStats', JSON.stringify(updatedStats));
     
     if (successful) {
       toast.success(`${guest.firstName} ${guest.lastName} zeskanowany pomyślnie`);
@@ -76,16 +140,54 @@ const Scanner = () => {
     
     // Jeśli offline, dodaj do kolejki oczekujących
     if (!isOnline) {
-      setPendingScans(prev => [...prev, newScanEntry]);
-      localStorage.setItem('pendingScans', JSON.stringify([...pendingScans, newScanEntry]));
+      const updatedPendingScans = [...pendingScans, newScanEntry];
+      setPendingScans(updatedPendingScans);
+      localStorage.setItem('pendingScans', JSON.stringify(updatedPendingScans));
     }
   };
   
-  const syncPendingScans = () => {
-    // W rzeczywistej aplikacji tutaj byłaby synchronizacja z serwerem
-    toast.success(`Zsynchronizowano ${pendingScans.length} skanów`);
+  const syncPendingScans = async () => {
+    if (pendingScans.length === 0) return;
+    
+    setIsSyncing(true);
+    setSyncProgress(0);
+    
+    // Symulacja procesu synchronizacji z opóźnieniem
+    const totalItems = pendingScans.length;
+    let processedItems = 0;
+    
+    for (const scan of pendingScans) {
+      // Symulacja czasu przetwarzania dla każdego wpisu
+      await new Promise(resolve => setTimeout(resolve, 400));
+      processedItems++;
+      setSyncProgress(Math.floor((processedItems / totalItems) * 100));
+      
+      // Aktualizacja statusu synchronizacji dla tego skanu
+      setScanHistory(prev => 
+        prev.map(item => 
+          item.id === scan.id ? { ...item, synced: true } : item
+        )
+      );
+    }
+    
+    // Po zakończeniu synchronizacji
+    const now = new Date();
+    setLastSyncTime(now);
+    localStorage.setItem('lastSyncTime', JSON.stringify(now.toISOString()));
+    
+    // Wyczyść kolejkę po synchronizacji
     setPendingScans([]);
     localStorage.removeItem('pendingScans');
+    
+    // Zapisz zaktualizowaną historię
+    localStorage.setItem('scanHistory', JSON.stringify(scanHistory.map(item => ({
+      ...item,
+      synced: true
+    }))));
+    
+    toast.success(`Zsynchronizowano ${totalItems} skanów pomyślnie`);
+    setIsSyncing(false);
+    setSyncProgress(100);
   };
   
   const clearHistory = () => {
@@ -95,6 +197,15 @@ const Scanner = () => {
       successful: 0,
       failed: 0
     });
+    setPendingScans([]);
+    setLastSyncTime(null);
+    
+    // Wyczyść dane w localStorage
+    localStorage.removeItem('scanHistory');
+    localStorage.removeItem('pendingScans');
+    localStorage.removeItem('scanStats');
+    localStorage.removeItem('lastSyncTime');
+    
     toast.info("Historia skanowań została wyczyszczona");
   };
 
@@ -109,21 +220,21 @@ const Scanner = () => {
             </p>
           </div>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {isOnline ? (
-              <div className="flex items-center">
-                <Wifi className="text-green-500 h-5 w-5 mr-2" />
-                <span className="text-sm">Online</span>
+              <div className="flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                <Wifi className="text-green-500 h-4 w-4 mr-2" />
+                <span className="text-sm text-green-700">Online</span>
               </div>
             ) : (
-              <div className="flex items-center">
-                <WifiOff className="text-amber-500 h-5 w-5 mr-2" />
-                <span className="text-sm">Offline</span>
+              <div className="flex items-center px-3 py-1 bg-amber-50 border border-amber-200 rounded-full">
+                <WifiOff className="text-amber-500 h-4 w-4 mr-2" />
+                <span className="text-sm text-amber-700">Offline</span>
               </div>
             )}
             
-            {!isOnline && pendingScans.length > 0 && (
-              <Badge variant="outline" className="ml-3 bg-amber-50">
+            {pendingScans.length > 0 && (
+              <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
                 {pendingScans.length} oczekujących
               </Badge>
             )}
@@ -131,18 +242,58 @@ const Scanner = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 space-y-4">
             <QRScanner onScanSuccess={handleScanSuccess} />
             
-            {!isOnline && pendingScans.length > 0 && (
-              <div className="mt-4">
-                <Button 
-                  onClick={syncPendingScans}
-                  disabled={!isOnline}
-                  className="w-full"
-                >
-                  Synchronizuj ({pendingScans.length})
-                </Button>
+            {pendingScans.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center">
+                    <CloudOff className="h-4 w-4 mr-2 text-amber-500" />
+                    Dane offline
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span>{pendingScans.length} skanów do synchronizacji</span>
+                    {lastSyncTime && (
+                      <span className="text-xs text-muted-foreground">
+                        Ostatnia synchronizacja: {lastSyncTime.toLocaleTimeString()}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {isSyncing ? (
+                    <div className="space-y-2">
+                      <Progress value={syncProgress} className="h-2" />
+                      <div className="text-xs text-center text-muted-foreground">
+                        Synchronizacja: {syncProgress}%
+                      </div>
+                    </div>
+                  ) : (
+                    <Button 
+                      onClick={syncPendingScans}
+                      disabled={!isOnline || isSyncing}
+                      className="w-full gap-2"
+                    >
+                      <Cloud className="h-4 w-4" />
+                      {isOnline ? "Synchronizuj dane" : "Połącz z internetem, aby synchronizować"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Karta statusu synchronizacji */}
+            {isOnline && lastSyncTime && (
+              <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
+                <div className="flex items-center">
+                  <Check className="h-4 w-4 mr-1 text-green-500" />
+                  <span>Wszystkie dane zsynchronizowane</span>
+                </div>
+                <span className="text-xs">
+                  {lastSyncTime.toLocaleString()}
+                </span>
               </div>
             )}
           </div>
@@ -221,14 +372,18 @@ const Scanner = () => {
                             <div className="text-xs text-muted-foreground">
                               {entry.timestamp.toLocaleTimeString()}
                             </div>
-                            <Badge variant={entry.successful ? "default" : "destructive"}>
-                              {entry.successful ? "Zatwierdzone" : "Odrzucone"}
-                            </Badge>
-                            {!isOnline && (
-                              <div className="text-xs mt-1 text-amber-600">
-                                (Tryb offline)
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <Badge variant={entry.successful ? "default" : "destructive"}>
+                                {entry.successful ? "Zatwierdzone" : "Odrzucone"}
+                              </Badge>
+                              
+                              {!entry.synced && (
+                                <span className="flex items-center text-xs text-amber-600">
+                                  <AlertCircle className="h-3 w-3 mr-1" />
+                                  Niezsynch.
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

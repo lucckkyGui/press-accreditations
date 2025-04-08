@@ -1,11 +1,14 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, RefreshCw, UserCheck2, UserX2 } from "lucide-react";
+import { QrCode, RefreshCw, UserCheck2, UserX2, Camera, Smartphone, CameraOff, Settings2 } from "lucide-react";
 import { Guest } from "@/types";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface QRScannerProps {
   onScanSuccess?: (guest: Guest) => void;
@@ -15,9 +18,38 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
   const [scanning, setScanning] = useState(false);
   const [lastScannedGuest, setLastScannedGuest] = useState<Guest | null>(null);
   const [scanResult, setScanResult] = useState<"success" | "error" | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  // Ustawienia skanera
+  const [settings, setSettings] = useState({
+    autoScan: false,     // Automatyczne skanowanie po rozpoznaniu QR
+    hapticFeedback: true, // Wibracja przy skanowaniu
+    playSound: true,      // Dźwięk przy skanowaniu
+    frontCamera: false,   // Użyj przedniej kamery zamiast tylnej
+    flashlight: false,    // Użyj lampy błyskowej (jeśli dostępna)
+  });
+  
+  // Symuluje efekty dźwiękowe/wibracji
+  const performFeedback = (success: boolean) => {
+    // Wibracja (jeśli urządzenie obsługuje i użytkownik włączył opcję)
+    if (settings.hapticFeedback && navigator.vibrate) {
+      if (success) {
+        navigator.vibrate([100, 50, 100]);
+      } else {
+        navigator.vibrate([300]);
+      }
+    }
+    
+    // W rzeczywistej aplikacji tutaj byśmy dodali dźwięki
+    if (settings.playSound) {
+      // Odtwarzanie dźwięku
+      console.log(`Playing ${success ? 'success' : 'error'} sound`);
+    }
+  };
 
   const startScanning = () => {
     setScanning(true);
+    setCameraActive(true);
+    
     // W rzeczywistej aplikacji tutaj byłby kod do uruchomienia kamery i skanowania QR
     
     // Dla MVP symulujemy skanowanie po 2 sekundach
@@ -46,43 +78,195 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
     
     if (hasAccess) {
       setScanResult("success");
+      performFeedback(true);
       if (onScanSuccess) onScanSuccess(guest);
     } else {
       setScanResult("error");
+      performFeedback(false);
+    }
+    
+    // Jeśli włączone auto-skanowanie, resetujemy po krótkim czasie
+    if (settings.autoScan) {
+      setTimeout(() => {
+        resetScan();
+        startScanning();
+      }, 3000);
     }
   };
 
   const resetScan = () => {
     setLastScannedGuest(null);
     setScanResult(null);
+    setCameraActive(false);
   };
+  
+  // Zatrzymaj skanowanie przy odmontowaniu komponentu
+  useEffect(() => {
+    return () => {
+      // W rzeczywistej aplikacji tutaj zatrzymalibyśmy pracę kamery
+      setCameraActive(false);
+    };
+  }, []);
+  
+  const updateSetting = (key: keyof typeof settings, value: boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    
+    // Zapisujemy ustawienia w localStorage
+    const savedSettings = JSON.parse(localStorage.getItem('scannerSettings') || '{}');
+    localStorage.setItem('scannerSettings', JSON.stringify({
+      ...savedSettings,
+      [key]: value
+    }));
+  };
+  
+  // Ładowanie ustawień przy inicjalizacji
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('scannerSettings');
+    if (savedSettings) {
+      try {
+        setSettings(prev => ({
+          ...prev,
+          ...JSON.parse(savedSettings)
+        }));
+      } catch (e) {
+        console.error('Błąd przy ładowaniu ustawień skanera:', e);
+      }
+    }
+  }, []);
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCode className="h-5 w-5" />
-          Skaner QR
-        </CardTitle>
-        <CardDescription>Zeskanuj kod QR gościa, aby sprawdzić jego dostęp</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <QrCode className="h-5 w-5" />
+            Skaner QR
+          </CardTitle>
+          <CardDescription>Zeskanuj kod QR gościa, aby sprawdzić jego dostęp</CardDescription>
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Settings2 className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Ustawienia skanera</SheetTitle>
+            </SheetHeader>
+            <div className="py-4 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="auto-scan">Automatyczne skanowanie</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Automatycznie skanuj następny kod po zakończeniu
+                  </p>
+                </div>
+                <Switch
+                  id="auto-scan"
+                  checked={settings.autoScan}
+                  onCheckedChange={value => updateSetting('autoScan', value)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="haptic">Wibracja przy skanowaniu</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Urządzenie zawibruje przy poprawnym/błędnym skanowaniu
+                  </p>
+                </div>
+                <Switch
+                  id="haptic" 
+                  checked={settings.hapticFeedback}
+                  onCheckedChange={value => updateSetting('hapticFeedback', value)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="sound">Dźwięki</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Odtwarzaj dźwięki przy skanowaniu
+                  </p>
+                </div>
+                <Switch
+                  id="sound"
+                  checked={settings.playSound}
+                  onCheckedChange={value => updateSetting('playSound', value)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="front-camera">Przednia kamera</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Użyj przedniej kamery do skanowania
+                  </p>
+                </div>
+                <Switch
+                  id="front-camera"
+                  checked={settings.frontCamera} 
+                  onCheckedChange={value => updateSetting('frontCamera', value)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="flashlight">Lampa błyskowa</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Włącz lampę podczas skanowania (jeśli dostępna)
+                  </p>
+                </div>
+                <Switch
+                  id="flashlight"
+                  checked={settings.flashlight}
+                  onCheckedChange={value => updateSetting('flashlight', value)}
+                />
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </CardHeader>
       <CardContent className="space-y-4">
         {!scanning && !lastScannedGuest ? (
-          <div className="flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg">
-            <QrCode className="h-16 w-16 text-muted-foreground mb-4" />
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
+            {cameraActive ? (
+              <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+                <Camera className="h-12 w-12 text-white opacity-20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-48 h-48 border-2 border-white border-opacity-40 rounded-md"></div>
+                  <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2"></div>
+                  <div className="absolute animate-ping w-4 h-4 bg-red-500 rounded-full"></div>
+                </div>
+              </div>
+            ) : (
+              <QrCode className="h-16 w-16 text-muted-foreground mb-4" />
+            )}
             <p className="text-center text-muted-foreground mb-4">
               Kliknij przycisk poniżej, aby rozpocząć skanowanie kodu QR
             </p>
-            <Button onClick={startScanning}>Rozpocznij skanowanie</Button>
+            <Button onClick={startScanning} className="gap-2">
+              <Smartphone className="h-4 w-4" />
+              Rozpocznij skanowanie
+            </Button>
           </div>
         ) : scanning ? (
-          <div className="flex flex-col items-center justify-center p-10 border-2 border-primary rounded-lg">
-            <div className="relative">
-              <QrCode className="h-16 w-16 text-primary mb-4 animate-pulse-slow" />
-              <div className="absolute top-0 left-0 right-0 bottom-0 border-t-4 border-primary animate-spin rounded-full" style={{ borderRightColor: 'transparent', borderBottomColor: 'transparent', borderLeftColor: 'transparent' }}></div>
+          <div className="flex flex-col items-center justify-center p-6 border-2 border-primary rounded-lg">
+            <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-4">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-48 h-48 border-2 border-white border-opacity-40 rounded-md"></div>
+                <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2 animate-bounce"></div>
+              </div>
             </div>
             <p className="text-center mb-4">Skanowanie kodu QR...</p>
-            <Button variant="outline" onClick={() => setScanning(false)}>Anuluj</Button>
+            <Button variant="outline" onClick={() => setScanning(false)} className="gap-2">
+              <CameraOff className="h-4 w-4" />
+              Anuluj
+            </Button>
           </div>
         ) : lastScannedGuest && scanResult ? (
           <>
@@ -136,11 +320,11 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={resetScan}
+                  onClick={settings.autoScan ? resetScan : startScanning}
                   className="gap-1"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
-                  Skanuj ponownie
+                  {settings.autoScan ? "Anuluj auto-skanowanie" : "Skanuj ponownie"}
                 </Button>
               </div>
             </div>
