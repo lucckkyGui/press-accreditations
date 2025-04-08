@@ -25,6 +25,7 @@ interface GuestTableProps {
   onEdit: (guest: Guest) => void;
   onDelete: (guest: Guest) => void;
   onResendInvite: (guest: Guest) => void;
+  showEmailStatus?: boolean;
 }
 
 const GuestTable = ({
@@ -33,6 +34,7 @@ const GuestTable = ({
   onEdit,
   onDelete,
   onResendInvite,
+  showEmailStatus = false,
 }: GuestTableProps) => {
   const getStatusBadge = (status: GuestStatus) => {
     switch (status) {
@@ -46,6 +48,19 @@ const GuestTable = ({
         return <Badge variant="default">Obecny</Badge>;
       default:
         return null;
+    }
+  };
+
+  const getEmailStatusBadge = (status?: string) => {
+    switch (status) {
+      case "sent":
+        return <Badge variant="outline" className="bg-gray-100">Wysłano</Badge>;
+      case "opened":
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Otwarto</Badge>;
+      case "failed":
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Błąd</Badge>;
+      default:
+        return <Badge variant="outline" className="bg-gray-100">Nieznany</Badge>;
     }
   };
 
@@ -73,6 +88,7 @@ const GuestTable = ({
             <TableHead>Firma</TableHead>
             <TableHead>Strefa</TableHead>
             <TableHead>Status</TableHead>
+            {showEmailStatus && <TableHead>Status e-mail</TableHead>}
             <TableHead className="w-[100px]">QR</TableHead>
             <TableHead className="text-right">Akcje</TableHead>
           </TableRow>
@@ -87,6 +103,7 @@ const GuestTable = ({
               <TableCell>{guest.company || "-"}</TableCell>
               <TableCell>{getZoneBadge(guest.zone)}</TableCell>
               <TableCell>{getStatusBadge(guest.status)}</TableCell>
+              {showEmailStatus && <TableCell>{getEmailStatusBadge(guest.emailStatus)}</TableCell>}
               <TableCell>
                 <Button
                   variant="outline"

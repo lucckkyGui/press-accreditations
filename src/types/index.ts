@@ -1,6 +1,16 @@
+export interface Event {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  startDate: Date;
+  organizerId: string;
+  isPublished: boolean;
+}
 
+export type GuestZone = "vip" | "press" | "staff" | "general";
 export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
-export type GuestZone = "general" | "vip" | "press" | "staff";
+export type GuestEmailStatus = "sent" | "opened" | "failed" | "unknown";
 
 export interface Guest {
   id: string;
@@ -11,22 +21,9 @@ export interface Guest {
   phone?: string;
   zone: GuestZone;
   status: GuestStatus;
-  qrCode?: string;
+  emailStatus?: GuestEmailStatus;
+  qrCode: string;
   invitationSentAt?: Date;
   invitationOpenedAt?: Date;
   checkedInAt?: Date;
-  notes?: string;
-  dietaryRequirements?: string;
-}
-
-export interface Event {
-  id: string;
-  name: string;
-  description?: string;
-  location?: string;
-  startDate: Date;
-  endDate?: Date;
-  organizerId: string;
-  isPublished: boolean;
-  guests?: Guest[];
 }

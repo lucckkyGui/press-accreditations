@@ -7,6 +7,7 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 interface EventCardProps {
   event: Event;
@@ -16,10 +17,16 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, guestCount = 0, onView, onEdit }: EventCardProps) => {
+  const navigate = useNavigate();
+  
   const timeToEvent = formatDistanceToNow(new Date(event.startDate), {
     addSuffix: true,
     locale: pl,
   });
+
+  const handleViewDetails = () => {
+    navigate(`/events/${event.id}`);
+  };
 
   return (
     <Card className="w-full hover:shadow-md transition-shadow">
@@ -56,7 +63,7 @@ const EventCard = ({ event, guestCount = 0, onView, onEdit }: EventCardProps) =>
         <Button variant="outline" size="sm" onClick={() => onEdit(event)}>
           Edytuj
         </Button>
-        <Button size="sm" onClick={() => onView(event)}>
+        <Button size="sm" onClick={handleViewDetails}>
           Szczegóły
         </Button>
       </CardFooter>
