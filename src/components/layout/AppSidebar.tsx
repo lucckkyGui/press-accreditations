@@ -1,7 +1,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { BarChart3, Calendar, QrCode, Settings, Users, Mail } from "lucide-react";
+import { BarChart3, Calendar, QrCode, Settings, Users, Mail, Bell } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,48 +19,66 @@ const menuItems = [
     title: "Dashboard",
     url: "/",
     icon: BarChart3,
+    description: "Przegląd ogólny",
   },
   {
-    title: "Events",
+    title: "Wydarzenia",
     url: "/events",
     icon: Calendar,
+    description: "Zarządzaj wydarzeniami",
   },
   {
-    title: "Guests",
+    title: "Goście",
     url: "/guests",
     icon: Users,
+    description: "Lista gości i akredytacje",
   },
   {
     title: "Zaproszenia",
     url: "/invitation-editor",
     icon: Mail,
+    description: "Projektuj zaproszenia",
   },
   {
-    title: "QR Scanner",
+    title: "Powiadomienia",
+    url: "/notifications",
+    icon: Bell,
+    description: "Zarządzaj powiadomieniami",
+  },
+  {
+    title: "Skaner QR",
     url: "/scanner",
     icon: QrCode,
+    description: "Skanuj kody QR",
   },
   {
-    title: "Settings",
+    title: "Ustawienia",
     url: "/settings",
     icon: Settings,
+    description: "Konfiguracja systemu",
   },
 ];
 
 const AppSidebar = () => {
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center space-x-2">
-          <QrCode className="h-8 w-8 text-sidebar-primary-foreground" />
-          <span className="text-xl font-bold text-sidebar-primary-foreground">
-            Press Acreditations
-          </span>
+    <Sidebar className="border-r">
+      <SidebarHeader className="px-6 py-5 border-b">
+        <div className="flex items-center space-x-3">
+          <div className="bg-primary p-1.5 rounded-md">
+            <QrCode className="h-6 w-6 text-sidebar-primary-foreground" />
+          </div>
+          <div>
+            <span className="text-xl font-bold text-foreground">
+              Press Acreditations
+            </span>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              System akredytacji prasowych
+            </p>
+          </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -69,11 +87,16 @@ const AppSidebar = () => {
                     <NavLink
                       to={item.url}
                       className={({ isActive }) =>
-                        isActive ? "text-sidebar-primary-foreground font-semibold" : ""
+                        isActive 
+                          ? "text-primary font-medium bg-primary/10 border-l-2 border-primary" 
+                          : "hover:bg-muted/50 transition-colors"
                       }
                     >
-                      <item.icon />
-                      <span>{item.title}</span>
+                      <item.icon className="h-5 w-5" />
+                      <div className="flex flex-col items-start">
+                        <span>{item.title}</span>
+                        <span className="text-xs text-muted-foreground">{item.description}</span>
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -81,6 +104,15 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <div className="mt-auto p-4">
+          <div className="rounded-lg bg-primary/10 p-4 text-sm">
+            <p className="font-medium text-primary">Wsparcie techniczne</p>
+            <p className="text-muted-foreground mt-1">Potrzebujesz pomocy? Skontaktuj się z naszym zespołem.</p>
+            <button className="mt-2 text-xs font-medium text-primary hover:underline">
+              Uzyskaj pomoc →
+            </button>
+          </div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );
