@@ -10,6 +10,7 @@ import Guests from "./pages/Guests";
 import Scanner from "./pages/Scanner";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import InvitationEditor from "./pages/InvitationEditor";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/guests" element={<Guests />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/invitation-editor" element={<InvitationEditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

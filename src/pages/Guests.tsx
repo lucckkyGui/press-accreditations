@@ -1,7 +1,7 @@
+
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Guest, GuestStatus, GuestZone } from "@/types";
 import { Plus, Search, QrCode } from "lucide-react";
@@ -65,8 +65,8 @@ const Guests = () => {
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [zoneFilter, setZoneFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [zoneFilter, setZoneFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentQRGuest, setCurrentQRGuest] = useState<Guest | null>(null);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
 
@@ -81,10 +81,10 @@ const Guests = () => {
         guest.company.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesZone =
-      zoneFilter === "" || guest.zone === zoneFilter;
+      zoneFilter === "all" || guest.zone === zoneFilter;
 
     const matchesStatus =
-      statusFilter === "" || guest.status === statusFilter;
+      statusFilter === "all" || guest.status === statusFilter;
 
     return matchesSearch && matchesZone && matchesStatus;
   });

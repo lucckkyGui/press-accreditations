@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, QrCode } from "lucide-react";
+import { MoreHorizontal, QrCode, Send } from "lucide-react";
 
 interface GuestTableProps {
   guests: Guest[];
@@ -96,7 +96,16 @@ const GuestTable = ({
                   <QrCode className="h-4 w-4" />
                 </Button>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right flex justify-end items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onResendInvite(guest)}
+                  className="flex gap-1"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Wyślij
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -106,9 +115,6 @@ const GuestTable = ({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => onEdit(guest)}>
                       Edytuj
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onResendInvite(guest)}>
-                      Wyślij zaproszenie ponownie
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"

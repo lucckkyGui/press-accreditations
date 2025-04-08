@@ -1,7 +1,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { BarChart3, Calendar, QrCode, Settings, Users } from "lucide-react";
+import { BarChart3, Calendar, QrCode, Settings, Users, Mail } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,11 @@ const menuItems = [
     title: "Guests",
     url: "/guests",
     icon: Users,
+  },
+  {
+    title: "Zaproszenia",
+    url: "/invitation-editor",
+    icon: Mail,
   },
   {
     title: "QR Scanner",
