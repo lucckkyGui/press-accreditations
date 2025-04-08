@@ -101,6 +101,14 @@ const Events = () => {
     console.log("Editing event:", event);
   };
 
+  const handleViewDetails = (eventId: string) => {
+    navigate(`/events/${eventId}`);
+  };
+  
+  const handleGoToNotifications = (eventId: string) => {
+    navigate(`/notifications/${eventId}`);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -212,6 +220,8 @@ const Events = () => {
               guestCount={Math.floor(Math.random() * 100) + 20}
               onView={handleViewEvent}
               onEdit={handleEditEvent}
+              onViewDetails={handleViewDetails}
+              onGoToNotifications={handleGoToNotifications}
             />
           ))}
         </div>

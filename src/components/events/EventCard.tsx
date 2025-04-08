@@ -7,29 +7,39 @@ import { Calendar, MapPin, Users } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
-import { useNavigate } from "react-router-dom";
 
 interface EventCardProps {
   event: Event;
   guestCount?: number;
   onView: (event: Event) => void;
   onEdit: (event: Event) => void;
+  onViewDetails?: (eventId: string) => void;
+  onGoToNotifications?: (eventId: string) => void;
 }
 
-const EventCard = ({ event, guestCount = 0, onView, onEdit }: EventCardProps) => {
-  const navigate = useNavigate();
-  
+const EventCard = ({ 
+  event, 
+  guestCount = 0, 
+  onView, 
+  onEdit,
+  onViewDetails,
+  onGoToNotifications
+}: EventCardProps) => {
   const timeToEvent = formatDistanceToNow(new Date(event.startDate), {
     addSuffix: true,
     locale: pl,
   });
 
   const handleViewDetails = () => {
-    navigate(`/events/${event.id}`);
+    if (onViewDetails) {
+      onViewDetails(event.id);
+    }
   };
   
   const handleGoToNotifications = () => {
-    navigate(`/notifications/${event.id}`);
+    if (onGoToNotifications) {
+      onGoToNotifications(event.id);
+    }
   };
 
   return (
