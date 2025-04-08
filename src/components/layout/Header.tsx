@@ -47,15 +47,15 @@ const Header = () => {
           </h1>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={toggleTheme} 
-            className="text-muted-foreground hover:text-foreground" 
+            className="text-muted-foreground hover:text-foreground rounded-full" 
             title={theme === 'light' ? 'Przełącz na tryb ciemny' : 'Przełącz na tryb jasny'}>
             {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
           
           <Button variant="ghost" size="icon" onClick={() => navigate('/notifications')} 
-            className="text-muted-foreground hover:text-foreground relative">
+            className="text-muted-foreground hover:text-foreground rounded-full relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </Button>

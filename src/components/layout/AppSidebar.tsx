@@ -17,67 +17,67 @@ import {
 const menuItems = [
   {
     title: "Dashboard",
+    description: "Przegląd ogólny",
     url: "/",
     icon: BarChart3,
-    description: "Przegląd ogólny",
   },
   {
     title: "Wydarzenia",
+    description: "Zarządzaj wydarzeniami",
     url: "/events",
     icon: Calendar,
-    description: "Zarządzaj wydarzeniami",
   },
   {
     title: "Goście",
+    description: "Lista gości i akredytacje",
     url: "/guests",
     icon: Users,
-    description: "Lista gości i akredytacje",
   },
   {
     title: "Zaproszenia",
+    description: "Projektuj zaproszenia",
     url: "/invitation-editor",
     icon: Mail,
-    description: "Projektuj zaproszenia",
   },
   {
     title: "Powiadomienia",
+    description: "Zarządzaj powiadomieniami",
     url: "/notifications",
     icon: Bell,
-    description: "Zarządzaj powiadomieniami",
   },
   {
     title: "Skaner QR",
+    description: "Skanuj kody QR",
     url: "/scanner",
     icon: QrCode,
-    description: "Skanuj kody QR",
   },
   {
     title: "Ustawienia",
+    description: "Konfiguracja systemu",
     url: "/settings",
     icon: Settings,
-    description: "Konfiguracja systemu",
   },
 ];
 
 const AppSidebar = () => {
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="px-6 py-5 border-b">
+    <Sidebar className="border-r bg-primary text-white md:w-72">
+      <SidebarHeader className="px-6 py-5 bg-primary">
         <div className="flex items-center space-x-3">
-          <div className="bg-primary p-1.5 rounded-md">
-            <QrCode className="h-6 w-6 text-sidebar-primary-foreground" />
+          <div className="bg-white p-1.5 rounded-md">
+            <QrCode className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <span className="text-xl font-bold text-foreground">
+            <span className="text-xl font-bold text-white">
               Press Acreditations
             </span>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-primary-foreground/80 mt-0.5">
               System akredytacji prasowych
             </p>
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-3">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -88,14 +88,14 @@ const AppSidebar = () => {
                       to={item.url}
                       className={({ isActive }) =>
                         isActive 
-                          ? "text-primary font-medium bg-primary/10 border-l-2 border-primary" 
-                          : "hover:bg-muted/50 transition-colors"
+                          ? "text-white font-medium bg-white/20 border-l-2 border-white" 
+                          : "hover:bg-white/10 text-white/90 transition-colors"
                       }
                     >
                       <item.icon className="h-5 w-5" />
                       <div className="flex flex-col items-start">
                         <span>{item.title}</span>
-                        <span className="text-xs text-muted-foreground">{item.description}</span>
+                        <span className="text-xs text-primary-foreground/60">{item.description}</span>
                       </div>
                     </NavLink>
                   </SidebarMenuButton>
@@ -105,10 +105,10 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
         <div className="mt-auto p-4">
-          <div className="rounded-lg bg-primary/10 p-4 text-sm">
-            <p className="font-medium text-primary">Wsparcie techniczne</p>
-            <p className="text-muted-foreground mt-1">Potrzebujesz pomocy? Skontaktuj się z naszym zespołem.</p>
-            <button className="mt-2 text-xs font-medium text-primary hover:underline">
+          <div className="rounded-lg bg-white/10 p-4 text-sm">
+            <p className="font-medium text-white">Wsparcie techniczne</p>
+            <p className="text-primary-foreground/80 mt-1">Potrzebujesz pomocy? Skontaktuj się z naszym zespołem.</p>
+            <button className="mt-2 text-xs font-medium text-white hover:underline">
               Uzyskaj pomoc →
             </button>
           </div>

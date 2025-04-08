@@ -9,18 +9,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon, Plus, Search, Filter, SortDesc, SortAsc } from "lucide-react";
+import { CalendarIcon, Plus, Search, Filter, SortDesc, SortAsc, MapPin, Clock, Users } from "lucide-react";
 import { Event } from "@/types";
 import { useNavigate } from "react-router-dom";
 import EventCard from "@/components/events/EventCard";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, addHours } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -37,21 +36,51 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 type EventFilter = "all" | "published" | "draft" | "upcoming" | "past" | "today";
 type SortOption = "name" | "date-asc" | "date-desc";
 
+// Schemat walidacji dla formularza wydarzenia
+const eventFormSchema = z.object({
+  name: z.string().min(3, "Nazwa wydarzenia musi mieć co najmniej 3 znaki"),
+  description: z.string().optional(),
+  location: z.string().min(2, "Lokalizacja jest wymagana"),
+  startDate: z.date({
+    required_error: "Data wydarzenia jest wymagana",
+  }),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Podaj czas w formacie HH:MM"),
+  isPublished: z.boolean().default(false),
+  organizerId: z.string().optional(),
+  maxGuests: z.number().int().positive().optional(),
+  category: z.string().optional(),
+});
+
+type EventFormValues = z.infer<typeof eventFormSchema>;
+
 const Events = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState<Date>();
-  const [isPublished, setIsPublished] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<EventFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("date-desc");
+  
+  const form = useForm<EventFormValues>({
+    resolver: zodResolver(eventFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      location: "",
+      startTime: "10:00",
+      isPublished: false,
+      maxGuests: 100,
+      category: "konferencja",
+    },
+  });
   
   // Mock events dla MVP
   const [events, setEvents] = useState<Event[]>([
@@ -87,7 +116,7 @@ const Events = () => {
       name: "Konferencja Dziennikarska",
       description: "Spotkanie z dziennikarzami i prezentacja wyników kwartalnych.",
       location: "Biuro Główne, Warszawa",
-      startDate: new Date(2024, 3, 5), // Wydarzenie przeszłe
+      startDate: new Date(2024, 3, 5),
       organizerId: "org-1",
       isPublished: true,
     },
@@ -96,36 +125,38 @@ const Events = () => {
       name: "Spotkanie z Inwestorami",
       description: "Prezentacja strategii rozwoju firmy na kolejne lata.",
       location: "Wirtualne spotkanie online",
-      startDate: new Date(), // Wydarzenie dzisiejsze
+      startDate: new Date(),
       organizerId: "org-1",
       isPublished: true,
     },
   ]);
 
-  const handleCreateEvent = () => {
-    if (!name || !date) return;
-    
-    const newEvent: Event = {
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      description,
-      location,
-      startDate: date,
-      organizerId: "org-1", // Mock organizerId
-      isPublished,
-    };
-    
-    setEvents([...events, newEvent]);
-    setOpen(false);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setName("");
-    setDescription("");
-    setLocation("");
-    setDate(undefined);
-    setIsPublished(false);
+  const onSubmit = (data: EventFormValues) => {
+    try {
+      // Łączymy datę i czas
+      const [hours, minutes] = data.startTime.split(':').map(Number);
+      const startDateTime = new Date(data.startDate);
+      startDateTime.setHours(hours, minutes, 0);
+      
+      const newEvent: Event = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: data.name,
+        description: data.description || "",
+        location: data.location,
+        startDate: startDateTime,
+        organizerId: "org-1", // Mock ID
+        isPublished: data.isPublished,
+        maxGuests: data.maxGuests,
+        category: data.category,
+      };
+      
+      setEvents([...events, newEvent]);
+      toast.success("Wydarzenie zostało pomyślnie utworzone!");
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      toast.error("Wystąpił błąd podczas tworzenia wydarzenia. Spróbuj ponownie.");
+    }
   };
 
   const handleViewEvent = (event: Event) => {
@@ -145,6 +176,20 @@ const Events = () => {
   const handleGoToNotifications = (eventId: string) => {
     navigate(`/notifications/${eventId}`);
   };
+  
+  const handleOpenModal = () => {
+    setOpen(true);
+    form.reset({
+      name: "",
+      description: "",
+      location: "",
+      startDate: new Date(),
+      startTime: "10:00",
+      isPublished: false,
+      maxGuests: 100,
+      category: "konferencja",
+    });
+  };
 
   // Filtrowanie i sortowanie wydarzeń
   const filteredAndSortedEvents = useMemo(() => {
@@ -152,8 +197,8 @@ const Events = () => {
     const filtered = events.filter(event => {
       // Filtrowanie według wyszukiwania
       if (searchTerm && !event.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-          !event.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !event.location.toLowerCase().includes(searchTerm.toLowerCase())) {
+          !event.description?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !event.location?.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
       
@@ -235,94 +280,224 @@ const Events = () => {
             </p>
           </div>
           
+          <Button onClick={handleOpenModal} className="animated-button bg-primary hover:bg-primary/90">
+            <Plus className="mr-2 h-4 w-4" />
+            Nowe wydarzenie
+          </Button>
+          
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Nowe wydarzenie
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Utwórz nowe wydarzenie</DialogTitle>
+                <DialogTitle className="text-xl">Utwórz nowe wydarzenie</DialogTitle>
                 <DialogDescription>
-                  Wprowadź podstawowe informacje o wydarzeniu
+                  Wprowadź szczegóły wydarzenia, aby je utworzyć i zarządzać akredytacjami.
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nazwa wydarzenia</Label>
-                  <Input
-                    id="name"
-                    placeholder="Np. Konferencja Prasowa 2025"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-2">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nazwa wydarzenia</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Np. Konferencja Prasowa 2025" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Opis</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Krótki opis wydarzenia"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                  
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Typ wydarzenia</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Wybierz typ wydarzenia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="konferencja">Konferencja prasowa</SelectItem>
+                              <SelectItem value="premiera">Premiera</SelectItem>
+                              <SelectItem value="targi">Targi/Wystawa</SelectItem>
+                              <SelectItem value="warsztat">Warsztat/Szkolenie</SelectItem>
+                              <SelectItem value="inne">Inne</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="location">Lokalizacja</Label>
-                  <Input
-                    id="location"
-                    placeholder="Np. Centrum Konferencyjne, Warszawa"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data wydarzenia</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP", { locale: pl })
+                                  ) : (
+                                    <span>Wybierz datę</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                                className="p-3 pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Godzina rozpoczęcia</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input 
+                                type="time"
+                                className="pl-9"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Opis wydarzenia</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Opisz cel i program wydarzenia"
+                            className="min-h-[120px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Data wydarzenia</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP", { locale: pl }) : "Wybierz datę"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="publish"
-                    checked={isPublished}
-                    onCheckedChange={setIsPublished}
+                  
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lokalizacja</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              className="pl-9"
+                              placeholder="Np. Centrum Konferencyjne, Warszawa" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Label htmlFor="publish">Opublikuj od razu</Label>
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  Anuluj
-                </Button>
-                <Button onClick={handleCreateEvent}>Utwórz wydarzenie</Button>
-              </DialogFooter>
+                  
+                  <FormField
+                    control={form.control}
+                    name="maxGuests"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Maksymalna liczba gości</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              className="pl-9"
+                              type="number"
+                              min={1}
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Limit uczestników, których możesz zaprosić na wydarzenie
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="isPublished"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Opublikuj od razu</FormLabel>
+                          <FormDescription>
+                            Wydarzenie będzie natychmiast widoczne dla gości
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <DialogFooter className="pt-2">
+                    <Button variant="outline" onClick={() => setOpen(false)} type="button">
+                      Anuluj
+                    </Button>
+                    <Button type="submit">Utwórz wydarzenie</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
         </div>
@@ -344,12 +519,12 @@ const Events = () => {
             <div className="flex flex-wrap items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
                     <Filter className="mr-2 h-4 w-4" />
                     Filtruj
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem 
                     onClick={() => setActiveFilter("all")}
                     className={activeFilter === "all" ? "bg-secondary" : ""}
@@ -391,7 +566,7 @@ const Events = () => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
                     {sortBy === "date-desc" ? 
                       <SortDesc className="mr-2 h-4 w-4" /> : 
                       sortBy === "date-asc" ? 
@@ -449,17 +624,17 @@ const Events = () => {
         </div>
         
         {filteredAndSortedEvents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 dark:bg-slate-900/50 rounded-xl shadow-sm border p-8">
             <div className="rounded-full bg-muted p-4 mb-4">
               <Calendar className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold">Brak wydarzeń</h3>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2 max-w-md">
               {searchTerm ? 
                 "Nie znaleziono wydarzeń pasujących do twojego wyszukiwania." : 
                 "Nie masz żadnych wydarzeń. Utwórz nowe wydarzenie, aby rozpocząć."}
             </p>
-            <Button className="mt-4" onClick={() => setOpen(true)}>
+            <Button className="mt-4 animated-button" onClick={handleOpenModal}>
               <Plus className="mr-2 h-4 w-4" />
               Nowe wydarzenie
             </Button>

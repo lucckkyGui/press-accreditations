@@ -156,6 +156,10 @@
   .glass-card {
     @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-white/20 dark:border-slate-800/50 shadow-lg;
   }
+  
+  .animated-button {
+    @apply relative overflow-hidden transition-all duration-300 transform hover:translate-y-[-2px] active:translate-y-[1px] before:absolute before:left-0 before:top-0 before:w-full before:h-full before:bg-white/10 before:transform before:origin-left before:scale-x-0 before:transition-transform hover:before:scale-x-100;
+  }
 }
 
 @layer utilities {
