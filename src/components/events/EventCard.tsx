@@ -27,6 +27,10 @@ const EventCard = ({ event, guestCount = 0, onView, onEdit }: EventCardProps) =>
   const handleViewDetails = () => {
     navigate(`/events/${event.id}`);
   };
+  
+  const handleGoToNotifications = () => {
+    navigate(`/notifications/${event.id}`);
+  };
 
   return (
     <Card className="w-full hover:shadow-md transition-shadow">
@@ -59,12 +63,15 @@ const EventCard = ({ event, guestCount = 0, onView, onEdit }: EventCardProps) =>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-3 flex justify-between">
+      <CardFooter className="pt-3 flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={() => onEdit(event)}>
           Edytuj
         </Button>
         <Button size="sm" onClick={handleViewDetails}>
           Szczegóły
+        </Button>
+        <Button variant="secondary" size="sm" onClick={handleGoToNotifications}>
+          Powiadomienia
         </Button>
       </CardFooter>
     </Card>

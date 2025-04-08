@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import InvitationEditor from "./pages/InvitationEditor";
 import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
+import Notifications from "./pages/Notifications";
 
 // Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
@@ -89,6 +90,7 @@ const App = () => {
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
             <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+            <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
             <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
