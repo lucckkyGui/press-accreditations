@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Users, Bell, Eye } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -30,6 +30,16 @@ const EventCard = ({
     locale: pl,
   });
 
+  // Określenie statusu wydarzenia (przeszłe, aktualne, nadchodzące)
+  const now = new Date();
+  const eventDate = new Date(event.startDate);
+  let eventStatus = "nadchodzące";
+  if (eventDate < now) {
+    eventStatus = "przeszłe";
+  } else if (Math.abs(eventDate.getTime() - now.getTime()) < 24 * 60 * 60 * 1000) {
+    eventStatus = "aktualne";
+  }
+
   const handleViewDetails = () => {
     if (onViewDetails) {
       onViewDetails(event.id);
@@ -47,11 +57,19 @@ const EventCard = ({
       <CardHeader className="pb-3">
         <div className="flex justify-between">
           <CardTitle className="text-xl">{event.name}</CardTitle>
-          {event.isPublished ? (
-            <Badge>Opublikowane</Badge>
-          ) : (
-            <Badge variant="outline">Szkic</Badge>
-          )}
+          <div className="flex gap-2">
+            {event.isPublished ? (
+              <Badge>Opublikowane</Badge>
+            ) : (
+              <Badge variant="outline">Szkic</Badge>
+            )}
+            {eventStatus === "przeszłe" && (
+              <Badge variant="secondary">Zakończone</Badge>
+            )}
+            {eventStatus === "aktualne" && (
+              <Badge variant="destructive">Dzisiaj</Badge>
+            )}
+          </div>
         </div>
         <CardDescription className="truncate">{event.description}</CardDescription>
       </CardHeader>
@@ -78,10 +96,10 @@ const EventCard = ({
           Edytuj
         </Button>
         <Button size="sm" onClick={handleViewDetails}>
-          Szczegóły
+          <Eye className="h-4 w-4 mr-1" /> Szczegóły
         </Button>
         <Button variant="secondary" size="sm" onClick={handleGoToNotifications}>
-          Powiadomienia
+          <Bell className="h-4 w-4 mr-1" /> Powiadomienia
         </Button>
       </CardFooter>
     </Card>
