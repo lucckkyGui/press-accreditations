@@ -9,6 +9,7 @@ import GuestTable from "@/components/guests/GuestTable";
 import ImportGuestsDialog from "@/components/guests/ImportGuestsDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 
 const Guests = () => {
   const [guests, setGuests] = useState<Guest[]>([
@@ -139,15 +140,12 @@ const Guests = () => {
         
         <div className="flex flex-col md:flex-row gap-4 items-end">
           <div className="w-full md:w-72">
-            <div className="relative w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Szukaj po nazwisku, emailu..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8"
-              />
-            </div>
+            <InputWithIcon
+              placeholder="Szukaj po nazwisku, emailu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              icon={Search}
+            />
           </div>
           
           <div className="w-full md:w-48">
@@ -156,7 +154,7 @@ const Guests = () => {
                 <SelectValue placeholder="Wszystkie strefy" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Wszystkie strefy</SelectItem>
+                <SelectItem value="all">Wszystkie strefy</SelectItem>
                 <SelectItem value="general">Ogólna</SelectItem>
                 <SelectItem value="vip">VIP</SelectItem>
                 <SelectItem value="press">Press</SelectItem>
@@ -171,7 +169,7 @@ const Guests = () => {
                 <SelectValue placeholder="Wszystkie statusy" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Wszystkie statusy</SelectItem>
+                <SelectItem value="all">Wszystkie statusy</SelectItem>
                 <SelectItem value="invited">Zaproszeni</SelectItem>
                 <SelectItem value="confirmed">Potwierdzeni</SelectItem>
                 <SelectItem value="declined">Odrzuceni</SelectItem>
