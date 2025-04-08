@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Guest, GuestStatus, GuestZone } from "@/types";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, QrCode } from "lucide-react";
 import GuestTable from "@/components/guests/GuestTable";
 import ImportGuestsDialog from "@/components/guests/ImportGuestsDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -140,13 +139,15 @@ const Guests = () => {
         
         <div className="flex flex-col md:flex-row gap-4 items-end">
           <div className="w-full md:w-72">
-            <Input
-              placeholder="Szukaj po nazwisku, emailu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
-              icon={Search}
-            />
+            <div className="relative w-full">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Szukaj po nazwisku, emailu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8"
+              />
+            </div>
           </div>
           
           <div className="w-full md:w-48">
