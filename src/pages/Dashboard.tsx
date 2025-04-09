@@ -8,9 +8,24 @@ import { Calendar, CheckCircle, QrCode, Users } from "lucide-react";
 import { mockDashboardService } from "@/services/api/mockDashboardService";
 import { mockEventStatsService } from "@/services/api/mockEventStatsService";
 import { useQuery } from "@tanstack/react-query";
+import { SyncStatus } from "@/components/offline/SyncStatus";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month" | "year">("today");
+  const { isOnline, wasOffline } = useOnlineStatus();
+  
+  // Show toast when coming back online after being offline
+  useEffect(() => {
+    if (isOnline && wasOffline) {
+      toast({
+        title: "Połączenie przywrócone",
+        description: "Jesteś teraz online. Dane zostaną zsynchronizowane automatycznie.",
+        variant: "default",
+      });
+    }
+  }, [isOnline, wasOffline]);
 
   // Pobieranie statystyk dashboardu
   const { 
@@ -20,6 +35,10 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: () => mockDashboardService.getStats(),
+    // Nie odświeżaj automatycznie gdy offline
+    refetchOnWindowFocus: isOnline,
+    // Możemy używać cache'owanych danych przez dłuższy czas gdy offline
+    staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000, // 5 minut online, 1 godzina offline
   });
 
   // Pobieranie statystyk wydarzeń w zależności od wybranego zakresu czasu
@@ -30,6 +49,8 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['eventStats', timeRange],
     queryFn: () => mockEventStatsService.getEventStatsByTimeRange(timeRange),
+    refetchOnWindowFocus: isOnline,
+    staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000,
   });
 
   // Pobieranie ostatnich aktywności
@@ -40,6 +61,8 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['recentActivities'],
     queryFn: () => mockDashboardService.getRecentActivity(5),
+    refetchOnWindowFocus: isOnline,
+    staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000,
   });
 
   // Przygotowanie danych dla komponentów
@@ -64,15 +87,33 @@ const Dashboard = () => {
     setTimeRange(newRange);
   };
 
+  // Symulacja funkcji synchronizacji dla demonstracji
+  const handleSync = async () => {
+    // W rzeczywistej aplikacji tutaj byłaby synchronizacja z backendem
+    return new Promise<void>((resolve) => setTimeout(resolve, 1500));
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Przegląd wydarzeń i gości w systemie Press Acreditations.
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Przegląd wydarzeń i gości w systemie Press Acreditations.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <SyncStatus onSyncClick={handleSync} />
+          </div>
         </div>
+
+        {!isOnline && (
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4 text-amber-700 text-sm flex items-center">
+            <Calendar className="h-4 w-4 mr-2" />
+            <span>Pracujesz w trybie offline. Niektóre dane mogą być nieaktualne.</span>
+          </div>
+        )}
 
         {isStatsLoading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
