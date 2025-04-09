@@ -1,3 +1,4 @@
+
 export interface Event {
   id: string;
   name: string;
@@ -6,6 +7,8 @@ export interface Event {
   startDate: Date;
   organizerId: string;
   isPublished: boolean;
+  maxGuests?: number;
+  category?: string;
 }
 
 export type GuestZone = "vip" | "press" | "staff" | "general";
