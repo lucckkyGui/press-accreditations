@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiResponse } from '@/types/supabase';
 import { MigrationService } from '@/services/migration/migrationService';
@@ -77,7 +77,7 @@ export function useApiQuery<TData = any, TParams = any>(
   });
 
   // Zapisz dane do lokalnego cache jeśli offlineSupport jest włączony
-  React.useEffect(() => {
+  useEffect(() => {
     if (data && options?.offlineSupport) {
       const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify(params || {})}`;
       localStorage.setItem(cacheKey, JSON.stringify(data));
@@ -139,7 +139,8 @@ export function useApiMutation<TData = any, TParams = any>(
         
         // Zwróć symulowaną odpowiedź, aby aplikacja mogła działać dalej
         console.log(`Offline operation queued: ${operationType} - ${entity}`);
-        return { data: params } as ApiResponse<TData>;
+        // Konwersja typu, aby uniknąć błędu TypeScript
+        return params as unknown as TData;
       }
       
       // Jeśli jest połączenie, wykonaj normalną operację
@@ -149,13 +150,17 @@ export function useApiMutation<TData = any, TParams = any>(
       }
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: TData) => {
       // Invalidate query cache for related queries
       queryClient.invalidateQueries({ queryKey: [mutationKeyArray[0]] });
-      options?.onSuccess?.(data);
+      if (options?.onSuccess) {
+        options.onSuccess(data);
+      }
     },
     onError: (error) => {
-      options?.onError?.(error);
+      if (options?.onError) {
+        options.onError(error);
+      }
     },
   });
 
