@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,11 +5,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QrCode, ArrowLeft, CreditCard, Check } from "lucide-react";
+import { QrCode, ArrowLeft, CreditCard, Check, Building, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Definicja typów pakietów
 const packageDetails = {
@@ -57,8 +59,23 @@ const formSchema = z.object({
   firstName: z.string().min(2, { message: "Imię jest wymagane" }),
   lastName: z.string().min(2, { message: "Nazwisko jest wymagane" }),
   email: z.string().email({ message: "Nieprawidłowy adres email" }),
-  company: z.string().optional(),
   phone: z.string().min(9, { message: "Numer telefonu powinien mieć co najmniej 9 znaków" }),
+  isCompany: z.boolean().default(false),
+  company: z.string().optional(),
+  nip: z.string().optional(),
+  companyAddress: z.string().optional(),
+  companyCity: z.string().optional(),
+  companyPostalCode: z.string().optional(),
+  // Warunkowa walidacja danych firmowych
+}).refine((data) => {
+  // Jeśli zaznaczono firmę, NIP jest wymagany
+  if (data.isCompany) {
+    return !!data.nip && data.nip.length === 10;
+  }
+  return true;
+}, {
+  message: "NIP jest wymagany i powinien zawierać 10 cyfr",
+  path: ["nip"]
 });
 
 const Purchase = () => {
@@ -68,6 +85,7 @@ const Purchase = () => {
   const [selectedPackage, setSelectedPackage] = useState(location.state?.selectedPackage || "standard");
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [isPurchaseCompleted, setIsPurchaseCompleted] = useState(false);
+  const [isCompanyCollapsibleOpen, setIsCompanyCollapsibleOpen] = useState(false);
 
   // Inicjalizacja formularza
   const form = useForm({
@@ -76,10 +94,32 @@ const Purchase = () => {
       firstName: "",
       lastName: "",
       email: "",
-      company: "",
       phone: "",
+      isCompany: false,
+      company: "",
+      nip: "",
+      companyAddress: "",
+      companyCity: "",
+      companyPostalCode: "",
     },
   });
+
+  // Obserwuj zmiany w polu isCompany
+  const isCompany = form.watch("isCompany");
+
+  // Efekt obserwujący zmiany w polu isCompany
+  useEffect(() => {
+    setIsCompanyCollapsibleOpen(isCompany);
+    
+    // Jeśli odznaczono firmę, zresetuj pola firmowe
+    if (!isCompany) {
+      form.setValue("company", "");
+      form.setValue("nip", "");
+      form.setValue("companyAddress", "");
+      form.setValue("companyCity", "");
+      form.setValue("companyPostalCode", "");
+    }
+  }, [isCompany, form]);
 
   useEffect(() => {
     // Symulacja ładowania iframe bileterii
@@ -240,19 +280,6 @@ const Purchase = () => {
           />
           <FormField
             control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Firma (opcjonalnie)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nazwa firmy" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="phone"
             render={({ field }) => (
               <FormItem>
@@ -264,6 +291,115 @@ const Purchase = () => {
               </FormItem>
             )}
           />
+
+          <div className="border-t pt-4">
+            <FormField
+              control={form.control}
+              name="isCompany"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      id="isCompany"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel htmlFor="isCompany" className="flex items-center cursor-pointer">
+                      <Building className="mr-2 h-4 w-4" />
+                      Zakup na firmę (dane do faktury)
+                    </FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <Collapsible
+              open={isCompanyCollapsibleOpen}
+              onOpenChange={setIsCompanyCollapsibleOpen}
+              className={isCompany ? "border rounded-md p-4 bg-muted/30 mt-2" : ""}
+            >
+              {isCompany && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="company"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nazwa firmy</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nazwa firmy" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="nip"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NIP</FormLabel>
+                          <FormControl>
+                            <Input placeholder="NIP (10 cyfr)" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="companyAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Adres</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Ulica i numer" 
+                            className="resize-none" 
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="companyCity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Miasto</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Miasto" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="companyPostalCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kod pocztowy</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Kod pocztowy" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+            </Collapsible>
+          </div>
+
           <div className="flex justify-between">
             <Button type="button" variant="outline" onClick={() => setCurrentStep("package")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -308,6 +444,15 @@ const Purchase = () => {
               <span>Pakiet {packageDetails[selectedPackage].name}</span>
               <span>{packageDetails[selectedPackage].price} / miesiąc</span>
             </div>
+            {isCompany && (
+              <div className="mb-2 border-t pt-2">
+                <h4 className="font-medium">Dane do faktury:</h4>
+                <p>{form.getValues("company")}</p>
+                <p>NIP: {form.getValues("nip")}</p>
+                <p>{form.getValues("companyAddress")}</p>
+                <p>{form.getValues("companyPostalCode")} {form.getValues("companyCity")}</p>
+              </div>
+            )}
             <div className="border-t pt-2 flex justify-between font-bold">
               <span>Razem do zapłaty</span>
               <span>{packageDetails[selectedPackage].price}</span>
@@ -360,6 +505,17 @@ const Purchase = () => {
             <span className="text-muted-foreground">Kwota:</span>
             <span className="font-medium">{packageDetails[selectedPackage].price} / miesiąc</span>
           </div>
+          {isCompany && (
+            <div>
+              <div className="border-t pt-2 mt-2">
+                <h4 className="font-medium mb-2">Faktura zostanie wystawiona dla:</h4>
+                <p>{form.getValues("company")}</p>
+                <p>NIP: {form.getValues("nip")}</p>
+                <p>{form.getValues("companyAddress")}</p>
+                <p>{form.getValues("companyPostalCode")} {form.getValues("companyCity")}</p>
+              </div>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">ID zamówienia:</span>
             <span className="font-medium">{Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
