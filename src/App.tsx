@@ -16,6 +16,7 @@ import InvitationEditor from "./pages/InvitationEditor";
 import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
+import Purchase from "./pages/Purchase";
 
 // Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
@@ -86,6 +87,7 @@ const App = () => {
                 : <HomePage />
             } />
             <Route path="/login" element={<Login />} />
+            <Route path="/purchase" element={<Purchase />} />
             
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode, Users, Calendar } from "lucide-react";
 
-const PricingCard = ({ title, price, features, buttonText, isPrimary = false }) => (
+const PricingCard = ({ title, price, features, buttonText, isPrimary = false, onSelect }) => (
   <Card className={`flex flex-col ${isPrimary ? 'border-primary shadow-lg' : ''}`}>
     <CardHeader>
       <CardTitle>{title}</CardTitle>
@@ -33,7 +33,11 @@ const PricingCard = ({ title, price, features, buttonText, isPrimary = false }) 
       </ul>
     </CardContent>
     <CardFooter>
-      <Button className="w-full" variant={isPrimary ? "default" : "outline"}>
+      <Button 
+        className="w-full" 
+        variant={isPrimary ? "default" : "outline"}
+        onClick={onSelect}
+      >
         {buttonText}
       </Button>
     </CardFooter>
@@ -49,6 +53,10 @@ const HomePage = () => {
 
   const handleGuestLogin = () => {
     navigate("/login", { state: { role: "guest" } });
+  };
+  
+  const handleSelectPackage = (packageName) => {
+    navigate("/purchase", { state: { selectedPackage: packageName } });
   };
 
   return (
@@ -136,6 +144,7 @@ const HomePage = () => {
                 "Eksport listy gości",
               ]}
               buttonText="Wybierz pakiet"
+              onSelect={() => handleSelectPackage("basic")}
             />
             <PricingCard
               title="Standard"
@@ -149,6 +158,7 @@ const HomePage = () => {
               ]}
               buttonText="Wybierz pakiet"
               isPrimary={true}
+              onSelect={() => handleSelectPackage("standard")}
             />
             <PricingCard
               title="Premium"
@@ -162,6 +172,7 @@ const HomePage = () => {
                 "Wsparcie premium",
               ]}
               buttonText="Wybierz pakiet"
+              onSelect={() => handleSelectPackage("premium")}
             />
           </div>
         </section>
