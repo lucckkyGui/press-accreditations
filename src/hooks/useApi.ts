@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiResponse } from '@/types/supabase';
+import { ApiResponse } from '@/types/api/apiResponse';
 import { MigrationService } from '@/services/migration/migrationService';
 
 /**
@@ -139,7 +139,8 @@ export function useApiMutation<TData = any, TParams = any>(
         
         // Zwróć symulowaną odpowiedź, aby aplikacja mogła działać dalej
         console.log(`Offline operation queued: ${operationType} - ${entity}`);
-        // Konwersja typu, aby uniknąć błędu TypeScript
+        
+        // Zwraca dane wejściowe jako wynik - konieczne jest rzutowanie typów
         return params as unknown as TData;
       }
       

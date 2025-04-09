@@ -1,17 +1,23 @@
 
 import { 
-  ApiResponse, 
-  DashboardStats, 
-  EventDB, 
-  EventsQueryParams, 
-  EventStats, 
+  ApiResponse 
+} from '@/types/api/apiResponse';
+import { DashboardStats } from '@/types/dashboard/stats';
+import { 
+  EventDB,
+  EventsQueryParams,
+  EventStats
+} from '@/types/event/event';
+import { 
   GuestDB, 
-  GuestsQueryParams, 
+  GuestsQueryParams 
+} from '@/types/guest/guest'; 
+import { 
   NotificationDB, 
-  NotificationsQueryParams, 
-  ScanEntryDB,
-  EmailIntegrationConfig
-} from '@/types/supabase';
+  NotificationsQueryParams 
+} from '@/types/notification/notification';
+import { ScanEntryDB } from '@/types/scan/scan';
+import { EmailIntegrationConfig } from '@/types/user/user';
 
 export interface AuthService {
   login(email: string, password: string): Promise<ApiResponse<{ token: string; user: any }>>;

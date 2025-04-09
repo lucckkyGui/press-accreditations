@@ -1,18 +1,24 @@
 
-import { Notification, NotificationType, NotificationStatus } from "@/types/notifications";
-import { GuestZone, GuestStatus } from "@/types";
-import { PaginationParams, FilterParams } from "../api/apiResponse";
+import { NotificationType, NotificationStatus } from '@/types/notifications';
+import { GuestStatus, GuestZone } from '@/types';
+import { PaginationParams, FilterParams } from '../api/apiResponse';
 
 /**
  * Typy związane z powiadomieniami
  */
 
 // Rozszerzenie typu Notification o dodatkowe pola potrzebne w Supabase
-export interface NotificationDB extends Omit<Notification, "scheduledFor" | "sentAt"> {
+export interface NotificationDB {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  status: NotificationStatus;
   scheduledFor: string;
   sentAt?: string;
   createdAt: string;
   updatedAt: string;
+  eventId?: string;
   organizationId: string;
   createdBy: string;
   recipientFilter?: RecipientFilter;

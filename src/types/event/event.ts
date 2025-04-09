@@ -1,5 +1,6 @@
 
-import { Event } from "@/types";
+import { PaginationParams, FilterParams } from '../api/apiResponse';
+import { Event } from '@/types';
 
 /**
  * Typy związane z wydarzeniami
@@ -72,7 +73,6 @@ export interface CustomField {
   defaultValue?: any;
 }
 
-// Interfejsy dla statystyk i raportów
 export interface EventStats {
   totalGuests: number;
   checkedIn: number;
@@ -91,5 +91,3 @@ export interface EventsQueryParams extends PaginationParams, FilterParams {
   categoryId?: string;
   organizerId?: string;
 }
-
-import { PaginationParams, FilterParams } from "../api/apiResponse";

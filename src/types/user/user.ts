@@ -1,6 +1,6 @@
 
 /**
- * Typy związane z użytkownikami
+ * Typy związane z użytkownikami i organizacjami
  */
 
 export interface User {
