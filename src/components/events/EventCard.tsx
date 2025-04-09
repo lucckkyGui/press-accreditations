@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Bell, Eye, ArrowRight, Edit } from "lucide-react";
+import { Calendar, MapPin, Users, Bell, Edit, ArrowRight } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow, format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -57,7 +57,7 @@ const EventCard = ({
   };
 
   return (
-    <Card className="w-full overflow-hidden group hover:shadow-md transition-all duration-300 border-t-4 border-t-primary">
+    <Card className="w-full overflow-hidden hover:shadow-md transition-all duration-300 border-t-4 border-t-blue-500">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl line-clamp-1">{event.name}</CardTitle>
@@ -81,17 +81,17 @@ const EventCard = ({
       <CardContent className="pb-2">
         <div className="space-y-3 text-sm">
           <div className="flex items-center text-muted-foreground">
-            <Calendar className="h-4 w-4 mr-2 text-primary" />
+            <Calendar className="h-4 w-4 mr-2 text-blue-500" />
             <span className="font-medium">{format(new Date(event.startDate), "d MMMM yyyy, HH:mm", { locale: pl })}</span>
           </div>
           {event.location && (
             <div className="flex items-center text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-2 text-primary" />
+              <MapPin className="h-4 w-4 mr-2 text-blue-500" />
               <span className="truncate">{event.location}</span>
             </div>
           )}
           <div className="flex items-center text-muted-foreground">
-            <Users className="h-4 w-4 mr-2 text-primary" />
+            <Users className="h-4 w-4 mr-2 text-blue-500" />
             <span><span className="font-medium">{guestCount}</span> gości</span>
           </div>
         </div>
@@ -101,14 +101,14 @@ const EventCard = ({
           <Button variant="outline" size="sm" onClick={() => onEdit(event)} className="hover:bg-muted/50 transition-colors">
             <Edit className="h-3.5 w-3.5 mr-1" /> Edytuj
           </Button>
-          <Button variant="outline" size="sm" onClick={handleGoToNotifications} className="hover:bg-primary/10">
+          <Button variant="outline" size="sm" onClick={handleGoToNotifications} className="hover:bg-blue-50">
             <Bell className="h-3.5 w-3.5 mr-1" /> Powiadomienia
           </Button>
         </div>
         <Button 
           size="sm" 
           onClick={handleViewDetails} 
-          className="bg-primary hover:bg-primary/90 hover:translate-x-0.5 transition-all"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
         >
           Szczegóły <ArrowRight className="h-3.5 w-3.5 ml-1" />
         </Button>

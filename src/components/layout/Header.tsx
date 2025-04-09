@@ -38,7 +38,7 @@ const Header = () => {
   };
 
   return (
-    <header className="border-b bg-white dark:bg-slate-950 sticky top-0 z-10 shadow-sm">
+    <header className="border-b bg-white dark:bg-slate-900 sticky top-0 z-10">
       <div className="px-4 py-3 flex justify-between items-center max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
@@ -65,7 +65,7 @@ const Header = () => {
               <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">OA</AvatarFallback>
+                  <AvatarFallback className="bg-blue-500 text-white">OA</AvatarFallback>
                 </Avatar>
                 <span className="hidden md:inline font-medium">Organizator</span>
                 <ChevronDown className="h-4 w-4 opacity-70" />

@@ -11,7 +11,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-slate-950">
+      <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
@@ -20,7 +20,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {children}
             </div>
           </main>
-          <footer className="py-4 px-6 text-center text-sm text-muted-foreground border-t">
+          <footer className="py-3 px-6 text-center text-sm text-muted-foreground border-t">
             <p>&copy; {new Date().getFullYear()} Press Acreditations. Wszystkie prawa zastrzeżone.</p>
           </footer>
         </div>
