@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ interface GuestTableProps {
   onDelete: (guest: Guest) => void;
   onResendInvite: (guest: Guest) => void;
   onViewDetails: (guest: Guest) => void;
+  showEmailStatus?: boolean;
 }
 
 const GuestTable = ({ 
@@ -29,7 +29,8 @@ const GuestTable = ({
   onEdit, 
   onDelete, 
   onResendInvite,
-  onViewDetails 
+  onViewDetails,
+  showEmailStatus 
 }: GuestTableProps) => {
   // Helper functions to render badges with appropriate colors
   const renderZoneBadge = (zone: string) => {

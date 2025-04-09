@@ -14,6 +14,7 @@ import { QrCode } from "lucide-react";
 import { toast } from "sonner";
 import EventAttendanceStats from "@/components/events/EventAttendanceStats";
 import EventExport from "@/components/events/EventExport";
+import GuestDetails from "@/components/guests/GuestDetails";
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -23,6 +24,8 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [currentQRGuest, setCurrentQRGuest] = useState<Guest | null>(null);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [guestDetailsOpen, setGuestDetailsOpen] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   
   // Symulacja pobierania danych dla MVP
   useEffect(() => {
@@ -133,6 +136,11 @@ const EventDetails = () => {
     // W rzeczywistej aplikacji tutaj byłaby logika ponownej wysyłki
   };
 
+  const handleViewDetails = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setGuestDetailsOpen(true);
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -240,7 +248,7 @@ const EventDetails = () => {
               onEdit={handleEditGuest}
               onDelete={handleDeleteGuest}
               onResendInvite={handleResendInvite}
-              showEmailStatus={true}
+              onViewDetails={handleViewDetails}
             />
           </TabsContent>
           
@@ -254,7 +262,7 @@ const EventDetails = () => {
               onEdit={handleEditGuest}
               onDelete={handleDeleteGuest}
               onResendInvite={handleResendInvite}
-              showEmailStatus={true}
+              onViewDetails={handleViewDetails}
             />
           </TabsContent>
           
@@ -268,7 +276,7 @@ const EventDetails = () => {
               onEdit={handleEditGuest}
               onDelete={handleDeleteGuest}
               onResendInvite={handleResendInvite}
-              showEmailStatus={true}
+              onViewDetails={handleViewDetails}
             />
           </TabsContent>
         </Tabs>
@@ -306,6 +314,12 @@ const EventDetails = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <GuestDetails 
+        guest={selectedGuest} 
+        open={guestDetailsOpen} 
+        onOpenChange={setGuestDetailsOpen} 
+      />
     </MainLayout>
   );
 };
