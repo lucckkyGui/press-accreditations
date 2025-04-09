@@ -92,9 +92,11 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-6">
           <GuestStatusChart data={chartData} />
-          <RecentActivity activities={recentActivities} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <RecentActivity activities={recentActivities} />
+          </div>
         </div>
       </div>
     </MainLayout>

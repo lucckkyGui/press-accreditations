@@ -25,45 +25,58 @@ const EventAttendanceStats = ({
   const declinedPercent = Math.round((declined / total) * 100) || 0;
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="pb-3">
-        <CardTitle>Statystyki obecności</CardTitle>
+        <CardTitle className="flex justify-between items-center flex-wrap gap-2">
+          <span>Statystyki obecności</span>
+          <span className="text-sm font-normal text-muted-foreground">
+            Łącznie: {total} osób
+          </span>
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6 sm:space-y-4">
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Obecni</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
+            <div className="flex items-center">
+              <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+              <span>Obecni</span>
+            </div>
             <span className="font-medium">{checkedIn} / {total} ({checkedInPercent}%)</span>
           </div>
           <Progress value={checkedInPercent} className="h-2 bg-muted" />
-          <div className="h-1 w-full bg-green-500 rounded-full" style={{ width: `${checkedInPercent}%` }} />
         </div>
         
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Potwierdzeni</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
+            <div className="flex items-center">
+              <span className="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+              <span>Potwierdzeni</span>
+            </div>
             <span className="font-medium">{confirmed} / {total} ({confirmedPercent}%)</span>
           </div>
           <Progress value={confirmedPercent} className="h-2 bg-muted" />
-          <div className="h-1 w-full bg-blue-500 rounded-full" style={{ width: `${confirmedPercent}%` }} />
         </div>
         
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Zaproszeni</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
+            <div className="flex items-center">
+              <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mr-2"></span>
+              <span>Zaproszeni</span>
+            </div>
             <span className="font-medium">{invited} / {total} ({invitedPercent}%)</span>
           </div>
           <Progress value={invitedPercent} className="h-2 bg-muted" />
-          <div className="h-1 w-full bg-amber-500 rounded-full" style={{ width: `${invitedPercent}%` }} />
         </div>
         
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Odrzuceni</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
+            <div className="flex items-center">
+              <span className="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+              <span>Odrzuceni</span>
+            </div>
             <span className="font-medium">{declined} / {total} ({declinedPercent}%)</span>
           </div>
           <Progress value={declinedPercent} className="h-2 bg-muted" />
-          <div className="h-1 w-full bg-red-500 rounded-full" style={{ width: `${declinedPercent}%` }} />
         </div>
       </CardContent>
     </Card>
