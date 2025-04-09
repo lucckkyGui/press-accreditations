@@ -6,6 +6,7 @@ import GuestStatusChart from "@/components/dashboard/GuestStatusChart";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import { Calendar, CheckCircle, QrCode, Users } from "lucide-react";
 import { mockDashboardService } from "@/services/api/mockDashboardService";
+import { mockEventStatsService } from "@/services/api/mockEventStatsService";
 import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
@@ -28,7 +29,7 @@ const Dashboard = () => {
     error: eventStatsError 
   } = useQuery({
     queryKey: ['eventStats', timeRange],
-    queryFn: () => mockDashboardService.getEventStatsByTimeRange(timeRange),
+    queryFn: () => mockEventStatsService.getEventStatsByTimeRange(timeRange),
   });
 
   // Pobieranie ostatnich aktywności
