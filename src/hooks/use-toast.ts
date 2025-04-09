@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -126,30 +127,39 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
+// Create a context for the toast state and functions
 const ToastContext = React.createContext<{
   toasts: ToasterToast[]
-  toast: (props: Omit<ToasterToast, "id">) => void
+  toast: (props: Omit<ToasterToast, "id">) => string
   dismiss: (toastId?: string) => void
 }>({
   toasts: [],
-  toast: () => {},
+  toast: () => "",
   dismiss: () => {},
 })
 
+// Create a dispatch function outside of any component
+let dispatch: React.Dispatch<Action> = () => {};
+
 export const ToastProvider = (props: { children: React.ReactNode }) => {
-  const [state, dispatch] = React.useReducer(reducer, { toasts: [] })
+  const [state, dispatchState] = React.useReducer(reducer, { toasts: [] });
+  
+  // Update the global dispatch reference
+  React.useEffect(() => {
+    dispatch = dispatchState;
+  }, [dispatchState]);
 
   const toast = React.useCallback((props: Omit<ToasterToast, "id">) => {
     const id = genId()
 
-    dispatch({
+    dispatchState({
       type: "ADD_TOAST",
       toast: {
         ...props,
         id,
         open: true,
         onOpenChange: (open) => {
-          if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
+          if (!open) dispatchState({ type: "DISMISS_TOAST", toastId: id })
         },
       },
     })
@@ -158,7 +168,7 @@ export const ToastProvider = (props: { children: React.ReactNode }) => {
   }, [])
 
   const dismiss = React.useCallback((toastId?: string) => {
-    dispatch({ type: "DISMISS_TOAST", toastId })
+    dispatchState({ type: "DISMISS_TOAST", toastId })
   }, [])
 
   return (
@@ -179,11 +189,33 @@ export function useToast() {
   return context
 }
 
+// For external usage without hooks
 export const toast = (props: Omit<ToasterToast, "id">) => {
+  const id = genId();
+  
+  // Only dispatch if the function is available
+  if (typeof dispatch === "function") {
+    dispatch({
+      type: "ADD_TOAST",
+      toast: {
+        ...props,
+        id,
+        open: true,
+        onOpenChange: (open) => {
+          if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
+        },
+      },
+    });
+  }
+
   return {
     ...props,
-    id: genId(),
-    dismiss: () => {},
-    update: () => {},
+    id,
+    dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: id }),
+    update: (props: Omit<ToasterToast, "id">) =>
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: { ...props, id },
+      }),
   }
 }
