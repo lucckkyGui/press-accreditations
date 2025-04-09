@@ -2,7 +2,7 @@ import * as React from "react";
 import { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 5;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_REMOVE_DELAY = 5000; // Changed from 1000000 to 5000ms (5 seconds)
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -187,12 +187,4 @@ function useToast() {
   };
 }
 
-type ToastProviderProps = {
-  children: React.ReactNode;
-};
-
-const ToastProvider = ({ children }: ToastProviderProps) => {
-  return <>{children}</>;
-};
-
-export { useToast, toast, ToastProvider };
+export { useToast, toast };
