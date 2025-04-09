@@ -2,22 +2,12 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Guest } from "@/types";
+import { ScanEntry } from "@/types/scanner";
 import QRScanner from "@/components/scanner/QRScanner";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, Check, Cloud, CloudOff, Wifi, WifiOff } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-
-interface ScanEntry {
-  id: string;
-  guest: Guest;
-  timestamp: Date;
-  successful: boolean;
-  synced: boolean;
-}
+import OfflineIndicator from "@/components/scanner/OfflineIndicator";
+import StatsCards from "@/components/scanner/StatsCards";
+import ScanHistoryList from "@/components/scanner/ScanHistoryList";
 
 const Scanner = () => {
   const [scanHistory, setScanHistory] = useState<ScanEntry[]>([]);
@@ -64,6 +54,13 @@ const Scanner = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+  
+  // Obserwowanie pendingScans by automatycznie synchronizować po powrocie online
+  useEffect(() => {
+    if (isOnline && pendingScans.length > 0 && !isSyncing) {
+      syncPendingScans();
+    }
+  }, [isOnline, pendingScans.length]);
   
   // Nowa funkcja ładująca historię skanowania z localStorage
   const loadScanHistory = () => {
@@ -221,177 +218,33 @@ const Scanner = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            {isOnline ? (
-              <div className="flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                <Wifi className="text-green-500 h-4 w-4 mr-2" />
-                <span className="text-sm text-green-700">Online</span>
-              </div>
-            ) : (
-              <div className="flex items-center px-3 py-1 bg-amber-50 border border-amber-200 rounded-full">
-                <WifiOff className="text-amber-500 h-4 w-4 mr-2" />
-                <span className="text-sm text-amber-700">Offline</span>
-              </div>
-            )}
-            
-            {pendingScans.length > 0 && (
-              <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
-                {pendingScans.length} oczekujących
-              </Badge>
-            )}
+            <OfflineIndicator 
+              isOnline={isOnline}
+              pendingScans={pendingScans.length}
+              isSyncing={isSyncing}
+              syncProgress={syncProgress}
+              lastSyncTime={lastSyncTime}
+              onSyncClick={syncPendingScans}
+            />
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1 space-y-4">
             <QRScanner onScanSuccess={handleScanSuccess} />
-            
-            {pendingScans.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center">
-                    <CloudOff className="h-4 w-4 mr-2 text-amber-500" />
-                    Dane offline
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span>{pendingScans.length} skanów do synchronizacji</span>
-                    {lastSyncTime && (
-                      <span className="text-xs text-muted-foreground">
-                        Ostatnia synchronizacja: {lastSyncTime.toLocaleTimeString()}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {isSyncing ? (
-                    <div className="space-y-2">
-                      <Progress value={syncProgress} className="h-2" />
-                      <div className="text-xs text-center text-muted-foreground">
-                        Synchronizacja: {syncProgress}%
-                      </div>
-                    </div>
-                  ) : (
-                    <Button 
-                      onClick={syncPendingScans}
-                      disabled={!isOnline || isSyncing}
-                      className="w-full gap-2"
-                    >
-                      <Cloud className="h-4 w-4" />
-                      {isOnline ? "Synchronizuj dane" : "Połącz z internetem, aby synchronizować"}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Karta statusu synchronizacji */}
-            {isOnline && lastSyncTime && (
-              <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
-                <div className="flex items-center">
-                  <Check className="h-4 w-4 mr-1 text-green-500" />
-                  <span>Wszystkie dane zsynchronizowane</span>
-                </div>
-                <span className="text-xs">
-                  {lastSyncTime.toLocaleString()}
-                </span>
-              </div>
-            )}
           </div>
           
           <div className="md:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-center text-2xl">{stats.total}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-center text-sm text-muted-foreground">
-                  Łącznie skanów
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-center text-2xl text-green-600">{stats.successful}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-center text-sm text-muted-foreground">
-                  Wejścia zatwierdzone
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="py-3">
-                  <CardTitle className="text-center text-2xl text-red-600">{stats.failed}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-center text-sm text-muted-foreground">
-                  Wejścia odrzucone
-                </CardContent>
-              </Card>
-            </div>
+            <StatsCards 
+              total={stats.total}
+              successful={stats.successful}
+              failed={stats.failed}
+            />
             
-            <Card>
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <CardTitle>Historia skanowań</CardTitle>
-                <Button variant="ghost" size="sm" onClick={clearHistory}>
-                  Wyczyść
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {scanHistory.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Brak historii skanowań
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-3">
-                      {scanHistory.map((entry) => (
-                        <div 
-                          key={entry.id}
-                          className={`p-3 rounded-md flex justify-between items-start border ${
-                            entry.successful ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div>
-                            <div className="font-medium flex items-center">
-                              {entry.guest.firstName} {entry.guest.lastName}
-                              <Badge 
-                                className={`ml-2 ${
-                                  entry.guest.zone === "vip" ? "bg-amber-500" :
-                                  entry.guest.zone === "press" ? "bg-blue-500" :
-                                  entry.guest.zone === "staff" ? "bg-purple-500" :
-                                  "bg-green-500"
-                                }`}
-                              >
-                                {entry.guest.zone}
-                              </Badge>
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {entry.guest.company}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs text-muted-foreground">
-                              {entry.timestamp.toLocaleTimeString()}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant={entry.successful ? "default" : "destructive"}>
-                                {entry.successful ? "Zatwierdzone" : "Odrzucone"}
-                              </Badge>
-                              
-                              {!entry.synced && (
-                                <span className="flex items-center text-xs text-amber-600">
-                                  <AlertCircle className="h-3 w-3 mr-1" />
-                                  Niezsynch.
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
+            <ScanHistoryList 
+              scanHistory={scanHistory}
+              onClearHistory={clearHistory}
+            />
           </div>
         </div>
       </div>
