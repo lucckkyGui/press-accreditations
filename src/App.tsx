@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,7 +17,6 @@ import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
-import { ToastProvider } from "@/hooks/use-toast";
 
 // Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
