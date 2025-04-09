@@ -1,221 +1,110 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Dashboard from "./pages/Dashboard";
+import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
+import Guests from "./pages/Guests";
+import Scanner from "./pages/Scanner";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
+import InvitationEditor from "./pages/InvitationEditor";
+import Login from "./pages/Login";
+import HomePage from "./pages/HomePage";
+import Notifications from "./pages/Notifications";
+import Purchase from "./pages/Purchase";
+import { ToastProvider } from "@/hooks/use-toast";
 
-import * as React from "react"
+// Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
+const App = () => {
+  // Utworzenie instancji QueryClient wewnątrz komponentu
+  const [queryClient] = useState(() => new QueryClient());
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+  // Prosty komponent do ochrony tras
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 5000
+    useEffect(() => {
+      // Sprawdzamy, czy użytkownik jest zalogowany - w MVP używamy lokalnego storage
+      const checkAuth = () => {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const role = localStorage.getItem("userRole");
+        setIsAuthenticated(isLoggedIn);
+        setUserRole(role);
+        setIsLoading(false);
+      };
 
-type ToasterToast = ToastProps & {
-  id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: ToastActionElement
-}
+      checkAuth();
+    }, []);
 
-const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
-
-let count = 0
-
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
-}
-
-type ActionType = typeof actionTypes
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: ToasterToast
-    }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<ToasterToast>
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId?: ToasterToast["id"]
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId?: ToasterToast["id"]
+    if (isLoading) {
+      return <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>;
     }
 
-interface State {
-  toasts: ToasterToast[]
-}
+    if (!isAuthenticated) {
+      return <Navigate to="/login" />;
+    }
 
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
-
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
-
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
-    })
-  }, TOAST_REMOVE_DELAY)
-
-  toastTimeouts.set(toastId, timeout)
-}
-
-export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_TOAST":
-      return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      }
-
-    case "UPDATE_TOAST":
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case "DISMISS_TOAST": {
-      const { toastId } = action
-
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
-      }
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-                ...t,
-                open: false,
-              }
-            : t
-        ),
+    // Dla gości dozwolone są tylko niektóre ścieżki
+    if (userRole === "guest") {
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/scanner") {
+        return <Navigate to="/scanner" />;
       }
     }
-    case "REMOVE_TOAST":
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
-        }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
-  }
-}
 
-// Create a context for the toast state and functions
-const ToastContext = React.createContext<{
-  toasts: ToasterToast[]
-  toast: (props: Omit<ToasterToast, "id">) => string
-  dismiss: (toastId?: string) => void
-}>({
-  toasts: [],
-  toast: () => "",
-  dismiss: () => {},
-})
+    return <>{children}</>;
+  };
 
-// Create a dispatch function outside of any component
-let dispatch: React.Dispatch<Action> = () => {};
-
-export const ToastProvider = (props: { children: React.ReactNode }) => {
-  const [state, dispatchState] = React.useReducer(reducer, { toasts: [] });
-  
-  // Update the global dispatch reference
-  React.useEffect(() => {
-    dispatch = dispatchState;
-  }, [dispatchState]);
-
-  const toast = React.useCallback((props: Omit<ToasterToast, "id">) => {
-    const id = genId()
-
-    dispatchState({
-      type: "ADD_TOAST",
-      toast: {
-        ...props,
-        id,
-        open: true,
-        onOpenChange: (open) => {
-          if (!open) dispatchState({ type: "DISMISS_TOAST", toastId: id })
-        },
-      },
-    })
-
-    return id
-  }, [])
-
-  const dismiss = React.useCallback((toastId?: string) => {
-    dispatchState({ type: "DISMISS_TOAST", toastId })
-  }, [])
+  // Komponent trasy dla gości
+  const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+    const userRole = localStorage.getItem("userRole");
+    
+    if (userRole === "guest") {
+      return <>{children}</>;
+    }
+    
+    return <Navigate to="/" />;
+  };
 
   return (
-    <ToastContext.Provider
-      value={{ toasts: state.toasts, toast, dismiss }}
-      {...props}
-    />
-  )
-}
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ToastProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={
+                localStorage.getItem("isLoggedIn") === "true" 
+                  ? <Dashboard /> 
+                  : <HomePage />
+              } />
+              <Route path="/login" element={<Login />} />
+              <Route path="/purchase" element={<Purchase />} />
+              
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+              <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+              <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+              <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
+              <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
-export function useToast() {
-  const context = React.useContext(ToastContext)
-
-  if (context === undefined) {
-    throw new Error("useToast must be used within a ToastProvider")
-  }
-
-  return context
-}
-
-// For external usage without hooks
-export const toast = (props: Omit<ToasterToast, "id">) => {
-  const id = genId();
-  
-  // Only dispatch if the function is available
-  if (typeof dispatch === "function") {
-    dispatch({
-      type: "ADD_TOAST",
-      toast: {
-        ...props,
-        id,
-        open: true,
-        onOpenChange: (open) => {
-          if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
-        },
-      },
-    });
-  }
-
-  return {
-    ...props,
-    id,
-    dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: id }),
-    update: (props: Omit<ToasterToast, "id">) =>
-      dispatch({
-        type: "UPDATE_TOAST",
-        toast: { ...props, id },
-      }),
-  }
-}
+export default App;
