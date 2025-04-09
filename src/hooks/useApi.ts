@@ -91,7 +91,7 @@ export function useApiMutation<TData = any, TParams = any>(
   const {
     mutate,
     mutateAsync,
-    isLoading,
+    isPending, // Changed from isLoading to isPending
     isError,
     error,
     reset,
@@ -118,7 +118,7 @@ export function useApiMutation<TData = any, TParams = any>(
   return {
     mutate,
     mutateAsync,
-    isLoading,
+    isLoading: isPending, // Map isPending to isLoading to maintain interface compatibility
     isError,
     error,
     reset,
