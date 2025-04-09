@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,50 +11,96 @@ interface GuestStatusChartProps {
     value: number;
     color: string;
   }[];
+  timeRange?: "today" | "week" | "month" | "year";
+  onTimeRangeChange?: (range: "today" | "week" | "month" | "year") => void;
+  additionalData?: {
+    attendanceByTime?: Array<{ time: string; guests: number }>;
+    guestsByZone?: Array<{ zone: string; count: number; color: string }>;
+    responseRates?: Array<{ 
+      [key: string]: string | number;
+      responseRate: number; 
+      averageResponseTime: number 
+    }>;
+  };
 }
 
-// Dane dla zaawansowanych statystyk
-const attendanceByTimeData = [
-  { time: '9:00', guests: 0 },
-  { time: '10:00', guests: 12 },
-  { time: '11:00', guests: 28 },
-  { time: '12:00', guests: 35 },
-  { time: '13:00', guests: 42 },
-  { time: '14:00', guests: 56 },
-  { time: '15:00', guests: 72 },
-  { time: '16:00', guests: 81 },
-  { time: '17:00', guests: 95 },
-  { time: '18:00', guests: 110 },
-  { time: '19:00', guests: 125 },
-  { time: '20:00', guests: 137 },
-];
+const GuestStatusChart = ({ 
+  data, 
+  timeRange = "today", 
+  onTimeRangeChange,
+  additionalData = {}
+}: GuestStatusChartProps) => {
+  const [chartType, setChartType] = React.useState<string>("status");
 
-const guestsByZoneData = [
-  { zone: 'VIP', count: 35, color: '#8884d8' },
-  { zone: 'Press', count: 45, color: '#82ca9d' },
-  { zone: 'Staff', count: 28, color: '#ffc658' },
-  { zone: 'General', count: 140, color: '#ff8042' },
-];
+  // Przygotowanie danych dla wykresów
+  const attendanceByTimeData = additionalData?.attendanceByTime || [
+    { time: '9:00', guests: 0 },
+    { time: '10:00', guests: 12 },
+    { time: '11:00', guests: 28 },
+    { time: '12:00', guests: 35 },
+    { time: '13:00', guests: 42 },
+    { time: '14:00', guests: 56 },
+    { time: '15:00', guests: 72 },
+    { time: '16:00', guests: 81 },
+    { time: '17:00', guests: 95 },
+    { time: '18:00', guests: 110 },
+    { time: '19:00', guests: 125 },
+    { time: '20:00', guests: 137 },
+  ];
 
-const guestResponseRateData = [
-  { month: 'Styczeń', responseRate: 65, averageResponseTime: 36 },
-  { month: 'Luty', responseRate: 68, averageResponseTime: 32 },
-  { month: 'Marzec', responseRate: 72, averageResponseTime: 28 },
-  { month: 'Kwiecień', responseRate: 75, averageResponseTime: 24 },
-  { month: 'Maj', responseRate: 78, averageResponseTime: 22 },
-  { month: 'Czerwiec', responseRate: 82, averageResponseTime: 18 },
-];
+  const guestsByZoneData = additionalData?.guestsByZone || [
+    { zone: 'VIP', count: 35, color: '#8884d8' },
+    { zone: 'Press', count: 45, color: '#82ca9d' },
+    { zone: 'Staff', count: 28, color: '#ffc658' },
+    { zone: 'General', count: 140, color: '#ff8042' },
+  ];
 
-const GuestStatusChart = ({ data }: GuestStatusChartProps) => {
-  const [chartType, setChartType] = useState<string>("status");
-  const [timeRange, setTimeRange] = useState<string>("today");
+  const guestResponseRateData = additionalData?.responseRates || [
+    { month: 'Styczeń', responseRate: 65, averageResponseTime: 36 },
+    { month: 'Luty', responseRate: 68, averageResponseTime: 32 },
+    { month: 'Marzec', responseRate: 72, averageResponseTime: 28 },
+    { month: 'Kwiecień', responseRate: 75, averageResponseTime: 24 },
+    { month: 'Maj', responseRate: 78, averageResponseTime: 22 },
+    { month: 'Czerwiec', responseRate: 82, averageResponseTime: 18 },
+  ];
+
+  // Obsługa zmiany zakresu czasu
+  const handleTimeRangeChange = (value: string) => {
+    if (onTimeRangeChange) {
+      onTimeRangeChange(value as "today" | "week" | "month" | "year");
+    }
+  };
+
+  // Dynamiczne określanie etykiety osi X dla wykresu czasu
+  const getTimeAxisLabel = () => {
+    switch (timeRange) {
+      case "today": return "Godzina";
+      case "week": return "Dzień tygodnia";
+      case "month": return "Dzień miesiąca";
+      case "year": return "Miesiąc";
+      default: return "Czas";
+    }
+  };
+
+  // Dynamiczne określanie etykiety dla danych wskaźnika odpowiedzi
+  const getResponseRateLabel = () => {
+    const fieldKey = Object.keys(guestResponseRateData[0] || {}).find(k => 
+      k !== 'responseRate' && k !== 'averageResponseTime'
+    ) || '';
+    
+    switch (timeRange) {
+      case "month": return "Dzień";
+      case "year": return "Miesiąc";
+      default: return fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1);
+    }
+  };
 
   return (
     <Card className="col-span-1 md:col-span-3">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <CardTitle>Analiza gości</CardTitle>
         <div className="flex items-center space-x-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={handleTimeRangeChange}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Wybierz okres" />
             </SelectTrigger>
@@ -115,8 +161,8 @@ const GuestStatusChart = ({ data }: GuestStatusChartProps) => {
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis />
+                <XAxis dataKey="time" label={{ value: getTimeAxisLabel(), position: 'insideBottomRight', offset: -5 }} />
+                <YAxis label={{ value: 'Liczba gości', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Legend />
                 <Line
@@ -167,7 +213,12 @@ const GuestStatusChart = ({ data }: GuestStatusChartProps) => {
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis 
+                  dataKey={Object.keys(guestResponseRateData[0] || {}).find(k => 
+                    k !== 'responseRate' && k !== 'averageResponseTime'
+                  ) || ''} 
+                  label={{ value: getResponseRateLabel(), position: 'insideBottomRight', offset: -5 }}
+                />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip />
@@ -197,7 +248,7 @@ const GuestStatusChart = ({ data }: GuestStatusChartProps) => {
             {chartType === "status" && "Proporcje gości według aktualnego statusu"}
             {chartType === "timeline" && "Dynamika przybywania gości w czasie"}
             {chartType === "zones" && "Rozkład gości według stref dostępu"}
-            {chartType === "response" && "Miesięczne dane o odpowiedziach na zaproszenia"}
+            {chartType === "response" && "Dane o odpowiedziach na zaproszenia"}
           </p>
         </div>
       </CardContent>
