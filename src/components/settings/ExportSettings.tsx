@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { FileDown, FileJson, FileCsv, FileArchive, Loader2 } from "lucide-react";
+import { FileDown, FileJson, Files, FileArchive, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const ExportSettings = () => {
@@ -57,7 +57,7 @@ const ExportSettings = () => {
             <SelectContent>
               <SelectItem value="csv">
                 <div className="flex items-center">
-                  <FileCsv className="mr-2 h-4 w-4" />
+                  <Files className="mr-2 h-4 w-4" />
                   <span>CSV</span>
                 </div>
               </SelectItem>

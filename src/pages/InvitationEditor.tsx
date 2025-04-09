@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,13 @@ import { Separator } from "@/components/ui/separator";
 import { Check, Download, Eye, File, Image, Layout, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import InvitationTemplates, { TemplateType } from "@/components/invitations/InvitationTemplates";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 const InvitationEditor = () => {
   const [subject, setSubject] = useState("Zaproszenie na Event XYZ");
@@ -360,7 +366,6 @@ Zespół Organizacyjny`
               }}
             >
               <div className="space-y-6">
-                {/* Taki sam kod jak w podglądzie */}
                 {invitationTemplate === "elegant" && (
                   <div 
                     className="h-1 w-32 mx-auto mb-4"

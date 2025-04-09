@@ -87,7 +87,7 @@ const UserManagement = () => {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "viewer" as const,
+    role: "viewer" as "admin" | "editor" | "viewer",
   });
 
   const handleAddUser = () => {

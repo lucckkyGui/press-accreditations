@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Guest, GuestStatus, GuestZone } from "@/types";
-import { Download, Mail, Plus, Search, Trash2, Upload, UserCheck, Users, X } from "lucide-react";
+import { Download, Mail, Plus, Search, Trash2, Upload, UserCheck, Users, X, FileDown } from "lucide-react";
 import GuestTable from "@/components/guests/GuestTable";
 import ImportGuestsDialog from "@/components/guests/ImportGuestsDialog";
 import GuestDetails from "@/components/guests/GuestDetails";
@@ -431,7 +430,7 @@ const Guests = () => {
               <div className="bg-white p-4 rounded-md">
                 {/* W rzeczywistej aplikacji tutaj byłby rzeczywisty kod QR */}
                 <div className="h-48 w-48 bg-gray-200 flex items-center justify-center">
-                  <QrCode className="h-32 w-32 text-primary" />
+                  <FileDown className="h-32 w-32 text-primary" />
                 </div>
               </div>
               
