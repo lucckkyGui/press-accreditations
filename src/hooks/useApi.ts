@@ -22,10 +22,11 @@ interface UseApiResponse<TData = any, TParams = any> {
   refetch: () => void;
 }
 
+// Update the interface to support both isLoading and isPending for compatibility
 interface UseApiMutationResponse<TData = any, TParams = any> {
   mutate: (params: TParams) => void;
   mutateAsync: (params: TParams) => Promise<ApiResponse<TData>>;
-  isLoading: boolean;
+  isLoading: boolean; // We'll map isPending to this
   isError: boolean;
   error: any;
   reset: () => void;
