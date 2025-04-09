@@ -7,6 +7,7 @@ import { Guest, GuestStatus, GuestZone } from "@/types";
 import { Plus, Search, QrCode } from "lucide-react";
 import GuestTable from "@/components/guests/GuestTable";
 import ImportGuestsDialog from "@/components/guests/ImportGuestsDialog";
+import GuestDetails from "@/components/guests/GuestDetails";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { InputWithIcon } from "@/components/ui/input-with-icon";
@@ -69,6 +70,8 @@ const Guests = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentQRGuest, setCurrentQRGuest] = useState<Guest | null>(null);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
 
   const filteredGuests = guests.filter((guest) => {
     const matchesSearch =
@@ -97,6 +100,11 @@ const Guests = () => {
   const handleViewQR = (guest: Guest) => {
     setCurrentQRGuest(guest);
     setQrDialogOpen(true);
+  };
+
+  const handleViewDetails = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setDetailsDialogOpen(true);
   };
 
   const handleEditGuest = (guest: Guest) => {
@@ -185,6 +193,7 @@ const Guests = () => {
           onEdit={handleEditGuest}
           onDelete={handleDeleteGuest}
           onResendInvite={handleResendInvite}
+          onViewDetails={handleViewDetails}
         />
       </div>
       
@@ -220,6 +229,12 @@ const Guests = () => {
           )}
         </DialogContent>
       </Dialog>
+      
+      <GuestDetails 
+        guest={selectedGuest} 
+        open={detailsDialogOpen} 
+        onOpenChange={setDetailsDialogOpen} 
+      />
     </MainLayout>
   );
 };

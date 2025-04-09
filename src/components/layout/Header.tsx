@@ -22,7 +22,7 @@ const Header = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userRole");
     toast.success("Wylogowano pomyślnie");
-    navigate("/");
+    navigate("/login");
   };
   
   const handleProfileClick = () => {

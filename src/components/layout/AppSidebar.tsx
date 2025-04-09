@@ -17,7 +17,7 @@ const menuItems = [
   {
     title: "Dashboard",
     description: "Przegląd ogólny",
-    url: "/",
+    url: "/dashboard",
     icon: BarChart3,
   },
   {

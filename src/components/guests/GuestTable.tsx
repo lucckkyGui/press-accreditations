@@ -1,23 +1,18 @@
 
 import React from "react";
-import { Guest, GuestStatus, GuestZone } from "@/types";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Guest } from "@/types";
 import { Badge } from "@/components/ui/badge";
-import { 
+import { MoreHorizontal, QrCode, Edit, Trash, Send, User } from "lucide-react";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger 
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, QrCode, Send } from "lucide-react";
 
 interface GuestTableProps {
   guests: Guest[];
@@ -25,125 +20,140 @@ interface GuestTableProps {
   onEdit: (guest: Guest) => void;
   onDelete: (guest: Guest) => void;
   onResendInvite: (guest: Guest) => void;
-  showEmailStatus?: boolean;
+  onViewDetails: (guest: Guest) => void;
 }
 
-const GuestTable = ({
-  guests,
-  onViewQR,
-  onEdit,
-  onDelete,
+const GuestTable = ({ 
+  guests, 
+  onViewQR, 
+  onEdit, 
+  onDelete, 
   onResendInvite,
-  showEmailStatus = false,
+  onViewDetails 
 }: GuestTableProps) => {
-  const getStatusBadge = (status: GuestStatus) => {
-    switch (status) {
-      case "invited":
-        return <Badge variant="outline">Zaproszony</Badge>;
-      case "confirmed":
-        return <Badge variant="secondary">Potwierdzony</Badge>;
-      case "declined":
-        return <Badge variant="destructive">Odrzucony</Badge>;
-      case "checked-in":
-        return <Badge variant="default">Obecny</Badge>;
-      default:
-        return null;
-    }
+  // Helper functions to render badges with appropriate colors
+  const renderZoneBadge = (zone: string) => {
+    const zoneColors = {
+      general: "bg-gray-500",
+      vip: "bg-purple-500",
+      press: "bg-blue-500",
+      staff: "bg-green-500",
+    };
+
+    const color = zoneColors[zone as keyof typeof zoneColors] || "bg-gray-500";
+    const label = {
+      general: "Ogólna",
+      vip: "VIP",
+      press: "Press",
+      staff: "Staff",
+    }[zone as keyof typeof zoneColors] || zone;
+
+    return <Badge className={`${color}`}>{label}</Badge>;
   };
 
-  const getEmailStatusBadge = (status?: string) => {
-    switch (status) {
-      case "sent":
-        return <Badge variant="outline" className="bg-gray-100">Wysłano</Badge>;
-      case "opened":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Otwarto</Badge>;
-      case "failed":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Błąd</Badge>;
-      default:
-        return <Badge variant="outline" className="bg-gray-100">Nieznany</Badge>;
-    }
-  };
+  const renderStatusBadge = (status: string) => {
+    const statusColors = {
+      invited: "bg-yellow-500",
+      confirmed: "bg-green-500",
+      declined: "bg-red-500",
+      "checked-in": "bg-blue-500",
+    };
 
-  const getZoneBadge = (zone: GuestZone) => {
-    switch (zone) {
-      case "vip":
-        return <Badge className="bg-amber-500">VIP</Badge>;
-      case "press":
-        return <Badge className="bg-blue-500">Press</Badge>;
-      case "staff":
-        return <Badge className="bg-purple-500">Staff</Badge>;
-      case "general":
-      default:
-        return <Badge className="bg-green-500">General</Badge>;
-    }
+    const color = statusColors[status as keyof typeof statusColors] || "bg-gray-500";
+    const label = {
+      invited: "Zaproszony",
+      confirmed: "Potwierdzony",
+      declined: "Odrzucony",
+      "checked-in": "Obecny",
+    }[status as keyof typeof statusColors] || status;
+
+    return <Badge className={`${color}`}>{label}</Badge>;
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="border rounded-md">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Imię i Nazwisko</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Firma</TableHead>
-            <TableHead>Strefa</TableHead>
-            <TableHead>Status</TableHead>
-            {showEmailStatus && <TableHead>Status e-mail</TableHead>}
-            <TableHead className="w-[100px]">QR</TableHead>
+            <TableHead>Imię i nazwisko</TableHead>
+            <TableHead className="hidden md:table-cell">Email</TableHead>
+            <TableHead className="hidden lg:table-cell">Firma</TableHead>
+            <TableHead className="hidden sm:table-cell">Strefa</TableHead>
+            <TableHead className="hidden sm:table-cell">Status</TableHead>
             <TableHead className="text-right">Akcje</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {guests.map((guest) => (
-            <TableRow key={guest.id}>
-              <TableCell>
-                {guest.firstName} {guest.lastName}
-              </TableCell>
-              <TableCell>{guest.email}</TableCell>
-              <TableCell>{guest.company || "-"}</TableCell>
-              <TableCell>{getZoneBadge(guest.zone)}</TableCell>
-              <TableCell>{getStatusBadge(guest.status)}</TableCell>
-              {showEmailStatus && <TableCell>{getEmailStatusBadge(guest.emailStatus)}</TableCell>}
-              <TableCell>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onViewQR(guest)}
-                >
-                  <QrCode className="h-4 w-4" />
-                </Button>
-              </TableCell>
-              <TableCell className="text-right flex justify-end items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onResendInvite(guest)}
-                  className="flex gap-1"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                  Wyślij
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit(guest)}>
-                      Edytuj
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-destructive"
-                      onClick={() => onDelete(guest)}
-                    >
-                      Usuń
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          {guests.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                Brak gości do wyświetlenia
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            guests.map((guest) => (
+              <TableRow key={guest.id} className="cursor-pointer hover:bg-muted/50" onClick={() => onViewDetails(guest)}>
+                <TableCell>
+                  <div className="font-medium">
+                    {guest.firstName} {guest.lastName}
+                  </div>
+                  <div className="text-sm text-muted-foreground md:hidden">
+                    {guest.email}
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">{guest.email}</TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  {guest.company || "-"}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  {renderZoneBadge(guest.zone)}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  {renderStatusBadge(guest.status)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Otwórz menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[160px]">
+                        <DropdownMenuLabel>Akcje</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => onViewDetails(guest)}>
+                          <User className="mr-2 h-4 w-4" />
+                          Szczegóły
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onViewQR(guest)}>
+                          <QrCode className="mr-2 h-4 w-4" />
+                          Pokaż QR
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(guest)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edytuj
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => onResendInvite(guest)}>
+                          <Send className="mr-2 h-4 w-4" />
+                          Wyślij ponownie
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-500 focus:text-red-500"
+                          onClick={() => onDelete(guest)}
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Usuń
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
