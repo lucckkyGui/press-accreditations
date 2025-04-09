@@ -16,6 +16,22 @@ export interface User {
   createdAt: Date;
   lastActive?: Date;
   organizationId?: string;
+  avatarUrl?: string;
+  preferences?: UserPreferences;
+}
+
+export interface UserPreferences {
+  theme?: "light" | "dark" | "system";
+  language?: string;
+  notifications?: NotificationPreferences;
+  dashboardLayout?: Record<string, any>;
+}
+
+export interface NotificationPreferences {
+  email?: boolean;
+  push?: boolean;
+  sms?: boolean;
+  frequency?: "immediately" | "daily" | "weekly";
 }
 
 export interface Organization {
@@ -27,6 +43,9 @@ export interface Organization {
   ownerId: string;
   createdAt: Date;
   updatedAt: Date;
+  logoUrl?: string;
+  contactEmail?: string;
+  members?: User[];
 }
 
 export interface OrganizationSettings {
@@ -39,6 +58,11 @@ export interface OrganizationSettings {
       secondary?: string;
     };
   };
+  scannerSettings?: {
+    autoCheckIn?: boolean;
+    notifyOnScan?: boolean;
+    scanSound?: boolean;
+  };
 }
 
 export interface EmailIntegrationConfig {
@@ -47,6 +71,16 @@ export interface EmailIntegrationConfig {
   fromEmail?: string;
   fromName?: string;
   enabled: boolean;
+  templates?: EmailTemplateConfig[];
+}
+
+export interface EmailTemplateConfig {
+  id: string;
+  name: string;
+  type: "invitation" | "reminder" | "confirmation" | "custom";
+  subject: string;
+  content: string;
+  isDefault?: boolean;
 }
 
 // Rozszerzenie typu Event o dodatkowe pola potrzebne w Supabase
@@ -58,6 +92,35 @@ export interface EventDB extends Omit<Event, "startDate"> {
   createdAt: string;
   updatedAt: string;
   settings?: EventSettings;
+  venue?: Venue;
+  ticketTypes?: TicketType[];
+  attendanceStats?: EventStats;
+  isActive?: boolean;
+}
+
+export interface Venue {
+  name: string;
+  address: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  capacity?: number;
+  mapUrl?: string;
+}
+
+export interface TicketType {
+  id: string;
+  name: string;
+  description?: string;
+  price?: number;
+  capacity?: number;
+  available?: number;
+  color?: string;
 }
 
 export interface EventSettings {
@@ -70,6 +133,11 @@ export interface EventSettings {
     sendReminders?: boolean;
     reminderHours?: number[];
   };
+  checkInSettings?: {
+    allowMultipleCheckins?: boolean;
+    requireIdentification?: boolean;
+    requireConfirmation?: boolean;
+  };
 }
 
 export interface CustomField {
@@ -78,6 +146,8 @@ export interface CustomField {
   type: "text" | "number" | "select" | "checkbox" | "date";
   required: boolean;
   options?: string[]; // dla typu select
+  placeholder?: string;
+  defaultValue?: any;
 }
 
 // Rozszerzenie typu Guest o dodatkowe pola potrzebne w Supabase
@@ -92,6 +162,11 @@ export interface GuestDB extends Omit<Guest, "invitationSentAt" | "invitationOpe
   notes?: string;
   plusOneCount?: number;
   plusOneNames?: string[];
+  ticketTypeId?: string;
+  invitationId?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  tags?: string[];
 }
 
 // Rozszerzenie typu Notification o dodatkowe pola potrzebne w Supabase
@@ -102,6 +177,24 @@ export interface NotificationDB extends Omit<Notification, "scheduledFor" | "sen
   updatedAt: string;
   organizationId: string;
   createdBy: string;
+  recipientFilter?: RecipientFilter;
+  templateId?: string;
+  deliveryStats?: {
+    sent: number;
+    delivered: number;
+    opened: number;
+    clicked: number;
+    failed: number;
+  };
+}
+
+export interface RecipientFilter {
+  eventIds?: string[];
+  zones?: GuestZone[];
+  statuses?: GuestStatus[];
+  tags?: string[];
+  customFields?: Record<string, any>;
+  excludeGuests?: string[];
 }
 
 // Rozszerzenie typu ScanEntry o dodatkowe pola potrzebne w Supabase
@@ -111,6 +204,13 @@ export interface ScanEntryDB extends Omit<ScanEntry, "timestamp"> {
   scannedBy: string;
   location?: string;
   createdAt: string;
+  deviceInfo?: {
+    type: string;
+    os: string;
+    browser?: string;
+  };
+  verificationMethod?: "qr" | "manual" | "face" | "id";
+  scanResult?: "success" | "duplicate" | "expired" | "invalid";
 }
 
 /**
@@ -124,6 +224,12 @@ export interface ApiResponse<T = any> {
     message: string;
     code?: string;
     details?: any;
+  };
+  meta?: {
+    count?: number;
+    totalCount?: number;
+    page?: number;
+    totalPages?: number;
   };
 }
 
@@ -142,18 +248,27 @@ export interface FilterParams {
 export interface EventsQueryParams extends PaginationParams, FilterParams {
   status?: "upcoming" | "past" | "all";
   published?: boolean;
+  startDate?: string;
+  endDate?: string;
+  categoryId?: string;
+  organizerId?: string;
 }
 
 export interface GuestsQueryParams extends PaginationParams, FilterParams {
   status?: GuestStatus | "all";
   zone?: GuestZone | "all";
   eventId?: string;
+  emailStatus?: GuestEmailStatus | "all";
+  ticketTypeId?: string;
+  tags?: string[];
 }
 
 export interface NotificationsQueryParams extends PaginationParams, FilterParams {
   status?: NotificationStatus | "all";
   type?: NotificationType | "all";
   eventId?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Interfejsy dla statystyk i raportów
@@ -187,4 +302,24 @@ export interface DashboardStats {
     eventId?: string;
     eventName?: string;
   }>;
+}
+
+// Dodatkowe typy do synchronizacji danych offline
+export interface SyncOperation {
+  id: string;
+  type: "create" | "update" | "delete";
+  entity: "guest" | "event" | "notification" | "scan";
+  entityId: string;
+  data: any;
+  timestamp: string;
+  status: "pending" | "synced" | "failed";
+  error?: string;
+}
+
+// Interfejs do obsługi zapisywania i odczytywania danych z lokalnego storage
+export interface LocalStorageService {
+  set(key: string, value: any): void;
+  get<T>(key: string): T | null;
+  remove(key: string): void;
+  clear(): void;
 }
