@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, RotateCw } from "lucide-react";
 import { useMigration } from '@/services/migration/migrationService';
@@ -56,49 +56,47 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center gap-2">
-            {isOnline ? (
-              <Wifi className="h-4 w-4 text-green-500" />
-            ) : (
-              <WifiOff className="h-4 w-4 text-red-500" />
-            )}
-            
-            {pendingCount > 0 && (
-              <>
-                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                  {pendingCount}
-                </Badge>
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleSync}
-                  disabled={!isOnline || isSyncing}
-                  className="h-8 w-8 p-0"
-                >
-                  <RotateCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span className="sr-only">Synchronizuj</span>
-                </Button>
-              </>
-            )}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>
-            {isOnline 
-              ? 'Połączony z siecią' 
-              : 'Tryb offline - zmiany zostaną zsynchronizowane po połączeniu'}
-          </p>
-          {pendingCount > 0 && (
-            <p className="text-xs text-yellow-600">
-              {pendingCount} {pendingCount === 1 ? 'operacja czeka' : 'operacji czeka'} na synchronizację
-            </p>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-2">
+          {isOnline ? (
+            <Wifi className="h-4 w-4 text-green-500" />
+          ) : (
+            <WifiOff className="h-4 w-4 text-red-500" />
           )}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+          
+          {pendingCount > 0 && (
+            <>
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                {pendingCount}
+              </Badge>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleSync}
+                disabled={!isOnline || isSyncing}
+                className="h-8 w-8 p-0"
+              >
+                <RotateCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span className="sr-only">Synchronizuj</span>
+              </Button>
+            </>
+          )}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          {isOnline 
+            ? 'Połączony z siecią' 
+            : 'Tryb offline - zmiany zostaną zsynchronizowane po połączeniu'}
+        </p>
+        {pendingCount > 0 && (
+          <p className="text-xs text-yellow-600">
+            {pendingCount} {pendingCount === 1 ? 'operacja czeka' : 'operacji czeka'} na synchronizację
+          </p>
+        )}
+      </TooltipContent>
+    </Tooltip>
   );
 }
