@@ -4,16 +4,20 @@ import MainLayout from "@/components/layout/MainLayout";
 import StatCard from "@/components/dashboard/StatCard";
 import GuestStatusChart from "@/components/dashboard/GuestStatusChart";
 import RecentActivity from "@/components/dashboard/RecentActivity";
-import { Calendar, CheckCircle, QrCode, Users } from "lucide-react";
+import DatabaseSchema from "@/components/database/DatabaseSchema";
+import { Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle } from "lucide-react";
 import { mockDashboardService } from "@/services/api/mockDashboardService";
 import { mockEventStatsService } from "@/services/api/mockEventStatsService";
 import { useQuery } from "@tanstack/react-query";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { toast } from "@/hooks/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month" | "year">("today");
+  const [activeTab, setActiveTab] = useState<"overview" | "schema">("overview");
   const { isOnline, wasOffline } = useOnlineStatus();
   
   // Show toast when coming back online after being offline
@@ -27,7 +31,7 @@ const Dashboard = () => {
     }
   }, [isOnline, wasOffline]);
 
-  // Pobieranie statystyk dashboardu
+  // Fetch dashboard stats
   const { 
     data: dashboardStats,
     isLoading: isStatsLoading,
@@ -35,13 +39,13 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: () => mockDashboardService.getStats(),
-    // Nie odświeżaj automatycznie gdy offline
+    // Don't auto-refresh when offline
     refetchOnWindowFocus: isOnline,
-    // Możemy używać cache'owanych danych przez dłuższy czas gdy offline
-    staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000, // 5 minut online, 1 godzina offline
+    // We can use cached data for longer when offline
+    staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000, // 5 minutes online, 1 hour offline
   });
 
-  // Pobieranie statystyk wydarzeń w zależności od wybranego zakresu czasu
+  // Fetch event stats based on selected time range
   const { 
     data: eventStats,
     isLoading: isEventStatsLoading,
@@ -53,7 +57,7 @@ const Dashboard = () => {
     staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000,
   });
 
-  // Pobieranie ostatnich aktywności
+  // Fetch recent activities
   const { 
     data: recentActivityData,
     isLoading: isActivitiesLoading,
@@ -65,7 +69,7 @@ const Dashboard = () => {
     staleTime: isOnline ? 5 * 60 * 1000 : 60 * 60 * 1000,
   });
 
-  // Przygotowanie danych dla komponentów
+  // Prepare data for components
   const statData = {
     totalGuests: dashboardStats?.data?.totalGuests || 0,
     checkedIn: dashboardStats?.data?.checkInStats?.today || 0,
@@ -82,21 +86,21 @@ const Dashboard = () => {
 
   const activities = recentActivityData?.data || [];
 
-  // Handler zmiany zakresu czasu dla statystyk
+  // Handler for time range change for stats
   const handleTimeRangeChange = (newRange: "today" | "week" | "month" | "year") => {
     setTimeRange(newRange);
   };
 
-  // Symulacja funkcji synchronizacji dla demonstracji
+  // Simulate sync function for demonstration
   const handleSync = async () => {
-    // W rzeczywistej aplikacji tutaj byłaby synchronizacja z backendem
+    // In a real app, this would synchronize with the backend
     return new Promise<void>((resolve) => setTimeout(resolve, 1500));
   };
 
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap justify-between items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
@@ -109,76 +113,98 @@ const Dashboard = () => {
         </div>
 
         {!isOnline && (
-          <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4 text-amber-700 text-sm flex items-center">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span>Pracujesz w trybie offline. Niektóre dane mogą być nieaktualne.</span>
-          </div>
+          <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-900">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-800">Tryb offline</AlertTitle>
+            <AlertDescription className="text-amber-700">
+              Pracujesz w trybie offline. Niektóre dane mogą być nieaktualne. Zmiany zostaną zsynchronizowane po przywróceniu połączenia.
+            </AlertDescription>
+          </Alert>
         )}
 
-        {isStatsLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 rounded-lg bg-muted animate-pulse"></div>
-            ))}
-          </div>
-        ) : statsError ? (
-          <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
-            Wystąpił błąd podczas pobierania statystyk. Spróbuj odświeżyć stronę.
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Wszyscy goście"
-              value={statData.totalGuests}
-              icon={<Users className="h-5 w-5" />}
-            />
-            <StatCard
-              title="Obecni goście"
-              value={statData.checkedIn}
-              icon={<CheckCircle className="h-5 w-5" />}
-              description={`${statData.totalGuests > 0 ? Math.round((statData.checkedIn / statData.totalGuests) * 100) : 0}% wszystkich zaproszonych`}
-            />
-            <StatCard
-              title="Nadchodzące wydarzenia"
-              value={statData.upcomingEvents}
-              icon={<Calendar className="h-5 w-5" />}
-            />
-            <StatCard
-              title="Zeskanowani dziś"
-              value={statData.scannedToday}
-              icon={<QrCode className="h-5 w-5" />}
-            />
-          </div>
-        )}
-
-        <div className="grid gap-6">
-          {isEventStatsLoading ? (
-            <div className="h-80 rounded-lg bg-muted animate-pulse"></div>
-          ) : eventStatsError ? (
-            <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
-              Wystąpił błąd podczas pobierania statystyk wydarzeń. Spróbuj odświeżyć stronę.
-            </div>
-          ) : (
-            <GuestStatusChart 
-              data={chartData} 
-              timeRange={timeRange} 
-              onTimeRangeChange={handleTimeRangeChange}
-              additionalData={eventStats?.data || {}}
-            />
-          )}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "overview" | "schema")} className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              <span>Przegląd</span>
+            </TabsTrigger>
+            <TabsTrigger value="schema" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              <span>Struktura bazy danych</span>
+            </TabsTrigger>
+          </TabsList>
           
-          <div className="grid gap-6 md:grid-cols-2">
-            {isActivitiesLoading ? (
-              <div className="h-80 rounded-lg bg-muted animate-pulse"></div>
-            ) : activitiesError ? (
+          <TabsContent value="overview">
+            {isStatsLoading ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-32 rounded-lg bg-muted animate-pulse"></div>
+                ))}
+              </div>
+            ) : statsError ? (
               <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
-                Wystąpił błąd podczas pobierania ostatnich aktywności. Spróbuj odświeżyć stronę.
+                Wystąpił błąd podczas pobierania statystyk. Spróbuj odświeżyć stronę.
               </div>
             ) : (
-              <RecentActivity activities={activities} />
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Wszyscy goście"
+                  value={statData.totalGuests}
+                  icon={<Users className="h-5 w-5" />}
+                />
+                <StatCard
+                  title="Obecni goście"
+                  value={statData.checkedIn}
+                  icon={<CheckCircle className="h-5 w-5" />}
+                  description={`${statData.totalGuests > 0 ? Math.round((statData.checkedIn / statData.totalGuests) * 100) : 0}% wszystkich zaproszonych`}
+                />
+                <StatCard
+                  title="Nadchodzące wydarzenia"
+                  value={statData.upcomingEvents}
+                  icon={<Calendar className="h-5 w-5" />}
+                />
+                <StatCard
+                  title="Zeskanowani dziś"
+                  value={statData.scannedToday}
+                  icon={<QrCode className="h-5 w-5" />}
+                />
+              </div>
             )}
-          </div>
-        </div>
+
+            <div className="grid gap-6 mt-6">
+              {isEventStatsLoading ? (
+                <div className="h-80 rounded-lg bg-muted animate-pulse"></div>
+              ) : eventStatsError ? (
+                <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+                  Wystąpił błąd podczas pobierania statystyk wydarzeń. Spróbuj odświeżyć stronę.
+                </div>
+              ) : (
+                <GuestStatusChart 
+                  data={chartData} 
+                  timeRange={timeRange} 
+                  onTimeRangeChange={handleTimeRangeChange}
+                  additionalData={eventStats?.data || {}}
+                />
+              )}
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                {isActivitiesLoading ? (
+                  <div className="h-80 rounded-lg bg-muted animate-pulse"></div>
+                ) : activitiesError ? (
+                  <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+                    Wystąpił błąd podczas pobierania ostatnich aktywności. Spróbuj odświeżyć stronę.
+                  </div>
+                ) : (
+                  <RecentActivity activities={activities} />
+                )}
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="schema">
+            <DatabaseSchema />
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
