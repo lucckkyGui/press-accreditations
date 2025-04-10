@@ -11,8 +11,8 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <SidebarProvider>
-      <TooltipProvider>
+    <TooltipProvider>
+      <SidebarProvider>
         <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
           <AppSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -27,8 +27,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </footer>
           </div>
         </div>
-      </TooltipProvider>
-    </SidebarProvider>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 };
 
