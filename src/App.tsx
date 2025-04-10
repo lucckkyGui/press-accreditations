@@ -1,10 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
@@ -17,6 +15,7 @@ import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const App = () => {
   // Create a new QueryClient instance
