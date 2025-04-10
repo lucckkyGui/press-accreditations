@@ -75,8 +75,8 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <Routes>
@@ -98,8 +98,8 @@ const App = () => {
             <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
