@@ -18,19 +18,18 @@ import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
 
-// Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
-  // Utworzenie instancji QueryClient wewnątrz komponentu
+  // Create a new QueryClient instance
   const [queryClient] = useState(() => new QueryClient());
 
-  // Prosty komponent do ochrony tras
+  // Simple component for protected routes
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
-      // Sprawdzamy, czy użytkownik jest zalogowany - w MVP używamy lokalnego storage
+      // Check if user is logged in - using localStorage in MVP
       const checkAuth = () => {
         const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
         const role = localStorage.getItem("userRole");
@@ -52,7 +51,7 @@ const App = () => {
       return <Navigate to="/login" />;
     }
 
-    // Dla gości dozwolone są tylko niektóre ścieżki
+    // For guests, only certain paths are allowed
     if (userRole === "guest") {
       const currentPath = window.location.pathname;
       if (currentPath !== "/scanner") {
@@ -63,7 +62,7 @@ const App = () => {
     return <>{children}</>;
   };
 
-  // Komponent trasy dla gości
+  // Guest route component
   const GuestRoute = ({ children }: { children: React.ReactNode }) => {
     const userRole = localStorage.getItem("userRole");
     
@@ -77,29 +76,27 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={
-              localStorage.getItem("isLoggedIn") === "true" 
-                ? <Dashboard /> 
-                : <HomePage />
-            } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/purchase" element={<Purchase />} />
-            
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-            <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-            <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-            <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
-            <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
-            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
-          </Routes>
-        </TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
+          <Route path="/" element={
+            localStorage.getItem("isLoggedIn") === "true" 
+              ? <Dashboard /> 
+              : <HomePage />
+          } />
+          <Route path="/login" element={<Login />} />
+          <Route path="/purchase" element={<Purchase />} />
+          
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+          <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+          <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+          <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
+          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+        </Routes>
       </BrowserRouter>
     </QueryClientProvider>
   );
