@@ -14,8 +14,8 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <SidebarProvider>
-      <TooltipProvider>
-        <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
+      <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <AppSidebar />
@@ -30,8 +30,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <p>&copy; {new Date().getFullYear()} Press Acreditations. Wszystkie prawa zastrzeżone.</p>
             </footer>
           </div>
-        </div>
-      </TooltipProvider>
+        </TooltipProvider>
+      </div>
     </SidebarProvider>
   );
 };
