@@ -1,6 +1,7 @@
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -16,20 +17,20 @@ import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
+// Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
-  // Create a new QueryClient instance
+  // Utworzenie instancji QueryClient wewnątrz komponentu
   const [queryClient] = useState(() => new QueryClient());
 
-  // Simple component for protected routes
+  // Prosty komponent do ochrony tras
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
-      // Check if user is logged in - using localStorage in MVP
+      // Sprawdzamy, czy użytkownik jest zalogowany - w MVP używamy lokalnego storage
       const checkAuth = () => {
         const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
         const role = localStorage.getItem("userRole");
@@ -51,7 +52,7 @@ const App = () => {
       return <Navigate to="/login" />;
     }
 
-    // For guests, only certain paths are allowed
+    // Dla gości dozwolone są tylko niektóre ścieżki
     if (userRole === "guest") {
       const currentPath = window.location.pathname;
       if (currentPath !== "/scanner") {
@@ -62,7 +63,7 @@ const App = () => {
     return <>{children}</>;
   };
 
-  // Guest route component
+  // Komponent trasy dla gości
   const GuestRoute = ({ children }: { children: React.ReactNode }) => {
     const userRole = localStorage.getItem("userRole");
     
@@ -75,10 +76,10 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
           <Routes>
             <Route path="/" element={
               localStorage.getItem("isLoggedIn") === "true" 
@@ -98,8 +99,8 @@ const App = () => {
             <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>
-        </TooltipProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
