@@ -1,9 +1,8 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
@@ -17,19 +16,18 @@ import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
 
-// Przeniesienie inicjalizacji QueryClient do wnętrza komponentu App
 const App = () => {
-  // Utworzenie instancji QueryClient wewnątrz komponentu
+  // Create QueryClient instance inside component
   const [queryClient] = useState(() => new QueryClient());
 
-  // Prosty komponent do ochrony tras
+  // Simple component for route protection
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
-      // Sprawdzamy, czy użytkownik jest zalogowany - w MVP używamy lokalnego storage
+      // Check if user is logged in - using local storage in MVP
       const checkAuth = () => {
         const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
         const role = localStorage.getItem("userRole");
@@ -51,7 +49,7 @@ const App = () => {
       return <Navigate to="/login" />;
     }
 
-    // Dla gości dozwolone są tylko niektóre ścieżki
+    // Guests are only allowed certain paths
     if (userRole === "guest") {
       const currentPath = window.location.pathname;
       if (currentPath !== "/scanner") {
@@ -59,18 +57,7 @@ const App = () => {
       }
     }
 
-    return <>{children}</>;
-  };
-
-  // Komponent trasy dla gości
-  const GuestRoute = ({ children }: { children: React.ReactNode }) => {
-    const userRole = localStorage.getItem("userRole");
-    
-    if (userRole === "guest") {
-      return <>{children}</>;
-    }
-    
-    return <Navigate to="/" />;
+    return <MainLayout>{children}</MainLayout>;
   };
 
   return (
@@ -79,7 +66,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={
             localStorage.getItem("isLoggedIn") === "true" 
-              ? <Dashboard /> 
+              ? <MainLayout><Dashboard /></MainLayout>
               : <HomePage />
           } />
           <Route path="/login" element={<Login />} />

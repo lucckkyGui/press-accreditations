@@ -82,7 +82,6 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
   const StatusIcon = isOnline ? Wifi : WifiOff;
   const statusColor = isOnline ? "text-green-500" : "text-red-500";
   
-  // Fix: Using proper JSX instead of dynamic component naming
   const iconToRender = isSyncing ? <CloudSun className="h-4 w-4" /> : <StatusIcon className="h-4 w-4" />;
 
   return (
