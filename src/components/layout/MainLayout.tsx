@@ -13,9 +13,9 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
-      <SidebarProvider>
-        <TooltipProvider>
+    <TooltipProvider>
+      <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
+        <SidebarProvider>
           <AppSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
             <Header />
@@ -28,11 +28,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <p>&copy; {new Date().getFullYear()} Press Acreditations. Wszystkie prawa zastrzeżone.</p>
             </footer>
           </div>
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </SidebarProvider>
-    </div>
+        </SidebarProvider>
+      </div>
+      <Toaster />
+      <Sonner />
+    </TooltipProvider>
   );
 };
 
