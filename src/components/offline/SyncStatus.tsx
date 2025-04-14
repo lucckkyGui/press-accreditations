@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, WifiOff, RotateCw, CloudSync } from "lucide-react";
+import { Wifi, WifiOff, RotateCw, CloudSun } from "lucide-react";
 import { useMigration } from '@/services/migration/migrationService';
 import { Progress } from "@/components/ui/progress";
 
@@ -81,7 +81,9 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
   // Determine icon and status color
   const StatusIcon = isOnline ? Wifi : WifiOff;
   const statusColor = isOnline ? "text-green-500" : "text-red-500";
-  const iconToShow = isSyncing ? CloudSync : StatusIcon;
+  
+  // Fix: Using proper JSX instead of dynamic component naming
+  const iconToRender = isSyncing ? <CloudSun className="h-4 w-4" /> : <StatusIcon className="h-4 w-4" />;
 
   return (
     <div className="flex flex-col">
@@ -89,7 +91,7 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
         <TooltipTrigger asChild>
           <div className="flex items-center gap-2 bg-white/10 px-2 py-1 rounded-md">
             <div className={`${isSyncing ? 'text-blue-500 animate-pulse' : statusColor}`}>
-              {iconToShow && <iconToShow className="h-4 w-4" />}
+              {iconToRender}
             </div>
             
             {pendingCount > 0 && (
