@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
+import Index from "./pages/Index";
 
 const App = () => {
   // Create QueryClient instance inside component
@@ -64,11 +65,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={
-            localStorage.getItem("isLoggedIn") === "true" 
-              ? <Navigate to="/dashboard" />
-              : <HomePage />
-          } />
+          <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/purchase" element={<Purchase />} />
           

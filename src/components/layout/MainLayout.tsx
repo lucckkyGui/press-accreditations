@@ -3,9 +3,9 @@ import React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,11 +13,9 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
+    <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
+      <SidebarProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
           <AppSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
             <Header />
@@ -30,9 +28,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <p>&copy; {new Date().getFullYear()} Press Acreditations. Wszystkie prawa zastrzeżone.</p>
             </footer>
           </div>
+          <Toaster />
+          <Sonner />
         </TooltipProvider>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </div>
   );
 };
 

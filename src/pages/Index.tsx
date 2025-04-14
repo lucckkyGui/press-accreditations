@@ -10,7 +10,7 @@ const Index = () => {
     return <Navigate to="/dashboard" />;
   }
   
-  return <Navigate to="/" />;
+  return <Navigate to="/login" />;
 };
 
 export default Index;
