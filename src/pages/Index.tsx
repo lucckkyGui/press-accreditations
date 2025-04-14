@@ -1,14 +1,16 @@
 
 import React from 'react';
-import Dashboard from "./Dashboard";
-import MainLayout from "@/components/layout/MainLayout";
+import { Navigate } from 'react-router-dom';
 
 const Index = () => {
-  return (
-    <MainLayout>
-      <Dashboard />
-    </MainLayout>
-  );
+  // Redirect to dashboard or home depending on authentication status
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  
+  if (isLoggedIn) {
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return <Navigate to="/" />;
 };
 
 export default Index;

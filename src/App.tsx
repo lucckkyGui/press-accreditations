@@ -66,7 +66,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={
             localStorage.getItem("isLoggedIn") === "true" 
-              ? <MainLayout><Dashboard /></MainLayout>
+              ? <Navigate to="/dashboard" />
               : <HomePage />
           } />
           <Route path="/login" element={<Login />} />
@@ -80,7 +80,7 @@ const App = () => {
           <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
-          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
