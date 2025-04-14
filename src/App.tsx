@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -77,29 +76,25 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={
-              localStorage.getItem("isLoggedIn") === "true" 
-                ? <Dashboard /> 
-                : <HomePage />
-            } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/purchase" element={<Purchase />} />
-            
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-            <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-            <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-            <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
-            <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
-            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
-          </Routes>
-        </TooltipProvider>
+        <Routes>
+          <Route path="/" element={
+            localStorage.getItem("isLoggedIn") === "true" 
+              ? <Dashboard /> 
+              : <HomePage />
+          } />
+          <Route path="/login" element={<Login />} />
+          <Route path="/purchase" element={<Purchase />} />
+          
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+          <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+          <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+          <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
+          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+        </Routes>
       </BrowserRouter>
     </QueryClientProvider>
   );
