@@ -1,9 +1,9 @@
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const Index = () => {
-  // Redirect to dashboard or login depending on authentication status
+  // Check if user is logged in
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   
   return isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
