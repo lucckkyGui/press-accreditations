@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -16,6 +17,8 @@ import HomePage from "./pages/HomePage";
 import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
 import Index from "./pages/Index";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const App = () => {
   // Create QueryClient instance inside component
@@ -64,21 +67,25 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/purchase" element={<Purchase />} />
-          
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-          <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-          <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-          <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
-          <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <TooltipProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/purchase" element={<Purchase />} />
+            
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+            <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+            <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+            <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
