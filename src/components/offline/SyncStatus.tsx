@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, RotateCw, CloudSun } from "lucide-react";
 import { useMigration } from '@/services/migration/migrationService';
@@ -86,8 +86,8 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
 
   return (
     <div className="flex flex-col">
-      <Tooltip>
-        <TooltipTrigger asChild>
+      <HoverCard>
+        <HoverCardTrigger asChild>
           <div className="flex items-center gap-2 bg-white/10 px-2 py-1 rounded-md">
             <div className={`${isSyncing ? 'text-blue-500 animate-pulse' : statusColor}`}>
               {iconToRender}
@@ -112,8 +112,8 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
               </Button>
             )}
           </div>
-        </TooltipTrigger>
-        <TooltipContent>
+        </HoverCardTrigger>
+        <HoverCardContent>
           <p>
             {isOnline 
               ? 'Połączony z siecią' 
@@ -124,8 +124,8 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
               {pendingCount} {pendingCount === 1 ? 'operacja czeka' : 'operacji czeka'} na synchronizację
             </p>
           )}
-        </TooltipContent>
-      </Tooltip>
+        </HoverCardContent>
+      </HoverCard>
       
       {showProgress && (
         <div className="mt-1 w-32">
