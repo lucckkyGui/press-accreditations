@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -65,6 +64,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {/* Ensure TooltipProvider wraps the entire app */}
       <TooltipProvider>
         <BrowserRouter>
           <Routes>
