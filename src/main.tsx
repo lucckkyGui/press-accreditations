@@ -7,13 +7,15 @@ import './index.css'
 // Create a stable root element
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Root element not found')
+
+// Create the React root using createRoot API
 const root = ReactDOM.createRoot(rootElement)
 
-// Render the app
+// Render the app with proper StrictMode wrapper
 root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 )
 
 // Service Worker registration for PWA
