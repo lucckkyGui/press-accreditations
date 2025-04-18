@@ -1,6 +1,7 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -28,7 +29,7 @@ const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
 
-    useEffect(() => {
+    React.useEffect(() => {
       // Check if user is logged in - using local storage in MVP
       const checkAuth = () => {
         const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -59,33 +60,32 @@ const App = () => {
       }
     }
 
-    return <MainLayout>{children}</MainLayout>;
+    return children;
   };
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Ensure TooltipProvider wraps the entire app */}
-      <TooltipProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <TooltipProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/purchase" element={<Purchase />} />
             
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-            <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-            <Route path="/notifications/:eventId?" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-            <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
-            <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/invitation-editor" element={<ProtectedRoute><InvitationEditor /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute><MainLayout><Events /></MainLayout></ProtectedRoute>} />
+            <Route path="/events/:eventId" element={<ProtectedRoute><MainLayout><EventDetails /></MainLayout></ProtectedRoute>} />
+            <Route path="/notifications/:eventId?" element={<ProtectedRoute><MainLayout><Notifications /></MainLayout></ProtectedRoute>} />
+            <Route path="/guests" element={<ProtectedRoute><MainLayout><Guests /></MainLayout></ProtectedRoute>} />
+            <Route path="/scanner" element={<ProtectedRoute><MainLayout><Scanner /></MainLayout></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
+            <Route path="/invitation-editor" element={<ProtectedRoute><MainLayout><InvitationEditor /></MainLayout></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
           <Sonner />
-        </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
