@@ -1,7 +1,7 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -16,6 +16,7 @@ import Notifications from "./pages/Notifications";
 import Purchase from "./pages/Purchase";
 import Index from "./pages/Index";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const App = () => {
