@@ -1,3 +1,4 @@
 
-// Re-export from TSX file
-export * from "./use-toast";
+import { useToast, toast } from "./use-toast.tsx";
+
+export { useToast, toast };
