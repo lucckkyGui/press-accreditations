@@ -1,9 +1,9 @@
 
 import React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
+import Footer from "./Footer";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,9 +21,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               {children}
             </div>
           </main>
-          <footer className="py-3 px-6 text-center text-sm text-muted-foreground border-t">
-            <p>&copy; {new Date().getFullYear()} Press Acreditations. Wszystkie prawa zastrzeżone.</p>
-          </footer>
+          <Footer />
         </div>
       </SidebarProvider>
     </div>
