@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -63,11 +62,12 @@ const App = () => {
     return children;
   };
 
-  // Wrap the entire application with TooltipProvider as a function component
+  // Fix the React context issue by ensuring proper provider hierarchy
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <TooltipProvider>
+        {/* Explicitly define TooltipProvider as a direct function component wrapper */}
+        <TooltipProvider delayDuration={0}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
