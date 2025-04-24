@@ -19,10 +19,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
-const App = () => {
-  // Create QueryClient instance inside component
-  const [queryClient] = useState(() => new QueryClient());
+// Create QueryClient instance outside component to avoid re-instantiation
+const queryClient = new QueryClient();
 
+const App = () => {
   // Simple component for route protection
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +66,6 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        {/* Wrap the entire app content in the TooltipProvider component */}
         <TooltipProvider>
           <Routes>
             <Route path="/" element={<Index />} />
