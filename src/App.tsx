@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -18,46 +17,24 @@ import Index from "./pages/Index";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useAuth } from "@/hooks/useAuth";
 
-// Create QueryClient instance outside component to avoid re-instantiation
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Simple component for route protection
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userRole, setUserRole] = useState<string | null>(null);
+    const { user, loading } = useAuth();
 
-    useEffect(() => {
-      // Check if user is logged in - using local storage in MVP
-      const checkAuth = () => {
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-        const role = localStorage.getItem("userRole");
-        setIsAuthenticated(isLoggedIn);
-        setUserRole(role);
-        setIsLoading(false);
-      };
-
-      checkAuth();
-    }, []);
-
-    if (isLoading) {
-      return <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>;
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      );
     }
 
-    if (!isAuthenticated) {
+    if (!user) {
       return <Navigate to="/login" />;
-    }
-
-    // Guests are only allowed certain paths
-    if (userRole === "guest") {
-      const currentPath = window.location.pathname;
-      if (currentPath !== "/scanner") {
-        return <Navigate to="/scanner" />;
-      }
     }
 
     return children;

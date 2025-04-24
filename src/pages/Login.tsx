@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth, AuthData } from "@/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,6 +24,7 @@ const Login = () => {
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,22 +36,30 @@ const Login = () => {
     }
   }, [location.state]);
 
-  const handleLoginOrganizator = (e: React.FormEvent) => {
+  const handleLoginOrganizator = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Symulacja logowania dla MVP
-    setTimeout(() => {
-      if (email && password) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "organizator");
-        toast.success("Zalogowano jako organizator");
-        navigate("/"); // Przekierowanie do dashboardu dla organizatora
-      } else {
-        toast.error("Proszę podać email i hasło");
-      }
-      setIsLoading(false);
-    }, 1000);
+    const { error } = await signIn(email, password);
+    if (!error) {
+      navigate("/dashboard");
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const userData: AuthData = {
+      email,
+      password,
+      role: activeTab === "organizator" ? "organizer" : "guest"
+    };
+
+    await signUp(userData);
+    setIsLoading(false);
   };
 
   const handleGuestEmailSubmit = (e: React.FormEvent) => {
