@@ -63,6 +63,7 @@ const App = () => {
     return children;
   };
 
+  // Wrap the entire application with TooltipProvider as a function component
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
