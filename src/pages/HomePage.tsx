@@ -1,9 +1,8 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Users, Calendar, CheckCircle2, BarChart3, Cpu, Zap } from "lucide-react";
+import { QrCode, Users, Calendar, CheckCircle2, BarChart3, Cpu, Zap, Ticket } from "lucide-react";
 import FAQSection from "@/components/home/FAQSection";
 
 const PricingCard = ({ title, price, features, buttonText, isPrimary = false, onSelect }) => (
@@ -82,6 +81,10 @@ const HomePage = () => {
     navigate("/purchase", { state: { selectedPackage: packageName } });
   };
 
+  const handleViewTicketing = () => {
+    navigate("/ticketing");
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Nagłówek */}
@@ -107,7 +110,7 @@ const HomePage = () => {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
               Zarządzaj akredytacjami prasowymi i wejściówkami na wydarzenia w prosty i efektywny sposób
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Button size="lg" className="gap-2" onClick={handleOrganizatorLogin}>
                 <CheckCircle2 className="h-5 w-5" />
                 Zaloguj się jako Organizator
@@ -115,6 +118,10 @@ const HomePage = () => {
               <Button size="lg" variant="outline" className="gap-2" onClick={() => handleSelectPackage('free-trial')}>
                 <Zap className="h-5 w-5" />
                 Wypróbuj za darmo
+              </Button>
+              <Button size="lg" variant="secondary" className="gap-2" onClick={handleViewTicketing}>
+                <Ticket className="h-5 w-5" />
+                System Biletowy
               </Button>
             </div>
           </div>

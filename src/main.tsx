@@ -3,6 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { AuthProvider } from './hooks/useAuth'
+import { BrowserRouter } from 'react-router-dom'
 
 // Create a stable root element
 const rootElement = document.getElementById('root')
@@ -11,10 +13,19 @@ if (!rootElement) throw new Error('Root element not found')
 // Create the React root using createRoot API
 const root = ReactDOM.createRoot(rootElement)
 
+// AppWithAuth component to provide auth context
+const AppWithAuth = () => (
+  <BrowserRouter>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </BrowserRouter>
+)
+
 // Render the app with proper StrictMode wrapper
 root.render(
   <React.StrictMode>
-    <App />
+    <AppWithAuth />
   </React.StrictMode>
 )
 

@@ -1,6 +1,6 @@
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, createContext, useContext, ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import { toast } from 'sonner';
@@ -13,30 +13,58 @@ export interface AuthData {
   role?: 'admin' | 'organizer' | 'staff' | 'guest';
 }
 
-export const useAuth = () => {
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signUp: (data: AuthData) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+}
+
+// Create an auth context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Provider component that wraps your app and makes auth object available to any child component that calls useAuth().
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Initialize the auth state when the component mounts
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Then check for existing session
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("Error getting session:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (data: AuthData) => {
@@ -112,7 +140,8 @@ export const useAuth = () => {
     }
   };
 
-  return {
+  // Make the context object
+  const authContext = {
     user,
     session,
     loading,
@@ -120,5 +149,54 @@ export const useAuth = () => {
     signIn,
     signOut,
     resetPassword,
+  };
+
+  // Pass the value into the context provider and return the provider component
+  return (
+    <AuthContext.Provider value={authContext}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Hook that enables any component to subscribe to auth state
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// Export a component that can be used outside of an AuthProvider
+export const withAuthValues = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return {
+    user,
+    session,
+    loading,
   };
 };
