@@ -1,4 +1,3 @@
 
-import { useToast, toast } from "@/hooks/use-toast.tsx";
-
-export { useToast, toast };
+// This file serves as a re-export from use-toast.tsx
+export * from "./use-toast.tsx";
