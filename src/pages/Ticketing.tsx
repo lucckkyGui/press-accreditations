@@ -2,16 +2,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, QrCode } from "lucide-react";
+import { ArrowLeft, QrCode, User } from "lucide-react";
 import TicketingSystem from "@/components/ticketing/TicketingSystem";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 const Ticketing = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleTicketCheckout = () => {
     toast.success("Bilety zostały zarezerwowane pomyślnie!");
-    setTimeout(() => navigate("/dashboard"), 1500);
+    setTimeout(() => navigate("/profile?tab=tickets"), 1500);
   };
 
   return (
@@ -23,10 +25,18 @@ const Ticketing = () => {
             <QrCode className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Press Acreditations</span>
           </div>
-          <Button variant="ghost" onClick={() => navigate("/")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Wróć do strony głównej
-          </Button>
+          <div className="flex items-center gap-2">
+            {user && (
+              <Button variant="ghost" onClick={() => navigate("/profile")}>
+                <User className="mr-2 h-4 w-4" />
+                Mój profil
+              </Button>
+            )}
+            <Button variant="ghost" onClick={() => navigate("/")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Wróć do strony głównej
+            </Button>
+          </div>
         </div>
       </header>
 

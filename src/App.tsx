@@ -15,6 +15,7 @@ import Purchase from "./pages/Purchase";
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
 import Ticketing from "./pages/Ticketing";
+import UserProfile from "./pages/UserProfile";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/purchase" element={<Purchase />} />
           <Route path="/ticketing" element={<Ticketing />} />
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           
           <Route 
             path="/dashboard" 

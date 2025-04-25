@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode, Users, Calendar, CheckCircle2, BarChart3, Cpu, Zap, Ticket } from "lucide-react";
 import FAQSection from "@/components/home/FAQSection";
+import UserNavigation from "@/components/home/UserNavigation";
 
 const PricingCard = ({ title, price, features, buttonText, isPrimary = false, onSelect }) => (
   <Card className={`flex flex-col ${isPrimary ? 'border-primary shadow-lg' : ''}`}>
@@ -68,14 +69,6 @@ const Testimonial = ({ quote, author, role, company }) => (
 
 const HomePage = () => {
   const navigate = useNavigate();
-
-  const handleOrganizatorLogin = () => {
-    navigate("/login", { state: { role: "organizator" } });
-  };
-
-  const handleGuestLogin = () => {
-    navigate("/login", { state: { role: "guest" } });
-  };
   
   const handleSelectPackage = (packageName) => {
     navigate("/purchase", { state: { selectedPackage: packageName } });
@@ -94,10 +87,7 @@ const HomePage = () => {
             <QrCode className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Press Acreditations</span>
           </div>
-          <div className="space-x-4">
-            <Button variant="ghost" onClick={handleGuestLogin}>Zaloguj jako Gość</Button>
-            <Button onClick={handleOrganizatorLogin}>Zaloguj jako Organizator</Button>
-          </div>
+          <UserNavigation />
         </div>
       </header>
 
@@ -111,7 +101,7 @@ const HomePage = () => {
               Zarządzaj akredytacjami prasowymi i wejściówkami na wydarzenia w prosty i efektywny sposób
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" className="gap-2" onClick={handleOrganizatorLogin}>
+              <Button size="lg" className="gap-2" onClick={() => navigate("/login", { state: { role: "organizator" } })}>
                 <CheckCircle2 className="h-5 w-5" />
                 Zaloguj się jako Organizator
               </Button>
