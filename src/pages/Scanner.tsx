@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import OfflineIndicator from "@/components/scanner/OfflineIndicator";
 import StatsCards from "@/components/scanner/StatsCards";
 import ScanHistoryList from "@/components/scanner/ScanHistoryList";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const Scanner = () => {
   const [scanHistory, setScanHistory] = useState<ScanEntry[]>([]);
@@ -207,48 +210,59 @@ const Scanner = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
+    <div className="min-h-screen bg-gray-50/50">
+      <MainLayout>
+        <div className="container max-w-7xl mx-auto p-6 space-y-8">
+          {/* Header Section */}
+          <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold tracking-tight">Skaner QR</h1>
             <p className="text-muted-foreground">
               Skanuj kody QR gości, aby zweryfikować ich dostęp do wydarzenia.
             </p>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <OfflineIndicator 
-              isOnline={isOnline}
-              pendingScans={pendingScans.length}
-              isSyncing={isSyncing}
-              syncProgress={syncProgress}
-              lastSyncTime={lastSyncTime}
-              onSyncClick={syncPendingScans}
-            />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Column - Scanner and Stats */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Scanner Card */}
+              <Card className="border-2 border-dashed border-gray-200 dark:border-gray-800">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="text-2xl font-semibold">Skaner QR</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <QRScanner onScanSuccess={handleScanSuccess} />
+                    <OfflineIndicator 
+                      isOnline={isOnline}
+                      pendingScans={pendingScans.length}
+                      isSyncing={isSyncing}
+                      syncProgress={syncProgress}
+                      lastSyncTime={lastSyncTime}
+                      onSyncClick={syncPendingScans}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stats Grid */}
+              <StatsCards 
+                total={stats.total}
+                successful={stats.successful}
+                failed={stats.failed}
+              />
+            </div>
+
+            {/* Right Column - Scan History */}
+            <div className="lg:col-span-8">
+              <ScanHistoryList 
+                scanHistory={scanHistory}
+                onClearHistory={clearHistory}
+              />
+            </div>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-4">
-            <QRScanner onScanSuccess={handleScanSuccess} />
-          </div>
-          
-          <div className="md:col-span-2 space-y-6">
-            <StatsCards 
-              total={stats.total}
-              successful={stats.successful}
-              failed={stats.failed}
-            />
-            
-            <ScanHistoryList 
-              scanHistory={scanHistory}
-              onClearHistory={clearHistory}
-            />
-          </div>
-        </div>
-      </div>
-    </MainLayout>
+      </MainLayout>
+    </div>
   );
 };
 
