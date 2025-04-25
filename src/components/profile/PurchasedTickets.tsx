@@ -9,10 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Ticket, QrCode, Share, Download, Printer, Mail } from "lucide-react";
 
-const PurchasedTickets = () => {
-  const { tickets, loading, stats } = useTickets();
+interface PurchasedTicketsProps {
+  tickets?: Array<{
+    id: string;
+    eventName: string;
+    ticketType: string;
+    purchaseDate: Date;
+    eventDate: Date;
+    status: string;
+    qrCode: string;
+  }>;
+}
+
+const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets: propTickets }) => {
+  const { tickets: hookTickets, loading, stats } = useTickets();
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+
+  const tickets = propTickets || hookTickets;
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("pl-PL", {
@@ -21,7 +35,7 @@ const PurchasedTickets = () => {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit"
-    }).format(date);
+    }).format(new Date(date));
   };
 
   const getStatusBadge = (status: string) => {
@@ -98,7 +112,7 @@ const PurchasedTickets = () => {
     <div className="space-y-6">
       <TicketStatistics {...stats} />
 
-      {tickets.map(ticket => (
+      {tickets?.map(ticket => (
         <TicketCard
           key={ticket.id}
           ticket={ticket}
