@@ -2,12 +2,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User, LogIn } from "lucide-react";
+import { User, LogIn, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "next-themes";
 
 const UserNavigation = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const handleOrganizatorLogin = () => {
     navigate("/login", { state: { role: "organizator" } });
@@ -21,8 +23,20 @@ const UserNavigation = () => {
     navigate("/profile");
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <div className="space-x-4 flex items-center">
+      <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+        {theme === "dark" ? (
+          <Sun className="h-4 w-4" />
+        ) : (
+          <Moon className="h-4 w-4" />
+        )}
+      </Button>
+      
       {user ? (
         <>
           <Button variant="ghost" onClick={handleProfileClick} className="gap-2">
