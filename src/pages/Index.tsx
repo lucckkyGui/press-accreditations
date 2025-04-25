@@ -19,7 +19,14 @@ const Index = () => {
     }
   }, [navigate, user, loading]);
   
-  return <LoadingSpinner />;
+  return (
+    <div className="h-screen w-full flex items-center justify-center bg-muted/30">
+      <div className="text-center">
+        <LoadingSpinner size={12} />
+        <p className="mt-4 text-muted-foreground">Ładowanie aplikacji...</p>
+      </div>
+    </div>
+  );
 };
 
 export default Index;

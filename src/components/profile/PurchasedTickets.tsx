@@ -6,24 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Ticket, QrCode, Share, Download, Printer, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useTickets, Ticket as TicketType } from "@/hooks/useTickets";
+import TicketStatistics from "./TicketStatistics";
 
-interface PurchasedTicket {
-  id: string;
-  eventName: string;
-  ticketType: string;
-  purchaseDate: Date;
-  eventDate: Date;
-  price: number;
-  status: "active" | "used" | "expired";
-  qrCode: string;
-}
-
-interface PurchasedTicketsProps {
-  tickets: PurchasedTicket[];
-}
-
-const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
-  const [selectedTicket, setSelectedTicket] = useState<PurchasedTicket | null>(null);
+const PurchasedTickets: React.FC = () => {
+  const { tickets, loading, stats } = useTickets();
+  const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
 
   // Format date to readable string
@@ -52,7 +40,7 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
   };
 
   // Share ticket functionality
-  const handleShareTicket = (ticket: PurchasedTicket) => {
+  const handleShareTicket = (ticket: TicketType) => {
     if (navigator.share) {
       navigator.share({
         title: `Bilet na ${ticket.eventName}`,
@@ -70,28 +58,39 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
   };
 
   // Download ticket as PDF (mock)
-  const handleDownloadTicket = (ticket: PurchasedTicket) => {
+  const handleDownloadTicket = (ticket: TicketType) => {
     // In a real app, this would generate and download a PDF
     toast.success(`Pobieranie biletu na ${ticket.eventName}...`);
   };
 
   // Print ticket
-  const handlePrintTicket = (ticket: PurchasedTicket) => {
+  const handlePrintTicket = (ticket: TicketType) => {
     // In a real app, this would open a print dialog with formatted ticket
     toast.success(`Przygotowanie do druku biletu na ${ticket.eventName}...`);
   };
 
   // Send ticket to email
-  const handleEmailTicket = (ticket: PurchasedTicket) => {
+  const handleEmailTicket = (ticket: TicketType) => {
     // In a real app, this would send an email with the ticket
     toast.success(`Wysyłanie biletu na ${ticket.eventName} na email...`);
   };
 
   // Show QR code dialog
-  const showQrCode = (ticket: PurchasedTicket) => {
+  const showQrCode = (ticket: TicketType) => {
     setSelectedTicket(ticket);
     setQrDialogOpen(true);
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6 text-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Ładowanie biletów...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (tickets.length === 0) {
     return (
@@ -107,7 +106,14 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <TicketStatistics 
+        totalTickets={stats.totalTickets}
+        activeTickets={stats.activeTickets}
+        usedTickets={stats.usedTickets}
+        upcomingEvents={stats.upcomingEvents}
+      />
+
       {tickets.map(ticket => (
         <Card key={ticket.id} className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="p-0">

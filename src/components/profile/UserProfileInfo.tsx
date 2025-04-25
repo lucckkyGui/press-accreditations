@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Calendar, Building } from "lucide-react";
 import { format } from "date-fns";
+import UserRoleBadge from "./UserRoleBadge";
 
 interface UserProfileInfoProps {
   user: {
@@ -40,11 +41,6 @@ const UserProfileInfo: React.FC<UserProfileInfoProps> = ({ user, onEditProfile }
     return "Użytkownik";
   };
 
-  const capitalizeRole = (role?: string) => {
-    if (!role) return "Gość";
-    return role.charAt(0).toUpperCase() + role.slice(1);
-  };
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -59,15 +55,14 @@ const UserProfileInfo: React.FC<UserProfileInfoProps> = ({ user, onEditProfile }
           </Avatar>
           
           <div className="flex-1 space-y-3 text-center sm:text-left">
-            <h3 className="text-xl font-semibold">{getFullName()}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h3 className="text-xl font-semibold">{getFullName()}</h3>
+              <UserRoleBadge role={user.role} />
+            </div>
             <div className="flex flex-col gap-2 text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <span>{user.email}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span>Rola: {capitalizeRole(user.role)}</span>
               </div>
               {user.company && (
                 <div className="flex items-center gap-2">
