@@ -20,9 +20,9 @@ const Index = () => {
   }, [navigate, user, loading]);
   
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-muted/30">
+    <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-50">
       <div className="text-center">
-        <LoadingSpinner size={12} />
+        <LoadingSpinner className="h-12 w-12" />
         <p className="mt-4 text-muted-foreground">Ładowanie aplikacji...</p>
       </div>
     </div>

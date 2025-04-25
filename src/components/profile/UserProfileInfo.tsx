@@ -42,16 +42,17 @@ const UserProfileInfo: React.FC<UserProfileInfoProps> = ({ user, onEditProfile }
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
+    <Card className="overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-brand-500/20 to-brand-600/20" />
+      <CardHeader className="relative pt-8 pb-2">
         <CardTitle>Profil użytkownika</CardTitle>
         <CardDescription>Zarządzaj swoimi danymi osobowymi</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <Avatar className="h-20 w-20 border-2 border-primary">
+          <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
             <AvatarImage src={user.avatarUrl} />
-            <AvatarFallback className="text-lg bg-primary/10 text-primary">{getInitials()}</AvatarFallback>
+            <AvatarFallback className="text-2xl bg-primary/10 text-primary">{getInitials()}</AvatarFallback>
           </Avatar>
           
           <div className="flex-1 space-y-3 text-center sm:text-left">
