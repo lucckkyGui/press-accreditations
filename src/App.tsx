@@ -19,41 +19,44 @@ import UserProfile from "./pages/UserProfile";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/purchase" element={<Purchase />} />
-        <Route path="/ticketing" element={<Ticketing />} />
-        <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-        
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Dashboard />
-              </MainLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/events" element={<ProtectedRoute><MainLayout><Events /></MainLayout></ProtectedRoute>} />
-        <Route path="/events/:eventId" element={<ProtectedRoute><MainLayout><EventDetails /></MainLayout></ProtectedRoute>} />
-        <Route path="/notifications/:eventId?" element={<ProtectedRoute><MainLayout><Notifications /></MainLayout></ProtectedRoute>} />
-        <Route path="/guests" element={<ProtectedRoute><MainLayout><Guests /></MainLayout></ProtectedRoute>} />
-        <Route path="/scanner" element={<ProtectedRoute><MainLayout><Scanner /></MainLayout></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
-        <Route path="/invitation-editor" element={<ProtectedRoute><MainLayout><InvitationEditor /></MainLayout></ProtectedRoute>} />
-        <Route path="*" element={<HomePage />} />
-      </Routes>
-      <Toaster />
-      <Sonner />
+      <TooltipProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/purchase" element={<Purchase />} />
+          <Route path="/ticketing" element={<Ticketing />} />
+          <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/events" element={<ProtectedRoute><MainLayout><Events /></MainLayout></ProtectedRoute>} />
+          <Route path="/events/:eventId" element={<ProtectedRoute><MainLayout><EventDetails /></MainLayout></ProtectedRoute>} />
+          <Route path="/notifications/:eventId?" element={<ProtectedRoute><MainLayout><Notifications /></MainLayout></ProtectedRoute>} />
+          <Route path="/guests" element={<ProtectedRoute><MainLayout><Guests /></MainLayout></ProtectedRoute>} />
+          <Route path="/scanner" element={<ProtectedRoute><MainLayout><Scanner /></MainLayout></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
+          <Route path="/invitation-editor" element={<ProtectedRoute><MainLayout><InvitationEditor /></MainLayout></ProtectedRoute>} />
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
