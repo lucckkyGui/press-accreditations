@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { RotateCw, AlertCircle } from "lucide-react";
 import { ScanEntry } from "@/types/scanner";
+import { cn } from "@/lib/utils";
 
 type ScanHistoryListProps = {
   scanHistory: ScanEntry[];
