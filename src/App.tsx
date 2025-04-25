@@ -17,7 +17,6 @@ import HomePage from "./pages/HomePage";
 import Ticketing from "./pages/Ticketing";
 import UserProfile from "./pages/UserProfile";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -53,10 +52,8 @@ const App = () => {
         <Route path="/invitation-editor" element={<ProtectedRoute><MainLayout><InvitationEditor /></MainLayout></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-      </TooltipProvider>
+      <Toaster />
+      <Sonner />
     </QueryClientProvider>
   );
 };
