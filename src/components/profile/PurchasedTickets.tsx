@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Ticket, QrCode, Share } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, Ticket, QrCode, Share, Download, Printer, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface PurchasedTicket {
   id: string;
@@ -23,6 +24,7 @@ interface PurchasedTicketsProps {
 
 const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
   const [selectedTicket, setSelectedTicket] = useState<PurchasedTicket | null>(null);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
 
   // Format date to readable string
   const formatDate = (date: Date) => {
@@ -58,13 +60,37 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
         url: window.location.href,
       }).catch(err => {
         console.error('Wystąpił błąd podczas udostępniania:', err);
+        toast.error("Nie udało się udostępnić biletu");
       });
     } else {
-      console.log('Web Share API is not supported in your browser');
       // Fallback - copy to clipboard
       navigator.clipboard.writeText(`Bilet na ${ticket.eventName} w dniu ${formatDate(ticket.eventDate)}`);
-      alert('Link do biletu skopiowany do schowka!');
+      toast.success('Link do biletu skopiowany do schowka!');
     }
+  };
+
+  // Download ticket as PDF (mock)
+  const handleDownloadTicket = (ticket: PurchasedTicket) => {
+    // In a real app, this would generate and download a PDF
+    toast.success(`Pobieranie biletu na ${ticket.eventName}...`);
+  };
+
+  // Print ticket
+  const handlePrintTicket = (ticket: PurchasedTicket) => {
+    // In a real app, this would open a print dialog with formatted ticket
+    toast.success(`Przygotowanie do druku biletu na ${ticket.eventName}...`);
+  };
+
+  // Send ticket to email
+  const handleEmailTicket = (ticket: PurchasedTicket) => {
+    // In a real app, this would send an email with the ticket
+    toast.success(`Wysyłanie biletu na ${ticket.eventName} na email...`);
+  };
+
+  // Show QR code dialog
+  const showQrCode = (ticket: PurchasedTicket) => {
+    setSelectedTicket(ticket);
+    setQrDialogOpen(true);
   };
 
   if (tickets.length === 0) {
@@ -83,7 +109,7 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
   return (
     <div className="space-y-4">
       {tickets.map(ticket => (
-        <Card key={ticket.id} className="overflow-hidden">
+        <Card key={ticket.id} className="overflow-hidden hover:shadow-md transition-shadow">
           <CardContent className="p-0">
             <div className="p-6">
               <div className="flex items-start justify-between">
@@ -96,42 +122,25 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <Calendar className="h-4 w-4 text-primary" />
                   <span>{formatDate(ticket.eventDate)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Ticket className="h-4 w-4 text-muted-foreground" />
+                  <Ticket className="h-4 w-4 text-primary" />
                   <span>Zakupiono: {formatDate(ticket.purchaseDate)}</span>
                 </div>
               </div>
               
               <div className="flex flex-wrap gap-2 mt-4">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedTicket(ticket)}>
-                      <QrCode className="h-4 w-4" />
-                      Pokaż QR
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{selectedTicket?.eventName}</DialogTitle>
-                      <DialogDescription>{selectedTicket?.ticketType}</DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center justify-center p-4">
-                      <div className="w-64 h-64 bg-white rounded-lg flex items-center justify-center">
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(selectedTicket?.qrCode || "")}&size=200x200`} 
-                          alt="Kod QR biletu" 
-                          className="max-w-full max-h-full"
-                        />
-                      </div>
-                      <p className="mt-4 text-center text-sm text-muted-foreground">
-                        Pokaż ten kod QR podczas wejścia na wydarzenie
-                      </p>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2" 
+                  onClick={() => showQrCode(ticket)}
+                >
+                  <QrCode className="h-4 w-4" />
+                  Pokaż QR
+                </Button>
                 
                 <Button 
                   variant="ghost" 
@@ -142,11 +151,63 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets }) => {
                   <Share className="h-4 w-4" />
                   Udostępnij
                 </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => handleDownloadTicket(ticket)}
+                >
+                  <Download className="h-4 w-4" />
+                  Pobierz PDF
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => handlePrintTicket(ticket)}
+                >
+                  <Printer className="h-4 w-4" />
+                  Drukuj
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => handleEmailTicket(ticket)}
+                >
+                  <Mail className="h-4 w-4" />
+                  Wyślij na email
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
       ))}
+      
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{selectedTicket?.eventName}</DialogTitle>
+            <DialogDescription>{selectedTicket?.ticketType}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-4">
+            <div className="w-64 h-64 bg-white rounded-lg flex items-center justify-center border">
+              <img 
+                src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(selectedTicket?.qrCode || "")}&size=200x200`} 
+                alt="Kod QR biletu" 
+                className="max-w-full max-h-full"
+              />
+            </div>
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              Pokaż ten kod QR podczas wejścia na wydarzenie
+            </p>
+            <p className="text-xs text-center mt-2 font-mono">{selectedTicket?.qrCode}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

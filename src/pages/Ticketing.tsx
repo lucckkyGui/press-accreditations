@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, QrCode, User } from "lucide-react";
+import { ArrowLeft, QrCode, User, Home } from "lucide-react";
 import TicketingSystem from "@/components/ticketing/TicketingSystem";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,23 +26,30 @@ const Ticketing = () => {
             <span className="text-xl font-bold">Press Acreditations</span>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => navigate("/")}>
+              <Home className="mr-2 h-4 w-4" />
+              Strona główna
+            </Button>
             {user && (
               <Button variant="ghost" onClick={() => navigate("/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 Mój profil
               </Button>
             )}
-            <Button variant="ghost" onClick={() => navigate("/")}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Wróć do strony głównej
-            </Button>
           </div>
         </div>
       </header>
 
       {/* Główna treść */}
       <main className="flex-1 container py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6">System Biletowy</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">System Biletowy</h1>
+          <Button variant="ghost" onClick={() => navigate("/")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Wróć do strony głównej
+          </Button>
+        </div>
+        
         <p className="mb-8 text-muted-foreground">
           Zarezerwuj bilety na wybrane wydarzenia i zarządzaj swoimi akredytacjami.
         </p>

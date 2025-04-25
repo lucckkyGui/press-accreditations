@@ -6,18 +6,27 @@ import PurchasedTickets from "@/components/profile/PurchasedTickets";
 import ProfileEditForm from "@/components/profile/ProfileEditForm";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const UserProfile = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
+  const searchParams = new URLSearchParams(location.search);
+  const initialTab = searchParams.get("tab") || "profile";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  
   const [userData, setUserData] = useState({
     email: user?.email || "",
     firstName: "",
     lastName: "",
     avatarUrl: "",
     role: "guest",
+    company: "",
+    createdAt: new Date()
   });
   
   // Mock purchased tickets data (would normally come from a database)
@@ -60,11 +69,12 @@ const UserProfile = () => {
       if (user) {
         try {
           // In a real app, this would fetch from your profile database
-          // For now, we'll use mock data
           // Replace with actual Supabase query when available
           const firstName = user.user_metadata?.first_name || "";
           const lastName = user.user_metadata?.last_name || "";
           const role = user.user_metadata?.role || "guest";
+          const company = user.user_metadata?.company || "";
+          const createdAt = user.created_at ? new Date(user.created_at) : new Date();
           
           setUserData({
             email: user.email || "",
@@ -72,6 +82,8 @@ const UserProfile = () => {
             lastName,
             avatarUrl: "",
             role,
+            company,
+            createdAt
           });
         } catch (error) {
           console.error("Error fetching user profile:", error);
@@ -82,29 +94,24 @@ const UserProfile = () => {
     
     fetchUserProfile();
   }, [user]);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(location.search);
+    newSearchParams.set("tab", activeTab);
+    navigate({ search: newSearchParams.toString() }, { replace: true });
+  }, [activeTab, navigate, location.search]);
   
   // Handle profile update
-  const handleSaveProfile = async (formData: { firstName: string; lastName: string }) => {
+  const handleSaveProfile = async (formData: { firstName: string; lastName: string; company?: string }) => {
     try {
       // In a real app, this would update the database
       // For now, we'll just update the local state
-      // Example Supabase update (commented out)
-      /*
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-        })
-        .eq('id', user.id);
-        
-      if (error) throw error;
-      */
-      
       setUserData({
         ...userData,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        company: formData.company || "",
       });
       
       toast.success("Profil zaktualizowany pomyślnie");
@@ -120,7 +127,12 @@ const UserProfile = () => {
       {/* Header */}
       <header className="border-b bg-background p-4">
         <div className="container flex justify-between items-center">
-          <h1 className="text-xl font-bold">Mój profil</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-xl font-bold">Mój profil</h1>
+          </div>
         </div>
       </header>
       

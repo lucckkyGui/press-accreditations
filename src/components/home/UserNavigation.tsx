@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User, LogIn, Moon, Sun } from "lucide-react";
+import { User, LogIn, Moon, Sun, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 
@@ -22,6 +22,10 @@ const UserNavigation = () => {
   const handleProfileClick = () => {
     navigate("/profile");
   };
+  
+  const handleTicketsClick = () => {
+    navigate("/ticketing");
+  };
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -35,6 +39,11 @@ const UserNavigation = () => {
         ) : (
           <Moon className="h-4 w-4" />
         )}
+      </Button>
+      
+      <Button variant="ghost" onClick={handleTicketsClick} className="gap-2">
+        <Ticket className="h-4 w-4" />
+        Bilety
       </Button>
       
       {user ? (

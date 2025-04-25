@@ -3,7 +3,8 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Mail } from "lucide-react";
+import { User, Mail, Calendar, Building } from "lucide-react";
+import { format } from "date-fns";
 
 interface UserProfileInfoProps {
   user: {
@@ -12,6 +13,8 @@ interface UserProfileInfoProps {
     lastName?: string;
     avatarUrl?: string;
     role?: string;
+    createdAt?: Date;
+    company?: string;
   };
   onEditProfile: () => void;
 }
@@ -50,20 +53,34 @@ const UserProfileInfo: React.FC<UserProfileInfoProps> = ({ user, onEditProfile }
       </CardHeader>
       <CardContent>
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <Avatar className="h-20 w-20">
+          <Avatar className="h-20 w-20 border-2 border-primary">
             <AvatarImage src={user.avatarUrl} />
-            <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
+            <AvatarFallback className="text-lg bg-primary/10 text-primary">{getInitials()}</AvatarFallback>
           </Avatar>
           
-          <div className="flex-1 space-y-2 text-center sm:text-left">
+          <div className="flex-1 space-y-3 text-center sm:text-left">
             <h3 className="text-xl font-semibold">{getFullName()}</h3>
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-muted-foreground">
-              <Mail className="h-4 w-4" />
-              <span>{user.email}</span>
-            </div>
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-muted-foreground">
-              <User className="h-4 w-4" />
-              <span>Rola: {capitalizeRole(user.role)}</span>
+            <div className="flex flex-col gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span>{user.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>Rola: {capitalizeRole(user.role)}</span>
+              </div>
+              {user.company && (
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  <span>{user.company}</span>
+                </div>
+              )}
+              {user.createdAt && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Konto utworzone: {format(new Date(user.createdAt), "dd.MM.yyyy")}</span>
+                </div>
+              )}
             </div>
           </div>
           
