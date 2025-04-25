@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,15 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Ticket, QrCode, Share, Download, Printer, Mail } from "lucide-react";
 
 interface PurchasedTicketsProps {
-  tickets?: Array<{
-    id: string;
-    eventName: string;
-    ticketType: string;
-    purchaseDate: Date;
-    eventDate: Date;
-    status: string;
-    qrCode: string;
-  }>;
+  tickets?: TicketType[];
 }
 
 const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets: propTickets }) => {

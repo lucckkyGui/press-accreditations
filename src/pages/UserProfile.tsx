@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
@@ -8,6 +9,7 @@ import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { Ticket as TicketType } from "@/hooks/useTickets";
 
 const UserProfile = () => {
   const { user } = useAuth();
@@ -29,7 +31,7 @@ const UserProfile = () => {
   });
   
   // Mock purchased tickets data (would normally come from a database)
-  const [tickets, setTickets] = useState([
+  const [tickets, setTickets] = useState<TicketType[]>([
     {
       id: "ticket-1",
       eventName: "Konferencja Tech 2025",

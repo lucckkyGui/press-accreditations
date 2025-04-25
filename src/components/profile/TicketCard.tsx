@@ -4,17 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Ticket, QrCode, Share, Download, Printer, Mail } from "lucide-react";
+import { Ticket as TicketType } from "@/hooks/useTickets";
 
 interface TicketCardProps {
-  ticket: {
-    id: string;
-    eventName: string;
-    ticketType: string;
-    purchaseDate: Date;
-    eventDate: Date;
-    status: string;
-    qrCode: string;
-  };
+  ticket: TicketType;
   onShowQr: () => void;
   onShare: () => void;
   onDownload: () => void;
