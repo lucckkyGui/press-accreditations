@@ -4,9 +4,9 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
-// Simplify the TooltipProvider implementation to avoid useState issues
+// Fixed implementation: directly export the Radix UI component
+// This avoids any hook-related issues
 const TooltipProvider = TooltipPrimitive.Provider
-TooltipProvider.displayName = TooltipPrimitive.Provider.displayName
 
 const Tooltip = TooltipPrimitive.Root
 
