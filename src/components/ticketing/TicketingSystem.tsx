@@ -15,12 +15,19 @@ interface Ticket {
   price: number;
   description: string;
   available: number;
+  date?: Date;
 }
 
 interface TicketingSystemProps {
   eventId?: string;
   onCheckout?: (selectedTickets: SelectedTicket[]) => void;
   standalone?: boolean;
+  searchQuery?: string;
+  sortOrder?: string;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
 }
 
 interface SelectedTicket {
@@ -30,8 +37,16 @@ interface SelectedTicket {
   price: number;
 }
 
-const TicketingSystem = ({ eventId, onCheckout, standalone = false }: TicketingSystemProps) => {
+const TicketingSystem = ({ 
+  eventId, 
+  onCheckout, 
+  standalone = false, 
+  searchQuery = '',
+  sortOrder = '',
+  priceRange = { min: 0, max: Infinity }
+}: TicketingSystemProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [selectedTickets, setSelectedTickets] = useState<SelectedTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("select");
@@ -52,27 +67,69 @@ const TicketingSystem = ({ eventId, onCheckout, standalone = false }: TicketingS
           name: "General Admission",
           price: 50,
           description: "Standard entry to the event",
-          available: 100
+          available: 100,
+          date: new Date(2025, 5, 15)
         },
         {
           id: "ticket-2",
           name: "VIP Experience",
           price: 150,
           description: "Premium entry with exclusive perks",
-          available: 20
+          available: 20,
+          date: new Date(2025, 6, 20)
         },
         {
           id: "ticket-3",
           name: "Early Bird",
           price: 35,
           description: "Limited time discount entry",
-          available: 50
+          available: 50,
+          date: new Date(2025, 4, 10)
         }
       ];
       setTickets(mockTickets);
+      setFilteredTickets(mockTickets);
       setLoading(false);
     }, 1000);
   }, [eventId]);
+
+  // Apply filters when search query, sort order or price range changes
+  useEffect(() => {
+    let filtered = [...tickets];
+    
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(ticket => 
+        ticket.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        ticket.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply price range filter
+    filtered = filtered.filter(ticket => 
+      ticket.price >= priceRange.min && ticket.price <= priceRange.max
+    );
+    
+    // Apply sort order
+    if (sortOrder) {
+      switch(sortOrder) {
+        case 'price-asc':
+          filtered.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-desc':
+          filtered.sort((a, b) => b.price - a.price);
+          break;
+        case 'date-asc':
+          filtered.sort((a, b) => (a.date && b.date) ? a.date.getTime() - b.date.getTime() : 0);
+          break;
+        case 'date-desc':
+          filtered.sort((a, b) => (a.date && b.date) ? b.date.getTime() - a.date.getTime() : 0);
+          break;
+      }
+    }
+    
+    setFilteredTickets(filtered);
+  }, [tickets, searchQuery, sortOrder, priceRange]);
 
   const handleQuantityChange = (ticketId: string, quantity: number) => {
     const ticket = tickets.find(t => t.id === ticketId);
@@ -182,42 +239,54 @@ const TicketingSystem = ({ eventId, onCheckout, standalone = false }: TicketingS
           
           <TabsContent value="select">
             <div className="space-y-4">
-              {tickets.map((ticket) => (
-                <Card key={ticket.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium">{ticket.name}</h3>
-                        <p className="text-sm text-muted-foreground">{ticket.description}</p>
+              {filteredTickets.length > 0 ? (
+                filteredTickets.map((ticket) => (
+                  <Card key={ticket.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-medium">{ticket.name}</h3>
+                          <p className="text-sm text-muted-foreground">{ticket.description}</p>
+                          {ticket.date && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              <Calendar className="inline h-3 w-3 mr-1" />
+                              {ticket.date.toLocaleDateString("pl-PL")}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-lg font-bold">{ticket.price} PLN</div>
                       </div>
-                      <div className="text-lg font-bold">{ticket.price} PLN</div>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="text-sm text-muted-foreground">
-                        Dostępne: {ticket.available}
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="text-sm text-muted-foreground">
+                          Dostępne: {ticket.available}
+                        </div>
+                        <div className="flex items-center">
+                          <Label htmlFor={`quantity-${ticket.id}`} className="mr-2">Ilość:</Label>
+                          <Select 
+                            onValueChange={(value) => handleQuantityChange(ticket.id, parseInt(value))}
+                            defaultValue="0"
+                          >
+                            <SelectTrigger className="w-20">
+                              <SelectValue placeholder="0" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[...Array(11).keys()].map(num => (
+                                <SelectItem key={num} value={num.toString()}>
+                                  {num}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <Label htmlFor={`quantity-${ticket.id}`} className="mr-2">Ilość:</Label>
-                        <Select 
-                          onValueChange={(value) => handleQuantityChange(ticket.id, parseInt(value))}
-                          defaultValue="0"
-                        >
-                          <SelectTrigger className="w-20">
-                            <SelectValue placeholder="0" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[...Array(11).keys()].map(num => (
-                              <SelectItem key={num} value={num.toString()}>
-                                {num}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Brak biletów spełniających kryteria wyszukiwania</p>
+                </div>
+              )}
               
               {selectedTickets.length > 0 && (
                 <div className="mt-6 border-t pt-4">
