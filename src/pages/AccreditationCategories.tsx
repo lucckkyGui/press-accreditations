@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -118,6 +117,39 @@ const AccreditationCategories = () => {
     }
   };
 
+  // Function to render category cards
+  const renderCategoryCards = (categories) => {
+    return categories.map((category) => (
+      <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow border-t-4" style={{ borderTopColor: category.color.replace('bg-', '') }}>
+        <CardHeader className={`${category.color} text-white`}>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl text-white">
+              {currentLanguage === 'en' ? category.title : category.titlePl}
+            </CardTitle>
+            <category.icon className="h-8 w-8 text-white/80" />
+          </div>
+          <CardDescription className="text-white/90 mt-1">
+            {currentLanguage === 'en' ? category.description : category.descriptionPl}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="bg-muted/50">{category.count} {t('common.events')}</Badge>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button 
+            variant="default"
+            className="w-full"
+            onClick={() => navigate(`/accreditation-events/${category.id}`)}
+          >
+            {t('common.browse')}
+          </Button>
+        </CardFooter>
+      </Card>
+    ));
+  };
+
   return (
     <div className="min-h-screen bg-muted/30 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -145,73 +177,19 @@ const AccreditationCategories = () => {
           </Tabs>
         </div>
 
-        <TabsContent value="all" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {getTabContent(activeTab).map((category) => (
-              <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow border-t-4" style={{ borderTopColor: category.color.replace('bg-', '') }}>
-                <CardHeader className={`${category.color} text-white`}>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl text-white">
-                      {currentLanguage === 'en' ? category.title : category.titlePl}
-                    </CardTitle>
-                    <category.icon className="h-8 w-8 text-white/80" />
-                  </div>
-                  <CardDescription className="text-white/90 mt-1">
-                    {currentLanguage === 'en' ? category.description : category.descriptionPl}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="bg-muted/50">{category.count} {t('common.events')}</Badge>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="default"
-                    className="w-full"
-                    onClick={() => navigate(`/accreditation-events/${category.id}`)}
-                  >
-                    {t('common.browse')}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsContent value="all">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {renderCategoryCards(getTabContent('all'))}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="featured" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {getTabContent('featured').map((category) => (
-              <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow border-t-4" style={{ borderTopColor: category.color.replace('bg-', '') }}>
-                <CardHeader className={`${category.color} text-white`}>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl text-white">
-                      {currentLanguage === 'en' ? category.title : category.titlePl}
-                    </CardTitle>
-                    <category.icon className="h-8 w-8 text-white/80" />
-                  </div>
-                  <CardDescription className="text-white/90 mt-1">
-                    {currentLanguage === 'en' ? category.description : category.descriptionPl}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="bg-muted/50">{category.count} {t('common.events')}</Badge>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="default"
-                    className="w-full"
-                    onClick={() => navigate(`/accreditation-events/${category.id}`)}
-                  >
-                    {t('common.browse')}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+          <TabsContent value="featured">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {renderCategoryCards(getTabContent('featured'))}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="mt-10 bg-muted rounded-lg p-6 shadow-sm max-w-2xl mx-auto">
           <h2 className="font-semibold text-xl mb-2">{t('common.needHelp')}</h2>
