@@ -1,3 +1,4 @@
+
 export const en = {
   common: {
     error: "Error",
@@ -97,6 +98,8 @@ export const en = {
     internetConnected: "Connected to the internet",
     internetDisconnected: "No internet connection",
     historyCleared: "Scan history has been cleared",
+    languageChanged: "Language changed to {language}",
+    themeChanged: "Theme changed to {theme}",
   },
   guests: {
     firstName: "First Name",
@@ -127,5 +130,10 @@ export const en = {
     buyTicket: "Buy ticket now",
     viewEvents: "View events",
     backButton: "Back to home page",
+  },
+  theme: {
+    light: "Light",
+    dark: "Dark",
+    system: "System"
   }
 };

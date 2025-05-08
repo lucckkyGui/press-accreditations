@@ -11,7 +11,7 @@ export type TranslationsType = typeof pl;
 
 interface I18nContextType {
   locale: Locale;
-  t: (key: string) => string;
+  t: (key: string, replacements?: Record<string, string>) => string;
   changeLocale: (locale: Locale) => void;
   locales: Locale[];
 }
@@ -27,6 +27,16 @@ const getNestedValue = (obj: any, path: string): string => {
     }
     return path; // Fallback to the key itself if not found
   }, obj);
+};
+
+// Helper function to replace placeholders in translation strings
+const applyReplacements = (text: string, replacements?: Record<string, string>): string => {
+  if (!replacements) return text;
+  
+  return Object.entries(replacements).reduce((result, [key, value]) => {
+    const regex = new RegExp(`\\{${key}\\}`, 'g');
+    return result.replace(regex, value);
+  }, text);
 };
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
@@ -58,8 +68,9 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     }, 1000);
   };
   
-  const t = (key: string): string => {
-    return getNestedValue(translations, key);
+  const t = (key: string, replacements?: Record<string, string>): string => {
+    const value = getNestedValue(translations, key);
+    return applyReplacements(value, replacements);
   };
   
   useEffect(() => {

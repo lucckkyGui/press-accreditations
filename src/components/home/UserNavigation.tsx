@@ -6,6 +6,7 @@ import { User, LogIn, Moon, Sun, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import { useI18n } from "@/hooks/useI18n";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const UserNavigation = () => {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ const UserNavigation = () => {
 
   return (
     <div className="space-x-4 flex items-center">
+      <LanguageSwitcher variant="icon" />
+      
       <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
         {theme === "dark" ? (
           <Sun className="h-4 w-4" />

@@ -4,13 +4,14 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Languages } from "lucide-react";
+import { toast } from "sonner";
 
 interface LanguageSwitcherProps {
   variant?: "icon" | "full";
 }
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" }) => {
-  const { locale, changeLocale, locales } = useI18n();
+  const { locale, changeLocale, locales, t } = useI18n();
   
   const getLanguageName = (code: string) => {
     switch (code) {
@@ -28,6 +29,13 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" })
     }
   };
 
+  const handleLanguageChange = (newLocale: typeof locale) => {
+    if (newLocale !== locale) {
+      changeLocale(newLocale);
+      toast.success(t('notifications.languageChanged').replace('{language}', getLanguageName(newLocale)));
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,12 +49,12 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" })
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-background">
         {locales.map((loc) => (
           <DropdownMenuItem 
             key={loc}
-            onClick={() => changeLocale(loc)}
-            className="gap-2"
+            onClick={() => handleLanguageChange(loc)}
+            className="gap-2 cursor-pointer"
           >
             <span>{getLanguageFlag(loc)}</span>
             <span>{getLanguageName(loc)}</span>

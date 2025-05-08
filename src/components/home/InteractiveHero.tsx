@@ -4,15 +4,31 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Ticket } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { playSound } from "@/utils/soundEffects";
 
 const InteractiveHero = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
 
-  const animateButton = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const animateButton = (e: React.MouseEvent<HTMLButtonElement>, soundType: "success" | "notification") => {
     const button = e.currentTarget;
     button.classList.add('animate-scale-in');
+    
+    // Play sound effect and add visual feedback
+    playSound(soundType).catch(err => console.warn("Could not play sound", err));
+    
+    // Remove animation class after it completes
     setTimeout(() => button.classList.remove('animate-scale-in'), 200);
+  };
+
+  const handleTicketClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    animateButton(e, "success");
+    navigate('/ticketing');
+  };
+
+  const handleEventsClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    animateButton(e, "notification");
+    navigate('/events');
   };
 
   return (
@@ -36,10 +52,7 @@ const InteractiveHero = () => {
             <Button
               size="lg"
               className="animate-fade-in gap-2 hover:scale-105 transition-transform"
-              onClick={(e) => {
-                animateButton(e);
-                navigate('/ticketing');
-              }}
+              onClick={handleTicketClick}
             >
               <Ticket className="h-5 w-5" />
               {t("home.buyTicket")}
@@ -49,10 +62,7 @@ const InteractiveHero = () => {
               variant="outline"
               size="lg"
               className="animate-fade-in gap-2 hover:scale-105 transition-transform"
-              onClick={(e) => {
-                animateButton(e);
-                navigate('/events');
-              }}
+              onClick={handleEventsClick}
             >
               <Calendar className="h-5 w-5" />
               {t("home.viewEvents")}

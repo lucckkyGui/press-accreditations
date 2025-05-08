@@ -1,3 +1,4 @@
+
 export const pl = {
   common: {
     error: "Błąd",
@@ -97,6 +98,8 @@ export const pl = {
     internetConnected: "Połączono z internetem",
     internetDisconnected: "Brak połączenia z internetem",
     historyCleared: "Historia skanowań została wyczyszczona",
+    languageChanged: "Zmieniono język na {language}",
+    themeChanged: "Zmieniono motyw na {theme}",
   },
   guests: {
     firstName: "Imię",
@@ -127,5 +130,10 @@ export const pl = {
     buyTicket: "Kup bilet teraz",
     viewEvents: "Zobacz wydarzenia",
     backButton: "Wróć do strony głównej",
+  },
+  theme: {
+    light: "Jasny",
+    dark: "Ciemny",
+    system: "Systemowy"
   }
 };

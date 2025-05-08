@@ -85,11 +85,96 @@
 @keyframes language-fade {
   0% {
     opacity: 1;
+    transform: translateY(0);
   }
   50% {
     opacity: 0.7;
+    transform: translateY(-3px);
   }
   100% {
     opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Button Animations */
+.animate-scale-in {
+  animation: button-scale 0.2s ease-out;
+}
+
+@keyframes button-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Scanner animation */
+.scanner-corners {
+  @apply w-48 h-48 border-2 border-white/40 border-dashed rounded-lg relative;
+}
+
+.scanner-corners span {
+  @apply absolute w-4 h-4 border-2 border-primary;
+}
+
+.scanner-corners span:nth-child(1) {
+  @apply top-0 left-0 border-b-0 border-r-0;
+}
+
+.scanner-corners span:nth-child(2) {
+  @apply top-0 right-0 border-b-0 border-l-0;
+}
+
+.scanner-corners span:nth-child(3) {
+  @apply bottom-0 left-0 border-t-0 border-r-0;
+}
+
+.scanner-corners span:nth-child(4) {
+  @apply bottom-0 right-0 border-t-0 border-l-0;
+}
+
+.scanner-laser {
+  @apply absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2;
+  animation: laser-scan 2s infinite ease-in-out;
+}
+
+@keyframes laser-scan {
+  0%, 100% { transform: translate(-50%, -100px); }
+  50% { transform: translate(-50%, 100px); }
+}
+
+/* Pulse effect for buttons */
+.pulse-button {
+  position: relative;
+}
+
+.pulse-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  animation: pulse-animation 2s infinite;
+  @apply bg-primary;
+  z-index: -1;
+}
+
+@keyframes pulse-animation {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
   }
 }

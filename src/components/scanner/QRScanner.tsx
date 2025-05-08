@@ -9,7 +9,7 @@ import CameraPreview from "./CameraPreview";
 import { toast } from "sonner";
 import "./QRScanner.css";
 import { useI18n } from "@/hooks/useI18n";
-import { playSound } from "@/utils/soundEffects";
+import { playSound, isAudioSupported } from "@/utils/soundEffects";
 
 interface QRScannerProps {
   onScanSuccess?: (guest: Guest) => void;
@@ -38,34 +38,36 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
       }
     }
     
-    if (settings.playSound) {
-      playSound(success ? "success" : "error");
+    if (settings.playSound && isAudioSupported()) {
+      playSound(success ? "success" : "error").catch(err => 
+        console.warn("Could not play sound", err)
+      );
     }
   };
 
   const startScanning = () => {
     setScanning(true);
     setCameraActive(true);
-    if (settings.playSound) {
-      playSound("scan");
+    if (settings.playSound && isAudioSupported()) {
+      playSound("scan").catch(err => console.warn("Could not play sound", err));
     }
   };
 
   const handleQrCodeDetected = (qrCode: string) => {
-    console.log("Wykryto QR kod:", qrCode);
+    console.log("QR code detected:", qrCode);
     try {
-      // Próbujemy zdekodować dane z QR kodu jako JSON
+      // Try to decode QR data as JSON
       let guestData = null;
       
       try {
         guestData = JSON.parse(qrCode);
       } catch (e) {
-        // Jeśli parsowanie nie zadziałało, zakładamy że to prosty ciąg znaków (np. id)
-        console.log("Nie można sparsować QR kodu jako JSON, próba wyszukania gościa po ID");
+        // If parsing doesn't work, assume it's a simple string (e.g. ID)
+        console.log("Could not parse QR code as JSON, trying to find guest by ID");
       }
       
-      // W rzeczywistej aplikacji tutaj byłoby API call do weryfikacji gościa
-      // Dla demo tworzymy dane testowe
+      // In a real app this would be an API call to verify the guest
+      // For demo we're creating test data
       const mockGuest: Guest = guestData || {
         id: qrCode || Math.random().toString(36).substr(2, 9),
         firstName: "Anna",
@@ -79,7 +81,7 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
       
       handleScanResult(mockGuest);
     } catch (error) {
-      console.error("Błąd przetwarzania danych z kodu QR:", error);
+      console.error("Error processing data from QR code:", error);
       toast.error(t("common.error"));
       setScanning(false);
     }

@@ -9,8 +9,11 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import PricingSection from "@/components/home/PricingSection";
 import CTASection from "@/components/home/CTASection";
 import FooterSection from "@/components/home/FooterSection";
+import { useI18n } from "@/hooks/useI18n";
 
 const HomePage = () => {
+  const { t } = useI18n();
+  
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
