@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Ticket, ArrowRight } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
-import { playSound } from "@/utils/soundEffects";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 const InteractiveHero = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const { playSoundEffect } = useSoundEffects();
 
   const animateButton = (e: React.MouseEvent<HTMLButtonElement>, soundType: "success" | "notification") => {
     const button = e.currentTarget;
     button.classList.add('animate-scale-in');
     
     // Play sound effect and add visual feedback
-    playSound(soundType).catch(err => console.warn("Could not play sound", err));
+    playSoundEffect(soundType);
     
     // Remove animation class after it completes
     setTimeout(() => button.classList.remove('animate-scale-in'), 200);

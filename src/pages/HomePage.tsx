@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import FAQSection from "@/components/home/FAQSection";
 import UserNavigation from "@/components/home/UserNavigation";
+import HeroSection from "@/components/home/HeroSection"; 
 import InteractiveHero from "@/components/home/InteractiveHero";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
@@ -32,6 +33,7 @@ const HomePage = () => {
 
       {/* Main content */}
       <main className="flex-1">
+        <HeroSection />
         <InteractiveHero />
         
         {/* Features section moved up for better flow */}
