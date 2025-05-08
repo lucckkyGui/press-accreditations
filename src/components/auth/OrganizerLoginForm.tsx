@@ -13,12 +13,18 @@ import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useI18n } from "@/hooks/useI18n";
 
 export const OrganizerLoginForm = ({ 
-  onResetClick 
+  onResetClick,
+  defaultEmail = "",
+  defaultPassword = "",
+  testModeEnabled = false
 }: { 
-  onResetClick: () => void 
+  onResetClick: () => void;
+  defaultEmail?: string;
+  defaultPassword?: string;
+  testModeEnabled?: boolean;
 }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(defaultEmail);
+  const [password, setPassword] = useState(defaultPassword);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +36,14 @@ export const OrganizerLoginForm = ({
     setIsLoading(true);
     
     try {
+      if (testModeEnabled && email === "admin@example.com" && password === "password123") {
+        // Testowe logowanie
+        playSoundEffect("success", 0.5);
+        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako organizator'));
+        navigate("/dashboard");
+        return;
+      }
+      
       const { error } = await signIn(email, password);
       
       if (error) {
@@ -38,9 +52,10 @@ export const OrganizerLoginForm = ({
       }
       
       playSoundEffect("success", 0.5);
+      toast.success(t('auth.loginSuccessful', 'Zalogowano pomyślnie'));
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || t('auth.loginFailed'));
+      toast.error(error.message || t('auth.loginFailed', 'Logowanie nie powiodło się. Sprawdź swoje dane.'));
     } finally {
       setIsLoading(false);
     }

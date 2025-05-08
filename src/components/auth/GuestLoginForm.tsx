@@ -17,13 +17,15 @@ interface GuestLoginFormProps {
   setEmail: (email: string) => void;
   guestStep: "email" | "verify";
   setGuestStep: (step: "email" | "verify") => void;
+  testModeEnabled?: boolean;
 }
 
 export const GuestLoginForm = ({ 
   email, 
   setEmail, 
   guestStep, 
-  setGuestStep 
+  setGuestStep,
+  testModeEnabled = false
 }: GuestLoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
@@ -36,11 +38,19 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
-      // In a real implementation, you would send a verification code via Supabase OTP
+      if (testModeEnabled && email === "guest@example.com") {
+        // Testowe wysłanie kodu
+        playSoundEffect("notification");
+        toast.success(t('auth.verificationCodeSent'));
+        setGuestStep("verify");
+        return;
+      }
+      
+      // W rzeczywistej implementacji, wysłałbyś kod weryfikacyjny przez Supabase OTP
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          // This would be enabled if email verification works
+          // To byłoby włączone, gdyby weryfikacja email działała
           // emailRedirectTo: `${window.location.origin}/login`
         }
       });
@@ -52,7 +62,14 @@ export const GuestLoginForm = ({
       setGuestStep("verify");
     } catch (error: any) {
       playSoundEffect("error", 0.4);
-      toast.error(error.message || t('auth.emailSendFailed'));
+      
+      if (testModeEnabled) {
+        // W trybie testowym ignorujemy błędy i przechodzimy dalej
+        toast.info(t('auth.testModeInfo', 'W trybie testowym pomijamy faktyczną weryfikację'));
+        setGuestStep("verify");
+      } else {
+        toast.error(error.message || t('auth.emailSendFailed'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -63,8 +80,15 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
-      // In a real implementation, you would verify the OTP code
-      // For demo purposes, we're accepting any 6-digit code
+      // W trybie testowym, akceptujemy dowolny kod 6-cyfrowy
+      if (testModeEnabled && verificationCode.length === 6) {
+        playSoundEffect("success");
+        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako gość'));
+        navigate("/dashboard");
+        return;
+      }
+      
+      // W rzeczywistej implementacji, weryfikowałbyś kod OTP
       if (verificationCode.length === 6) {
         const { error } = await supabase.auth.verifyOtp({
           email,
@@ -82,7 +106,14 @@ export const GuestLoginForm = ({
       }
     } catch (error: any) {
       playSoundEffect("error", 0.4);
-      toast.error(error.message || t('auth.verificationFailed'));
+      
+      if (testModeEnabled) {
+        // W trybie testowym akceptujemy dowolny kod i logujemy
+        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako gość'));
+        navigate("/dashboard");
+      } else {
+        toast.error(error.message || t('auth.verificationFailed'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +122,13 @@ export const GuestLoginForm = ({
   const handleResendCode = async () => {
     setIsLoading(true);
     try {
+      if (testModeEnabled) {
+        // Testowe ponowne wysłanie kodu
+        playSoundEffect("notification");
+        toast.success(t('auth.verificationCodeResent'));
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithOtp({
         email
       });
@@ -101,7 +139,13 @@ export const GuestLoginForm = ({
       toast.success(t('auth.verificationCodeResent'));
     } catch (error: any) {
       playSoundEffect("error", 0.4);
-      toast.error(error.message || t('auth.emailSendFailed'));
+      
+      if (testModeEnabled) {
+        // W trybie testowym ignorujemy błędy
+        toast.info(t('auth.testModeInfo', 'W trybie testowym pomijamy faktyczną weryfikację'));
+      } else {
+        toast.error(error.message || t('auth.emailSendFailed'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,6 +175,12 @@ export const GuestLoginForm = ({
               </InputOTP>
             </div>
           </div>
+          
+          {testModeEnabled && (
+            <div className="text-center mt-2 text-sm text-muted-foreground">
+              <p>{t('auth.testCodeHint', 'W trybie testowym możesz użyć kodu: 123456')}</p>
+            </div>
+          )}
           
           <div className="text-center mt-4">
             <p className="text-sm text-muted-foreground">
