@@ -17,20 +17,12 @@ const HomePage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
   
-  const handleRequestAccreditation = () => {
-    navigate("/accreditation-request");
-  };
-  
-  const handleCheckStatus = () => {
-    navigate("/dashboard");
-  };
-  
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full p-4">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full py-3">
         <div className="container flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
             <QrCode className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">{t('accreditation.title')}</span>
           </div>
@@ -42,34 +34,19 @@ const HomePage = () => {
       <main className="flex-1">
         <InteractiveHero />
         
-        {/* Quick Actions Section */}
-        <section className="py-8 bg-muted/30">
-          <div className="container">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-              <Button 
-                size="lg" 
-                className="w-full md:w-auto min-w-[200px]"
-                onClick={handleRequestAccreditation}
-              >
-                {t('accreditation.requestForm')}
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="w-full md:w-auto min-w-[200px]"
-                onClick={handleCheckStatus}
-              >
-                {t('accreditation.status')}
-              </Button>
-            </div>
-          </div>
-        </section>
-        
+        {/* Features section moved up for better flow */}
         <FeaturesSection />
+        
+        {/* Testimonials section */}
         <TestimonialsSection />
+        
+        {/* FAQ section */}
         <FAQSection />
+        
+        {/* Pricing section */}
         <PricingSection />
+        
+        {/* Call to action section */}
         <CTASection />
       </main>
 
