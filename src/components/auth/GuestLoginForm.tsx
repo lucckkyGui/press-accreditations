@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,9 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, Loader2, SquareCode } from "lucide-react";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { useI18n } from "@/hooks/useI18n";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GuestLoginFormProps {
   email: string;
@@ -23,37 +27,84 @@ export const GuestLoginForm = ({
 }: GuestLoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const { playSoundEffect } = useSoundEffects();
+  const { t } = useI18n();
+  const navigate = useNavigate();
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    setTimeout(() => {
-      if (email) {
-        toast.success("Kod weryfikacyjny został wysłany na podany adres email");
-        setGuestStep("verify");
-      } else {
-        toast.error("Proszę podać adres email");
-      }
+    try {
+      // In a real implementation, you would send a verification code via Supabase OTP
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          // This would be enabled if email verification works
+          // emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+      
+      if (error) throw error;
+      
+      playSoundEffect("notification");
+      toast.success(t('auth.verificationCodeSent'));
+      setGuestStep("verify");
+    } catch (error: any) {
+      playSoundEffect("error", 0.4);
+      toast.error(error.message || t('auth.emailSendFailed'));
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleVerifyGuest = (e: React.FormEvent) => {
+  const handleVerifyGuest = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    setTimeout(() => {
+    try {
+      // In a real implementation, you would verify the OTP code
+      // For demo purposes, we're accepting any 6-digit code
       if (verificationCode.length === 6) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "guest");
-        localStorage.setItem("userEmail", email);
-        toast.success("Weryfikacja udana, zalogowano jako gość");
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token: verificationCode,
+          type: 'email'
+        });
+        
+        if (error) throw error;
+        
+        playSoundEffect("success");
+        toast.success(t('auth.loginSuccessful'));
+        navigate("/dashboard");
       } else {
-        toast.error("Niepoprawny kod weryfikacyjny");
+        throw new Error(t('auth.invalidVerificationCode'));
       }
+    } catch (error: any) {
+      playSoundEffect("error", 0.4);
+      toast.error(error.message || t('auth.verificationFailed'));
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email
+      });
+      
+      if (error) throw error;
+      
+      playSoundEffect("notification");
+      toast.success(t('auth.verificationCodeResent'));
+    } catch (error: any) {
+      playSoundEffect("error", 0.4);
+      toast.error(error.message || t('auth.emailSendFailed'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (guestStep === "verify") {
@@ -61,7 +112,7 @@ export const GuestLoginForm = ({
       <form onSubmit={handleVerifyGuest}>
         <CardContent className="space-y-4">
           <div className="flex flex-col items-center space-y-2">
-            <Label htmlFor="verification-code">Kod weryfikacyjny</Label>
+            <Label htmlFor="verification-code">{t('auth.verificationCode')}</Label>
             <div className="mt-4">
               <InputOTP 
                 maxLength={6} 
@@ -83,17 +134,16 @@ export const GuestLoginForm = ({
           
           <div className="text-center mt-4">
             <p className="text-sm text-muted-foreground">
-              Nie otrzymałeś kodu?
+              {t('auth.didntReceiveCode')}
             </p>
             <Button 
               type="button" 
               variant="link" 
               className="text-sm p-0 h-auto"
-              onClick={() => {
-                toast.info("Kod został wysłany ponownie na podany adres email");
-              }}
+              onClick={handleResendCode}
+              disabled={isLoading}
             >
-              Wyślij ponownie
+              {t('auth.resendCode')}
             </Button>
             <div className="mt-2">
               <Button 
@@ -102,9 +152,10 @@ export const GuestLoginForm = ({
                 size="sm" 
                 className="text-xs"
                 onClick={() => setGuestStep("email")}
+                disabled={isLoading}
               >
                 <ArrowLeft className="h-3 w-3 mr-1" />
-                Wróć do poprzedniego kroku
+                {t('auth.backToPreviousStep')}
               </Button>
             </div>
           </div>
@@ -113,9 +164,9 @@ export const GuestLoginForm = ({
           <Button type="submit" className="w-full" disabled={isLoading || verificationCode.length < 6}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Weryfikacja...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.verifying')}
               </>
-            ) : "Weryfikuj i zaloguj"}
+            ) : t('auth.verifyAndLogin')}
           </Button>
         </CardFooter>
       </form>
@@ -126,31 +177,34 @@ export const GuestLoginForm = ({
     <form onSubmit={handleEmailSubmit}>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="guest-email">Email</Label>
+          <Label htmlFor="guest-email">{t('auth.email')}</Label>
           <Input
             id="guest-email"
             type="email"
-            placeholder="twoj@email.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          Podaj adres email, na który otrzymałeś zaproszenie.
+          {t('auth.enterInvitationEmail')}
         </p>
         
         <div className="border-t border-border pt-4 mt-4">
           <div className="text-center text-sm text-muted-foreground mb-4">
-            Lub zeskanuj kod QR z zaproszenia:
+            {t('auth.orScanQRCode')}
           </div>
           <Button
             variant="outline"
             className="w-full gap-2"
-            onClick={() => toast.info("Funkcja skanowania kodu QR będzie dostępna w pełnej wersji")}
+            onClick={() => {
+              playSoundEffect("notification");
+              toast.info(t('auth.qrScanUnavailable'));
+            }}
           >
             <SquareCode className="h-4 w-4" />
-            Zeskanuj kod QR
+            {t('auth.scanQRCode')}
           </Button>
         </div>
       </CardContent>
@@ -158,9 +212,9 @@ export const GuestLoginForm = ({
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Wysyłanie kodu...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.sendingCode')}
             </>
-          ) : "Wyślij kod weryfikacyjny"}
+          ) : t('auth.sendVerificationCode')}
         </Button>
       </CardFooter>
     </form>

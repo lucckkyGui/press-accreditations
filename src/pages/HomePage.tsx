@@ -1,6 +1,8 @@
 
 import React from "react";
 import { QrCode } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import FAQSection from "@/components/home/FAQSection";
 import UserNavigation from "@/components/home/UserNavigation";
 import InteractiveHero from "@/components/home/InteractiveHero";
@@ -13,6 +15,15 @@ import { useI18n } from "@/hooks/useI18n";
 
 const HomePage = () => {
   const { t } = useI18n();
+  const navigate = useNavigate();
+  
+  const handleRequestAccreditation = () => {
+    navigate("/accreditation-request");
+  };
+  
+  const handleCheckStatus = () => {
+    navigate("/dashboard");
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -21,7 +32,7 @@ const HomePage = () => {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <QrCode className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Press Acreditations</span>
+            <span className="text-xl font-bold">{t('accreditation.title')}</span>
           </div>
           <UserNavigation />
         </div>
@@ -30,6 +41,31 @@ const HomePage = () => {
       {/* Main content */}
       <main className="flex-1">
         <InteractiveHero />
+        
+        {/* Quick Actions Section */}
+        <section className="py-8 bg-muted/30">
+          <div className="container">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto min-w-[200px]"
+                onClick={handleRequestAccreditation}
+              >
+                {t('accreditation.requestForm')}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full md:w-auto min-w-[200px]"
+                onClick={handleCheckStatus}
+              >
+                {t('accreditation.status')}
+              </Button>
+            </div>
+          </div>
+        </section>
+        
         <FeaturesSection />
         <TestimonialsSection />
         <FAQSection />

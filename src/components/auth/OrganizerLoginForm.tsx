@@ -8,6 +8,9 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { SocialLoginButtons } from "./SocialLoginButtons";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { useI18n } from "@/hooks/useI18n";
 
 export const OrganizerLoginForm = ({ 
   onResetClick 
@@ -19,28 +22,39 @@ export const OrganizerLoginForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { playSoundEffect } = useSoundEffects();
+  const { t } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signIn(email, password);
-    if (!error) {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        playSoundEffect("error", 0.4);
+        throw error;
+      }
+      
+      playSoundEffect("success", 0.5);
       navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || t('auth.loginFailed'));
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="org-email">Email</Label>
+          <Label htmlFor="org-email">{t('auth.email')}</Label>
           <Input
             id="org-email"
             type="email"
-            placeholder="twoj@email.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -48,7 +62,7 @@ export const OrganizerLoginForm = ({
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="org-password">Hasło</Label>
+            <Label htmlFor="org-password">{t('auth.password')}</Label>
             <Button
               variant="link"
               size="sm"
@@ -58,7 +72,7 @@ export const OrganizerLoginForm = ({
                 onResetClick();
               }}
             >
-              Zapomniałeś hasła?
+              {t('auth.forgotPassword')}
             </Button>
           </div>
           <Input
@@ -72,7 +86,7 @@ export const OrganizerLoginForm = ({
         
         <div className="pt-2">
           <div className="text-center text-sm text-muted-foreground mb-4">
-            Lub zaloguj się przez:
+            {t('auth.orLoginWith')}
           </div>
           <SocialLoginButtons />
         </div>
@@ -81,20 +95,20 @@ export const OrganizerLoginForm = ({
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logowanie...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.loggingIn')}
             </>
-          ) : "Zaloguj się"}
+          ) : t('auth.login')}
         </Button>
         
         <div className="text-center text-sm text-muted-foreground mt-2">
-          Nie masz jeszcze konta?{" "}
+          {t('auth.noAccount')}{" "}
           <Button 
             variant="link" 
             size="sm" 
             className="p-0 h-auto"
             onClick={() => navigate("/purchase")}
           >
-            Zarejestruj się
+            {t('auth.register')}
           </Button>
         </div>
       </CardFooter>
