@@ -1,3 +1,4 @@
+
 export const en = {
   common: {
     edit: "Edit",
@@ -67,6 +68,20 @@ export const en = {
     october: "October",
     november: "November",
     december: "December",
+    clearAll: "Clear All",
+    filters: "Filters",
+    export: "Export",
+    import: "Import",
+    createdAt: "Created At",
+    updatedAt: "Updated At",
+    actions: "Actions", 
+    noDataAvailable: "No Data Available",
+    form: {
+      required: "This field is required",
+      email: "Invalid email address",
+      minLength: "Minimum length is {length} characters",
+      maxLength: "Maximum length is {length} characters",
+    },
   },
   pages: {
     dashboard: "Dashboard",
@@ -161,5 +176,12 @@ export const en = {
     status: "Check Status",
     eventsList: "Upcoming Events",
     myAccreditations: "My Accreditations"
+  },
+  home: {
+    heroTitle: "Press Accreditation",
+    heroTitleHighlight: "System",
+    heroSubtitle: "Streamlined media access management for events and conferences",
+    buyTicket: "Request Access",
+    viewEvents: "View Events"
   }
 };

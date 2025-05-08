@@ -57,9 +57,15 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   
   const changeLocale = (newLocale: Locale) => {
     setLocale(newLocale);
-    setTranslations(newLocale === "pl" ? pl : en);
     localStorage.setItem("locale", newLocale);
     document.documentElement.lang = newLocale;
+    
+    // Update translations based on locale
+    if (newLocale === "pl") {
+      setTranslations(pl);
+    } else {
+      setTranslations(en);
+    }
     
     // Add a visual feedback for language change
     document.documentElement.classList.add('language-transition');
