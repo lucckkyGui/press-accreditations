@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { QrCode, ArrowLeft, Info } from "lucide-react";
@@ -10,6 +11,7 @@ import { ResetPasswordDialog } from "@/components/auth/ResetPasswordDialog";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from "@/hooks/useI18n";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +22,15 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useI18n();
+  const { isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from || "/dashboard";
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   useEffect(() => {
     const role = location.state?.role;
@@ -42,7 +53,8 @@ const Login = () => {
     if (activeTab === "organizator") {
       toast.success(t('auth.testLoginSuccess'));
       setTimeout(() => {
-        navigate("/dashboard");
+        const from = location.state?.from || "/dashboard";
+        navigate(from, { replace: true });
       }, 500);
     } else {
       setEmail("guest@example.com");
@@ -69,7 +81,7 @@ const Login = () => {
         <Button 
           variant="ghost" 
           className="mb-4 flex items-center gap-2"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
         >
           <ArrowLeft className="h-4 w-4" />
           {t('common.backToHome')}

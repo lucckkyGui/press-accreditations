@@ -21,6 +21,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  isAuthenticated: boolean; // Added for clearer auth state checking
 }
 
 // Create an auth context
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
+        setIsAuthenticated(!!session?.user);
         setLoading(false);
       }
     );
@@ -53,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log("Initial session check:", session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
+        setIsAuthenticated(!!session?.user);
       } catch (error) {
         console.error("Error getting session:", error);
       } finally {
@@ -102,7 +106,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       toast.success('Zalogowano pomyślnie');
-      navigate('/dashboard');
       return { error: null };
     } catch (error: any) {
       console.error('Error signing in:', error);
@@ -115,7 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      navigate('/login');
+      navigate('/home'); // Navigate to home instead of login
       toast.success('Wylogowano pomyślnie');
     } catch (error: any) {
       console.error('Error signing out:', error);
@@ -145,6 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     session,
     loading,
+    isAuthenticated,
     signUp,
     signIn,
     signOut,
@@ -173,6 +177,7 @@ export const withAuthValues = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
     // Set up auth state listener
@@ -180,6 +185,7 @@ export const withAuthValues = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        setIsAuthenticated(!!session?.user);
         setLoading(false);
       }
     );
@@ -188,6 +194,7 @@ export const withAuthValues = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setIsAuthenticated(!!session?.user);
       setLoading(false);
     });
 
@@ -198,5 +205,6 @@ export const withAuthValues = () => {
     user,
     session,
     loading,
+    isAuthenticated,
   };
 };

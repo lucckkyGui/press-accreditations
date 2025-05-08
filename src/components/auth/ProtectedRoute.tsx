@@ -1,27 +1,28 @@
-
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireAuth?: boolean; // Nowy prop, który umożliwia opcjonalne wymaganie autentykacji
+  requireAuth?: boolean;
 }
 
 const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
-  // Jeśli strona nadal się ładuje, pokaż spinner
+  // If page is still loading, show spinner
   if (loading) {
     return <LoadingSpinner />;
   }
 
-  // Jeśli wymagana jest autoryzacja i użytkownik nie jest zalogowany, przekieruj na stronę logowania
-  if (requireAuth && !user) {
-    return <Navigate to="/login" />;
+  // If authentication is required and user is not logged in, redirect to login
+  if (requireAuth && !isAuthenticated) {
+    // Pass the current location to redirect back after login
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
   }
 
-  // W przeciwnym razie renderuj zawartość
+  // Otherwise, render the content
   return <>{children}</>;
 };
 

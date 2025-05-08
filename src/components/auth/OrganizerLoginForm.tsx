@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +28,7 @@ export const OrganizerLoginForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { playSoundEffect } = useSoundEffects();
   const { t } = useI18n();
 
@@ -44,7 +45,8 @@ export const OrganizerLoginForm = ({
           toast.success(t('auth.testLoginSuccess'));
           // Small delay to allow toast to be seen
           setTimeout(() => {
-            navigate("/dashboard");
+            const from = location.state?.from || "/dashboard";
+            navigate(from, { replace: true });
           }, 500);
           return;
         }
@@ -53,19 +55,18 @@ export const OrganizerLoginForm = ({
       // For non-test mode or when test credentials don't match
       const { error } = await signIn(email, password);
       
-      if (error) {
-        playSoundEffect("error", 0.4);
-        throw error;
-      }
+      if (error) throw error;
       
       playSoundEffect("success", 0.5);
       toast.success(t('auth.loginSuccessful'));
-      navigate("/dashboard");
+      
+      // Navigate to the page they were trying to access, or dashboard as default
+      const from = location.state?.from || "/dashboard";
+      navigate(from, { replace: true });
     } catch (error: any) {
       toast.error(error.message || t('auth.loginFailed'));
-      setIsLoading(false);
     } finally {
-      if (isLoading) setIsLoading(false);
+      setIsLoading(false);
     }
   };
 

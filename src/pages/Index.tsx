@@ -6,19 +6,19 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, loading } = withAuthValues();
+  const { user, loading, isAuthenticated } = withAuthValues();
   
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        // Jeśli użytkownik jest zalogowany, przekieruj do dashboardu
+      if (isAuthenticated) {
+        // If user is logged in, redirect to dashboard
         navigate('/dashboard');
       } else {
-        // Jeśli użytkownik nie jest zalogowany, przekieruj do głównej strony (zamiast do logowania)
+        // If user is not logged in, redirect to home page
         navigate('/home');
       }
     }
-  }, [navigate, user, loading]);
+  }, [navigate, isAuthenticated, loading]);
   
   return (
     <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-50">

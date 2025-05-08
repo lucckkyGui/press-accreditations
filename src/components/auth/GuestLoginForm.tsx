@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ export const GuestLoginForm = ({
   const { playSoundEffect } = useSoundEffects();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +102,8 @@ export const GuestLoginForm = ({
           toast.success(t('auth.testLoginSuccess'));
           // Small delay to allow toast to be seen
           setTimeout(() => {
-            navigate("/dashboard");
+            const from = location.state?.from || "/dashboard";
+            navigate(from, { replace: true });
           }, 500);
           return;
         }
@@ -119,7 +121,8 @@ export const GuestLoginForm = ({
         
         playSoundEffect("success");
         toast.success(t('auth.loginSuccessful'));
-        navigate("/dashboard");
+        const from = location.state?.from || "/dashboard";
+        navigate(from, { replace: true });
       } else {
         throw new Error(t('auth.invalidVerificationCode'));
       }
@@ -129,13 +132,13 @@ export const GuestLoginForm = ({
       if (testModeEnabled) {
         // In test mode, proceed to dashboard anyway
         toast.success(t('auth.testLoginSuccess'));
-        navigate("/dashboard");
+        const from = location.state?.from || "/dashboard";
+        navigate(from, { replace: true });
       } else {
         toast.error(error.message || t('auth.verificationFailed'));
-        setIsLoading(false);
       }
     } finally {
-      if (isLoading) setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
