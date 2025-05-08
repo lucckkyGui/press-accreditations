@@ -7,7 +7,7 @@ import { en } from "../i18n/en";
 export type Locale = "pl" | "en";
 
 // Create a type that represents the full translation structure
-export type TranslationsType = typeof pl;
+export type TranslationsType = typeof en;
 
 interface I18nContextType {
   locale: Locale;
@@ -53,7 +53,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const [locale, setLocale] = useState<Locale>(getDefaultLocale());
-  const [translations, setTranslations] = useState<TranslationsType>(locale === "pl" ? pl : en);
+  const [translations, setTranslations] = useState<TranslationsType>(locale === "pl" ? pl as TranslationsType : en);
   
   const changeLocale = (newLocale: Locale) => {
     setLocale(newLocale);
@@ -62,7 +62,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     
     // Update translations based on locale
     if (newLocale === "pl") {
-      setTranslations(pl);
+      setTranslations(pl as TranslationsType);
     } else {
       setTranslations(en);
     }
