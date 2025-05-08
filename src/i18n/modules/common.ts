@@ -46,7 +46,6 @@ export const common = {
     deadline: "Deadline",
     apply: "Apply",
     filter: "Filter",
-    search: "Search",
     browse: "Browse"
   },
   pl: {
@@ -95,7 +94,6 @@ export const common = {
     deadline: "Termin",
     apply: "Aplikuj",
     filter: "Filtruj",
-    search: "Szukaj",
     browse: "Przeglądaj"
   }
 };
