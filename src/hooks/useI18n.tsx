@@ -3,8 +3,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { pl } from "../i18n/pl";
 import { en } from "../i18n/en";
 
-type Locale = "pl" | "en";
-type Translations = typeof pl;
+// Define allowed locale types
+export type Locale = "pl" | "en";
+
+// Create a type that represents the full structure of translations
+export type TranslationsType = typeof pl;
 
 interface I18nContextType {
   locale: Locale;
@@ -15,6 +18,7 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
+// Helper function to get nested values from an object using dot notation
 const getNestedValue = (obj: any, path: string): string => {
   const keys = path.split('.');
   return keys.reduce((acc, key) => {
@@ -39,13 +43,19 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const [locale, setLocale] = useState<Locale>(getDefaultLocale());
-  const [translations, setTranslations] = useState<Translations>(locale === "pl" ? pl : en);
+  const [translations, setTranslations] = useState<TranslationsType>(locale === "pl" ? pl : en);
   
   const changeLocale = (newLocale: Locale) => {
     setLocale(newLocale);
     setTranslations(newLocale === "pl" ? pl : en);
     localStorage.setItem("locale", newLocale);
     document.documentElement.lang = newLocale;
+    
+    // Add a visual feedback for language change
+    document.documentElement.classList.add('language-transition');
+    setTimeout(() => {
+      document.documentElement.classList.remove('language-transition');
+    }, 1000);
   };
   
   const t = (key: string): string => {

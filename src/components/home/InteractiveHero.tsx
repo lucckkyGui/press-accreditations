@@ -3,9 +3,11 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Ticket } from "lucide-react";
+import { useI18n } from "@/hooks/useI18n";
 
 const InteractiveHero = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const animateButton = (e: React.MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
@@ -22,13 +24,12 @@ const InteractiveHero = () => {
       <div className="container relative z-10">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="animate-fade-in mb-6 text-4xl font-bold tracking-tight sm:text-6xl">
-            Zarządzaj wydarzeniami
-            <span className="text-primary"> z łatwością</span>
+            {t("home.heroTitle")}
+            <span className="text-primary"> {t("home.heroTitleHighlight")}</span>
           </h1>
           
           <p className="animate-fade-in mb-10 text-lg text-muted-foreground">
-            System zarządzania akredytacjami i biletami, który usprawni Twoją pracę.
-            Dołącz do setek zadowolonych organizatorów już dziś.
+            {t("home.heroSubtitle")}
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
@@ -41,7 +42,7 @@ const InteractiveHero = () => {
               }}
             >
               <Ticket className="h-5 w-5" />
-              Kup bilet teraz
+              {t("home.buyTicket")}
             </Button>
             
             <Button
@@ -54,7 +55,7 @@ const InteractiveHero = () => {
               }}
             >
               <Calendar className="h-5 w-5" />
-              Zobacz wydarzenia
+              {t("home.viewEvents")}
             </Button>
           </div>
         </div>

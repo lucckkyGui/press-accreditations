@@ -1,4 +1,3 @@
-
 export const en = {
   common: {
     error: "Error",
@@ -14,6 +13,24 @@ export const en = {
     noResults: "No results",
     back: "Back",
     next: "Next",
+  },
+  navigation: {
+    tickets: "Tickets",
+    myProfile: "My Profile",
+    logOut: "Log Out",
+    loginAsGuest: "Login as Guest",
+    loginAsOrganizer: "Login as Organizer",
+    dashboard: "Dashboard",
+    events: "Events",
+    guests: "Guests",
+    scanner: "Scanner",
+    settings: "Settings",
+    notifications: "Notifications",
+    home: "Home",
+    toggleMenu: "Toggle Menu",
+    userMenu: "User Menu",
+    userProfile: "User Profile",
+    profile: "Profile"
   },
   scanner: {
     title: "QR Scanner",
@@ -100,5 +117,15 @@ export const en = {
       declined: "Declined",
       checkedIn: "Checked in",
     },
+  },
+  home: {
+    title: "Event Management",
+    subtitle: "Manage press accreditations and event tickets in a simple and efficient way",
+    heroTitle: "Manage events",
+    heroTitleHighlight: "with ease",
+    heroSubtitle: "An accreditation and ticket management system that will streamline your work. Join hundreds of satisfied organizers today.",
+    buyTicket: "Buy ticket now",
+    viewEvents: "View events",
+    backButton: "Back to home page",
   }
 };

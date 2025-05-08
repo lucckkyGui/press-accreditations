@@ -1,4 +1,3 @@
-
 export const pl = {
   common: {
     error: "Błąd",
@@ -14,6 +13,24 @@ export const pl = {
     noResults: "Brak wyników",
     back: "Powrót",
     next: "Dalej",
+  },
+  navigation: {
+    tickets: "Bilety",
+    myProfile: "Mój profil",
+    logOut: "Wyloguj się",
+    loginAsGuest: "Zaloguj jako Gość",
+    loginAsOrganizer: "Zaloguj jako Organizator",
+    dashboard: "Pulpit",
+    events: "Wydarzenia",
+    guests: "Goście",
+    scanner: "Skaner",
+    settings: "Ustawienia",
+    notifications: "Powiadomienia",
+    home: "Strona główna",
+    toggleMenu: "Przełącz menu",
+    userMenu: "Menu użytkownika",
+    userProfile: "Profil użytkownika",
+    profile: "Profil"
   },
   scanner: {
     title: "Skaner QR",
@@ -100,5 +117,15 @@ export const pl = {
       declined: "Odrzucony",
       checkedIn: "Obecny",
     },
+  },
+  home: {
+    title: "System Zarządzania Wydarzeniami",
+    subtitle: "Zarządzaj akredytacjami prasowymi i wejściówkami na wydarzenia w prosty i efektywny sposób",
+    heroTitle: "Zarządzaj wydarzeniami",
+    heroTitleHighlight: "z łatwością",
+    heroSubtitle: "System zarządzania akredytacjami i biletami, który usprawni Twoją pracę. Dołącz do setek zadowolonych organizatorów już dziś.",
+    buyTicket: "Kup bilet teraz",
+    viewEvents: "Zobacz wydarzenia",
+    backButton: "Wróć do strony głównej",
   }
 };

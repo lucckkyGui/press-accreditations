@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
+          <span className="sr-only">{t("navigation.toggleMenu")}</span>
         </Button>
         
         <div className="flex-1" />
@@ -37,14 +37,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <Button variant="ghost" size="icon" asChild>
             <Link to="/notifications">
               <Bell className="h-5 w-5" />
-              <span className="sr-only">Notifications</span>
+              <span className="sr-only">{t("navigation.notifications")}</span>
             </Link>
           </Button>
           
           <Button variant="ghost" size="icon" asChild>
             <Link to="/settings">
               <Settings className="h-5 w-5" />
-              <span className="sr-only">Settings</span>
+              <span className="sr-only">{t("navigation.settings")}</span>
             </Link>
           </Button>
           
@@ -52,17 +52,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <UserCircle className="h-5 w-5" />
-                <span className="sr-only">User Menu</span>
+                <span className="sr-only">{t("navigation.userMenu")}</span>
               </Button>
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 py-4">
-                <h2 className="font-semibold text-lg">User Profile</h2>
+                <h2 className="font-semibold text-lg">{t("navigation.userProfile")}</h2>
                 <hr />
                 <Button variant="outline" asChild>
-                  <Link to="/profile">Profile</Link>
+                  <Link to="/profile">{t("navigation.profile")}</Link>
                 </Button>
-                <Button variant="outline">Logout</Button>
+                <Button variant="outline">{t("navigation.logOut")}</Button>
               </div>
             </SheetContent>
           </Sheet>

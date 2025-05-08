@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { User, LogIn, Moon, Sun, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
+import { useI18n } from "@/hooks/useI18n";
 
 const UserNavigation = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t } = useI18n();
 
   const handleOrganizatorLogin = () => {
     navigate("/login", { state: { role: "organizator" } });
@@ -43,21 +45,21 @@ const UserNavigation = () => {
       
       <Button variant="ghost" onClick={handleTicketsClick} className="gap-2">
         <Ticket className="h-4 w-4" />
-        Bilety
+        {t("navigation.tickets")}
       </Button>
       
       {user ? (
         <>
           <Button variant="ghost" onClick={handleProfileClick} className="gap-2">
             <User className="h-4 w-4" />
-            Mój profil
+            {t("navigation.myProfile")}
           </Button>
-          <Button onClick={() => signOut()}>Wyloguj się</Button>
+          <Button onClick={() => signOut()}>{t("navigation.logOut")}</Button>
         </>
       ) : (
         <>
-          <Button variant="ghost" onClick={handleGuestLogin}>Zaloguj jako Gość</Button>
-          <Button onClick={handleOrganizatorLogin}>Zaloguj jako Organizator</Button>
+          <Button variant="ghost" onClick={handleGuestLogin}>{t("navigation.loginAsGuest")}</Button>
+          <Button onClick={handleOrganizatorLogin}>{t("navigation.loginAsOrganizer")}</Button>
         </>
       )}
     </div>
