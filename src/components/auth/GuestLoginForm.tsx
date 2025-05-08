@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -38,29 +37,32 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
-      if (testModeEnabled && email === "TEST") {
-        // Szybkie przejście do weryfikacji w trybie testowym
-        playSoundEffect("notification");
-        setEmail("guest@example.com");
-        toast.success(t('auth.verificationCodeSent'));
-        setGuestStep("verify");
-        return;
+      if (testModeEnabled) {
+        // Special case for "TEST" in test mode
+        if (email === "TEST") {
+          playSoundEffect("notification");
+          setEmail("guest@example.com");
+          toast.success(t('auth.verificationCodeSent'));
+          setGuestStep("verify");
+          setTimeout(() => setIsLoading(false), 300);
+          return;
+        }
+        
+        // Standard test guest email
+        if (email === "guest@example.com") {
+          playSoundEffect("notification");
+          toast.success(t('auth.verificationCodeSent'));
+          setGuestStep("verify");
+          setTimeout(() => setIsLoading(false), 300);
+          return;
+        }
       }
       
-      if (testModeEnabled && email === "guest@example.com") {
-        // Testowe wysłanie kodu
-        playSoundEffect("notification");
-        toast.success(t('auth.verificationCodeSent'));
-        setGuestStep("verify");
-        return;
-      }
-      
-      // W rzeczywistej implementacji, wysłałbyś kod weryfikacyjny przez Supabase OTP
+      // Regular OTP flow for non-test mode
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          // To byłoby włączone, gdyby weryfikacja email działała
-          // emailRedirectTo: `${window.location.origin}/login`
+          // emailRedirectTo would be used in production
         }
       });
       
@@ -73,7 +75,7 @@ export const GuestLoginForm = ({
       playSoundEffect("error", 0.4);
       
       if (testModeEnabled) {
-        // W trybie testowym ignorujemy błędy i przechodzimy dalej
+        // In test mode, proceed anyway
         toast.info(t('auth.testModeInfo'));
         setGuestStep("verify");
       } else {
@@ -89,23 +91,23 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
-      // W trybie testowym, przyjmujemy "TEST" jako kod
-      if (testModeEnabled && verificationCode === "TEST") {
-        playSoundEffect("success");
-        toast.success(t('auth.testLoginSuccess'));
-        navigate("/dashboard");
-        return;
+      // In test mode, accept any code
+      if (testModeEnabled) {
+        // Special handling for "TEST" code or any code in test mode
+        if (verificationCode === "TEST" || 
+            verificationCode.length === 6 || 
+            email === "guest@example.com") {
+          playSoundEffect("success");
+          toast.success(t('auth.testLoginSuccess'));
+          // Small delay to allow toast to be seen
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 500);
+          return;
+        }
       }
       
-      // W trybie testowym, akceptujemy dowolny kod 6-cyfrowy
-      if (testModeEnabled && (verificationCode.length === 6 || email === "guest@example.com")) {
-        playSoundEffect("success");
-        toast.success(t('auth.testLoginSuccess'));
-        navigate("/dashboard");
-        return;
-      }
-      
-      // W rzeczywistej implementacji, weryfikowałbyś kod OTP
+      // For non-test mode
       if (verificationCode.length === 6) {
         const { error } = await supabase.auth.verifyOtp({
           email,
@@ -125,14 +127,15 @@ export const GuestLoginForm = ({
       playSoundEffect("error", 0.4);
       
       if (testModeEnabled) {
-        // W trybie testowym akceptujemy dowolny kod i logujemy
+        // In test mode, proceed to dashboard anyway
         toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
       } else {
         toast.error(error.message || t('auth.verificationFailed'));
+        setIsLoading(false);
       }
     } finally {
-      setIsLoading(false);
+      if (isLoading) setIsLoading(false);
     }
   };
 

@@ -36,20 +36,21 @@ export const OrganizerLoginForm = ({
     setIsLoading(true);
     
     try {
-      if (testModeEnabled && email === "TEST") {
-        // Szybkie logowanie testowe
-        playSoundEffect("success", 0.5);
-        toast.success(t('auth.testLoginSuccess'));
-        navigate("/dashboard");
-        return;
-      } else if (testModeEnabled && email === "admin@example.com" && password === "password123") {
-        // Standardowe testowe logowanie
-        playSoundEffect("success", 0.5);
-        toast.success(t('auth.testLoginSuccess'));
-        navigate("/dashboard");
-        return;
+      // In test mode, bypass actual authentication
+      if (testModeEnabled) {
+        // Special case for "TEST" input or default test credentials
+        if (email === "TEST" || (email === "admin@example.com" && password === "password123")) {
+          playSoundEffect("success", 0.5);
+          toast.success(t('auth.testLoginSuccess'));
+          // Small delay to allow toast to be seen
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 500);
+          return;
+        }
       }
       
+      // For non-test mode or when test credentials don't match
       const { error } = await signIn(email, password);
       
       if (error) {
@@ -62,8 +63,9 @@ export const OrganizerLoginForm = ({
       navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || t('auth.loginFailed'));
-    } finally {
       setIsLoading(false);
+    } finally {
+      if (isLoading) setIsLoading(false);
     }
   };
 

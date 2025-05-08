@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { QrCode, ArrowLeft, Info } from "lucide-react";
@@ -28,18 +27,23 @@ const Login = () => {
       setActiveTab(role);
     }
 
-    // Automatycznie uzupełniamy dane testowe jeśli włączony jest tryb testowy
-    if (testModeEnabled && activeTab === "organizator") {
-      setEmail("admin@example.com");
-    } else if (testModeEnabled && activeTab === "guest") {
-      setEmail("guest@example.com");
+    // Auto-fill test data if test mode enabled
+    if (testModeEnabled) {
+      if (activeTab === "organizator") {
+        setEmail("admin@example.com");
+      } else if (activeTab === "guest") {
+        setEmail("guest@example.com");
+      }
     }
   }, [location.state, activeTab, testModeEnabled]);
 
   const handleTestLogin = () => {
+    // Directly navigate to dashboard in test mode
     if (activeTab === "organizator") {
-      toast.success(t('auth.testDataFilled'));
-      navigate("/dashboard");
+      toast.success(t('auth.testLoginSuccess'));
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
     } else {
       setEmail("guest@example.com");
       setGuestStep("verify");
