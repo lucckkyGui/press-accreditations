@@ -1,4 +1,3 @@
-
 export const pl = {
   common: {
     loading: "Ładowanie...",
@@ -76,12 +75,14 @@ export const pl = {
     settings: "Ustawienia",
     profile: "Profil",
     logout: "Wyloguj się",
+    brand: "PressAccreditations",
     form: {
       required: "To pole jest wymagane",
       email: "Nieprawidłowy adres email",
       minLength: "Minimalna długość to {length} znaków",
       maxLength: "Maksymalna długość to {length} znaków",
     },
+    help: "Pomoc",
   },
   components: {
     sidebar: {
@@ -127,19 +128,17 @@ export const pl = {
     },
   },
   pages: {
-    dashboard: {
-      title: "Panel",
-      welcome: "Witaj, {name}!",
-      statistics: "Statystyki",
-      totalEvents: "Wszystkie wydarzenia",
-      activeEvents: "Aktywne wydarzenia",
-      totalGuests: "Wszyscy goście",
-      checkedInGuests: "Zamelowani goście",
-      latestEvents: "Ostatnie wydarzenia",
-      viewAllEvents: "Zobacz wszystkie wydarzenia",
-      upcomingEvents: "Nadchodzące wydarzenia",
-      noUpcomingEvents: "Brak nadchodzących wydarzeń",
-    },
+    title: "Panel",
+    welcome: "Witaj, {name}!",
+    statistics: "Statystyki",
+    totalEvents: "Wszystkie wydarzenia",
+    activeEvents: "Aktywne wydarzenia",
+    totalGuests: "Wszyscy goście",
+    checkedInGuests: "Zamelowani goście",
+    latestEvents: "Ostatnie wydarzenia",
+    viewAllEvents: "Zobacz wszystkie wydarzenia",
+    upcomingEvents: "Nadchodzące wydarzenia",
+    noUpcomingEvents: "Brak nadchodzących wydarzeń",
     events: {
       title: "Wydarzenia",
       createEvent: "Utwórz wydarzenie",
@@ -287,5 +286,29 @@ export const pl = {
     heroSubtitle: "Wydajny system zarządzania dostępem mediów na wydarzenia i konferencje",
     buyTicket: "Poproś o dostęp",
     viewEvents: "Zobacz wydarzenia"
+  },
+  footer: {
+    description: "Kompleksowe rozwiązanie do zarządzania akredytacjami i wejściówkami na wydarzenia.",
+    product: {
+      title: "Produkt",
+      features: "Funkcje",
+      pricing: "Cennik",
+      faq: "FAQ",
+      forWhom: "Dla kogo"
+    },
+    support: {
+      title: "Wsparcie",
+      helpCenter: "Centrum pomocy",
+      contact: "Kontakt",
+      documentation: "Dokumentacja",
+      systemStatus: "Status systemu"
+    },
+    company: {
+      title: "Firma",
+      about: "O nas",
+      blog: "Blog",
+      careers: "Kariera",
+      privacy: "Prywatność"
+    }
   }
 };
