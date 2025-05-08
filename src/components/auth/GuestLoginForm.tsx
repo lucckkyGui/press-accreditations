@@ -65,7 +65,7 @@ export const GuestLoginForm = ({
       
       if (testModeEnabled) {
         // W trybie testowym ignorujemy błędy i przechodzimy dalej
-        toast.info(t('auth.testModeInfo', 'W trybie testowym pomijamy faktyczną weryfikację'));
+        toast.info(t('auth.testModeInfo'));
         setGuestStep("verify");
       } else {
         toast.error(error.message || t('auth.emailSendFailed'));
@@ -83,7 +83,7 @@ export const GuestLoginForm = ({
       // W trybie testowym, akceptujemy dowolny kod 6-cyfrowy
       if (testModeEnabled && verificationCode.length === 6) {
         playSoundEffect("success");
-        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako gość'));
+        toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
         return;
       }
@@ -109,7 +109,7 @@ export const GuestLoginForm = ({
       
       if (testModeEnabled) {
         // W trybie testowym akceptujemy dowolny kod i logujemy
-        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako gość'));
+        toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
       } else {
         toast.error(error.message || t('auth.verificationFailed'));
@@ -142,7 +142,7 @@ export const GuestLoginForm = ({
       
       if (testModeEnabled) {
         // W trybie testowym ignorujemy błędy
-        toast.info(t('auth.testModeInfo', 'W trybie testowym pomijamy faktyczną weryfikację'));
+        toast.info(t('auth.testModeInfo'));
       } else {
         toast.error(error.message || t('auth.emailSendFailed'));
       }
@@ -178,7 +178,7 @@ export const GuestLoginForm = ({
           
           {testModeEnabled && (
             <div className="text-center mt-2 text-sm text-muted-foreground">
-              <p>{t('auth.testCodeHint', 'W trybie testowym możesz użyć kodu: 123456')}</p>
+              <p>{t('auth.testCodeHint')}</p>
             </div>
           )}
           
@@ -250,7 +250,7 @@ export const GuestLoginForm = ({
             className="w-full gap-2"
             onClick={() => {
               playSoundEffect("notification");
-              toast.info(t('auth.qrScanUnavailable'));
+              toast.info("QR scan unavailable");
             }}
           >
             <SquareCode className="h-4 w-4" />

@@ -39,7 +39,7 @@ export const OrganizerLoginForm = ({
       if (testModeEnabled && email === "admin@example.com" && password === "password123") {
         // Testowe logowanie
         playSoundEffect("success", 0.5);
-        toast.success(t('auth.testLoginSuccess', 'Zalogowano testowo jako organizator'));
+        toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
         return;
       }
@@ -52,10 +52,10 @@ export const OrganizerLoginForm = ({
       }
       
       playSoundEffect("success", 0.5);
-      toast.success(t('auth.loginSuccessful', 'Zalogowano pomyślnie'));
+      toast.success(t('auth.loginSuccessful'));
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || t('auth.loginFailed', 'Logowanie nie powiodło się. Sprawdź swoje dane.'));
+      toast.error(error.message || t('auth.loginFailed'));
     } finally {
       setIsLoading(false);
     }

@@ -47,7 +47,7 @@ const Login = () => {
           </div>
           <h1 className="text-3xl font-bold">Press Acreditations</h1>
           <p className="text-muted-foreground mt-2">
-            {t('auth.systemDescription', 'System zarządzania akredytacjami prasowymi')}
+            {t('auth.systemDescription')}
           </p>
         </div>
 
@@ -57,31 +57,31 @@ const Login = () => {
           onClick={() => navigate("/")}
         >
           <ArrowLeft className="h-4 w-4" />
-          {t('common.backToHome', 'Powrót do strony głównej')}
+          {t('common.backToHome')}
         </Button>
 
         {testModeEnabled && (
           <Alert className="mb-4">
             <Info className="h-4 w-4" />
-            <AlertTitle>{t('auth.testModeTitle', 'Tryb testowy aktywny')}</AlertTitle>
+            <AlertTitle>{t('auth.testModeTitle')}</AlertTitle>
             <AlertDescription>
-              {t('auth.testModeDescription', 'Po zalogowaniu zostaniesz przekierowany do /dashboard. Możesz użyć przykładowych danych.')}
+              {t('auth.testModeDescription')}
             </AlertDescription>
           </Alert>
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="organizator">{t('auth.organizer', 'Organizator')}</TabsTrigger>
-            <TabsTrigger value="guest">{t('auth.guest', 'Gość')}</TabsTrigger>
+            <TabsTrigger value="organizator">{t('auth.organizer')}</TabsTrigger>
+            <TabsTrigger value="guest">{t('auth.guest')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="organizator">
             <Card>
               <CardHeader>
-                <CardTitle>{t('auth.organizerLogin', 'Logowanie dla organizatora')}</CardTitle>
+                <CardTitle>{t('auth.organizerLogin')}</CardTitle>
                 <CardDescription>
-                  {t('auth.organizerLoginDescription', 'Wprowadź swoje dane logowania, aby uzyskać dostęp do panelu organizatora.')}
+                  {t('auth.organizerLoginDescription')}
                 </CardDescription>
               </CardHeader>
               <OrganizerLoginForm 
@@ -98,13 +98,13 @@ const Login = () => {
               <CardHeader>
                 <CardTitle>
                   {guestStep === "email" 
-                    ? t('auth.guestLogin', 'Logowanie dla gości') 
-                    : t('auth.verification', 'Weryfikacja')}
+                    ? t('auth.guestLogin') 
+                    : t('auth.verification')}
                 </CardTitle>
                 <CardDescription>
                   {guestStep === "email" 
-                    ? t('auth.guestLoginDescription', 'Wprowadź swój adres email, aby otrzymać kod weryfikacyjny.')
-                    : t('auth.verificationDescription', `Wprowadź kod weryfikacyjny, który został wysłany na adres ${email}`)}
+                    ? t('auth.guestLoginDescription')
+                    : t('auth.verificationDescription')}
                 </CardDescription>
               </CardHeader>
               <GuestLoginForm
@@ -125,13 +125,13 @@ const Login = () => {
             onClick={() => {
               setTestModeEnabled(!testModeEnabled);
               toast.info(testModeEnabled 
-                ? t('auth.testModeDisabled', 'Tryb testowy wyłączony') 
-                : t('auth.testModeEnabled', 'Tryb testowy włączony'));
+                ? t('auth.testModeDisabled') 
+                : t('auth.testModeEnabled'));
             }}
           >
             {testModeEnabled 
-              ? t('auth.disableTestMode', 'Wyłącz tryb testowy') 
-              : t('auth.enableTestMode', 'Włącz tryb testowy')}
+              ? t('auth.disableTestMode') 
+              : t('auth.enableTestMode')}
           </Button>
         </div>
       </div>
