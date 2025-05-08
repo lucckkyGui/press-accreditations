@@ -38,6 +38,15 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
+      if (testModeEnabled && email === "TEST") {
+        // Szybkie przejście do weryfikacji w trybie testowym
+        playSoundEffect("notification");
+        setEmail("guest@example.com");
+        toast.success(t('auth.verificationCodeSent'));
+        setGuestStep("verify");
+        return;
+      }
+      
       if (testModeEnabled && email === "guest@example.com") {
         // Testowe wysłanie kodu
         playSoundEffect("notification");
@@ -80,8 +89,16 @@ export const GuestLoginForm = ({
     setIsLoading(true);
     
     try {
+      // W trybie testowym, przyjmujemy "TEST" jako kod
+      if (testModeEnabled && verificationCode === "TEST") {
+        playSoundEffect("success");
+        toast.success(t('auth.testLoginSuccess'));
+        navigate("/dashboard");
+        return;
+      }
+      
       // W trybie testowym, akceptujemy dowolny kod 6-cyfrowy
-      if (testModeEnabled && verificationCode.length === 6) {
+      if (testModeEnabled && (verificationCode.length === 6 || email === "guest@example.com")) {
         playSoundEffect("success");
         toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
@@ -179,6 +196,7 @@ export const GuestLoginForm = ({
           {testModeEnabled && (
             <div className="text-center mt-2 text-sm text-muted-foreground">
               <p>{t('auth.testCodeHint')}</p>
+              <p className="mt-1">Lub wpisz "TEST" w pierwszych polach</p>
             </div>
           )}
           
@@ -211,7 +229,7 @@ export const GuestLoginForm = ({
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading || verificationCode.length < 6}>
+          <Button type="submit" className="w-full" disabled={isLoading || (verificationCode.length < 6 && verificationCode !== "TEST")}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.verifying')}
@@ -240,6 +258,12 @@ export const GuestLoginForm = ({
         <p className="text-sm text-muted-foreground">
           {t('auth.enterInvitationEmail')}
         </p>
+        
+        {testModeEnabled && (
+          <div className="text-center mt-2 text-sm text-muted-foreground">
+            <p>Możesz wpisać "TEST" zamiast adresu email</p>
+          </div>
+        )}
         
         <div className="border-t border-border pt-4 mt-4">
           <div className="text-center text-sm text-muted-foreground mb-4">

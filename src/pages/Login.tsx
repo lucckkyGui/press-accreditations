@@ -36,6 +36,17 @@ const Login = () => {
     }
   }, [location.state, activeTab, testModeEnabled]);
 
+  const handleTestLogin = () => {
+    if (activeTab === "organizator") {
+      toast.success(t('auth.testDataFilled'));
+      navigate("/dashboard");
+    } else {
+      setEmail("guest@example.com");
+      setGuestStep("verify");
+      toast.success(t('auth.testDataFilled'));
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <div className="w-full max-w-md">
@@ -67,6 +78,16 @@ const Login = () => {
             <AlertDescription>
               {t('auth.testModeDescription')}
             </AlertDescription>
+            <div className="mt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="w-full"
+                onClick={handleTestLogin}
+              >
+                TEST - {t('auth.loginAs')} {activeTab === "organizator" ? t('auth.organizer') : t('auth.guest')}
+              </Button>
+            </div>
           </Alert>
         )}
 

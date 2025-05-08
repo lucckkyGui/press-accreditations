@@ -45,7 +45,9 @@ export const auth = {
     disableTestMode: "Disable test mode",
     testLoginSuccess: "Logged in successfully in test mode",
     testCodeHint: "In test mode, you can use code: 123456",
-    testModeInfo: "In test mode, we skip actual verification"
+    testModeInfo: "In test mode, we skip actual verification",
+    testDataFilled: "Test data filled. Click login to continue.",
+    loginAs: "Login as"
   },
   pl: {
     email: "Email",
@@ -92,6 +94,8 @@ export const auth = {
     disableTestMode: "Wyłącz tryb testowy",
     testLoginSuccess: "Zalogowano testowo pomyślnie",
     testCodeHint: "W trybie testowym możesz użyć kodu: 123456",
-    testModeInfo: "W trybie testowym pomijamy faktyczną weryfikację"
+    testModeInfo: "W trybie testowym pomijamy faktyczną weryfikację",
+    testDataFilled: "Dane testowe wypełnione. Kliknij zaloguj, aby kontynuować.",
+    loginAs: "Zaloguj się jako"
   }
 };

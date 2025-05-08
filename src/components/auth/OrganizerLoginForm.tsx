@@ -36,8 +36,14 @@ export const OrganizerLoginForm = ({
     setIsLoading(true);
     
     try {
-      if (testModeEnabled && email === "admin@example.com" && password === "password123") {
-        // Testowe logowanie
+      if (testModeEnabled && email === "TEST") {
+        // Szybkie logowanie testowe
+        playSoundEffect("success", 0.5);
+        toast.success(t('auth.testLoginSuccess'));
+        navigate("/dashboard");
+        return;
+      } else if (testModeEnabled && email === "admin@example.com" && password === "password123") {
+        // Standardowe testowe logowanie
         playSoundEffect("success", 0.5);
         toast.success(t('auth.testLoginSuccess'));
         navigate("/dashboard");
