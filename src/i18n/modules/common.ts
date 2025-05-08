@@ -1,5 +1,4 @@
 
-
 export const common = {
   en: {
     hello: "Hello",
@@ -60,7 +59,9 @@ export const common = {
     duration: "Duration",
     days: "days",
     attendees: "attendees",
-    location: "Location"
+    location: "Location",
+    categories: "Categories",
+    category: "Category"
   },
   pl: {
     hello: "Cześć",
@@ -121,7 +122,8 @@ export const common = {
     duration: "Czas trwania",
     days: "dni",
     attendees: "uczestników",
-    location: "Lokalizacja"
+    location: "Lokalizacja",
+    categories: "Kategorie",
+    category: "Kategoria"
   }
 };
-
