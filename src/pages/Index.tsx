@@ -11,8 +11,10 @@ const Index = () => {
   useEffect(() => {
     if (!loading) {
       if (user) {
+        // Jeśli użytkownik jest zalogowany, przekieruj do dashboardu
         navigate('/dashboard');
       } else {
+        // Jeśli użytkownik nie jest zalogowany, przekieruj do głównej strony (zamiast do logowania)
         navigate('/home');
       }
     }

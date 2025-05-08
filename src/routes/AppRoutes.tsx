@@ -28,12 +28,24 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/purchase" element={<Purchase />} />
       
-      {/* Accreditation routes */}
-      <Route path="/accreditation-categories" element={<AccreditationCategories />} />
-      <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
-      <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
+      {/* Trasy akredytacyjne - dostępne bez logowania */}
+      <Route path="/accreditation-categories" element={
+        <ProtectedRoute requireAuth={false}>
+          <AccreditationCategories />
+        </ProtectedRoute>
+      } />
+      <Route path="/accreditation-events/:categoryId" element={
+        <ProtectedRoute requireAuth={false}>
+          <AccreditationEvents />
+        </ProtectedRoute>
+      } />
+      <Route path="/accreditation-request/:eventId" element={
+        <ProtectedRoute requireAuth={false}>
+          <AccreditationRequest />
+        </ProtectedRoute>
+      } />
       
-      {/* Protected routes */}
+      {/* Trasy chronione - wymagają zalogowania */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <MainLayout>
@@ -87,7 +99,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      {/* Catch all */}
+      {/* Złap wszystkie nieobsłużone trasy */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
