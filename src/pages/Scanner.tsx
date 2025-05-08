@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Guest } from "@/types";
@@ -208,6 +207,16 @@ const Scanner = () => {
     
     toast.info("Historia skanowań została wyczyszczona");
   };
+  
+  const handleExportData = (format: "csv" | "pdf") => {
+    if (format === "csv") {
+      // Logika eksportu już jest w StatsCards
+      return;
+    } else if (format === "pdf") {
+      toast.info("Eksport do PDF będzie dostępny wkrótce");
+      // TODO: Implementacja eksportu do PDF
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -249,6 +258,8 @@ const Scanner = () => {
                 total={stats.total}
                 successful={stats.successful}
                 failed={stats.failed}
+                onExportData={handleExportData}
+                scanHistory={scanHistory}
               />
             </div>
 

@@ -1,93 +1,71 @@
 
 import React from "react";
-import { Bell, ChevronDown, LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Menu, Bell, Settings, UserCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useI18n } from "@/hooks/useI18n";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
-const Header = () => {
-  const navigate = useNavigate();
+interface HeaderProps {
+  toggleSidebar?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+  const { t } = useI18n();
   
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
-    toast.success("Wylogowano pomyślnie");
-    navigate("/login");
-  };
-  
-  const handleProfileClick = () => {
-    navigate("/settings");
-  };
-
-  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark');
-  };
-
   return (
-    <header className="border-b bg-white dark:bg-slate-900 sticky top-0 z-10">
-      <div className="px-4 py-3 flex justify-between items-center max-w-7xl mx-auto">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="md:hidden" />
-          <h1 className="text-xl font-semibold hidden md:block">
-            Press Acreditations
-          </h1>
+    <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link to="/dashboard" className="flex items-center space-x-2 font-semibold">
+            <span className="hidden font-bold sm:inline-block">EventManager</span>
+          </Link>
         </div>
         
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={toggleTheme} 
-            className="text-muted-foreground hover:text-foreground rounded-full" 
-            title={theme === 'light' ? 'Przełącz na tryb ciemny' : 'Przełącz na tryb jasny'}>
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+        
+        <div className="flex-1" />
+        
+        <div className="flex items-center gap-2">
+          {/* Language Switcher */}
+          <LanguageSwitcher variant="icon" />
+          
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/notifications">
+              <Bell className="h-5 w-5" />
+              <span className="sr-only">Notifications</span>
+            </Link>
           </Button>
           
-          <Button variant="ghost" size="icon" onClick={() => navigate('/notifications')} 
-            className="text-muted-foreground hover:text-foreground rounded-full relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/settings">
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Link>
           </Button>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 pl-2 pr-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-blue-500 text-white">OA</AvatarFallback>
-                </Avatar>
-                <span className="hidden md:inline font-medium">Organizator</span>
-                <ChevronDown className="h-4 w-4 opacity-70" />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <UserCircle className="h-5 w-5" />
+                <span className="sr-only">User Menu</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
-              <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
-                <User className="h-4 w-4 mr-2" />
-                Profil
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
-                <Settings className="h-4 w-4 mr-2" />
-                Ustawienia
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-500 cursor-pointer">
-                <LogOut className="h-4 w-4 mr-2" />
-                Wyloguj
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SheetTrigger>
+            <SheetContent>
+              <div className="flex flex-col space-y-4 py-4">
+                <h2 className="font-semibold text-lg">User Profile</h2>
+                <hr />
+                <Button variant="outline" asChild>
+                  <Link to="/profile">Profile</Link>
+                </Button>
+                <Button variant="outline">Logout</Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

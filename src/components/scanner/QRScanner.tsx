@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode } from "lucide-react";
@@ -7,12 +8,15 @@ import ScanResultDisplay from "./ScanResultDisplay";
 import CameraPreview from "./CameraPreview";
 import { toast } from "sonner";
 import "./QRScanner.css";
+import { useI18n } from "@/hooks/useI18n";
+import { playSound } from "@/utils/soundEffects";
 
 interface QRScannerProps {
   onScanSuccess?: (guest: Guest) => void;
 }
 
 const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
+  const { t } = useI18n();
   const [scanning, setScanning] = useState(false);
   const [lastScannedGuest, setLastScannedGuest] = useState<Guest | null>(null);
   const [scanResult, setScanResult] = useState<"success" | "error" | null>(null);
@@ -35,14 +39,16 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
     }
     
     if (settings.playSound) {
-      // W przyszłości można dodać rzeczywiste dźwięki
-      console.log(`Playing ${success ? 'success' : 'error'} sound`);
+      playSound(success ? "success" : "error");
     }
   };
 
   const startScanning = () => {
     setScanning(true);
     setCameraActive(true);
+    if (settings.playSound) {
+      playSound("scan");
+    }
   };
 
   const handleQrCodeDetected = (qrCode: string) => {
@@ -74,7 +80,7 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
       handleScanResult(mockGuest);
     } catch (error) {
       console.error("Błąd przetwarzania danych z kodu QR:", error);
-      toast.error("Nieprawidłowy format kodu QR");
+      toast.error(t("common.error"));
       setScanning(false);
     }
   };
@@ -146,9 +152,9 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
         <div>
           <CardTitle className="flex items-center gap-2">
             <QrCode className="h-5 w-5" />
-            Skaner QR
+            {t("scanner.title")}
           </CardTitle>
-          <CardDescription>Zeskanuj kod QR gościa, aby sprawdzić jego dostęp</CardDescription>
+          <CardDescription>{t("scanner.subtitle")}</CardDescription>
         </div>
         <ScannerSettings settings={settings} onSettingChange={updateSetting} />
       </CardHeader>

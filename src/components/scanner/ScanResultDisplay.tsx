@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { RefreshCw, UserCheck2, UserX2, CalendarClock } from "lucide-react";
 import { Guest } from "@/types";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 
 interface ScanResultDisplayProps {
   guest: Guest;
@@ -20,6 +21,8 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
   onRescan,
   autoScan,
 }) => {
+  const { t } = useI18n();
+  
   // Dynamicznie ustal kolor strefy
   const zoneColorMap = {
     vip: "bg-amber-500 border-amber-600 text-white",
@@ -57,13 +60,13 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
           <div>
             <AlertTitle className="text-lg font-bold mb-1">
               {scanResult === "success" 
-                ? "Dostęp przyznany" 
-                : "Brak dostępu"}
+                ? t("scanner.accessGranted") 
+                : t("scanner.accessDenied")}
             </AlertTitle>
             <AlertDescription className="text-base">
               {scanResult === "success"
-                ? "Gość może wejść na wydarzenie"
-                : "Gość nie ma dostępu do tego wydarzenia"}
+                ? t("scanner.guestCanEnter")
+                : t("scanner.guestCannotEnter")}
             </AlertDescription>
           </div>
         </div>
@@ -89,7 +92,7 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
         
         {guest.company && (
           <div className="text-sm flex items-center gap-1">
-            <span className="text-muted-foreground">Firma:</span> 
+            <span className="text-muted-foreground">{t("scanner.company")}:</span> 
             <span className="font-medium">{guest.company}</span>
           </div>
         )}
@@ -97,7 +100,7 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
         {guest.checkedInAt && (
           <div className="border-t border-dashed pt-2 mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarClock className="h-4 w-4" />
-            <span>Pierwsza wizyta: {guest.checkedInAt.toLocaleTimeString()}</span>
+            <span>{t("scanner.firstVisit")}: {guest.checkedInAt.toLocaleTimeString()}</span>
           </div>
         )}
         
@@ -112,7 +115,7 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
             )}
           >
             <RefreshCw className={cn("h-3.5 w-3.5", autoScan && "animate-spin")} />
-            {autoScan ? "Aktywne auto-skanowanie..." : "Skanuj ponownie"}
+            {autoScan ? t("scanner.autoScanning") : t("scanner.rescan")}
           </Button>
         </div>
       </div>

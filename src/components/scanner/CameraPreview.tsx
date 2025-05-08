@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Camera, CameraOff, QrCode, Smartphone } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/hooks/useI18n";
 
 interface CameraPreviewProps {
   scanning: boolean;
@@ -20,6 +21,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   onStopScanning,
   onQrCodeDetected,
 }) => {
+  const { t } = useI18n();
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainerId = "qr-reader";
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -95,7 +97,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           )}
         </div>
         <p className="text-center mb-4 animate-fade-in font-medium">
-          Skanowanie kodu QR<span className="animate-pulse">...</span>
+          {t("scanner.title")}<span className="animate-pulse">...</span>
         </p>
         <Button 
           variant="outline" 
@@ -103,7 +105,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           className="gap-2 transition-all hover:bg-destructive hover:text-white"
         >
           <CameraOff className="h-4 w-4" />
-          Anuluj
+          {t("common.cancel")}
         </Button>
       </div>
     );
@@ -126,7 +128,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         </div>
       )}
       <p className="text-center text-muted-foreground mb-4">
-        Kliknij przycisk poniżej, aby rozpocząć skanowanie kodu QR
+        {t("scanner.subtitle")}
       </p>
       <Button 
         onClick={onStartScanning} 
@@ -134,7 +136,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         size="lg"
       >
         <Smartphone className="h-5 w-5" />
-        Rozpocznij skanowanie
+        {t("scanner.startScanning")}
       </Button>
     </div>
   );

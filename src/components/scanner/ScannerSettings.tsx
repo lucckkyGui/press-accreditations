@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/hooks/useI18n";
 
 interface ScannerSettingsProps {
   settings: {
@@ -18,6 +19,8 @@ interface ScannerSettingsProps {
 }
 
 const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingChange }) => {
+  const { t } = useI18n();
+  
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -27,14 +30,14 @@ const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingCh
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Ustawienia skanera</SheetTitle>
+          <SheetTitle>{t("settings.title")}</SheetTitle>
         </SheetHeader>
         <div className="py-4 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="auto-scan">Automatyczne skanowanie</Label>
+              <Label htmlFor="auto-scan">{t("settings.autoScan")}</Label>
               <p className="text-xs text-muted-foreground">
-                Automatycznie skanuj następny kod po zakończeniu
+                {t("settings.autoScanDesc")}
               </p>
             </div>
             <Switch
@@ -46,9 +49,9 @@ const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingCh
           
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="haptic">Wibracja przy skanowaniu</Label>
+              <Label htmlFor="haptic">{t("settings.vibration")}</Label>
               <p className="text-xs text-muted-foreground">
-                Urządzenie zawibruje przy poprawnym/błędnym skanowaniu
+                {t("settings.vibrationDesc")}
               </p>
             </div>
             <Switch
@@ -60,9 +63,9 @@ const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingCh
           
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="sound">Dźwięki</Label>
+              <Label htmlFor="sound">{t("settings.sound")}</Label>
               <p className="text-xs text-muted-foreground">
-                Odtwarzaj dźwięki przy skanowaniu
+                {t("settings.soundDesc")}
               </p>
             </div>
             <Switch
@@ -74,9 +77,9 @@ const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingCh
           
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="front-camera">Przednia kamera</Label>
+              <Label htmlFor="front-camera">{t("settings.frontCamera")}</Label>
               <p className="text-xs text-muted-foreground">
-                Użyj przedniej kamery do skanowania
+                {t("settings.frontCameraDesc")}
               </p>
             </div>
             <Switch
@@ -88,9 +91,9 @@ const ScannerSettings: React.FC<ScannerSettingsProps> = ({ settings, onSettingCh
           
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="flashlight">Lampa błyskowa</Label>
+              <Label htmlFor="flashlight">{t("settings.flashlight")}</Label>
               <p className="text-xs text-muted-foreground">
-                Włącz lampę podczas skanowania (jeśli dostępna)
+                {t("settings.flashlightDesc")}
               </p>
             </div>
             <Switch
