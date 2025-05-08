@@ -11,7 +11,7 @@ import { ResetPasswordDialog } from "@/components/auth/ResetPasswordDialog";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from "@/hooks/useI18n";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");

@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User, LogIn, Moon, Sun, Ticket } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { useTheme } from "next-themes";
 import { useI18n } from "@/hooks/useI18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
