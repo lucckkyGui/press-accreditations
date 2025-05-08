@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { pl, enUS } from "date-fns/locale";
 
-// Przykładowe dane wydarzeń dla różnych kategorii
+// Rozszerzone przykładowe dane wydarzeń dla różnych kategorii
 const getMockEvents = (categoryId: string) => {
-  const baseEvents = [
+  const allEvents = [
+    // Festiwale
     {
       id: "1",
       title: "Summer Music Festival 2025",
@@ -41,6 +42,7 @@ const getMockEvents = (categoryId: string) => {
       registrationOpen: true,
       deadline: "2025-06-01T23:59:59"
     },
+    // Wydarzenia sportowe
     {
       id: "3",
       title: "UEFA Europa League Final",
@@ -57,6 +59,21 @@ const getMockEvents = (categoryId: string) => {
     },
     {
       id: "4",
+      title: "World Athletics Championship",
+      titlePl: "Mistrzostwa Świata w Lekkoatletyce",
+      location: "Silesian Stadium, Chorzów",
+      locationPl: "Stadion Śląski, Chorzów",
+      startDate: "2025-08-15T10:00:00",
+      endDate: "2025-08-23T20:00:00",
+      description: "Global athletics competition featuring top athletes from around the world",
+      descriptionPl: "Światowe zawody lekkoatletyczne z udziałem najlepszych sportowców",
+      category: "sports",
+      registrationOpen: true,
+      deadline: "2025-07-01T23:59:59"
+    },
+    // Koncerty
+    {
+      id: "5",
       title: "World Tour Concert - Global Star",
       titlePl: "Koncert World Tour - Światowa Gwiazda",
       location: "PGE National Stadium, Warsaw",
@@ -70,7 +87,22 @@ const getMockEvents = (categoryId: string) => {
       deadline: "2025-07-01T23:59:59"
     },
     {
-      id: "5",
+      id: "6",
+      title: "Symphony Orchestra Performance",
+      titlePl: "Występ Orkiestry Symfonicznej",
+      location: "National Philharmonic, Warsaw",
+      locationPl: "Filharmonia Narodowa, Warszawa",
+      startDate: "2025-09-10T19:00:00",
+      endDate: "2025-09-10T21:30:00",
+      description: "Classical music concert featuring famous compositions",
+      descriptionPl: "Koncert muzyki klasycznej prezentujący słynne kompozycje",
+      category: "concerts",
+      registrationOpen: true,
+      deadline: "2025-08-20T23:59:59"
+    },
+    // Konferencje prasowe
+    {
+      id: "7",
       title: "Economic Summit 2025",
       titlePl: "Szczyt Ekonomiczny 2025",
       location: "ICE Congress Centre, Krakow",
@@ -79,13 +111,87 @@ const getMockEvents = (categoryId: string) => {
       endDate: "2025-09-07T18:00:00",
       description: "Annual meeting of economic leaders and policy makers",
       descriptionPl: "Coroczne spotkanie liderów gospodarczych i decydentów",
-      category: "conferences",
+      category: "press",
       registrationOpen: true,
       deadline: "2025-08-01T23:59:59"
+    },
+    {
+      id: "8",
+      title: "Government Press Briefing",
+      titlePl: "Rządowy Briefing Prasowy",
+      location: "Prime Minister's Office, Warsaw",
+      locationPl: "Kancelaria Premiera, Warszawa",
+      startDate: "2025-06-25T11:00:00",
+      endDate: "2025-06-25T12:30:00",
+      description: "Official government press conference on current affairs",
+      descriptionPl: "Oficjalna konferencja prasowa rządu o bieżących sprawach",
+      category: "press",
+      registrationOpen: true,
+      deadline: "2025-06-20T23:59:59"
+    },
+    // Premiery filmowe
+    {
+      id: "9",
+      title: "Blockbuster Movie Premiere",
+      titlePl: "Premiera Filmu Kasowego",
+      location: "Cinema City, Warsaw",
+      locationPl: "Cinema City, Warszawa",
+      startDate: "2025-07-20T18:00:00",
+      endDate: "2025-07-20T23:00:00",
+      description: "Red carpet event for the premiere of an international blockbuster",
+      descriptionPl: "Wydarzenie z czerwonym dywanem na premierę międzynarodowego hitu",
+      category: "cinema",
+      registrationOpen: true,
+      deadline: "2025-07-10T23:59:59"
+    },
+    // Wydarzenia medialne
+    {
+      id: "10",
+      title: "Press Tour - New Technology Park",
+      titlePl: "Wizyta Prasowa - Nowy Park Technologiczny",
+      location: "Technology Park, Poznan",
+      locationPl: "Park Technologiczny, Poznań",
+      startDate: "2025-10-05T10:00:00",
+      endDate: "2025-10-05T16:00:00",
+      description: "Media visit to the newly opened technology innovation center",
+      descriptionPl: "Wizyta mediów w nowo otwartym centrum innowacji technologicznych",
+      category: "media",
+      registrationOpen: true,
+      deadline: "2025-09-25T23:59:59"
+    },
+    // Wydarzenia biznesowe
+    {
+      id: "11",
+      title: "Product Launch - Tech Giant",
+      titlePl: "Premiera Produktu - Gigant Technologiczny",
+      location: "Expo XXI, Warsaw",
+      locationPl: "Expo XXI, Warszawa",
+      startDate: "2025-11-15T14:00:00",
+      endDate: "2025-11-15T18:00:00",
+      description: "Launch event for the newest flagship products",
+      descriptionPl: "Wydarzenie inauguracyjne dla najnowszych flagowych produktów",
+      category: "business",
+      registrationOpen: false,
+      deadline: "2025-10-30T23:59:59"
+    },
+    // Transmisje TV
+    {
+      id: "12",
+      title: "Live TV Show Recording",
+      titlePl: "Nagranie Programu TV na Żywo",
+      location: "TVP Studio, Warsaw",
+      locationPl: "Studio TVP, Warszawa",
+      startDate: "2025-06-30T17:00:00",
+      endDate: "2025-06-30T19:00:00",
+      description: "Recording of a popular television entertainment show",
+      descriptionPl: "Nagranie popularnego programu rozrywkowego",
+      category: "broadcast",
+      registrationOpen: true,
+      deadline: "2025-06-20T23:59:59"
     }
   ];
 
-  return baseEvents.filter(event => event.category === categoryId);
+  return allEvents.filter(event => event.category === categoryId);
 };
 
 // Komponent do formatowania daty
@@ -124,8 +230,11 @@ const AccreditationEvents = () => {
       "festivals": { en: "Festivals", pl: "Festiwale" },
       "sports": { en: "Sports Events", pl: "Wydarzenia sportowe" },
       "concerts": { en: "Concerts", pl: "Koncerty" },
-      "conferences": { en: "Press Conferences", pl: "Konferencje prasowe" },
-      "other": { en: "Other Events", pl: "Inne wydarzenia" }
+      "press": { en: "Press Conferences", pl: "Konferencje prasowe" },
+      "cinema": { en: "Film Premieres", pl: "Premiery filmowe" },
+      "media": { en: "Media Events", pl: "Wydarzenia medialne" },
+      "business": { en: "Business Events", pl: "Wydarzenia biznesowe" },
+      "broadcast": { en: "TV Broadcasts", pl: "Transmisje TV" }
     };
     
     return categories[id] ? 

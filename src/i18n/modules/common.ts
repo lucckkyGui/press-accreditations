@@ -14,7 +14,6 @@ export const common = {
     edit: "Edit",
     add: "Add",
     remove: "Remove",
-    search: "Search",
     submit: "Submit",
     submitting: "Submitting...",
     loading: "Loading...",
@@ -46,7 +45,10 @@ export const common = {
     deadline: "Deadline",
     apply: "Apply",
     filter: "Filter",
-    browse: "Browse"
+    browse: "Browse",
+    home: "Home",
+    featured: "Featured",
+    all: "All"
   },
   pl: {
     hello: "Cześć",
@@ -62,7 +64,6 @@ export const common = {
     edit: "Edytuj",
     add: "Dodaj",
     remove: "Usuń",
-    search: "Szukaj",
     submit: "Wyślij",
     submitting: "Wysyłanie...",
     loading: "Ładowanie...",
@@ -94,6 +95,9 @@ export const common = {
     deadline: "Termin",
     apply: "Aplikuj",
     filter: "Filtruj",
-    browse: "Przeglądaj"
+    browse: "Przeglądaj",
+    home: "Strona główna",
+    featured: "Wyróżnione",
+    all: "Wszystkie"
   }
 };
