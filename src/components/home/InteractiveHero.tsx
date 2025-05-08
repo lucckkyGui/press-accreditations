@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, Ticket, ArrowRight } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const InteractiveHero = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { playSoundEffect } = useSoundEffects();
+  const isMobile = useIsMobile();
 
   const animateButton = (e: React.MouseEvent<HTMLButtonElement>, soundType: "success" | "notification") => {
     const button = e.currentTarget;
@@ -33,25 +35,25 @@ const InteractiveHero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-primary/20 py-20 lg:py-28">
+    <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-primary/20 py-16 lg:py-24">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-grid-white/10 [mask-image:radial-gradient(white,transparent_85%)]" />
       </div>
       
       <div className="container relative z-10">
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="animate-fade-in mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="animate-fade-in mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
             {t("home.heroTitle")}{" "}
             <span className="text-primary font-extrabold">{t("home.heroTitleHighlight")}</span>
           </h1>
           
-          <p className="animate-fade-in mb-8 text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="animate-fade-in mb-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             {t("home.heroSubtitle")}
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-8">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-6 md:mt-8">
             <Button
-              size="lg"
+              size={isMobile ? "default" : "lg"}
               className="animate-fade-in gap-2 hover:scale-105 transition-transform group text-base"
               onClick={handleTicketClick}
             >
@@ -62,7 +64,7 @@ const InteractiveHero = () => {
             
             <Button
               variant="outline"
-              size="lg"
+              size={isMobile ? "default" : "lg"}
               className="animate-fade-in gap-2 hover:scale-105 transition-transform text-base"
               onClick={handleEventsClick}
             >

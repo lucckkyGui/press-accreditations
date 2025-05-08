@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CTASection = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const isMobile = useIsMobile();
   
   const handleSelectPackage = (packageName: string) => {
     navigate("/purchase", { state: { selectedPackage: packageName } });
@@ -22,13 +24,13 @@ const CTASection = () => {
       </div>
       
       <div className="container text-center relative z-10">
-        <h2 className="text-3xl font-bold mb-4">Gotowy, by usprawnić zarządzanie wydarzeniami?</h2>
-        <p className="text-xl mb-8 max-w-2xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">Gotowy, by usprawnić zarządzanie wydarzeniami?</h2>
+        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
           Dołącz do setek organizatorów, którzy już korzystają z Press Acreditations
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
-            size="lg" 
+            size={isMobile ? "default" : "lg"}
             variant="outline" 
             className="bg-white hover:bg-white/90 text-primary hover:text-primary/90 border-primary-foreground group"
             onClick={() => handleSelectPackage("free-trial")}
@@ -38,7 +40,7 @@ const CTASection = () => {
           </Button>
           
           <Button 
-            size="lg"
+            size={isMobile ? "default" : "lg"}
             variant="ghost" 
             className="bg-transparent hover:bg-white/10 border border-white/40"
             onClick={() => handleSelectPackage("demo")}

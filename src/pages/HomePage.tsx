@@ -21,7 +21,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full py-3">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full py-4">
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
             <QrCode className="h-6 w-6 text-primary" />
@@ -32,7 +32,7 @@ const HomePage = () => {
       </header>
 
       {/* Main content */}
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         <HeroSection />
         <InteractiveHero />
         

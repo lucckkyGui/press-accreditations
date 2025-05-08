@@ -61,13 +61,13 @@ const FeaturesSection = () => {
   return (
     <section className="py-16 container">
       <div className="mb-12 text-center">
-        <h2 className="text-3xl font-bold mb-4">Główne funkcjonalności</h2>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">Główne funkcjonalności</h2>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
           Wszystko czego potrzebujesz do efektywnego zarządzania akredytacjami prasowymi
         </p>
       </div>
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {features.map((feature, index) => (
           <FeatureCard 
             key={index}
