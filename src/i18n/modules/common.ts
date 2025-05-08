@@ -1,4 +1,5 @@
 
+
 export const common = {
   en: {
     hello: "Hello",
@@ -48,7 +49,18 @@ export const common = {
     browse: "Browse",
     home: "Home",
     featured: "Featured",
-    all: "All"
+    all: "All",
+    allEvents: "All Events",
+    sortBy: "Sort by",
+    dateAsc: "Date (ascending)",
+    dateDesc: "Date (descending)",
+    nameAsc: "Name (A-Z)",
+    nameDesc: "Name (Z-A)",
+    popularity: "Popularity",
+    duration: "Duration",
+    days: "days",
+    attendees: "attendees",
+    location: "Location"
   },
   pl: {
     hello: "Cześć",
@@ -98,6 +110,18 @@ export const common = {
     browse: "Przeglądaj",
     home: "Strona główna",
     featured: "Wyróżnione",
-    all: "Wszystkie"
+    all: "Wszystkie",
+    allEvents: "Wszystkie Wydarzenia",
+    sortBy: "Sortuj według",
+    dateAsc: "Data (rosnąco)",
+    dateDesc: "Data (malejąco)",
+    nameAsc: "Nazwa (A-Z)",
+    nameDesc: "Nazwa (Z-A)",
+    popularity: "Popularność",
+    duration: "Czas trwania",
+    days: "dni",
+    attendees: "uczestników",
+    location: "Lokalizacja"
   }
 };
+
