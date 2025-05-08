@@ -7,7 +7,7 @@ import { en } from "../i18n/en";
 export type Locale = "pl" | "en";
 
 // Create a type that represents the full structure of translations
-export type TranslationsType = typeof pl;
+export type TranslationsType = typeof pl | typeof en;
 
 interface I18nContextType {
   locale: Locale;
@@ -62,9 +62,9 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     
     // Update translations based on locale
     if (newLocale === "pl") {
-      setTranslations(pl);
+      setTranslations(pl as TranslationsType);
     } else {
-      setTranslations(en);
+      setTranslations(en as TranslationsType);
     }
     
     // Add a visual feedback for language change
