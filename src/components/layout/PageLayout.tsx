@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, QrCode, User, Home } from "lucide-react";
+import { useI18n } from "@/hooks/useI18n";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -19,9 +20,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   subtitle,
   showBackButton = true,
   backTo = "/",
-  backLabel = "Wróć do strony głównej"
+  backLabel
 }) => {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
@@ -30,16 +32,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <QrCode className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Press Acreditations</span>
+            <span className="text-xl font-bold">PressAccreditations</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => navigate("/")}>
               <Home className="mr-2 h-4 w-4" />
-              Strona główna
+              {t('common.home')}
             </Button>
             <Button variant="ghost" onClick={() => navigate("/profile")}>
               <User className="mr-2 h-4 w-4" />
-              Mój profil
+              {t('navigation.myProfile')}
             </Button>
           </div>
         </div>
@@ -57,7 +59,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           {showBackButton && (
             <Button variant="ghost" onClick={() => navigate(backTo)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {backLabel}
+              {backLabel || t('common.back')}
             </Button>
           )}
         </div>
@@ -68,7 +70,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       {/* Footer */}
       <footer className="bg-muted py-6 border-t">
         <div className="container text-center">
-          <p className="text-muted-foreground">© 2025 Press Acreditations. Wszelkie prawa zastrzeżone.</p>
+          <p className="text-muted-foreground">&copy; {new Date().getFullYear()} PressAccreditations. {t('components.footer.rightsReserved')}</p>
         </div>
       </footer>
     </div>

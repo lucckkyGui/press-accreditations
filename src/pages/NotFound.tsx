@@ -3,9 +3,11 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { QrCode } from "lucide-react";
+import { useI18n } from "@/hooks/useI18n";
 
 const NotFound = () => {
   const location = useLocation();
+  const { t } = useI18n();
 
   useEffect(() => {
     console.error(
@@ -23,12 +25,12 @@ const NotFound = () => {
           </div>
         </div>
         <h1 className="text-6xl font-bold text-gray-800">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Strona nie została znaleziona</p>
+        <p className="text-xl text-gray-600 mb-4">{t('pages.notFound')}</p>
         <p className="text-gray-500">
-          Przepraszamy, strona której szukasz nie istnieje lub została przeniesiona.
+          {t('common.error')}
         </p>
         <Button asChild size="lg" className="mt-6">
-          <a href="/">Powrót do strony głównej</a>
+          <a href="/">{t('common.home')}</a>
         </Button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 
 {
-  "short_name": "Event Manager",
-  "name": "Event Manager - Zarządzanie wydarzeniami",
+  "short_name": "PressAccreditations",
+  "name": "PressAccreditations - System akredytacji prasowych",
   "icons": [
     {
       "src": "favicon.ico",
