@@ -1,13 +1,15 @@
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, CameraOff, QrCode, Smartphone } from "lucide-react";
+import { Html5Qrcode } from "html5-qrcode";
 
 interface CameraPreviewProps {
   scanning: boolean;
   cameraActive: boolean;
   onStartScanning: () => void;
   onStopScanning: () => void;
+  onQrCodeDetected?: (qrCode: string) => void;
 }
 
 const CameraPreview: React.FC<CameraPreviewProps> = ({
@@ -15,15 +17,70 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   cameraActive,
   onStartScanning,
   onStopScanning,
+  onQrCodeDetected,
 }) => {
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerContainerId = "qr-reader";
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Inicjalizacja skanera QR
+    if (scanning && !qrScannerRef.current) {
+      const qrScanner = new Html5Qrcode(scannerContainerId);
+      qrScannerRef.current = qrScanner;
+      
+      const config = { 
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+      };
+      
+      qrScanner.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          console.log("Kod QR wykryty:", decodedText);
+          if (onQrCodeDetected) {
+            onQrCodeDetected(decodedText);
+            qrScanner.stop().catch(error => console.error("Błąd przy zatrzymywaniu skanera:", error));
+          }
+        },
+        (errorMessage) => {
+          // Błędy skanowania nie są istotne - nie pokazujemy ich użytkownikowi
+        }
+      ).catch((err) => {
+        console.error("Błąd przy inicjalizacji skanera QR:", err);
+        setCameraError("Nie udało się uruchomić kamery. Sprawdź uprawnienia.");
+      });
+    }
+
+    return () => {
+      // Czyścimy skaner przy odmontowaniu komponentu
+      if (qrScannerRef.current && scanning) {
+        qrScannerRef.current.stop().catch(error => 
+          console.error("Błąd przy zatrzymywaniu skanera:", error)
+        );
+        qrScannerRef.current = null;
+      }
+    };
+  }, [scanning, onQrCodeDetected]);
+
   if (scanning) {
     return (
       <div className="flex flex-col items-center justify-center p-6 border-2 border-primary rounded-lg">
         <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-4">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-48 h-48 border-2 border-white border-opacity-40 rounded-md"></div>
-            <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2 animate-bounce"></div>
-          </div>
+          {cameraError ? (
+            <div className="absolute inset-0 flex items-center justify-center text-white bg-black/90 p-4 text-center">
+              <p>{cameraError}</p>
+            </div>
+          ) : (
+            <div id={scannerContainerId} className="w-full h-full">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-48 h-48 border-2 border-white border-opacity-40 rounded-md"></div>
+                <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2 animate-bounce"></div>
+              </div>
+            </div>
+          )}
         </div>
         <p className="text-center mb-4">Skanowanie kodu QR...</p>
         <Button variant="outline" onClick={onStopScanning} className="gap-2">

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode } from "lucide-react";
@@ -6,6 +5,8 @@ import { Guest } from "@/types";
 import ScannerSettings from "./ScannerSettings";
 import ScanResultDisplay from "./ScanResultDisplay";
 import CameraPreview from "./CameraPreview";
+import { toast } from "sonner";
+import "./QRScanner.css";
 
 interface QRScannerProps {
   onScanSuccess?: (guest: Guest) => void;
@@ -34,6 +35,7 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
     }
     
     if (settings.playSound) {
+      // W przyszłości można dodać rzeczywiste dźwięki
       console.log(`Playing ${success ? 'success' : 'error'} sound`);
     }
   };
@@ -41,28 +43,47 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
   const startScanning = () => {
     setScanning(true);
     setCameraActive(true);
-    
-    // Symulacja skanowania dla MVP
-    setTimeout(() => {
-      const mockGuest: Guest = {
-        id: Math.random().toString(36).substr(2, 9),
+  };
+
+  const handleQrCodeDetected = (qrCode: string) => {
+    console.log("Wykryto QR kod:", qrCode);
+    try {
+      // Próbujemy zdekodować dane z QR kodu jako JSON
+      let guestData = null;
+      
+      try {
+        guestData = JSON.parse(qrCode);
+      } catch (e) {
+        // Jeśli parsowanie nie zadziałało, zakładamy że to prosty ciąg znaków (np. id)
+        console.log("Nie można sparsować QR kodu jako JSON, próba wyszukania gościa po ID");
+      }
+      
+      // W rzeczywistej aplikacji tutaj byłoby API call do weryfikacji gościa
+      // Dla demo tworzymy dane testowe
+      const mockGuest: Guest = guestData || {
+        id: qrCode || Math.random().toString(36).substr(2, 9),
         firstName: "Anna",
         lastName: "Nowak",
         email: "anna.nowak@example.com",
         company: "XYZ Media",
         zone: "press",
         status: "confirmed",
-        qrCode: "mock-qr-code",
+        qrCode: qrCode,
       };
       
       handleScanResult(mockGuest);
-    }, 2000);
+    } catch (error) {
+      console.error("Błąd przetwarzania danych z kodu QR:", error);
+      toast.error("Nieprawidłowy format kodu QR");
+      setScanning(false);
+    }
   };
 
   const handleScanResult = (guest: Guest) => {
     setScanning(false);
     setLastScannedGuest(guest);
     
+    // Symulacja weryfikacji dostępu - w rzeczywistej aplikacji byłaby prawdziwa logika
     const hasAccess = Math.random() > 0.2;
     
     if (hasAccess) {
@@ -145,6 +166,7 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
             cameraActive={cameraActive}
             onStartScanning={startScanning}
             onStopScanning={() => setScanning(false)}
+            onQrCodeDetected={handleQrCodeDetected}
           />
         ) : lastScannedGuest && scanResult ? (
           <ScanResultDisplay
