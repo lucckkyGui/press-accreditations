@@ -1,341 +1,174 @@
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import MainLayout from "@/components/layout/MainLayout";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { ArrowLeft, Info } from "lucide-react";
+import { AccreditationForm } from "@/components/accreditation/AccreditationForm";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Upload, Check, Calendar } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
-const formSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().optional(),
-  mediaOutlet: z.string().min(2, "Media outlet name is required"),
-  role: z.string().min(2, "Your role in the media outlet is required"),
-  eventId: z.string().optional(),
-  pressCardId: z.string().optional(),
-  description: z.string().min(10, "Please provide a brief description of your coverage plans"),
-  previousCoverage: z.string().optional(),
-  termsAccepted: z.boolean().refine(val => val === true, {
-    message: "You must accept the terms and conditions",
-  }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+// Przykładowe dane wydarzenia
+const getMockEvent = (eventId: string) => {
+  // Tutaj normalnie pobralibyśmy dane z API na podstawie eventId
+  return {
+    id: eventId,
+    title: "Summer Music Festival 2025",
+    titlePl: "Letni Festiwal Muzyczny 2025",
+    location: "Warsaw, Poland",
+    locationPl: "Warszawa, Polska",
+    startDate: "2025-06-15T10:00:00",
+    endDate: "2025-06-17T22:00:00",
+    description: "The biggest summer music festival in Eastern Europe",
+    descriptionPl: "Największy letni festiwal muzyczny w Europie Wschodniej",
+    deadline: "2025-05-15T23:59:59"
+  };
+};
 
 const AccreditationRequest = () => {
-  const navigate = useNavigate();
-  const { playSoundEffect } = useSoundEffects();
-  const { t } = useI18n();
+  const { eventId } = useParams<{ eventId: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { t, currentLanguage } = useI18n();
+  const [isLoading, setIsLoading] = useState(false);
+  const [eventData, setEventData] = useState<any>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  useEffect(() => {
+    if (eventId) {
+      // W rzeczywistej aplikacji tutaj pobieramy dane wydarzenia z API
+      setEventData(getMockEvent(eventId));
+    }
+  }, [eventId]);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: user?.user_metadata?.first_name || "",
-      lastName: user?.user_metadata?.last_name || "",
-      email: user?.email || "",
-      phone: "",
-      mediaOutlet: "",
-      role: "",
-      eventId: "",
-      pressCardId: "",
-      description: "",
-      previousCoverage: "",
-      termsAccepted: false,
-    },
-  });
-
-  const onSubmit = async (data: FormValues) => {
+  const handleSubmit = async (formData: any) => {
+    setIsLoading(true);
+    
+    // Symulacja wysyłania formularza
     try {
-      // Here you would submit the data to your backend
-      console.log("Submitting accreditation request:", data);
+      // W rzeczywistej aplikacji tutaj wysyłamy dane do API
+      console.log("Submitting accreditation form:", formData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Symuluj opóźnienie wysyłania
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      playSoundEffect("success");
-      toast.success("Your accreditation request has been submitted successfully!");
-      navigate("/dashboard");
+      // Oznacz formularz jako wysłany
+      setIsSubmitted(true);
+      
+      // Wyświetl powiadomienie o sukcesie
+      toast.success(t('accreditation.requestSubmitted'));
     } catch (error) {
-      playSoundEffect("error");
-      toast.error("Failed to submit accreditation request. Please try again.");
-      console.error(error);
+      console.error("Error submitting accreditation form:", error);
+      toast.error(t('accreditation.requestError'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <MainLayout>
-      <div className="w-full max-w-3xl mx-auto">
-        <div className="flex items-center mb-6">
-          <Button 
-            variant="ghost" 
-            className="mr-4"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Request Press Accreditation</h1>
+  // Jeśli formularz został wysłany, pokaż komunikat potwierdzający
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-muted/30 p-4 md:p-8 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">{t('accreditation.thankYou')}</CardTitle>
+              <CardDescription className="text-center">
+                {t('accreditation.requestReceived')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-center text-muted-foreground">
+                {t('accreditation.confirmationSent')}
+              </p>
+              
+              <div className="flex justify-center gap-4 mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/accreditation-categories")}
+                >
+                  {t('accreditation.browseMoreEvents')}
+                </Button>
+                <Button 
+                  onClick={() => user ? navigate("/dashboard") : navigate("/")}
+                >
+                  {user ? t('navigation.dashboard') : t('common.backToHome')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+      </div>
+    );
+  }
 
-        <Card>
+  // Jeśli dane wydarzenia nie są jeszcze załadowane, pokaż loader
+  if (!eventData) {
+    return (
+      <div className="min-h-screen bg-muted/30 p-4 md:p-8 flex items-center justify-center">
+        <p>{t('common.loading')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-muted/30 p-4 md:p-8">
+      <div className="max-w-3xl mx-auto">
+        <Button 
+          variant="ghost" 
+          className="mb-4 flex items-center gap-2"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t('common.back')}
+        </Button>
+
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Media Accreditation Form</CardTitle>
+            <CardTitle>
+              {currentLanguage === 'en' ? eventData.title : eventData.titlePl}
+            </CardTitle>
             <CardDescription>
-              Fill out this form to request press credentials for an event. 
-              All fields marked with * are required.
+              {currentLanguage === 'en' ? eventData.location : eventData.locationPl}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="First name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Last name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+1 (555) 123-4567" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="mediaOutlet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Media Outlet *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Name of publication/channel" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Your Role *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select your role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="reporter">Reporter</SelectItem>
-                            <SelectItem value="photographer">Photographer</SelectItem>
-                            <SelectItem value="videographer">Videographer</SelectItem>
-                            <SelectItem value="editor">Editor</SelectItem>
-                            <SelectItem value="producer">Producer</SelectItem>
-                            <SelectItem value="social_media">Social Media Manager</SelectItem>
-                            <SelectItem value="blogger">Blogger/Influencer</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="eventId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Select Event</FormLabel>
-                      <div className="flex items-center gap-2">
-                        <FormControl className="flex-1">
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose an event" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="event1">Tech Conference 2025</SelectItem>
-                              <SelectItem value="event2">Music Festival 2025</SelectItem>
-                              <SelectItem value="event3">Film Premiere: New Horizons</SelectItem>
-                              <SelectItem value="event4">Sports Championship Finals</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <Button variant="outline" size="icon" type="button" onClick={() => navigate('/events')}>
-                          <Calendar className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pressCardId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Press Card ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your press card ID if available" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Planned Coverage *</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Please describe your intended coverage (e.g., article, photo essay, interview, etc.)" 
-                          className="min-h-[100px]" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="previousCoverage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Previous Coverage Examples</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Links to your previous work or coverage (optional)" 
-                          className="min-h-[80px]" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex items-start space-x-2 pt-2">
-                  <Button variant="outline" size="icon" type="button" disabled>
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                  <p className="text-sm text-muted-foreground">
-                    Document upload feature coming soon. You will be able to upload press credentials or work samples.
-                  </p>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="termsAccepted"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-medium leading-none">
-                          I accept the terms and conditions *
-                        </FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          By submitting this form, I confirm that the information provided is accurate and I agree to the accreditation terms and conditions.
-                        </p>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </form>
-            </Form>
+            <p>{currentLanguage === 'en' ? eventData.description : eventData.descriptionPl}</p>
+            <Alert className="mt-4">
+              <Info className="h-4 w-4" />
+              <AlertTitle>{t('accreditation.deadlineAlert')}</AlertTitle>
+              <AlertDescription>
+                {t('accreditation.deadlineDescription', { 
+                  date: new Date(eventData.deadline).toLocaleDateString(
+                    currentLanguage === 'en' ? 'en-US' : 'pl-PL',
+                    { year: 'numeric', month: 'long', day: 'numeric' }
+                  ) 
+                })}
+              </AlertDescription>
+            </Alert>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              onClick={form.handleSubmit(onSubmit)}
-              className="gap-2"
-            >
-              <Check className="h-4 w-4" /> Submit Application
-            </Button>
-          </CardFooter>
+        </Card>
+
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">{t('accreditation.requestForm')}</h1>
+          <p className="text-muted-foreground mt-2">
+            {t('accreditation.fillForm')}
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6">
+            <AccreditationForm
+              eventId={eventId || ""}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+            />
+          </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

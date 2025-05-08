@@ -8,6 +8,8 @@ import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import AccreditationRequest from '@/pages/AccreditationRequest';
+import AccreditationCategories from '@/pages/AccreditationCategories';
+import AccreditationEvents from '@/pages/AccreditationEvents';
 import UserProfile from '@/pages/UserProfile';
 import Ticketing from '@/pages/Ticketing';
 import Scanner from '@/pages/Scanner';
@@ -25,8 +27,10 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/purchase" element={<Purchase />} />
       
-      {/* Public accreditation request form */}
-      <Route path="/accreditation-request" element={<AccreditationRequest />} />
+      {/* Accreditation routes */}
+      <Route path="/accreditation-categories" element={<AccreditationCategories />} />
+      <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
+      <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
       
       {/* Protected routes */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

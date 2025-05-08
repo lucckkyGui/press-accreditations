@@ -16,6 +16,9 @@ import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
 import Ticketing from "./pages/Ticketing";
 import UserProfile from "./pages/UserProfile";
+import AccreditationRequest from "./pages/AccreditationRequest";
+import AccreditationCategories from "./pages/AccreditationCategories";
+import AccreditationEvents from "./pages/AccreditationEvents";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -36,6 +39,10 @@ const App = () => {
             <Route path="/purchase" element={<Purchase />} />
             <Route path="/ticketing" element={<Ticketing />} />
             <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+            
+            <Route path="/accreditation-categories" element={<AccreditationCategories />} />
+            <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
+            <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
             
             <Route 
               path="/dashboard" 

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { BarChart3, Calendar, QrCode, Settings, Users, Mail, Bell } from "lucide-react";
+import { BarChart3, Calendar, QrCode, Settings, Users, Mail, Bell, Award } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +47,12 @@ const AppSidebar = () => {
       description: t('pages.notifications.title'),
       url: "/notifications",
       icon: Bell,
+    },
+    {
+      title: t('accreditation.title'),
+      description: t('accreditation.description'),
+      url: "/accreditation-categories",
+      icon: Award,
     },
     {
       title: t('pages.scanner.title'),
