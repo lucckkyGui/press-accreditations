@@ -9,6 +9,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 #qr-reader__scan_region {
@@ -17,6 +18,7 @@
   width: 100% !important;
   height: 100% !important;
   min-height: 300px;
+  border-radius: 8px;
 }
 
 #qr-reader__dashboard {
@@ -34,9 +36,153 @@
   display: none !important;
 }
 
-/* Schowaj domyślne elementy sterujące html5-qrcode */
+/* Hide default html5-qrcode controls */
 #qr-reader__status_span,
 #qr-reader select,
 #qr-reader button {
   display: none !important;
+}
+
+/* Scanner animation elements */
+.scanner-laser {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(255, 0, 0, 0.7);
+  box-shadow: 0 0 8px 2px rgba(255, 0, 0, 0.5);
+  transform: translateY(-50%);
+  animation: scan 2s infinite linear;
+}
+
+.scanner-corners {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+}
+
+.scanner-corners::before,
+.scanner-corners::after,
+.scanner-corners span::before,
+.scanner-corners span::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: #fff;
+  border-style: solid;
+  border-width: 0;
+}
+
+/* Top left corner */
+.scanner-corners::before {
+  top: 0;
+  left: 0;
+  border-top-width: 3px;
+  border-left-width: 3px;
+  border-top-left-radius: 8px;
+}
+
+/* Top right corner */
+.scanner-corners::after {
+  top: 0;
+  right: 0;
+  border-top-width: 3px;
+  border-right-width: 3px;
+  border-top-right-radius: 8px;
+}
+
+/* Bottom left corner */
+.scanner-corners span::before {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 3px;
+  border-left-width: 3px;
+  border-bottom-left-radius: 8px;
+}
+
+/* Bottom right corner */
+.scanner-corners span::after {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+  border-bottom-right-radius: 8px;
+}
+
+@keyframes scan {
+  0% {
+    top: 30%;
+    opacity: 0.2;
+  }
+  50% {
+    top: 70%;
+    opacity: 0.7;
+  }
+  100% {
+    top: 30%;
+    opacity: 0.2;
+  }
+}
+
+/* Pulse animation for the scan button */
+.pulse-button {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(29, 78, 216, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0);
+  }
+}
+
+/* Animate scan result */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhance focus area with fade out background */
+.scan-focus-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-focus-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center, 
+    rgba(0, 0, 0, 0) 30%, 
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  pointer-events: none;
 }
