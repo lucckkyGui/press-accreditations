@@ -11,6 +11,7 @@ export type TranslationsType = typeof en;
 
 interface I18nContextType {
   locale: Locale;
+  currentLanguage: Locale; // Dodajemy tę właściwość
   t: (key: string, replacements?: Record<string, string>) => string;
   changeLocale: (locale: Locale) => void;
   locales: Locale[];
@@ -80,7 +81,13 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   }, [locale]);
   
   return (
-    <I18nContext.Provider value={{ locale, t, changeLocale, locales: ["pl", "en"] }}>
+    <I18nContext.Provider value={{ 
+      locale, 
+      currentLanguage: locale, // Dodajemy currentLanguage jako alias dla locale
+      t, 
+      changeLocale, 
+      locales: ["pl", "en"] 
+    }}>
       {children}
     </I18nContext.Provider>
   );

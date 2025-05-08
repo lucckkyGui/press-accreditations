@@ -43,7 +43,11 @@ export const common = {
     noEventsFound: "No events found",
     registrationOpen: "Registration Open",
     registrationClosed: "Registration Closed",
-    deadline: "Deadline"
+    deadline: "Deadline",
+    apply: "Apply",
+    filter: "Filter",
+    search: "Search",
+    browse: "Browse"
   },
   pl: {
     hello: "Cześć",
@@ -88,6 +92,10 @@ export const common = {
     noEventsFound: "Nie znaleziono wydarzeń",
     registrationOpen: "Rejestracja otwarta",
     registrationClosed: "Rejestracja zamknięta",
-    deadline: "Termin"
+    deadline: "Termin",
+    apply: "Aplikuj",
+    filter: "Filtruj",
+    search: "Szukaj",
+    browse: "Przeglądaj"
   }
 };

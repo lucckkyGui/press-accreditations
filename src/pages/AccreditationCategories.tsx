@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Music, Users, Award, MicrophoneStage } from "lucide-react";
+import { Calendar, Music, Users, Award, Mic } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,7 +36,7 @@ const eventCategories = [
     id: "conferences",
     title: "Press Conferences",
     titlePl: "Konferencje prasowe",
-    icon: MicrophoneStage,
+    icon: Mic,
     count: 6,
     color: "bg-yellow-500"
   },

@@ -18,6 +18,7 @@ import Settings from '@/pages/Settings';
 import Notifications from '@/pages/Notifications';
 import Purchase from '@/pages/Purchase';
 import EventDetails from '@/pages/EventDetails';
+import MainLayout from '@/components/layout/MainLayout';
 
 const AppRoutes = () => {
   return (
@@ -33,14 +34,58 @@ const AppRoutes = () => {
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
       
       {/* Protected routes */}
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-      <Route path="/ticketing" element={<ProtectedRoute><Ticketing /></ProtectedRoute>} />
-      <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
-      <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-      <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Dashboard />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <UserProfile />
+        </ProtectedRoute>
+      } />
+      <Route path="/ticketing" element={
+        <ProtectedRoute>
+          <Ticketing />
+        </ProtectedRoute>
+      } />
+      <Route path="/scanner" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Scanner />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/events" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Events />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/events/:id" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <EventDetails />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Notifications />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Settings />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
       
       {/* Catch all */}
       <Route path="*" element={<NotFound />} />
