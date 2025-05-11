@@ -39,19 +39,17 @@ interface UseApiMutationResponse<TData = any, TParams = any> {
  * Hook do obsługi GET requestów
  */
 export function useApiQuery<TData = any, TParams = any>(
-  queryKey: string | string[],
+  queryKey: string | any[],
   fetchFn: (params?: TParams) => Promise<ApiResponse<TData>>,
-  params?: TParams,
   options?: UseApiOptions<TData, TParams>
 ): UseApiResponse<TData, TParams> {
   const queryKeyArray = Array.isArray(queryKey) ? queryKey : [queryKey];
-  const finalQueryKey = params ? [...queryKeyArray, params] : queryKeyArray;
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: finalQueryKey,
+    queryKey: queryKeyArray,
     queryFn: async () => {
       try {
-        const response = await fetchFn(params);
+        const response = await fetchFn();
         if (response.error) {
           throw new Error(response.error.message);
         }
@@ -59,7 +57,7 @@ export function useApiQuery<TData = any, TParams = any>(
       } catch (err) {
         // Jeśli brak połączenia i włączone offline support, spróbuj pobrać z localStorage
         if (!navigator.onLine && options?.offlineSupport) {
-          const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify(params || {})}`;
+          const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify({})}`;
           const cachedData = localStorage.getItem(cacheKey);
           if (cachedData) {
             console.log(`Returning cached data for ${queryKeyArray.join('_')}`);
@@ -79,16 +77,16 @@ export function useApiQuery<TData = any, TParams = any>(
   // Zapisz dane do lokalnego cache jeśli offlineSupport jest włączony
   useEffect(() => {
     if (data && options?.offlineSupport) {
-      const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify(params || {})}`;
+      const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify({})}`;
       localStorage.setItem(cacheKey, JSON.stringify(data));
     }
-  }, [data, params, queryKeyArray, options?.offlineSupport]);
+  }, [data, queryKeyArray, options?.offlineSupport]);
 
   const fetch = useCallback(
-    async (newParams?: TParams) => {
-      return fetchFn(newParams || params);
+    async (params?: TParams) => {
+      return fetchFn(params);
     },
-    [fetchFn, params]
+    [fetchFn]
   );
 
   return {
