@@ -1,105 +1,49 @@
 
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import Index from '@/pages/Index';
+import { Routes, Route } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
-import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
-import NotFound from '@/pages/NotFound';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import AccreditationRequest from '@/pages/AccreditationRequest';
-import AccreditationCategories from '@/pages/AccreditationCategories';
-import AccreditationEvents from '@/pages/AccreditationEvents';
-import UserProfile from '@/pages/UserProfile';
-import Ticketing from '@/pages/Ticketing';
-import Scanner from '@/pages/Scanner';
 import Events from '@/pages/Events';
+import Guests from '@/pages/Guests';
+import EventDetails from '@/pages/EventDetails';
 import Settings from '@/pages/Settings';
+import Login from '@/pages/Login';
+import UserProfile from '@/pages/UserProfile';
+import NotFound from '@/pages/NotFound';
+import Scanner from '@/pages/Scanner';
+import Ticketing from '@/pages/Ticketing';
 import Notifications from '@/pages/Notifications';
 import Purchase from '@/pages/Purchase';
-import EventDetails from '@/pages/EventDetails';
 import MainLayout from '@/components/layout/MainLayout';
+import AccreditationRequest from '@/pages/AccreditationRequest';
+import AccreditationEvents from '@/pages/AccreditationEvents';
+import AccreditationCategories from '@/pages/AccreditationCategories';
+import PressReleasePage from '@/pages/PressReleasePage';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/home" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/purchase" element={<Purchase />} />
+      <Route path="/accreditation/request" element={<AccreditationRequest />} />
+      <Route path="/accreditation/events" element={<AccreditationEvents />} />
       
-      {/* Trasy akredytacyjne - dostępne bez logowania */}
-      <Route path="/accreditation-categories" element={
-        <ProtectedRoute requireAuth={false}>
-          <AccreditationCategories />
-        </ProtectedRoute>
-      } />
-      <Route path="/accreditation-events/:categoryId" element={
-        <ProtectedRoute requireAuth={false}>
-          <AccreditationEvents />
-        </ProtectedRoute>
-      } />
-      <Route path="/accreditation-request/:eventId" element={
-        <ProtectedRoute requireAuth={false}>
-          <AccreditationRequest />
-        </ProtectedRoute>
-      } />
+      {/* Protected Routes */}
+      <Route path="" element={<MainLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/guests" element={<Guests />} />
+        <Route path="/scanner" element={<Scanner />} />
+        <Route path="/tickets" element={<Ticketing />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/accreditation/categories" element={<AccreditationCategories />} />
+        <Route path="/press-releases" element={<PressReleasePage />} />
+      </Route>
       
-      {/* Trasy chronione - wymagają zalogowania */}
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Dashboard />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <UserProfile />
-        </ProtectedRoute>
-      } />
-      <Route path="/ticketing" element={
-        <ProtectedRoute>
-          <Ticketing />
-        </ProtectedRoute>
-      } />
-      <Route path="/scanner" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Scanner />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/events" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Events />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/events/:id" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <EventDetails />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/notifications" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Notifications />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/settings" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Settings />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      {/* Złap wszystkie nieobsłużone trasy */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

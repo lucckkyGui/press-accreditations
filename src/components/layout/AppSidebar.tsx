@@ -1,126 +1,78 @@
-
-import React from "react";
-import { NavLink } from "react-router-dom";
-import { BarChart3, Calendar, QrCode, Settings, Users, Mail, Bell, Award } from "lucide-react";
+import React from 'react';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { useI18n } from "@/hooks/useI18n";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  Home,
+  CalendarDays,
+  Settings,
+  Users,
+  QrCode,
+  Ticket,
+  BellRing,
+  Send
+} from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Button } from "@/components/ui/button"
+import { useI18n } from '@/hooks/useI18n';
 
-const AppSidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const navigationItems = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Wydarzenia', href: '/events', icon: CalendarDays },
+  { name: 'Goście', href: '/guests', icon: Users },
+  { name: 'Skaner', href: '/scanner', icon: QrCode },
+  { name: 'Bilety', href: '/tickets', icon: Ticket },
+  { name: 'Powiadomienia', href: '/notifications', icon: BellRing },
+  { name: 'Komunikaty prasowe', href: '/press-releases', icon: Send },
+  { name: 'Ustawienia', href: '/settings', icon: Settings },
+];
+
+const AppSidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const location = useLocation();
   const { t } = useI18n();
-  
-  const menuItems = [
-    {
-      title: t('navigation.dashboard'),
-      description: t('pages.dashboard.title'),
-      url: "/dashboard",
-      icon: BarChart3,
-    },
-    {
-      title: t('navigation.events'),
-      description: t('pages.events.title'),
-      url: "/events",
-      icon: Calendar,
-    },
-    {
-      title: t('navigation.guests'),
-      description: t('pages.guests.title'),
-      url: "/guests",
-      icon: Users,
-    },
-    {
-      title: t('pages.notifications.sendNotification'),
-      description: t('pages.events.eventDetails'),
-      url: "/invitation-editor",
-      icon: Mail,
-    },
-    {
-      title: t('navigation.notifications'),
-      description: t('pages.notifications.title'),
-      url: "/notifications",
-      icon: Bell,
-    },
-    {
-      title: t('accreditation.title'),
-      description: t('accreditation.description'),
-      url: "/accreditation-categories",
-      icon: Award,
-    },
-    {
-      title: t('pages.scanner.title'),
-      description: t('pages.scanner.scanQrCode'),
-      url: "/scanner",
-      icon: QrCode,
-    },
-    {
-      title: t('navigation.settings'),
-      description: t('pages.settings.title'),
-      url: "/settings",
-      icon: Settings,
-    },
-  ];
 
   return (
-    <Sidebar className="border-r bg-blue-500 text-white md:w-72">
-      <SidebarHeader className="px-6 py-5">
-        <div className="flex items-center space-x-3">
-          <div className="bg-white p-1.5 rounded-md">
-            <QrCode className="h-6 w-6 text-blue-500" />
-          </div>
-          <div>
-            <span className="text-xl font-bold text-white">
-              PressAccreditations
-            </span>
-            <p className="text-xs text-white/80 mt-0.5">
-              {t('accreditation.description')}
-            </p>
-          </div>
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent side="left" className="w-64 p-0 border-r">
+        <SheetHeader className="pl-6 pr-8 pt-6 pb-4">
+          <SheetTitle>Menu</SheetTitle>
+          <SheetDescription>
+            Nawigacja
+          </SheetDescription>
+        </SheetHeader>
+        <div className="py-2">
+          {navigationItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.href}
+              className={({ isActive }) =>
+                `flex items-center px-6 py-2 text-sm font-medium rounded-md transition-colors hover:bg-secondary hover:text-secondary-foreground ${isActive ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground'
+                }`
+              }
+              onClick={onClose}
+            >
+              <item.icon className="w-4 h-4 mr-2" />
+              {t(item.name)}
+            </NavLink>
+          ))}
         </div>
-      </SidebarHeader>
-      <SidebarContent className="p-3">
-        <SidebarGroup>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <NavLink
-                    to={item.url}
-                    className={({ isActive }) =>
-                      isActive 
-                        ? "text-white font-medium bg-white/20 border-l-2 border-white" 
-                        : "hover:bg-white/10 text-white/90 transition-colors"
-                    }
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <div className="flex flex-col items-start">
-                      <span>{item.title}</span>
-                      <span className="text-xs text-white/60">{item.description}</span>
-                    </div>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-        <div className="mt-auto p-4">
-          <div className="rounded-lg bg-white/10 p-4 text-sm">
-            <p className="font-medium text-white">{t('pages.settings.title')}</p>
-            <p className="text-white/80 mt-1">{t('common.description')}</p>
-            <button className="mt-2 text-xs font-medium text-white hover:underline">
-              {t('common.help')} →
-            </button>
-          </div>
+        <div className="absolute bottom-0 w-full border-t">
+          <Button variant="ghost" className="w-full rounded-none" onClick={onClose}>
+            Zamknij
+          </Button>
         </div>
-      </SidebarContent>
-    </Sidebar>
+      </SheetContent>
+    </Sheet>
   );
 };
 
