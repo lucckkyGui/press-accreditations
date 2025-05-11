@@ -9,6 +9,191 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      accreditation_requests: {
+        Row: {
+          approval_date: string | null
+          approval_notes: string | null
+          approved_by: string | null
+          contact_email: string
+          contact_phone: string | null
+          created_at: string | null
+          event_id: string
+          id: string
+          media_name: string
+          media_type: string
+          request_notes: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          approval_date?: string | null
+          approval_notes?: string | null
+          approved_by?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string | null
+          event_id: string
+          id?: string
+          media_name: string
+          media_type: string
+          request_notes?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          approval_date?: string | null
+          approval_notes?: string | null
+          approved_by?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          media_name?: string
+          media_type?: string
+          request_notes?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accreditation_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accreditation_types: {
+        Row: {
+          access_areas: string[] | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          event_id: string
+          id: string
+          max_requests: number | null
+          name: string
+          requires_approval: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_areas?: string[] | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          event_id: string
+          id?: string
+          max_requests?: number | null
+          name: string
+          requires_approval?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_areas?: string[] | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          event_id?: string
+          id?: string
+          max_requests?: number | null
+          name?: string
+          requires_approval?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accreditation_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accreditations: {
+        Row: {
+          checked_in_at: string | null
+          checked_in_by: string | null
+          created_at: string | null
+          event_id: string
+          id: string
+          is_checked_in: boolean | null
+          qr_code: string
+          request_id: string | null
+          revocation_reason: string | null
+          revoked: boolean | null
+          type_id: string
+          updated_at: string | null
+          user_id: string
+          validity_end: string
+          validity_start: string
+        }
+        Insert: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          created_at?: string | null
+          event_id: string
+          id?: string
+          is_checked_in?: boolean | null
+          qr_code: string
+          request_id?: string | null
+          revocation_reason?: string | null
+          revoked?: boolean | null
+          type_id: string
+          updated_at?: string | null
+          user_id: string
+          validity_end: string
+          validity_start: string
+        }
+        Update: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          is_checked_in?: boolean | null
+          qr_code?: string
+          request_id?: string | null
+          revocation_reason?: string | null
+          revoked?: boolean | null
+          type_id?: string
+          updated_at?: string | null
+          user_id?: string
+          validity_end?: string
+          validity_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accreditations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accreditations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "accreditation_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accreditations_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "accreditation_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string | null
