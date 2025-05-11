@@ -30,7 +30,7 @@ const AppRoutes = () => {
       <Route path="/accreditation/events" element={<AccreditationEvents />} />
       
       {/* Protected Routes */}
-      <Route path="" element={<MainLayout />}>
+      <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />

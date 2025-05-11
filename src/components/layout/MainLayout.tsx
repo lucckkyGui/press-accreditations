@@ -4,12 +4,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
+import { Outlet } from "react-router-dom";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex w-full bg-gray-100 dark:bg-slate-900">
       <SidebarProvider>
@@ -18,7 +15,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
             <div className="max-w-7xl mx-auto w-full animate-fade-in">
-              {children}
+              <Outlet />
             </div>
           </main>
           <Footer />
