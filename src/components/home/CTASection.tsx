@@ -3,13 +3,9 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { useI18n } from "@/hooks/useI18n";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const CTASection = () => {
   const navigate = useNavigate();
-  const { t } = useI18n();
-  const isMobile = useIsMobile();
   
   const handleSelectPackage = (packageName: string) => {
     navigate("/purchase", { state: { selectedPackage: packageName } });
@@ -30,7 +26,7 @@ const CTASection = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
-            size={isMobile ? "default" : "lg"}
+            size="lg"
             variant="outline" 
             className="bg-white hover:bg-white/90 text-primary hover:text-primary/90 border-primary-foreground group"
             onClick={() => handleSelectPackage("free-trial")}
@@ -40,7 +36,7 @@ const CTASection = () => {
           </Button>
           
           <Button 
-            size={isMobile ? "default" : "lg"}
+            size="lg"
             variant="ghost" 
             className="bg-transparent hover:bg-white/10 border border-white/40"
             onClick={() => handleSelectPackage("demo")}

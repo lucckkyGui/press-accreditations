@@ -40,8 +40,8 @@ const HeroSection = () => {
           </div>
           <div className="hidden md:block">
             <img
-              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-              alt="Event Management"
+              src="/lovable-uploads/a29b1c79-43c3-4d8e-974e-b5b3b2361c95.png"
+              alt="Professional working with equipment"
               className="rounded-lg shadow-2xl transform -rotate-2 hover:rotate-0 transition-transform duration-300"
             />
           </div>

@@ -4,34 +4,20 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Ticket, ArrowRight } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
-import { useSoundEffects } from "@/hooks/useSoundEffects";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const InteractiveHero = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
-  const { playSoundEffect } = useSoundEffects();
-  const isMobile = useIsMobile();
 
-  const animateButton = (e: React.MouseEvent<HTMLButtonElement>, soundType: "success" | "notification") => {
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>, route: string) => {
     const button = e.currentTarget;
     button.classList.add('animate-scale-in');
     
-    // Play sound effect and add visual feedback
-    playSoundEffect(soundType);
-    
     // Remove animation class after it completes
     setTimeout(() => button.classList.remove('animate-scale-in'), 200);
-  };
-
-  const handleTicketClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animateButton(e, "success");
-    navigate('/accreditation-request');
-  };
-
-  const handleEventsClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animateButton(e, "notification");
-    navigate('/events');
+    
+    // Navigate to the route
+    navigate(route);
   };
 
   return (
@@ -53,9 +39,9 @@ const InteractiveHero = () => {
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-6 md:mt-8">
             <Button
-              size={isMobile ? "default" : "lg"}
+              size="lg"
               className="animate-fade-in gap-2 hover:scale-105 transition-transform group text-base"
-              onClick={handleTicketClick}
+              onClick={(e) => handleButtonClick(e, '/accreditation-request')}
             >
               <Ticket className="h-5 w-5" />
               {t("home.buyTicket")}
@@ -64,9 +50,9 @@ const InteractiveHero = () => {
             
             <Button
               variant="outline"
-              size={isMobile ? "default" : "lg"}
+              size="lg"
               className="animate-fade-in gap-2 hover:scale-105 transition-transform text-base"
-              onClick={handleEventsClick}
+              onClick={(e) => handleButtonClick(e, '/events')}
             >
               <Calendar className="h-5 w-5" />
               {t("home.viewEvents")}
