@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Guest, GuestStatus, GuestZone } from "@/types";
@@ -67,7 +66,6 @@ const Guests = () => {
     },
   ]);
 
-  // Nowe stany dla rozszerzonych funkcji
   const [searchQuery, setSearchQuery] = useState("");
   const [zoneFilter, setZoneFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -113,7 +111,6 @@ const Guests = () => {
     }
   ];
 
-  // Filtrowanie gości
   const filteredGuests = guests.filter((guest) => {
     const matchesSearch =
       searchQuery === "" ||
@@ -157,7 +154,6 @@ const Guests = () => {
     return matchesSearch && matchesZone && matchesStatus && matchesAdvancedFilters;
   });
 
-  // Obsługa masowych operacji
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedGuestIds(filteredGuests.map(g => g.id));
@@ -250,173 +246,168 @@ const Guests = () => {
   ];
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Goście</h1>
-            <p className="text-muted-foreground">
-              Zarządzaj listą gości, wysyłaj zaproszenia.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
-            <ImportGuestsDialog onImport={handleImportGuests} />
-            <Button variant="outline" className="whitespace-nowrap">
-              <Plus className="mr-2 h-4 w-4" />
-              Dodaj gościa
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Goście</h1>
+          <p className="text-muted-foreground">
+            Zarządzaj listą gości, wysyłaj zaproszenia.
+          </p>
         </div>
         
-        <div className="flex flex-col space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="w-full md:w-72">
-              <InputWithIcon
-                placeholder="Szukaj po nazwisku, emailu..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                icon={Search}
-              />
-            </div>
-            
-            <div className="w-full md:w-48">
-              <Select value={zoneFilter} onValueChange={setZoneFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Wszystkie strefy" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Wszystkie strefy</SelectItem>
-                  <SelectItem value="general">Ogólna</SelectItem>
-                  <SelectItem value="vip">VIP</SelectItem>
-                  <SelectItem value="press">Press</SelectItem>
-                  <SelectItem value="staff">Staff</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="w-full md:w-48">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Wszystkie statusy" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Wszystkie statusy</SelectItem>
-                  <SelectItem value="invited">Zaproszeni</SelectItem>
-                  <SelectItem value="confirmed">Potwierdzeni</SelectItem>
-                  <SelectItem value="declined">Odrzuceni</SelectItem>
-                  <SelectItem value="checked-in">Obecni</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+          <ImportGuestsDialog onImport={handleImportGuests} />
+          <Button variant="outline" className="whitespace-nowrap">
+            <Plus className="mr-2 h-4 w-4" />
+            Dodaj gościa
+          </Button>
+        </div>
+      </div>
+      
+      <div className="flex flex-col space-y-4">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="w-full md:w-72">
+            <InputWithIcon
+              placeholder="Szukaj po nazwisku, emailu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              icon={Search}
+            />
           </div>
+          
+          <div className="w-full md:w-48">
+            <Select value={zoneFilter} onValueChange={setZoneFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Wszystkie strefy" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Wszystkie strefy</SelectItem>
+                <SelectItem value="general">Ogólna</SelectItem>
+                <SelectItem value="vip">VIP</SelectItem>
+                <SelectItem value="press">Press</SelectItem>
+                <SelectItem value="staff">Staff</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="w-full md:w-48">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Wszystkie statusy" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Wszystkie statusy</SelectItem>
+                <SelectItem value="invited">Zaproszeni</SelectItem>
+                <SelectItem value="confirmed">Potwierdzeni</SelectItem>
+                <SelectItem value="declined">Odrzuceni</SelectItem>
+                <SelectItem value="checked-in">Obecni</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-          {/* Dodajemy zaawansowane filtry */}
-          <AdvancedFilters 
-            filterOptions={filterOptions}
-            onFilterChange={setAdvancedFilters}
-          />
-          
-          {/* Dodajemy panel akcji masowych */}
-          <BulkActions 
-            selectedIds={selectedGuestIds} 
-            actions={bulkActions}
-            onSelectionClear={() => setSelectedGuestIds([])}
-          />
-        </div>
+        <AdvancedFilters 
+          filterOptions={filterOptions}
+          onFilterChange={setAdvancedFilters}
+        />
         
-        {/* Zmodyfikowana tabela z checkboxami do wyboru */}
-        <div className="overflow-hidden rounded-md border">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="w-[40px] px-4 py-3 text-left">
+        <BulkActions 
+          selectedIds={selectedGuestIds} 
+          actions={bulkActions}
+          onSelectionClear={() => setSelectedGuestIds([])}
+        />
+      </div>
+      
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="w-[40px] px-4 py-3 text-left">
+                <Checkbox 
+                  checked={selectedGuestIds.length > 0 && selectedGuestIds.length === filteredGuests.length}
+                  onCheckedChange={handleSelectAll}
+                />
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Gość</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Firma</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Strefa</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+              <th className="px-4 py-3 text-right text-sm font-medium">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredGuests.map((guest) => (
+              <tr key={guest.id} className="border-t hover:bg-muted/50">
+                <td className="px-4 py-3">
                   <Checkbox 
-                    checked={selectedGuestIds.length > 0 && selectedGuestIds.length === filteredGuests.length}
-                    onCheckedChange={handleSelectAll}
+                    checked={selectedGuestIds.includes(guest.id)}
+                    onCheckedChange={(checked) => handleSelectGuest(guest.id, !!checked)}
                   />
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Gość</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Firma</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Strefa</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                <th className="px-4 py-3 text-right text-sm font-medium">Akcje</th>
+                </td>
+                <td 
+                  className="px-4 py-3 cursor-pointer"
+                  onClick={() => handleViewDetails(guest)}
+                >
+                  <div className="font-medium">{guest.firstName} {guest.lastName}</div>
+                  <div className="text-xs text-muted-foreground">{guest.phone || "Brak numeru"}</div>
+                </td>
+                <td className="px-4 py-3">{guest.email}</td>
+                <td className="px-4 py-3">{guest.company || "-"}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                    guest.zone === "vip" ? "bg-amber-100 text-amber-800" :
+                    guest.zone === "press" ? "bg-blue-100 text-blue-800" :
+                    guest.zone === "staff" ? "bg-purple-100 text-purple-800" :
+                    "bg-green-100 text-green-800"
+                  }`}>
+                    {guest.zone === "vip" ? "VIP" :
+                     guest.zone === "press" ? "Press" :
+                     guest.zone === "staff" ? "Staff" : "Ogólna"}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                    guest.status === "invited" ? "bg-blue-100 text-blue-800" :
+                    guest.status === "confirmed" ? "bg-green-100 text-green-800" :
+                    guest.status === "declined" ? "bg-red-100 text-red-800" :
+                    guest.status === "checked-in" ? "bg-purple-100 text-purple-800" :
+                    "bg-gray-100 text-gray-800"
+                  }`}>
+                    {guest.status === "invited" ? "Zaproszony" :
+                     guest.status === "confirmed" ? "Potwierdzony" :
+                     guest.status === "declined" ? "Odrzucony" :
+                     guest.status === "checked-in" ? "Obecny" : guest.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button size="icon" variant="ghost" onClick={() => handleViewQR(guest)}>
+                      <Users className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => handleResendInvite(guest)}>
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => handleEditGuest(guest)}>
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => handleDeleteGuest(guest)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredGuests.map((guest) => (
-                <tr key={guest.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
-                    <Checkbox 
-                      checked={selectedGuestIds.includes(guest.id)}
-                      onCheckedChange={(checked) => handleSelectGuest(guest.id, !!checked)}
-                    />
-                  </td>
-                  <td 
-                    className="px-4 py-3 cursor-pointer"
-                    onClick={() => handleViewDetails(guest)}
-                  >
-                    <div className="font-medium">{guest.firstName} {guest.lastName}</div>
-                    <div className="text-xs text-muted-foreground">{guest.phone || "Brak numeru"}</div>
-                  </td>
-                  <td className="px-4 py-3">{guest.email}</td>
-                  <td className="px-4 py-3">{guest.company || "-"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                      guest.zone === "vip" ? "bg-amber-100 text-amber-800" :
-                      guest.zone === "press" ? "bg-blue-100 text-blue-800" :
-                      guest.zone === "staff" ? "bg-purple-100 text-purple-800" :
-                      "bg-green-100 text-green-800"
-                    }`}>
-                      {guest.zone === "vip" ? "VIP" :
-                       guest.zone === "press" ? "Press" :
-                       guest.zone === "staff" ? "Staff" : "Ogólna"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                      guest.status === "invited" ? "bg-blue-100 text-blue-800" :
-                      guest.status === "confirmed" ? "bg-green-100 text-green-800" :
-                      guest.status === "declined" ? "bg-red-100 text-red-800" :
-                      guest.status === "checked-in" ? "bg-purple-100 text-purple-800" :
-                      "bg-gray-100 text-gray-800"
-                    }`}>
-                      {guest.status === "invited" ? "Zaproszony" :
-                       guest.status === "confirmed" ? "Potwierdzony" :
-                       guest.status === "declined" ? "Odrzucony" :
-                       guest.status === "checked-in" ? "Obecny" : guest.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleViewQR(guest)}>
-                        <Users className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleResendInvite(guest)}>
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleEditGuest(guest)}>
-                        <Upload className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDeleteGuest(guest)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            ))}
 
-              {filteredGuests.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-muted-foreground">
-                    Brak gości spełniających kryteria wyszukiwania
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            {filteredGuests.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-10 text-center text-muted-foreground">
+                  Brak gości spełniających kryteria wyszukiwania
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
       
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
@@ -457,7 +448,7 @@ const Guests = () => {
         open={detailsDialogOpen} 
         onOpenChange={setDetailsDialogOpen} 
       />
-    </MainLayout>
+    </div>
   );
 };
 

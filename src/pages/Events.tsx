@@ -1,6 +1,4 @@
-
 import React, { useState, useMemo } from "react";
-import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -270,392 +268,390 @@ const Events = () => {
   }, [events]);
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Wydarzenia</h1>
-            <p className="text-muted-foreground">
-              Zarządzaj wydarzeniami i zaproś gości.
-            </p>
-          </div>
-          
-          <Button onClick={handleOpenModal} className="animated-button bg-primary hover:bg-primary/90">
-            <Plus className="mr-2 h-4 w-4" />
-            Nowe wydarzenie
-          </Button>
-          
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle className="text-xl">Utwórz nowe wydarzenie</DialogTitle>
-                <DialogDescription>
-                  Wprowadź szczegóły wydarzenia, aby je utworzyć i zarządzać akredytacjami.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-2">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nazwa wydarzenia</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Np. Konferencja Prasowa 2025" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Typ wydarzenia</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Wybierz typ wydarzenia" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="konferencja">Konferencja prasowa</SelectItem>
-                              <SelectItem value="premiera">Premiera</SelectItem>
-                              <SelectItem value="targi">Targi/Wystawa</SelectItem>
-                              <SelectItem value="warsztat">Warsztat/Szkolenie</SelectItem>
-                              <SelectItem value="inne">Inne</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <FormField
-                      control={form.control}
-                      name="startDate"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Data wydarzenia</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "PPP", { locale: pl })
-                                  ) : (
-                                    <span>Wybierz datę</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                initialFocus
-                                className="p-3 pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="startTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Godzina rozpoczęcia</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input 
-                                type="time"
-                                className="pl-9"
-                                {...field}
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Opis wydarzenia</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Opisz cel i program wydarzenia"
-                            className="min-h-[120px]"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lokalizacja</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                              className="pl-9"
-                              placeholder="Np. Centrum Konferencyjne, Warszawa" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="maxGuests"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Maksymalna liczba gości</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                              className="pl-9"
-                              type="number"
-                              min={1}
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormDescription>
-                          Limit uczestników, których możesz zaprosić na wydarzenie
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="isPublished"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Opublikuj od razu</FormLabel>
-                          <FormDescription>
-                            Wydarzenie będzie natychmiast widoczne dla gości
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <DialogFooter className="pt-2">
-                    <Button variant="outline" onClick={() => setOpen(false)} type="button">
-                      Anuluj
-                    </Button>
-                    <Button type="submit">Utwórz wydarzenie</Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Wydarzenia</h1>
+          <p className="text-muted-foreground">
+            Zarządzaj wydarzeniami i zaproś gości.
+          </p>
         </div>
         
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex-1 w-full sm:max-w-sm">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Wyszukaj wydarzenia..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+        <Button onClick={handleOpenModal} className="animated-button bg-primary hover:bg-primary/90">
+          <Plus className="mr-2 h-4 w-4" />
+          Nowe wydarzenie
+        </Button>
+        
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Utwórz nowe wydarzenie</DialogTitle>
+              <DialogDescription>
+                Wprowadź szczegóły wydarzenia, aby je utworzyć i zarządzać akredytacjami.
+              </DialogDescription>
+            </DialogHeader>
             
-            <div className="flex flex-wrap items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filtruj
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nazwa wydarzenia</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Np. Konferencja Prasowa 2025" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Typ wydarzenia</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Wybierz typ wydarzenia" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="konferencja">Konferencja prasowa</SelectItem>
+                            <SelectItem value="premiera">Premiera</SelectItem>
+                            <SelectItem value="targi">Targi/Wystawa</SelectItem>
+                            <SelectItem value="warsztat">Warsztat/Szkolenie</SelectItem>
+                            <SelectItem value="inne">Inne</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Data wydarzenia</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP", { locale: pl })
+                                ) : (
+                                  <span>Wybierz datę</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="startTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Godzina rozpoczęcia</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              type="time"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Opis wydarzenia</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Opisz cel i program wydarzenia"
+                          className="min-h-[120px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lokalizacja</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            className="pl-9"
+                            placeholder="Np. Centrum Konferencyjne, Warszawa" 
+                            {...field} 
+                            />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="maxGuests"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maksymalna liczba gości</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            className="pl-9"
+                            type="number"
+                            min={1}
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Limit uczestników, których możesz zaprosić na wydarzenie
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="isPublished"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Opublikuj od razu</FormLabel>
+                        <FormDescription>
+                          Wydarzenie będzie natychmiast widoczne dla gości
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter className="pt-2">
+                  <Button variant="outline" onClick={() => setOpen(false)} type="button">
+                    Anuluj
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("all")}
-                    className={activeFilter === "all" ? "bg-secondary" : ""}
-                  >
-                    Wszystkie ({eventCounts.all})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("published")}
-                    className={activeFilter === "published" ? "bg-secondary" : ""}
-                  >
-                    Opublikowane ({eventCounts.published})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("draft")}
-                    className={activeFilter === "draft" ? "bg-secondary" : ""}
-                  >
-                    Szkice ({eventCounts.draft})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("upcoming")}
-                    className={activeFilter === "upcoming" ? "bg-secondary" : ""}
-                  >
-                    Nadchodzące ({eventCounts.upcoming})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("today")}
-                    className={activeFilter === "today" ? "bg-secondary" : ""}
-                  >
-                    Dzisiaj ({eventCounts.today})
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveFilter("past")}
-                    className={activeFilter === "past" ? "bg-secondary" : ""}
-                  >
-                    Przeszłe ({eventCounts.past})
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
-                    {sortBy === "date-desc" ? 
-                      <SortDesc className="mr-2 h-4 w-4" /> : 
-                      sortBy === "date-asc" ? 
-                      <SortAsc className="mr-2 h-4 w-4" /> : 
-                      <SortDesc className="mr-2 h-4 w-4" />
-                    }
-                    Sortuj
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem 
-                    onClick={() => setSortBy("name")}
-                    className={sortBy === "name" ? "bg-secondary" : ""}
-                  >
-                    Po nazwie
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setSortBy("date-desc")}
-                    className={sortBy === "date-desc" ? "bg-secondary" : ""}
-                  >
-                    Od najnowszych
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setSortBy("date-asc")}
-                    className={sortBy === "date-asc" ? "bg-secondary" : ""}
-                  >
-                    Od najstarszych
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          {/* Wyświetlanie aktywnego filtra */}
-          {activeFilter !== "all" && (
-            <div className="flex items-center">
-              <span className="text-sm text-muted-foreground">
-                Filtr aktywny: 
-                {activeFilter === "published" && " Opublikowane"}
-                {activeFilter === "draft" && " Szkice"}
-                {activeFilter === "upcoming" && " Nadchodzące"}
-                {activeFilter === "today" && " Dzisiaj"}
-                {activeFilter === "past" && " Przeszłe"}
-              </span>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-auto p-1 ml-2" 
-                onClick={() => setActiveFilter("all")}
-              >
-                ×
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        {filteredAndSortedEvents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 dark:bg-slate-900/50 rounded-xl shadow-sm border p-8">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <Calendar className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold">Brak wydarzeń</h3>
-            <p className="text-muted-foreground mt-2 max-w-md">
-              {searchTerm ? 
-                "Nie znaleziono wydarzeń pasujących do twojego wyszukiwania." : 
-                "Nie masz żadnych wydarzeń. Utwórz nowe wydarzenie, aby rozpocząć."}
-            </p>
-            <Button className="mt-4 animated-button" onClick={handleOpenModal}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nowe wydarzenie
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredAndSortedEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                guestCount={Math.floor(Math.random() * 100) + 20}
-                onView={handleViewEvent}
-                onEdit={handleEditEvent}
-                onViewDetails={handleViewDetails}
-                onGoToNotifications={handleGoToNotifications}
+                  <Button type="submit">Utwórz wydarzenie</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex-1 w-full sm:max-w-sm">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Wyszukaj wydarzenia..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            ))}
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filtruj
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("all")}
+                  className={activeFilter === "all" ? "bg-secondary" : ""}
+                >
+                  Wszystkie ({eventCounts.all})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("published")}
+                  className={activeFilter === "published" ? "bg-secondary" : ""}
+                >
+                  Opublikowane ({eventCounts.published})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("draft")}
+                  className={activeFilter === "draft" ? "bg-secondary" : ""}
+                >
+                  Szkice ({eventCounts.draft})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("upcoming")}
+                  className={activeFilter === "upcoming" ? "bg-secondary" : ""}
+                >
+                  Nadchodzące ({eventCounts.upcoming})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("today")}
+                  className={activeFilter === "today" ? "bg-secondary" : ""}
+                >
+                  Dzisiaj ({eventCounts.today})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setActiveFilter("past")}
+                  className={activeFilter === "past" ? "bg-secondary" : ""}
+                >
+                  Przeszłe ({eventCounts.past})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
+                  {sortBy === "date-desc" ? 
+                    <SortDesc className="mr-2 h-4 w-4" /> : 
+                    sortBy === "date-asc" ? 
+                    <SortAsc className="mr-2 h-4 w-4" /> : 
+                    <SortDesc className="mr-2 h-4 w-4" />
+                  }
+                  Sortuj
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => setSortBy("name")}
+                  className={sortBy === "name" ? "bg-secondary" : ""}
+                >
+                  Po nazwie
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setSortBy("date-desc")}
+                  className={sortBy === "date-desc" ? "bg-secondary" : ""}
+                >
+                  Od najnowszych
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setSortBy("date-asc")}
+                  className={sortBy === "date-asc" ? "bg-secondary" : ""}
+                >
+                  Od najstarszych
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Wyświetlanie aktywnego filtra */}
+        {activeFilter !== "all" && (
+          <div className="flex items-center">
+            <span className="text-sm text-muted-foreground">
+              Filtr aktywny: 
+              {activeFilter === "published" && " Opublikowane"}
+              {activeFilter === "draft" && " Szkice"}
+              {activeFilter === "upcoming" && " Nadchodzące"}
+              {activeFilter === "today" && " Dzisiaj"}
+              {activeFilter === "past" && " Przeszłe"}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-auto p-1 ml-2" 
+              onClick={() => setActiveFilter("all")}
+            >
+              ×
+            </Button>
           </div>
         )}
       </div>
-    </MainLayout>
+      
+      {filteredAndSortedEvents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 dark:bg-slate-900/50 rounded-xl shadow-sm border p-8">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <Calendar className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold">Brak wydarzeń</h3>
+          <p className="text-muted-foreground mt-2 max-w-md">
+            {searchTerm ? 
+              "Nie znaleziono wydarzeń pasujących do twojego wyszukiwania." : 
+              "Nie masz żadnych wydarzeń. Utwórz nowe wydarzenie, aby rozpocząć."}
+          </p>
+          <Button className="mt-4 animated-button" onClick={handleOpenModal}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nowe wydarzenie
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredAndSortedEvents.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              guestCount={Math.floor(Math.random() * 100) + 20}
+              onView={handleViewEvent}
+              onEdit={handleEditEvent}
+              onViewDetails={handleViewDetails}
+              onGoToNotifications={handleGoToNotifications}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

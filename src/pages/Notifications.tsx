@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import MainLayout from "@/components/layout/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotificationScheduler from "@/components/notifications/NotificationScheduler";
 import NotificationsList from "@/components/notifications/NotificationsList";
@@ -177,78 +177,72 @@ const Notifications = () => {
 
   if (loading) {
     return (
-      <MainLayout>
-        <div className="flex justify-center items-center h-[80vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
+      <div className="flex justify-center items-center h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   if (!event) {
     return (
-      <MainLayout>
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold">Wydarzenie nie zostało znalezione</h1>
-        </div>
-      </MainLayout>
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">Wydarzenie nie zostało znalezione</h1>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Powiadomienia</h1>
-          <p className="text-muted-foreground">
-            Zarządzaj powiadomieniami dla wydarzenia: {event.name}
-          </p>
-        </div>
-
-        <Tabs defaultValue="schedule">
-          <TabsList className="mb-4">
-            <TabsTrigger value="schedule">Zaplanuj powiadomienia</TabsTrigger>
-            <TabsTrigger value="scheduled">Zaplanowane ({notifications.filter(n => n.status === "scheduled").length})</TabsTrigger>
-            <TabsTrigger value="sent">Historia wysyłki ({notifications.filter(n => n.status === "sent").length})</TabsTrigger>
-            <TabsTrigger value="templates">Szablony</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="schedule">
-            <NotificationScheduler 
-              eventId={event.id}
-              eventName={event.name}
-              eventDate={event.startDate}
-              guests={guests}
-            />
-          </TabsContent>
-          
-          <TabsContent value="scheduled">
-            <NotificationsList 
-              eventId={event.id}
-              notifications={notifications.filter(n => n.status === "scheduled")}
-              onDeleteNotification={handleDeleteNotification}
-              onSendNowNotification={handleSendNowNotification}
-            />
-          </TabsContent>
-          
-          <TabsContent value="sent">
-            <NotificationsList 
-              eventId={event.id}
-              notifications={[
-                ...notifications.filter(n => n.status === "sent"),
-                ...notifications.filter(n => n.status === "failed")
-              ]}
-              onDeleteNotification={handleDeleteNotification}
-              onSendNowNotification={handleSendNowNotification}
-            />
-          </TabsContent>
-          
-          <TabsContent value="templates">
-            <NotificationTemplates />
-          </TabsContent>
-        </Tabs>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Powiadomienia</h1>
+        <p className="text-muted-foreground">
+          Zarządzaj powiadomieniami dla wydarzenia: {event.name}
+        </p>
       </div>
-    </MainLayout>
+
+      <Tabs defaultValue="schedule">
+        <TabsList className="mb-4">
+          <TabsTrigger value="schedule">Zaplanuj powiadomienia</TabsTrigger>
+          <TabsTrigger value="scheduled">Zaplanowane ({notifications.filter(n => n.status === "scheduled").length})</TabsTrigger>
+          <TabsTrigger value="sent">Historia wysyłki ({notifications.filter(n => n.status === "sent").length})</TabsTrigger>
+          <TabsTrigger value="templates">Szablony</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="schedule">
+          <NotificationScheduler 
+            eventId={event.id}
+            eventName={event.name}
+            eventDate={event.startDate}
+            guests={guests}
+          />
+        </TabsContent>
+        
+        <TabsContent value="scheduled">
+          <NotificationsList 
+            eventId={event.id}
+            notifications={notifications.filter(n => n.status === "scheduled")}
+            onDeleteNotification={handleDeleteNotification}
+            onSendNowNotification={handleSendNowNotification}
+          />
+        </TabsContent>
+        
+        <TabsContent value="sent">
+          <NotificationsList 
+            eventId={event.id}
+            notifications={[
+              ...notifications.filter(n => n.status === "sent"),
+              ...notifications.filter(n => n.status === "failed")
+            ]}
+            onDeleteNotification={handleDeleteNotification}
+            onSendNowNotification={handleSendNowNotification}
+          />
+        </TabsContent>
+        
+        <TabsContent value="templates">
+          <NotificationTemplates />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

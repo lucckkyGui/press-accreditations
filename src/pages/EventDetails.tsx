@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -143,22 +142,18 @@ const EventDetails = () => {
 
   if (loading) {
     return (
-      <MainLayout>
-        <div className="flex justify-center items-center h-[80vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
+      <div className="flex justify-center items-center h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   if (!event) {
     return (
-      <MainLayout>
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold">Wydarzenie nie zostało znalezione</h1>
-          <Button onClick={() => navigate('/events')}>Powrót do listy wydarzeń</Button>
-        </div>
-      </MainLayout>
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">Wydarzenie nie zostało znalezione</h1>
+        <Button onClick={() => navigate('/events')}>Powrót do listy wydarzeń</Button>
+      </div>
     );
   }
 
@@ -168,119 +163,117 @@ const EventDetails = () => {
   const declinedCount = guests.filter(guest => guest.status === "declined").length;
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-tight">{event.name}</h1>
-              {event.isPublished ? (
-                <Badge>Opublikowane</Badge>
-              ) : (
-                <Badge variant="outline">Szkic</Badge>
-              )}
-            </div>
-            <p className="text-muted-foreground">
-              {event.description}
-            </p>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold tracking-tight">{event.name}</h1>
+            {event.isPublished ? (
+              <Badge>Opublikowane</Badge>
+            ) : (
+              <Badge variant="outline">Szkic</Badge>
+            )}
           </div>
-          
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => navigate('/invitation-editor')}>
-              Edytuj zaproszenia
-            </Button>
-            <Button variant="outline" onClick={() => navigate(`/notifications/${eventId}`)}>
-              <Bell className="mr-2 h-4 w-4" />
-              Powiadomienia
-            </Button>
-            <Button onClick={() => navigate('/scanner')}>
-              Skanuj gości
-            </Button>
-          </div>
+          <p className="text-muted-foreground">
+            {event.description}
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Szczegóły wydarzenia</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center text-sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                <span>{new Date(event.startDate).toLocaleDateString()}</span>
-              </div>
-              {event.location && (
-                <div className="flex items-center text-sm">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  <span>{event.location}</span>
-                </div>
-              )}
-              <div className="flex items-center text-sm">
-                <Users className="h-4 w-4 mr-2" />
-                <span>{guests.length} gości zaproszonych</span>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <EventAttendanceStats
-            total={guests.length}
-            checkedIn={checkedInCount}
-            confirmed={confirmedCount}
-            invited={invitedCount}
-            declined={declinedCount}
-          />
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => navigate('/invitation-editor')}>
+            Edytuj zaproszenia
+          </Button>
+          <Button variant="outline" onClick={() => navigate(`/notifications/${eventId}`)}>
+            <Bell className="mr-2 h-4 w-4" />
+            Powiadomienia
+          </Button>
+          <Button onClick={() => navigate('/scanner')}>
+            Skanuj gości
+          </Button>
         </div>
-
-        <Tabs defaultValue="all">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">Wszyscy goście ({guests.length})</TabsTrigger>
-            <TabsTrigger value="checkedIn">Obecni ({checkedInCount})</TabsTrigger>
-            <TabsTrigger value="notCheckedIn">Nieobecni ({guests.length - checkedInCount})</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all">
-            <div className="mb-4 flex justify-end">
-              <EventExport guests={guests} eventName={event.name} />
-            </div>
-            <GuestTable 
-              guests={guests}
-              onViewQR={handleViewQR}
-              onEdit={handleEditGuest}
-              onDelete={handleDeleteGuest}
-              onResendInvite={handleResendInvite}
-              onViewDetails={handleViewDetails}
-            />
-          </TabsContent>
-          
-          <TabsContent value="checkedIn">
-            <div className="mb-4 flex justify-end">
-              <EventExport guests={guests.filter(g => g.status === "checked-in")} eventName={event.name} />
-            </div>
-            <GuestTable 
-              guests={guests.filter(g => g.status === "checked-in")}
-              onViewQR={handleViewQR}
-              onEdit={handleEditGuest}
-              onDelete={handleDeleteGuest}
-              onResendInvite={handleResendInvite}
-              onViewDetails={handleViewDetails}
-            />
-          </TabsContent>
-          
-          <TabsContent value="notCheckedIn">
-            <div className="mb-4 flex justify-end">
-              <EventExport guests={guests.filter(g => g.status !== "checked-in")} eventName={event.name} />
-            </div>
-            <GuestTable 
-              guests={guests.filter(g => g.status !== "checked-in")}
-              onViewQR={handleViewQR}
-              onEdit={handleEditGuest}
-              onDelete={handleDeleteGuest}
-              onResendInvite={handleResendInvite}
-              onViewDetails={handleViewDetails}
-            />
-          </TabsContent>
-        </Tabs>
       </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Szczegóły wydarzenia</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center text-sm">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span>{new Date(event.startDate).toLocaleDateString()}</span>
+            </div>
+            {event.location && (
+              <div className="flex items-center text-sm">
+                <MapPin className="h-4 w-4 mr-2" />
+                <span>{event.location}</span>
+              </div>
+            )}
+            <div className="flex items-center text-sm">
+              <Users className="h-4 w-4 mr-2" />
+              <span>{guests.length} gości zaproszonych</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <EventAttendanceStats
+          total={guests.length}
+          checkedIn={checkedInCount}
+          confirmed={confirmedCount}
+          invited={invitedCount}
+          declined={declinedCount}
+        />
+      </div>
+
+      <Tabs defaultValue="all">
+        <TabsList className="mb-4">
+          <TabsTrigger value="all">Wszyscy goście ({guests.length})</TabsTrigger>
+          <TabsTrigger value="checkedIn">Obecni ({checkedInCount})</TabsTrigger>
+          <TabsTrigger value="notCheckedIn">Nieobecni ({guests.length - checkedInCount})</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all">
+          <div className="mb-4 flex justify-end">
+            <EventExport guests={guests} eventName={event.name} />
+          </div>
+          <GuestTable 
+            guests={guests}
+            onViewQR={handleViewQR}
+            onEdit={handleEditGuest}
+            onDelete={handleDeleteGuest}
+            onResendInvite={handleResendInvite}
+            onViewDetails={handleViewDetails}
+          />
+        </TabsContent>
+        
+        <TabsContent value="checkedIn">
+          <div className="mb-4 flex justify-end">
+            <EventExport guests={guests.filter(g => g.status === "checked-in")} eventName={event.name} />
+          </div>
+          <GuestTable 
+            guests={guests.filter(g => g.status === "checked-in")}
+            onViewQR={handleViewQR}
+            onEdit={handleEditGuest}
+            onDelete={handleDeleteGuest}
+            onResendInvite={handleResendInvite}
+            onViewDetails={handleViewDetails}
+          />
+        </TabsContent>
+        
+        <TabsContent value="notCheckedIn">
+          <div className="mb-4 flex justify-end">
+            <EventExport guests={guests.filter(g => g.status !== "checked-in")} eventName={event.name} />
+          </div>
+          <GuestTable 
+            guests={guests.filter(g => g.status !== "checked-in")}
+            onViewQR={handleViewQR}
+            onEdit={handleEditGuest}
+            onDelete={handleDeleteGuest}
+            onResendInvite={handleResendInvite}
+            onViewDetails={handleViewDetails}
+          />
+        </TabsContent>
+      </Tabs>
       
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -320,7 +313,7 @@ const EventDetails = () => {
         open={guestDetailsOpen} 
         onOpenChange={setGuestDetailsOpen} 
       />
-    </MainLayout>
+    </div>
   );
 };
 
