@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -337,75 +338,76 @@ const Settings = () => {
                     
                     <Button variant="outline" className="w-full">Wyloguj ze wszystkich urządzeń</Button>
                   </div>
-                </form>
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button type="submit" form="security-form">
-                  Zapisz ustawienia
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="users">
-            <Card>
-              <CardContent className="pt-6">
-                <UserManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="export">
-            <ExportSettings />
-          </TabsContent>
-        </Tabs>
+                </div>
+              </form>
+            </CardContent>
+            <CardFooter className="flex justify-end">
+              <Button type="submit" form="security-form">
+                Zapisz ustawienia
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
         
-        <Card className="bg-red-50 border-red-100">
-          <CardHeader>
-            <CardTitle className="text-red-800">Strefa niebezpieczna</CardTitle>
-            <CardDescription className="text-red-700">
-              Wykonanie poniższych akcji może spowodować trwałą utratę danych.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 border border-red-200 rounded-md bg-white">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium text-red-800">Usuń wszystkie dane z konta</h4>
-                  <p className="text-sm text-red-700 mt-1">
-                    Ta akcja usunie wszystkie wydarzenia, gości, szablony zaproszeń i statystyki.
-                    Jest to operacja nieodwracalna.
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
-                >
-                  Usuń dane
-                </Button>
+        <TabsContent value="users">
+          <Card>
+            <CardContent className="pt-6">
+              <UserManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="export">
+          <ExportSettings />
+        </TabsContent>
+      </Tabs>
+      
+      <Card className="bg-red-50 border-red-100">
+        <CardHeader>
+          <CardTitle className="text-red-800">Strefa niebezpieczna</CardTitle>
+          <CardDescription className="text-red-700">
+            Wykonanie poniższych akcji może spowodować trwałą utratę danych.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 border border-red-200 rounded-md bg-white">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="font-medium text-red-800">Usuń wszystkie dane z konta</h4>
+                <p className="text-sm text-red-700 mt-1">
+                  Ta akcja usunie wszystkie wydarzenia, gości, szablony zaproszeń i statystyki.
+                  Jest to operacja nieodwracalna.
+                </p>
               </div>
+              <Button 
+                variant="outline" 
+                className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
+              >
+                Usuń dane
+              </Button>
             </div>
-            
-            <div className="p-4 border border-red-200 rounded-md bg-white">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium text-red-800">Zamknij konto</h4>
-                  <p className="text-sm text-red-700 mt-1">
-                    Konto zostanie dezaktywowane i wszystkie Twoje dane zostaną usunięte.
-                  </p>
-                </div>
-                <Button 
-                  variant="destructive"
-                  onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
-                >
-                  Zamknij konto
-                </Button>
+          </div>
+          
+          <div className="p-4 border border-red-200 rounded-md bg-white">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="font-medium text-red-800">Zamknij konto</h4>
+                <p className="text-sm text-red-700 mt-1">
+                  Konto zostanie dezaktywowane i wszystkie Twoje dane zostaną usunięte.
+                </p>
               </div>
+              <Button 
+                variant="destructive"
+                onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
+              >
+                Zamknij konto
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
