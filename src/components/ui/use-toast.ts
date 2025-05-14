@@ -1,8 +1,6 @@
 
-/**
- * Re-export toast functionality for UI components
- * This ensures consistent toast usage throughout the UI layer
- */
+// This file re-exports toast functionality from the hooks folder
+// for consistent usage in UI components
 
-// Re-export from hooks folder
+// Re-export everything from the hooks folder
 export * from "@/hooks/use-toast";

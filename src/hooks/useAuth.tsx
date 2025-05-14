@@ -1,13 +1,11 @@
 
-/**
- * Auth hook re-export file
- * This file provides a central point for accessing authentication functionality
- */
+// This is the central re-export file for auth functionality
+// It provides a clean import structure for authentication features
 
-import { useAuth as useAuthHook } from '@/hooks/auth';
+import { useAuth as useAuthImplementation } from '@/hooks/auth';
 
 // Named export for direct usage
-export const useAuth = useAuthHook;
+export const useAuth = useAuthImplementation;
 
-// Re-export everything else from the auth folder
+// Re-export everything from the auth folder
 export * from '@/hooks/auth';
