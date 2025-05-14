@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MainLayout from "@/components/layout/MainLayout";
+import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,32 +55,31 @@ Zespół Organizacyjny`
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edytor zaproszeń</h1>
-            <p className="text-muted-foreground">
-              Personalizuj treść i wygląd zaproszeń dla gości.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExport} className="gap-2">
-              <Download className="h-4 w-4" />
-              Eksportuj
-            </Button>
-            <Button variant="outline" onClick={() => setShowFullPreview(true)} className="gap-2">
-              <Eye className="h-4 w-4" />
-              Podgląd
-            </Button>
-            <Button onClick={handleSave}>
-              Zapisz
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Edytor zaproszeń</h1>
+          <p className="text-muted-foreground">
+            Personalizuj treść i wygląd zaproszeń dla gości.
+          </p>
         </div>
         
-        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleExport} className="gap-2">
+            <Download className="h-4 w-4" />
+            Eksportuj
+          </Button>
+          <Button variant="outline" onClick={() => setShowFullPreview(true)} className="gap-2">
+            <Eye className="h-4 w-4" />
+            Podgląd
+          </Button>
+          <Button onClick={handleSave}>
+            Zapisz
+          </Button>
+        </div>
+      </div>
+      
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="w-full border-b rounded-none justify-start">
             <TabsTrigger value="content" className="gap-2">
               <File className="h-4 w-4" />
@@ -346,7 +345,6 @@ Zespół Organizacyjny`
             </Card>
           </div>
         </Tabs>
-      </div>
       
       {/* Dialog z pełnym podglądem */}
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
@@ -457,7 +455,7 @@ Zespół Organizacyjny`
           </div>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </div>
   );
 };
 
