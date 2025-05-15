@@ -1,48 +1,32 @@
 
-import { PaginationParams, FilterParams } from '../api/apiResponse';
-
-export type PressReleaseStatus = 'draft' | 'scheduled' | 'sent' | 'cancelled';
-export type PressReleaseType = 'announcement' | 'invitation' | 'statement' | 'other';
-
 export interface PressRelease {
   id: string;
   title: string;
   content: string;
-  status: PressReleaseStatus;
-  type: PressReleaseType;
+  publicationDate: string;
+  eventId?: string;
+  mediaGroupIds: string[];
+  attachmentUrls?: string[];
+  status: 'draft' | 'published' | 'archived';
   createdAt: string;
   updatedAt: string;
-  scheduledFor?: string;
-  sentAt?: string;
-  eventId?: string;
   createdBy: string;
-  mediaGroups: string[];
-  attachmentUrls?: string[];
-  metrics?: PressReleaseMetrics;
 }
 
 export interface PressReleaseForm {
   title: string;
   content: string;
-  type: PressReleaseType;
-  scheduledFor?: string;
+  publicationDate: string;
   eventId?: string;
-  mediaGroups: string[];
+  mediaGroupIds: string[];
   attachmentUrls?: string[];
+  status: 'draft' | 'published' | 'archived';
 }
 
-export interface PressReleaseMetrics {
-  sentCount: number;
-  deliveredCount: number;
-  openCount: number;
-  clickCount: number;
-  responseCount: number;
-}
-
-export interface PressReleaseQueryParams extends PaginationParams, FilterParams {
-  status?: PressReleaseStatus | 'all';
-  type?: PressReleaseType | 'all';
+export interface PressReleasesQueryParams {
   eventId?: string;
-  startDate?: string;
-  endDate?: string;
+  status?: 'draft' | 'published' | 'archived';
+  search?: string;
+  page?: number;
+  limit?: number;
 }

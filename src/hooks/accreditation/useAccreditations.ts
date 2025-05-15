@@ -6,7 +6,8 @@ import {
   Accreditation, 
   AccreditationForm, 
   AccreditationsQueryParams,
-  CheckInData
+  CheckInData,
+  AccessAreaEntry
 } from '@/types/accreditation';
 import { toast } from '@/hooks/use-toast';
 
@@ -87,6 +88,71 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
     }
   );
 
+  // Nowe mutacje dla rozszerzonej funkcjonalności
+  const updateStatusMutation = useApiMutation(
+    ['accreditations', 'update-status'],
+    ({ id, status, notes }: { id: string; status: string; notes?: string }) => 
+      AccreditationService.updateAccreditationStatus(id, status, notes),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Status zaktualizowany',
+          description: 'Status akredytacji został zaktualizowany pomyślnie.',
+        });
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się zaktualizować statusu akredytacji.',
+          variant: 'destructive',
+        });
+      },
+    }
+  );
+
+  const markBadgePrintedMutation = useApiMutation(
+    ['accreditations', 'mark-printed'],
+    ({ id, badgeNumber }: { id: string; badgeNumber?: string }) => 
+      AccreditationService.markBadgePrinted(id, badgeNumber),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Identyfikator wydrukowany',
+          description: 'Identyfikator został oznaczony jako wydrukowany.',
+        });
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się oznaczyć identyfikatora jako wydrukowany.',
+          variant: 'destructive',
+        });
+      },
+    }
+  );
+
+  const recordAccessMutation = useApiMutation(
+    ['accreditations', 'record-access'],
+    (entry: AccessAreaEntry) => AccreditationService.recordAreaAccess(entry),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Dostęp zarejestrowany',
+          description: 'Wejście do strefy zostało zarejestrowane.',
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się zarejestrować wejścia do strefy.',
+          variant: 'destructive',
+        });
+      },
+    }
+  );
+
   const createAccreditation = useCallback((form: AccreditationForm) => {
     createMutation.mutate(form);
   }, [createMutation]);
@@ -99,6 +165,18 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
     revokeMutation.mutate({ id, reason });
   }, [revokeMutation]);
 
+  const updateAccreditationStatus = useCallback((id: string, status: string, notes?: string) => {
+    updateStatusMutation.mutate({ id, status, notes });
+  }, [updateStatusMutation]);
+
+  const markBadgePrinted = useCallback((id: string, badgeNumber?: string) => {
+    markBadgePrintedMutation.mutate({ id, badgeNumber });
+  }, [markBadgePrintedMutation]);
+
+  const recordAreaAccess = useCallback((entry: AccessAreaEntry) => {
+    recordAccessMutation.mutate(entry);
+  }, [recordAccessMutation]);
+
   return {
     accreditations,
     isLoading,
@@ -108,8 +186,14 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
     createAccreditation,
     checkInAccreditation,
     revokeAccreditation,
+    updateAccreditationStatus,
+    markBadgePrinted,
+    recordAreaAccess,
     isSubmitting: createMutation.isLoading,
     isCheckingIn: checkInMutation.isLoading,
     isRevoking: revokeMutation.isLoading,
+    isUpdatingStatus: updateStatusMutation.isLoading,
+    isMarkingPrinted: markBadgePrintedMutation.isLoading,
+    isRecordingAccess: recordAccessMutation.isLoading,
   };
 }

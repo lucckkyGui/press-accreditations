@@ -1,61 +1,37 @@
 
-import { PaginationParams, FilterParams } from '../api/apiResponse';
-
 export interface MediaGroup {
   id: string;
   name: string;
+  type: string;
   description?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  website?: string;
+  country?: string;
+  city?: string;
+  importance: number;
+  status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  contactCount: number;
-  tags?: string[];
 }
 
 export interface MediaGroupForm {
   name: string;
+  type: string;
   description?: string;
-  tags?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  website?: string;
+  country?: string;
+  city?: string;
+  importance?: number;
 }
 
-export interface MediaContact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  mediaOutlet: string;
-  position?: string;
-  notes?: string;
-  groups: string[];
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MediaContactForm {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  mediaOutlet: string;
-  position?: string;
-  notes?: string;
-  groups: string[];
-  tags?: string[];
-}
-
-export interface MediaGroupQueryParams extends PaginationParams, FilterParams {
+export interface MediaGroupsQueryParams {
+  type?: string;
+  status?: string;
   search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface MediaContactQueryParams extends PaginationParams, FilterParams {
-  groupId?: string;
-  search?: string;
-  mediaOutlet?: string;
-  tags?: string[];
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
