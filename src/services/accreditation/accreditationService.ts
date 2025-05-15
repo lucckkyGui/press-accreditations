@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Accreditation, 
@@ -6,7 +7,8 @@ import {
   CheckInData,
   AccreditationStats,
   AccessAreaEntry,
-  AccreditationBadgeData
+  AccreditationBadgeData,
+  AccreditationStatus
 } from "@/types/accreditation";
 import { ApiResponse } from "@/types/api/apiResponse";
 import { 
@@ -133,12 +135,16 @@ export const AccreditationService = {
       const qrCodeData = `${form.eventId}-${form.userId}-${Date.now()}`;
       const qrCode = await generateQRCode(qrCodeData);
       
-      const newAccreditation = {
+      const newAccreditation: Accreditation = {
         ...form,
         qrCode,
         isCheckedIn: false,
         revoked: false,
-        status: 'active'
+        status: 'active' as AccreditationStatus, // Use the proper enum type
+        badgePrinted: false,
+        id: '', // Will be filled by Supabase
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       
       const { data, error } = await supabase
@@ -290,13 +296,10 @@ export const AccreditationService = {
     try {
       console.log("Area access entry:", entry);
       
-      // Instead of using the non-existent access_area_entries table,
-      // we'll just update the accreditation with the latest entry time
+      // Instead of using the non-existent table, just update the accreditation's updated_at
       const { error } = await supabase
         .from('accreditations')
         .update({
-          // We're removing the last_access_area and last_access_time properties
-          // since they don't exist in the database schema
           updated_at: new Date().toISOString()
         })
         .eq('id', entry.accreditationId);
@@ -352,8 +355,8 @@ export const AccreditationService = {
         validFrom: accreditation.validity_start,
         validTo: accreditation.validity_end,
         qrCode: accreditation.qr_code,
-        // Fix: Use qr_code instead of badge_number since it doesn't exist in the DB
-        badgeNumber: accreditation.qr_code, // Changed from non-existent badge_number
+        // Use qr_code since badge_number doesn't exist in the database
+        badgeNumber: accreditation.qr_code, 
         photoUrl: (accreditation.users as any)?.avatar_url,
         accessAreas: (accreditation.types as any)?.access_areas || [],
         eventName: (accreditation.events as any)?.title || '',
@@ -377,7 +380,7 @@ export const AccreditationService = {
    */
   async updateAccreditationStatus(
     id: string, 
-    status: string,
+    status: AccreditationStatus, // Use the specific AccreditationStatus type
     notes?: string
   ): Promise<ApiResponse<Accreditation>> {
     try {
@@ -422,7 +425,7 @@ export const AccreditationService = {
       };
       
       if (badgeNumber) {
-        updateData.badge_number = badgeNumber;
+        updateData.qr_code = badgeNumber; // Store in qr_code since badge_number doesn't exist
       }
       
       const { data, error } = await supabase

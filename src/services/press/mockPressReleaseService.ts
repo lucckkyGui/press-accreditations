@@ -1,3 +1,4 @@
+
 import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
@@ -7,7 +8,6 @@ import {
   MediaGroupForm,
   MediaContact,
   MediaContactForm,
-  MediaGroupsQueryParams,
   MediaContactsQueryParams,
   PressReleaseStatus,
   PressReleaseType
@@ -163,14 +163,12 @@ export class MockPressReleaseService {
     let filteredPressReleases = [...mockPressReleases];
     
     if (params?.status && params.status !== 'all') {
-      // Use type checking to avoid unintentional comparison
       filteredPressReleases = filteredPressReleases.filter(pr => 
         pr.status === params.status
       );
     }
     
     if (params?.type && params.type !== 'all') {
-      // Use type checking to avoid unintentional comparison
       filteredPressReleases = filteredPressReleases.filter(pr => 
         pr.type === params.type
       );
@@ -340,25 +338,6 @@ export class MockPressReleaseService {
     
     return { data: group };
   }
-  
-  async deleteMediaGroup(id: string): Promise<ApiResponse<void>> {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
-    
-    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
-    
-    if (groupIndex === -1) {
-      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
-    }
-    
-    mockMediaGroups.splice(groupIndex, 1);
-    
-    // Usuń grupę z kontaktów
-    mockMediaContacts.forEach(contact => {
-      contact.groups = contact.groups.filter(groupId => groupId !== id);
-    });
-    
-    return { data: void 0 };
-  }
 
   // Metody dla kontaktów medialnych
   async getMediaContacts(params?: MediaContactsQueryParams): Promise<ApiResponse<MediaContact[]>> {
@@ -403,6 +382,39 @@ export class MockPressReleaseService {
     }
     
     return { data: contact };
+  }
+  
+  // Adding the createMediaContact method that was missing but referenced in useMediaContacts
+  async createMediaContact(data: MediaContactForm): Promise<ApiResponse<MediaContact>> {
+    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
+    
+    const newContact: MediaContact = {
+      id: generateId(),
+      firstName: data.firstName,
+      lastName: data.lastName,
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      phone: data.phone,
+      mediaOutlet: data.mediaOutlet,
+      position: data.position,
+      notes: data.notes,
+      groups: data.groups || [],
+      tags: data.tags || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    mockMediaContacts.push(newContact);
+    
+    // Update contact counts in associated groups
+    newContact.groups.forEach(groupId => {
+      const groupIndex = mockMediaGroups.findIndex(g => g.id === groupId);
+      if (groupIndex !== -1) {
+        mockMediaGroups[groupIndex].contactCount++;
+      }
+    });
+    
+    return { data: newContact };
   }
   
   async updateMediaContact(id: string, data: Partial<MediaContactForm>): Promise<ApiResponse<MediaContact>> {
@@ -529,25 +541,6 @@ export class MockPressReleaseService {
     mockMediaGroups[groupIndex] = updatedGroup;
     
     return { data: updatedGroup };
-  }
-  
-  async deleteMediaGroup(id: string): Promise<ApiResponse<void>> {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
-    
-    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
-    
-    if (groupIndex === -1) {
-      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
-    }
-    
-    mockMediaGroups.splice(groupIndex, 1);
-    
-    // Usuń grupę z kontaktów
-    mockMediaContacts.forEach(contact => {
-      contact.groups = contact.groups.filter(groupId => groupId !== id);
-    });
-    
-    return { data: void 0 };
   }
 }
 
