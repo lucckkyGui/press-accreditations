@@ -1,7 +1,7 @@
 
 export interface MediaContact {
   id: string;
-  name: string;
+  name?: string;
   email: string;
   phone?: string;
   organization?: string;
@@ -20,7 +20,7 @@ export interface MediaContact {
 }
 
 export interface MediaContactForm {
-  name: string;
+  name?: string;
   email: string;
   phone?: string;
   organization?: string;

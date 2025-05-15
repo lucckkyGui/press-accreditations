@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useMediaGroups } from '@/hooks/press';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,18 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash, Users } from 'lucide-react';
+import { MediaGroup } from '@/types/pressRelease';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 interface MediaGroupCardProps {
-  group: {
-    id: string;
-    name: string;
-    description?: string;
-    contactCount: number;
-    tags?: string[];
-    createdAt: string;
-  };
+  group: MediaGroup;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onViewContacts: (id: string) => void;

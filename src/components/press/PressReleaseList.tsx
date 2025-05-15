@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PressRelease, PressReleaseStatus, PressReleaseType } from '@/types/pressRelease';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -28,14 +27,18 @@ const statusColors: Record<PressReleaseStatus, string> = {
   draft: 'bg-gray-200 text-gray-800',
   scheduled: 'bg-blue-100 text-blue-800',
   sent: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800'
+  cancelled: 'bg-red-100 text-red-800',
+  published: 'bg-emerald-100 text-emerald-800',
+  archived: 'bg-orange-100 text-orange-800'
 };
 
 const statusLabels: Record<PressReleaseStatus, string> = {
   draft: 'Szkic',
   scheduled: 'Zaplanowany',
   sent: 'Wysłany',
-  cancelled: 'Anulowany'
+  cancelled: 'Anulowany',
+  published: 'Opublikowany',
+  archived: 'Zarchiwizowany'
 };
 
 const typeLabels: Record<PressReleaseType, string> = {

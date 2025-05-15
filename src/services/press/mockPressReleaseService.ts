@@ -22,7 +22,10 @@ const mockMediaGroups: MediaGroup[] = [
   {
     id: '1',
     name: 'Dziennikarze prasowi',
+    type: 'prasa',
     description: 'Dziennikarze z gazet codziennych',
+    importance: 1,
+    status: 'active',
     createdAt: new Date(2024, 3, 15).toISOString(),
     updatedAt: new Date(2024, 3, 15).toISOString(),
     createdBy: 'user-1',
@@ -32,7 +35,10 @@ const mockMediaGroups: MediaGroup[] = [
   {
     id: '2',
     name: 'Telewizje',
+    type: 'tv',
     description: 'Przedstawiciele telewizji',
+    importance: 2,
+    status: 'active',
     createdAt: new Date(2024, 3, 10).toISOString(),
     updatedAt: new Date(2024, 4, 5).toISOString(),
     createdBy: 'user-1',
@@ -42,7 +48,10 @@ const mockMediaGroups: MediaGroup[] = [
   {
     id: '3',
     name: 'Portale internetowe',
+    type: 'online',
     description: 'Dziennikarze i redaktorzy portali internetowych',
+    importance: 3,
+    status: 'active',
     createdAt: new Date(2024, 2, 20).toISOString(),
     updatedAt: new Date(2024, 2, 20).toISOString(),
     createdBy: 'user-1',
@@ -56,6 +65,7 @@ const mockMediaContacts: MediaContact[] = [
     id: '1',
     firstName: 'Jan',
     lastName: 'Kowalski',
+    name: 'Jan Kowalski',
     email: 'j.kowalski@gazeta.pl',
     phone: '+48 123 456 789',
     mediaOutlet: 'Gazeta Codzienna',
@@ -69,6 +79,7 @@ const mockMediaContacts: MediaContact[] = [
     id: '2',
     firstName: 'Anna',
     lastName: 'Nowak',
+    name: 'Anna Nowak',
     email: 'anna.nowak@tvn.pl',
     phone: '+48 987 654 321',
     mediaOutlet: 'TVN',
@@ -82,6 +93,7 @@ const mockMediaContacts: MediaContact[] = [
     id: '3',
     firstName: 'Piotr',
     lastName: 'Wiśniewski',
+    name: 'Piotr Wiśniewski',
     email: 'piotr@portal.com',
     mediaOutlet: 'Portal Kulturalny',
     position: 'Redaktor naczelny',
@@ -99,11 +111,13 @@ const mockPressReleases: PressRelease[] = [
     content: 'Z przyjemnością zapraszamy na otwarcie nowej wystawy w Muzeum Narodowym...',
     status: 'sent',
     type: 'invitation',
+    publicationDate: new Date(2024, 4, 3).toISOString(),
     createdAt: new Date(2024, 4, 1).toISOString(),
     updatedAt: new Date(2024, 4, 1).toISOString(),
     scheduledFor: new Date(2024, 4, 5).toISOString(),
     sentAt: new Date(2024, 4, 5).toISOString(),
     createdBy: 'user-1',
+    mediaGroupIds: ['1', '3'],
     mediaGroups: ['1', '3'],
     metrics: {
       sentCount: 65,
@@ -119,10 +133,12 @@ const mockPressReleases: PressRelease[] = [
     content: 'Zapraszamy na konferencję prasową dotyczącą tegorocznej edycji Festiwalu Filmowego...',
     status: 'scheduled',
     type: 'invitation',
+    publicationDate: new Date(2024, 4, 10).toISOString(),
     createdAt: new Date(2024, 4, 5).toISOString(),
     updatedAt: new Date(2024, 4, 5).toISOString(),
     scheduledFor: new Date(2024, 4, 15).toISOString(),
     createdBy: 'user-1',
+    mediaGroupIds: ['1', '2', '3'],
     mediaGroups: ['1', '2', '3']
   },
   {
@@ -131,16 +147,18 @@ const mockPressReleases: PressRelease[] = [
     content: 'W związku z zaistniałą sytuacją epidemiologiczną, jesteśmy zmuszeni poinformować o zmianach w repertuarze...',
     status: 'draft',
     type: 'statement',
+    publicationDate: new Date(2024, 4, 15).toISOString(),
     createdAt: new Date(2024, 4, 10).toISOString(),
     updatedAt: new Date(2024, 4, 10).toISOString(),
     createdBy: 'user-1',
+    mediaGroupIds: ['2', '3'],
     mediaGroups: ['2', '3']
   }
 ];
 
 export class MockPressReleaseService {
   // Metody dla komunikatów prasowych
-  async getPressReleases(params?: PressReleaseQueryParams): Promise<ApiResponse<PressRelease[]>> {
+  async getPressReleases(params?: PressReleasesQueryParams): Promise<ApiResponse<PressRelease[]>> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
     
     let filteredPressReleases = [...mockPressReleases];
@@ -179,11 +197,13 @@ export class MockPressReleaseService {
       id: generateId(),
       title: data.title,
       content: data.content,
+      publicationDate: data.publicationDate,
       type: data.type,
       status: 'draft',
       scheduledFor: data.scheduledFor,
       eventId: data.eventId,
-      mediaGroups: data.mediaGroups,
+      mediaGroupIds: data.mediaGroupIds,
+      mediaGroups: data.mediaGroupIds,
       attachmentUrls: data.attachmentUrls,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -287,7 +307,7 @@ export class MockPressReleaseService {
   }
 
   // Metody dla grup mediów
-  async getMediaGroups(params?: MediaGroupQueryParams): Promise<ApiResponse<MediaGroup[]>> {
+  async getMediaGroups(params?: MediaGroupsQueryParams): Promise<ApiResponse<MediaGroup[]>> {
     await new Promise(resolve => setTimeout(resolve, 400)); // Symulacja opóźnienia
     
     let filteredGroups = [...mockMediaGroups];
@@ -375,7 +395,7 @@ export class MockPressReleaseService {
   }
 
   // Metody dla kontaktów medialnych
-  async getMediaContacts(params?: MediaContactQueryParams): Promise<ApiResponse<MediaContact[]>> {
+  async getMediaContacts(params?: MediaContactsQueryParams): Promise<ApiResponse<MediaContact[]>> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
     
     let filteredContacts = [...mockMediaContacts];
