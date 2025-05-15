@@ -1,11 +1,11 @@
 
-// This is the central re-export file for auth functionality
-// It provides a clean import structure for authentication features
+// Central re-export file for authentication functionality
+// Added version identifier to ensure change: v1.0.1
 
-import { useAuth as useAuthImplementation } from '@/hooks/auth';
+import { useAuth as useAuthOriginal } from '@/hooks/auth';
 
 // Named export for direct usage
-export const useAuth = useAuthImplementation;
+export const useAuth = useAuthOriginal;
 
 // Re-export everything from the auth folder
 export * from '@/hooks/auth';

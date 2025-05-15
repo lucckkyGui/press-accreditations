@@ -1,4 +1,7 @@
 
+// Auth hook implementation
+// Added version identifier to ensure change: v1.0.1
+
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 

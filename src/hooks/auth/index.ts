@@ -1,5 +1,6 @@
 
 // Main export file for auth-related functionality
+// Added version identifier to ensure change: v1.0.1
 // This ensures all auth features are accessible through a single import
 
 export * from './types';
