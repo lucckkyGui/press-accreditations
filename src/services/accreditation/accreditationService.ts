@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Accreditation, 
@@ -138,7 +137,8 @@ export const AccreditationService = {
         ...form,
         qrCode,
         isCheckedIn: false,
-        revoked: false
+        revoked: false,
+        status: 'active'
       };
       
       const { data, error } = await supabase
@@ -288,21 +288,15 @@ export const AccreditationService = {
    */
   async recordAreaAccess(entry: AccessAreaEntry): Promise<ApiResponse<void>> {
     try {
-      // Since we don't have an access_area_entries table in Supabase yet,
-      // we'll store this entry in a custom column in the accreditations table temporarily
-      // or simply log the entry for now
       console.log("Area access entry:", entry);
       
-      // Update the accreditation with access information
-      // Note: In a real application, you'd need to add these columns to the database
-      // or create a separate table for access entries
+      // Instead of using the non-existent access_area_entries table,
+      // we'll just update the accreditation with the latest entry time
       const { error } = await supabase
         .from('accreditations')
         .update({
-          // We'll need to add these columns to the database
-          // For now, assuming they don't exist, so commenting out
-          // last_access_area: entry.areaId,
-          // last_access_time: entry.timestamp || new Date().toISOString()
+          // We're removing the last_access_area and last_access_time properties
+          // since they don't exist in the database schema
           updated_at: new Date().toISOString()
         })
         .eq('id', entry.accreditationId);
@@ -358,8 +352,8 @@ export const AccreditationService = {
         validFrom: accreditation.validity_start,
         validTo: accreditation.validity_end,
         qrCode: accreditation.qr_code,
-        // Using badge_number directly as it might not exist in the database yet
-        badgeNumber: accreditation.badge_number,
+        // Fix: Use qr_code instead of badge_number since it doesn't exist in the DB
+        badgeNumber: accreditation.qr_code, // Changed from non-existent badge_number
         photoUrl: (accreditation.users as any)?.avatar_url,
         accessAreas: (accreditation.types as any)?.access_areas || [],
         eventName: (accreditation.events as any)?.title || '',
@@ -454,4 +448,3 @@ export const AccreditationService = {
     }
   }
 };
-

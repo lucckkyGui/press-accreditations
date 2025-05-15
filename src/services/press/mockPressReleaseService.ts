@@ -1,4 +1,3 @@
-
 import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
@@ -164,16 +163,16 @@ export class MockPressReleaseService {
     let filteredPressReleases = [...mockPressReleases];
     
     if (params?.status && params.status !== 'all') {
-      // Using type conversion to perform safe comparison
+      // Use type checking to avoid unintentional comparison
       filteredPressReleases = filteredPressReleases.filter(pr => 
-        pr.status === (params.status as PressReleaseStatus)
+        pr.status === params.status
       );
     }
     
     if (params?.type && params.type !== 'all') {
-      // Using type conversion to perform safe comparison
+      // Use type checking to avoid unintentional comparison
       filteredPressReleases = filteredPressReleases.filter(pr => 
-        pr.type === (params.type as PressReleaseType)
+        pr.type === params.type
       );
     }
     
@@ -342,48 +341,6 @@ export class MockPressReleaseService {
     return { data: group };
   }
   
-  async createMediaGroup(data: MediaGroupForm): Promise<ApiResponse<MediaGroup>> {
-    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
-    
-    const newGroup: MediaGroup = {
-      id: generateId(),
-      name: data.name,
-      type: data.type || 'other',
-      description: data.description || '',
-      tags: data.tags || [],
-      contactCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'user-1',
-      importance: data.importance || 0,
-      status: 'active'
-    };
-    
-    mockMediaGroups.push(newGroup);
-    
-    return { data: newGroup };
-  }
-  
-  async updateMediaGroup(id: string, data: Partial<MediaGroupForm>): Promise<ApiResponse<MediaGroup>> {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
-    
-    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
-    
-    if (groupIndex === -1) {
-      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
-    }
-    
-    const updatedGroup = {
-      ...mockMediaGroups[groupIndex],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    
-    mockMediaGroups[groupIndex] = updatedGroup;
-    
-    return { data: updatedGroup };
-  }
-  
   async deleteMediaGroup(id: string): Promise<ApiResponse<void>> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
     
@@ -446,37 +403,6 @@ export class MockPressReleaseService {
     }
     
     return { data: contact };
-  }
-  
-  async createMediaContact(data: MediaContactForm): Promise<ApiResponse<MediaContact>> {
-    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
-    
-    const newContact: MediaContact = {
-      id: generateId(),
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      mediaOutlet: data.mediaOutlet,
-      position: data.position,
-      notes: data.notes,
-      groups: data.groups,
-      tags: data.tags,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    mockMediaContacts.push(newContact);
-    
-    // Aktualizuj liczniki kontaktów w grupach
-    data.groups.forEach(groupId => {
-      const groupIndex = mockMediaGroups.findIndex(g => g.id === groupId);
-      if (groupIndex !== -1) {
-        mockMediaGroups[groupIndex].contactCount++;
-      }
-    });
-    
-    return { data: newContact };
   }
   
   async updateMediaContact(id: string, data: Partial<MediaContactForm>): Promise<ApiResponse<MediaContact>> {
@@ -563,38 +489,6 @@ export class MockPressReleaseService {
     return { data: { successful, failed } };
   }
 
-  async createMediaContact(data: MediaContactForm): Promise<ApiResponse<MediaContact>> {
-    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
-    
-    const newContact: MediaContact = {
-      id: generateId(),
-      firstName: data.firstName,
-      lastName: data.lastName,
-      name: `${data.firstName} ${data.lastName}`, // Ensure name field is set
-      email: data.email,
-      phone: data.phone || '',
-      mediaOutlet: data.mediaOutlet,
-      position: data.position || '',
-      notes: data.notes || '',
-      groups: data.groups || [],
-      tags: data.tags || [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    mockMediaContacts.push(newContact);
-    
-    // Aktualizuj liczniki kontaktów w grupach
-    data.groups.forEach(groupId => {
-      const groupIndex = mockMediaGroups.findIndex(g => g.id === groupId);
-      if (groupIndex !== -1) {
-        mockMediaGroups[groupIndex].contactCount++;
-      }
-    });
-    
-    return { data: newContact };
-  }
-  
   async createMediaGroup(data: MediaGroupForm): Promise<ApiResponse<MediaGroup>> {
     await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
     
@@ -616,7 +510,45 @@ export class MockPressReleaseService {
     
     return { data: newGroup };
   }
+  
+  async updateMediaGroup(id: string, data: Partial<MediaGroupForm>): Promise<ApiResponse<MediaGroup>> {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
+    
+    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
+    
+    if (groupIndex === -1) {
+      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
+    }
+    
+    const updatedGroup = {
+      ...mockMediaGroups[groupIndex],
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    mockMediaGroups[groupIndex] = updatedGroup;
+    
+    return { data: updatedGroup };
+  }
+  
+  async deleteMediaGroup(id: string): Promise<ApiResponse<void>> {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
+    
+    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
+    
+    if (groupIndex === -1) {
+      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
+    }
+    
+    mockMediaGroups.splice(groupIndex, 1);
+    
+    // Usuń grupę z kontaktów
+    mockMediaContacts.forEach(contact => {
+      contact.groups = contact.groups.filter(groupId => groupId !== id);
+    });
+    
+    return { data: void 0 };
+  }
 }
 
 export const mockPressReleaseService = new MockPressReleaseService();
-
