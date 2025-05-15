@@ -1,3 +1,4 @@
+
 import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
@@ -163,13 +164,17 @@ export class MockPressReleaseService {
     let filteredPressReleases = [...mockPressReleases];
     
     if (params?.status && params.status !== 'all') {
-      // Comparing against string value instead of type
-      filteredPressReleases = filteredPressReleases.filter(pr => pr.status === params.status);
+      // Using type conversion to perform safe comparison
+      filteredPressReleases = filteredPressReleases.filter(pr => 
+        pr.status === (params.status as PressReleaseStatus)
+      );
     }
     
     if (params?.type && params.type !== 'all') {
-      // Comparing against string value instead of type
-      filteredPressReleases = filteredPressReleases.filter(pr => pr.type === params.type);
+      // Using type conversion to perform safe comparison
+      filteredPressReleases = filteredPressReleases.filter(pr => 
+        pr.type === (params.type as PressReleaseType)
+      );
     }
     
     if (params?.eventId) {
@@ -265,7 +270,7 @@ export class MockPressReleaseService {
     
     const updatedPressRelease = {
       ...mockPressReleases[pressReleaseIndex],
-      status: 'sent' as const,
+      status: 'sent' as PressReleaseStatus,
       sentAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       metrics: {
@@ -297,7 +302,7 @@ export class MockPressReleaseService {
     
     const updatedPressRelease = {
       ...mockPressReleases[pressReleaseIndex],
-      status: 'scheduled' as const,
+      status: 'scheduled' as PressReleaseStatus,
       scheduledFor: date,
       updatedAt: new Date().toISOString(),
     };
@@ -489,6 +494,14 @@ export class MockPressReleaseService {
     const updatedContact = {
       ...mockMediaContacts[contactIndex],
       ...data,
+      // Make sure the name field is computed from firstName and lastName when they change
+      name: data.firstName && data.lastName 
+        ? `${data.firstName} ${data.lastName}` 
+        : data.firstName 
+          ? `${data.firstName} ${mockMediaContacts[contactIndex].lastName}` 
+          : data.lastName 
+            ? `${mockMediaContacts[contactIndex].firstName} ${data.lastName}` 
+            : mockMediaContacts[contactIndex].name,
       updatedAt: new Date().toISOString(),
     };
     
@@ -549,6 +562,61 @@ export class MockPressReleaseService {
     
     return { data: { successful, failed } };
   }
+
+  async createMediaContact(data: MediaContactForm): Promise<ApiResponse<MediaContact>> {
+    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
+    
+    const newContact: MediaContact = {
+      id: generateId(),
+      firstName: data.firstName,
+      lastName: data.lastName,
+      name: `${data.firstName} ${data.lastName}`, // Ensure name field is set
+      email: data.email,
+      phone: data.phone || '',
+      mediaOutlet: data.mediaOutlet,
+      position: data.position || '',
+      notes: data.notes || '',
+      groups: data.groups || [],
+      tags: data.tags || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    mockMediaContacts.push(newContact);
+    
+    // Aktualizuj liczniki kontaktów w grupach
+    data.groups.forEach(groupId => {
+      const groupIndex = mockMediaGroups.findIndex(g => g.id === groupId);
+      if (groupIndex !== -1) {
+        mockMediaGroups[groupIndex].contactCount++;
+      }
+    });
+    
+    return { data: newContact };
+  }
+  
+  async createMediaGroup(data: MediaGroupForm): Promise<ApiResponse<MediaGroup>> {
+    await new Promise(resolve => setTimeout(resolve, 600)); // Symulacja opóźnienia
+    
+    const newGroup: MediaGroup = {
+      id: generateId(),
+      name: data.name,
+      type: data.type || 'other',
+      description: data.description || '',
+      tags: data.tags || [],
+      contactCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'user-1',
+      importance: data.importance || 0,
+      status: 'active'
+    };
+    
+    mockMediaGroups.push(newGroup);
+    
+    return { data: newGroup };
+  }
 }
 
 export const mockPressReleaseService = new MockPressReleaseService();
+
