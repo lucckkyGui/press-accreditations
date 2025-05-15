@@ -1,4 +1,3 @@
-
 import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
@@ -6,6 +5,7 @@ import {
   PressReleasesQueryParams,
   MediaGroup,
   MediaGroupForm,
+  MediaGroupsQueryParams,
   MediaContact,
   MediaContactForm,
   MediaContactsQueryParams,
@@ -541,6 +541,21 @@ export class MockPressReleaseService {
     mockMediaGroups[groupIndex] = updatedGroup;
     
     return { data: updatedGroup };
+  }
+  
+  // Add the missing deleteMediaGroup method
+  async deleteMediaGroup(id: string): Promise<ApiResponse<void>> {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia
+    
+    const groupIndex = mockMediaGroups.findIndex(g => g.id === id);
+    
+    if (groupIndex === -1) {
+      return { error: { message: 'Grupa mediów nie została znaleziona', code: '404' } };
+    }
+    
+    mockMediaGroups.splice(groupIndex, 1);
+    
+    return { data: void 0 };
   }
 }
 

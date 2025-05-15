@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { AccreditationService } from '@/services/accreditation/accreditationService';
@@ -7,7 +6,8 @@ import {
   AccreditationForm, 
   AccreditationsQueryParams,
   CheckInData,
-  AccessAreaEntry
+  AccessAreaEntry,
+  AccreditationStatus
 } from '@/types/accreditation';
 import { toast } from '@/hooks/use-toast';
 
@@ -88,10 +88,10 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
     }
   );
 
-  // Nowe mutacje dla rozszerzonej funkcjonalności
+  // Fix the updateStatusMutation to use the correct AccreditationStatus type
   const updateStatusMutation = useApiMutation(
     ['accreditations', 'update-status'],
-    ({ id, status, notes }: { id: string; status: string; notes?: string }) => 
+    ({ id, status, notes }: { id: string; status: AccreditationStatus; notes?: string }) => 
       AccreditationService.updateAccreditationStatus(id, status, notes),
     {
       onSuccess: () => {
@@ -165,7 +165,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
     revokeMutation.mutate({ id, reason });
   }, [revokeMutation]);
 
-  const updateAccreditationStatus = useCallback((id: string, status: string, notes?: string) => {
+  const updateAccreditationStatus = useCallback((id: string, status: AccreditationStatus, notes?: string) => {
     updateStatusMutation.mutate({ id, status, notes });
   }, [updateStatusMutation]);
 
