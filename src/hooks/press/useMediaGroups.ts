@@ -1,100 +1,118 @@
 
-import { useState, useEffect } from 'react';
-import { 
-  MediaGroup, 
-  MediaGroupForm, 
-  MediaGroupsQueryParams 
-} from '@/types/pressRelease';
+import { useCallback } from 'react';
+import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
+import { MediaGroup, MediaGroupForm, MediaGroupsQueryParams } from '@/types/pressRelease';
+import { toast } from '@/hooks/use-toast';
 
-export const useMediaGroups = (params?: MediaGroupsQueryParams) => {
-  const [mediaGroups, setMediaGroups] = useState<MediaGroup[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const fetchMediaGroups = async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const response = await mockPressReleaseService.getMediaGroups(params);
-      
-      if (response.error) {
-        setError(response.error.message);
-      } else if (response.data) {
-        setMediaGroups(response.data);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas pobierania grup mediów');
-    } finally {
-      setIsLoading(false);
+export function useMediaGroups(params: MediaGroupsQueryParams = {}, options = {}) {
+  const {
+    data: mediaGroups,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useApiQuery(
+    ['mediaGroups', params],
+    () => mockPressReleaseService.getMediaGroups(params),
+    options
+  );
+
+  const createMutation = useApiMutation(
+    ['mediaGroups', 'create'],
+    (data: MediaGroupForm) => mockPressReleaseService.createMediaGroup(data),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Grupa utworzona',
+          description: 'Grupa mediów została utworzona pomyślnie.',
+        });
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się utworzyć grupy mediów.',
+          variant: 'destructive',
+        });
+      },
     }
-  };
-  
-  useEffect(() => {
-    fetchMediaGroups();
-  }, [params?.search]);
-  
-  const createMediaGroup = async (form: MediaGroupForm): Promise<MediaGroup | null> => {
-    try {
-      const response = await mockPressReleaseService.createMediaGroup(form);
-      
-      if (response.error) {
-        setError(response.error.message);
-        return null;
-      } else {
-        fetchMediaGroups();
-        return response.data;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas tworzenia grupy mediów');
-      return null;
+  );
+
+  const updateMutation = useApiMutation(
+    ['mediaGroups', 'update'],
+    ({ id, data }: { id: string; data: Partial<MediaGroupForm> }) =>
+      mockPressReleaseService.updateMediaGroup(id, data),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Grupa zaktualizowana',
+          description: 'Grupa mediów została zaktualizowana pomyślnie.',
+        });
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się zaktualizować grupy mediów.',
+          variant: 'destructive',
+        });
+      },
     }
-  };
-  
-  const updateMediaGroup = async (id: string, form: Partial<MediaGroupForm>): Promise<MediaGroup | null> => {
-    try {
-      const response = await mockPressReleaseService.updateMediaGroup(id, form);
-      
-      if (response.error) {
-        setError(response.error.message);
-        return null;
-      } else {
-        setMediaGroups(prev => 
-          prev.map(group => group.id === id ? response.data : group)
-        );
-        return response.data;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas aktualizacji grupy mediów');
-      return null;
+  );
+
+  const deleteMutation = useApiMutation(
+    ['mediaGroups', 'delete'],
+    (id: string) => mockPressReleaseService.deleteMediaGroup(id),
+    {
+      onSuccess: () => {
+        toast({
+          title: 'Grupa usunięta',
+          description: 'Grupa mediów została usunięta pomyślnie.',
+        });
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Błąd',
+          description: error.message || 'Nie udało się usunąć grupy mediów.',
+          variant: 'destructive',
+        });
+      },
     }
-  };
-  
-  const deleteMediaGroup = async (id: string): Promise<boolean> => {
-    try {
-      const response = await mockPressReleaseService.deleteMediaGroup(id);
-      
-      if (response.error) {
-        setError(response.error.message);
-        return false;
-      } else {
-        setMediaGroups(prev => prev.filter(group => group.id !== id));
-        return true;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas usuwania grupy mediów');
-      return false;
-    }
-  };
-  
-  return { 
+  );
+
+  const createMediaGroup = useCallback(
+    (data: MediaGroupForm) => {
+      createMutation.mutate(data);
+    },
+    [createMutation]
+  );
+
+  const updateMediaGroup = useCallback(
+    (id: string, data: Partial<MediaGroupForm>) => {
+      updateMutation.mutate({ id, data });
+    },
+    [updateMutation]
+  );
+
+  const deleteMediaGroup = useCallback(
+    (id: string) => {
+      deleteMutation.mutate(id);
+    },
+    [deleteMutation]
+  );
+
+  return {
     mediaGroups,
     isLoading,
+    isError,
     error,
-    refresh: fetchMediaGroups,
     createMediaGroup,
     updateMediaGroup,
-    deleteMediaGroup
+    deleteMediaGroup,
+    isCreating: createMutation.isLoading,
+    isUpdating: updateMutation.isLoading,
+    isDeleting: deleteMutation.isLoading,
   };
-};
+}
