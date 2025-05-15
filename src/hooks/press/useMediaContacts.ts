@@ -1,15 +1,14 @@
-
 import { useCallback } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
 import { 
   MediaContact,
   MediaContactForm,
-  MediaContactQueryParams
+  MediaContactsQueryParams
 } from '@/types/pressRelease';
 import { toast } from '@/hooks/use-toast';
 
-export function useMediaContacts(params: MediaContactQueryParams = {}, options = {}) {
+export function useMediaContacts(params: MediaContactsQueryParams = {}, options = {}) {
   const {
     data: mediaContacts,
     isLoading,

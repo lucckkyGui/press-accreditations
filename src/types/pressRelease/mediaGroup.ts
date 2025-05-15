@@ -14,6 +14,8 @@ export interface MediaGroup {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
+  contactCount?: number;
+  tags?: string[];
 }
 
 export interface MediaGroupForm {
@@ -26,6 +28,7 @@ export interface MediaGroupForm {
   country?: string;
   city?: string;
   importance?: number;
+  tags?: string[];
 }
 
 export interface MediaGroupsQueryParams {

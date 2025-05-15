@@ -1,15 +1,14 @@
-
 import { useCallback } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
 import { 
   MediaGroup,
   MediaGroupForm,
-  MediaGroupQueryParams
+  MediaGroupsQueryParams
 } from '@/types/pressRelease';
 import { toast } from '@/hooks/use-toast';
 
-export function useMediaGroups(params: MediaGroupQueryParams = {}, options = {}) {
+export function useMediaGroups(params: MediaGroupsQueryParams = {}, options = {}) {
   const {
     data: mediaGroups,
     isLoading,

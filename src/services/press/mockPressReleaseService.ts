@@ -3,13 +3,15 @@ import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
   PressReleaseForm, 
-  PressReleaseQueryParams,
+  PressReleasesQueryParams,
   MediaGroup,
   MediaGroupForm,
   MediaContact,
   MediaContactForm,
-  MediaGroupQueryParams,
-  MediaContactQueryParams
+  MediaGroupsQueryParams,
+  MediaContactsQueryParams,
+  PressReleaseStatus,
+  PressReleaseType
 } from '@/types/pressRelease';
 
 // Funkcja pomocnicza do generowania ID

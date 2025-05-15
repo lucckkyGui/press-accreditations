@@ -1,15 +1,14 @@
-
 import { useCallback } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
 import { 
   PressRelease, 
   PressReleaseForm, 
-  PressReleaseQueryParams 
+  PressReleasesQueryParams 
 } from '@/types/pressRelease';
 import { toast } from '@/hooks/use-toast';
 
-export function usePressReleases(params: PressReleaseQueryParams = {}, options = {}) {
+export function usePressReleases(params: PressReleasesQueryParams = {}, options = {}) {
   const {
     data: pressReleases,
     isLoading,
