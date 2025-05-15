@@ -1,6 +1,6 @@
 
 // Main re-export file for toast functionality
-// Added version identifier to ensure change: v1.0.1
+// Version: v1.0.2
 
-// Re-export all toast-related functionality from implementation file
+// Direct re-export of toast implementation
 export * from './use-toast.tsx';

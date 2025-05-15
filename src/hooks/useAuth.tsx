@@ -1,11 +1,10 @@
 
 // Central re-export file for authentication functionality
-// Added version identifier to ensure change: v1.0.1
+// Version: v1.0.2
 
-import { useAuth as useAuthOriginal } from '@/hooks/auth';
+// Direct export from auth folder - avoiding circular imports
+import { useAuth } from './auth/useAuth';
+export { useAuth };
 
-// Named export for direct usage
-export const useAuth = useAuthOriginal;
-
-// Re-export everything from the auth folder
-export * from '@/hooks/auth';
+// Re-export everything else from the auth folder
+export * from './auth';

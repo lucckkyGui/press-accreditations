@@ -1,12 +1,12 @@
 
+// Core toast implementation
+// Version: v1.0.2
+
 import * as React from "react";
 import { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
-// Added comment to ensure change detection
-// This file contains the core toast implementation
-
 const TOAST_LIMIT = 5;
-const TOAST_REMOVE_DELAY = 5000; // Changed from 1000000 to 5000ms (5 seconds)
+const TOAST_REMOVE_DELAY = 5000; // 5 seconds
 
 type ToasterToast = ToastProps & {
   id: string;
