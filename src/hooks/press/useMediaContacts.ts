@@ -1,140 +1,100 @@
-import { useCallback } from 'react';
-import { useApiQuery, useApiMutation } from '@/hooks/useApi';
-import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
+
+import { useState, useEffect } from 'react';
 import { 
-  MediaContact,
-  MediaContactForm,
-  MediaContactsQueryParams
+  MediaContact, 
+  MediaContactForm, 
+  MediaContactsQueryParams 
 } from '@/types/pressRelease';
-import { toast } from '@/hooks/use-toast';
+import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
 
-export function useMediaContacts(params: MediaContactsQueryParams = {}, options = {}) {
-  const {
-    data: mediaContacts,
-    isLoading,
-    isError,
-    error,
-    refetch
-  } = useApiQuery(
-    ['media-contacts', params],
-    () => mockPressReleaseService.getMediaContacts(params),
-    options
-  );
-
-  const createMutation = useApiMutation(
-    ['media-contacts', 'create'],
-    (form: MediaContactForm) => mockPressReleaseService.createMediaContact(form),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Kontakt utworzony',
-          description: 'Kontakt medialny został utworzony pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się utworzyć kontaktu medialnego.',
-          variant: 'destructive',
-        });
-      },
+export const useMediaContacts = (params?: MediaContactsQueryParams) => {
+  const [mediaContacts, setMediaContacts] = useState<MediaContact[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchMediaContacts = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await mockPressReleaseService.getMediaContacts(params);
+      
+      if (response.error) {
+        setError(response.error.message);
+      } else if (response.data) {
+        setMediaContacts(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas pobierania kontaktów medialnych');
+    } finally {
+      setIsLoading(false);
     }
-  );
-
-  const updateMutation = useApiMutation(
-    ['media-contacts', 'update'],
-    ({ id, data }: { id: string; data: Partial<MediaContactForm> }) => 
-      mockPressReleaseService.updateMediaContact(id, data),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Kontakt zaktualizowany',
-          description: 'Kontakt medialny został zaktualizowany pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się zaktualizować kontaktu medialnego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  useEffect(() => {
+    fetchMediaContacts();
+  }, [params?.groupId, params?.search, params?.mediaOutlet]);
+  
+  const createMediaContact = async (form: MediaContactForm): Promise<MediaContact | null> => {
+    try {
+      const response = await mockPressReleaseService.createMediaContact(form);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return null;
+      } else {
+        fetchMediaContacts();
+        return response.data;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas tworzenia kontaktu medialnego');
+      return null;
     }
-  );
-
-  const deleteMutation = useApiMutation(
-    ['media-contacts', 'delete'],
-    (id: string) => mockPressReleaseService.deleteMediaContact(id),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Kontakt usunięty',
-          description: 'Kontakt medialny został usunięty pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się usunąć kontaktu medialnego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  const updateMediaContact = async (id: string, form: Partial<MediaContactForm>): Promise<MediaContact | null> => {
+    try {
+      const response = await mockPressReleaseService.updateMediaContact(id, form);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return null;
+      } else {
+        setMediaContacts(prev => 
+          prev.map(contact => contact.id === id ? response.data : contact)
+        );
+        return response.data;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas aktualizacji kontaktu medialnego');
+      return null;
     }
-  );
-
-  const importMutation = useApiMutation(
-    ['media-contacts', 'import'],
-    (file: File) => mockPressReleaseService.importMediaContacts(file),
-    {
-      onSuccess: (data) => {
-        toast({
-          title: 'Import zakończony',
-          description: `Zaimportowano pomyślnie ${data.successful} kontaktów. Nie udało się zaimportować ${data.failed} kontaktów.`,
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się zaimportować kontaktów medialnych.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  const deleteMediaContact = async (id: string): Promise<boolean> => {
+    try {
+      const response = await mockPressReleaseService.deleteMediaContact(id);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return false;
+      } else {
+        setMediaContacts(prev => prev.filter(contact => contact.id !== id));
+        return true;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas usuwania kontaktu medialnego');
+      return false;
     }
-  );
-
-  const createMediaContact = useCallback((form: MediaContactForm) => {
-    createMutation.mutate(form);
-  }, [createMutation]);
-
-  const updateMediaContact = useCallback((id: string, data: Partial<MediaContactForm>) => {
-    updateMutation.mutate({ id, data });
-  }, [updateMutation]);
-
-  const deleteMediaContact = useCallback((id: string) => {
-    deleteMutation.mutate(id);
-  }, [deleteMutation]);
-
-  const importMediaContacts = useCallback((file: File) => {
-    importMutation.mutate(file);
-  }, [importMutation]);
-
-  return {
+  };
+  
+  return { 
     mediaContacts,
     isLoading,
-    isError,
     error,
-    refetch,
+    refresh: fetchMediaContacts,
     createMediaContact,
     updateMediaContact,
-    deleteMediaContact,
-    importMediaContacts,
-    isCreating: createMutation.isLoading,
-    isUpdating: updateMutation.isLoading,
-    isDeleting: deleteMutation.isLoading,
-    isImporting: importMutation.isLoading,
+    deleteMediaContact
   };
-}
+};

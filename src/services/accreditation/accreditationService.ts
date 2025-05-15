@@ -287,17 +287,19 @@ export const AccreditationService = {
    */
   async recordAreaAccess(entry: AccessAreaEntry): Promise<ApiResponse<void>> {
     try {
+      // Since we don't have an access_area_entries table in Supabase yet,
+      // we'll store this entry in a custom column in the accreditations table temporarily
+      // or simply log the entry for now
+      console.log("Area access entry:", entry);
+      
+      // Update the accreditation with access information
       const { error } = await supabase
-        .from('access_area_entries')
-        .insert({
-          area_id: entry.areaId,
-          timestamp: entry.timestamp || new Date().toISOString(),
-          user_id: entry.userId,
-          accreditation_id: entry.accreditationId,
-          device_id: entry.deviceId,
-          status: entry.status,
-          reason: entry.reason
-        });
+        .from('accreditations')
+        .update({
+          last_access_area: entry.areaId,
+          last_access_time: entry.timestamp || new Date().toISOString()
+        })
+        .eq('id', entry.accreditationId);
       
       if (error) throw error;
       
@@ -350,7 +352,7 @@ export const AccreditationService = {
         validFrom: accreditation.validity_start,
         validTo: accreditation.validity_end,
         qrCode: accreditation.qr_code,
-        badgeNumber: accreditation.badgeNumber,
+        badgeNumber: accreditation.badge_number,
         photoUrl: (accreditation.users as any)?.avatar_url,
         accessAreas: (accreditation.types as any)?.access_areas || [],
         eventName: (accreditation.events as any)?.title || '',

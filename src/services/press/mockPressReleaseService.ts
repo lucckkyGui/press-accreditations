@@ -1,4 +1,3 @@
-
 import { ApiResponse } from '@/types/api/apiResponse';
 import { 
   PressRelease, 
@@ -109,8 +108,8 @@ const mockPressReleases: PressRelease[] = [
     id: '1',
     title: 'Otwarcie nowej wystawy w Muzeum Narodowym',
     content: 'Z przyjemnością zapraszamy na otwarcie nowej wystawy w Muzeum Narodowym...',
-    status: 'sent',
-    type: 'invitation',
+    status: 'sent' as PressReleaseStatus,
+    type: 'invitation' as PressReleaseType,
     publicationDate: new Date(2024, 4, 3).toISOString(),
     createdAt: new Date(2024, 4, 1).toISOString(),
     updatedAt: new Date(2024, 4, 1).toISOString(),
@@ -131,8 +130,8 @@ const mockPressReleases: PressRelease[] = [
     id: '2',
     title: 'Konferencja prasowa - Festiwal Filmowy 2024',
     content: 'Zapraszamy na konferencję prasową dotyczącą tegorocznej edycji Festiwalu Filmowego...',
-    status: 'scheduled',
-    type: 'invitation',
+    status: 'scheduled' as PressReleaseStatus,
+    type: 'invitation' as PressReleaseType,
     publicationDate: new Date(2024, 4, 10).toISOString(),
     createdAt: new Date(2024, 4, 5).toISOString(),
     updatedAt: new Date(2024, 4, 5).toISOString(),
@@ -145,8 +144,8 @@ const mockPressReleases: PressRelease[] = [
     id: '3',
     title: 'Oświadczenie w sprawie zmian w repertuarze',
     content: 'W związku z zaistniałą sytuacją epidemiologiczną, jesteśmy zmuszeni poinformować o zmianach w repertuarze...',
-    status: 'draft',
-    type: 'statement',
+    status: 'draft' as PressReleaseStatus,
+    type: 'statement' as PressReleaseType,
     publicationDate: new Date(2024, 4, 15).toISOString(),
     createdAt: new Date(2024, 4, 10).toISOString(),
     updatedAt: new Date(2024, 4, 10).toISOString(),
@@ -164,10 +163,12 @@ export class MockPressReleaseService {
     let filteredPressReleases = [...mockPressReleases];
     
     if (params?.status && params.status !== 'all') {
+      // Comparing against string value instead of type
       filteredPressReleases = filteredPressReleases.filter(pr => pr.status === params.status);
     }
     
     if (params?.type && params.type !== 'all') {
+      // Comparing against string value instead of type
       filteredPressReleases = filteredPressReleases.filter(pr => pr.type === params.type);
     }
     
@@ -342,12 +343,15 @@ export class MockPressReleaseService {
     const newGroup: MediaGroup = {
       id: generateId(),
       name: data.name,
-      description: data.description,
-      tags: data.tags,
+      type: data.type || 'other',
+      description: data.description || '',
+      tags: data.tags || [],
       contactCount: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       createdBy: 'user-1',
+      importance: data.importance || 0,
+      status: 'active'
     };
     
     mockMediaGroups.push(newGroup);

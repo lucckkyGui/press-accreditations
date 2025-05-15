@@ -1,168 +1,120 @@
-import { useCallback } from 'react';
-import { useApiQuery, useApiMutation } from '@/hooks/useApi';
-import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
+
+import { useState, useEffect } from 'react';
 import { 
   PressRelease, 
   PressReleaseForm, 
   PressReleasesQueryParams 
 } from '@/types/pressRelease';
-import { toast } from '@/hooks/use-toast';
+import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
 
-export function usePressReleases(params: PressReleasesQueryParams = {}, options = {}) {
-  const {
-    data: pressReleases,
-    isLoading,
-    isError,
-    error,
-    refetch
-  } = useApiQuery(
-    ['press-releases', params],
-    () => mockPressReleaseService.getPressReleases(params),
-    options
-  );
-
-  const createMutation = useApiMutation(
-    ['press-releases', 'create'],
-    (form: PressReleaseForm) => mockPressReleaseService.createPressRelease(form),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Komunikat utworzony',
-          description: 'Komunikat prasowy został utworzony pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się utworzyć komunikatu prasowego.',
-          variant: 'destructive',
-        });
-      },
+export const usePressReleases = (params?: PressReleasesQueryParams) => {
+  const [pressReleases, setPressReleases] = useState<PressRelease[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchPressReleases = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await mockPressReleaseService.getPressReleases(params);
+      
+      if (response.error) {
+        setError(response.error.message);
+      } else if (response.data) {
+        setPressReleases(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas pobierania komunikatów prasowych');
+    } finally {
+      setIsLoading(false);
     }
-  );
-
-  const updateMutation = useApiMutation(
-    ['press-releases', 'update'],
-    ({ id, data }: { id: string; data: Partial<PressReleaseForm> }) => 
-      mockPressReleaseService.updatePressRelease(id, data),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Komunikat zaktualizowany',
-          description: 'Komunikat prasowy został zaktualizowany pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się zaktualizować komunikatu prasowego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  useEffect(() => {
+    fetchPressReleases();
+  }, [params?.status, params?.type, params?.eventId]);
+  
+  const createPressRelease = async (form: PressReleaseForm): Promise<PressRelease | null> => {
+    try {
+      const response = await mockPressReleaseService.createPressRelease(form);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return null;
+      } else {
+        fetchPressReleases();
+        return response.data;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas tworzenia komunikatu prasowego');
+      return null;
     }
-  );
-
-  const deleteMutation = useApiMutation(
-    ['press-releases', 'delete'],
-    (id: string) => mockPressReleaseService.deletePressRelease(id),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Komunikat usunięty',
-          description: 'Komunikat prasowy został usunięty pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się usunąć komunikatu prasowego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  const deletePressRelease = async (id: string): Promise<boolean> => {
+    try {
+      const response = await mockPressReleaseService.deletePressRelease(id);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return false;
+      } else {
+        setPressReleases(prev => prev.filter(pr => pr.id !== id));
+        return true;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas usuwania komunikatu prasowego');
+      return false;
     }
-  );
-
-  const sendMutation = useApiMutation(
-    ['press-releases', 'send'],
-    (id: string) => mockPressReleaseService.sendPressRelease(id),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Komunikat wysłany',
-          description: 'Komunikat prasowy został wysłany pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się wysłać komunikatu prasowego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  const sendPressRelease = async (id: string): Promise<PressRelease | null> => {
+    try {
+      const response = await mockPressReleaseService.sendPressRelease(id);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return null;
+      } else {
+        setPressReleases(prev => 
+          prev.map(pr => pr.id === id ? response.data : pr)
+        );
+        return response.data;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas wysyłania komunikatu prasowego');
+      return null;
     }
-  );
-
-  const scheduleMutation = useApiMutation(
-    ['press-releases', 'schedule'],
-    ({ id, date }: { id: string; date: string }) => 
-      mockPressReleaseService.schedulePressRelease(id, date),
-    {
-      onSuccess: () => {
-        toast({
-          title: 'Komunikat zaplanowany',
-          description: 'Komunikat prasowy został zaplanowany pomyślnie.',
-        });
-        refetch();
-      },
-      onError: (error: any) => {
-        toast({
-          title: 'Błąd',
-          description: error.message || 'Nie udało się zaplanować komunikatu prasowego.',
-          variant: 'destructive',
-        });
-      },
+  };
+  
+  const schedulePressRelease = async (id: string, date: string): Promise<PressRelease | null> => {
+    try {
+      const response = await mockPressReleaseService.schedulePressRelease(id, date);
+      
+      if (response.error) {
+        setError(response.error.message);
+        return null;
+      } else {
+        setPressReleases(prev => 
+          prev.map(pr => pr.id === id ? response.data : pr)
+        );
+        return response.data;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas planowania komunikatu prasowego');
+      return null;
     }
-  );
-
-  const createPressRelease = useCallback((form: PressReleaseForm) => {
-    createMutation.mutate(form);
-  }, [createMutation]);
-
-  const updatePressRelease = useCallback((id: string, data: Partial<PressReleaseForm>) => {
-    updateMutation.mutate({ id, data });
-  }, [updateMutation]);
-
-  const deletePressRelease = useCallback((id: string) => {
-    deleteMutation.mutate(id);
-  }, [deleteMutation]);
-
-  const sendPressRelease = useCallback((id: string) => {
-    sendMutation.mutate(id);
-  }, [sendMutation]);
-
-  const schedulePressRelease = useCallback((id: string, date: string) => {
-    scheduleMutation.mutate({ id, date });
-  }, [scheduleMutation]);
-
-  return {
+  };
+  
+  return { 
     pressReleases,
     isLoading,
-    isError,
     error,
-    refetch,
+    refresh: fetchPressReleases,
     createPressRelease,
-    updatePressRelease,
     deletePressRelease,
     sendPressRelease,
-    schedulePressRelease,
-    isCreating: createMutation.isLoading,
-    isUpdating: updateMutation.isLoading,
-    isDeleting: deleteMutation.isLoading,
-    isSending: sendMutation.isLoading,
-    isScheduling: scheduleMutation.isLoading,
+    schedulePressRelease
   };
-}
+};

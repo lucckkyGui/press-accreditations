@@ -1,20 +1,23 @@
 
+export type PressReleaseStatus = 'draft' | 'scheduled' | 'sent' | 'cancelled' | 'published' | 'archived';
+export type PressReleaseType = 'announcement' | 'invitation' | 'statement' | 'other';
+
 export interface PressRelease {
   id: string;
   title: string;
   content: string;
-  publicationDate: string;
-  eventId?: string;
-  mediaGroupIds: string[];
-  attachmentUrls?: string[];
   status: PressReleaseStatus;
+  type: PressReleaseType;
+  publicationDate: string;
   createdAt: string;
   updatedAt: string;
-  createdBy: string;
-  sentAt?: string;
   scheduledFor?: string;
-  type: PressReleaseType;
+  sentAt?: string;
+  createdBy: string;
+  eventId?: string;
+  mediaGroupIds: string[];
   mediaGroups?: string[];
+  attachmentUrls?: string[];
   metrics?: {
     sentCount: number;
     deliveredCount: number;
@@ -28,22 +31,18 @@ export interface PressReleaseForm {
   title: string;
   content: string;
   publicationDate: string;
+  type: PressReleaseType;
+  scheduledFor?: string;
   eventId?: string;
   mediaGroupIds: string[];
   attachmentUrls?: string[];
-  status: PressReleaseStatus;
-  type: PressReleaseType;
-  scheduledFor?: string;
 }
 
 export interface PressReleasesQueryParams {
+  status?: PressReleaseStatus | 'all';
+  type?: PressReleaseType | 'all';
   eventId?: string;
-  status?: PressReleaseStatus;
-  type?: PressReleaseType;
   search?: string;
   page?: number;
   limit?: number;
 }
-
-export type PressReleaseStatus = 'draft' | 'published' | 'archived' | 'scheduled' | 'sent' | 'cancelled';
-export type PressReleaseType = 'announcement' | 'invitation' | 'statement' | 'other';

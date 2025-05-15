@@ -25,6 +25,10 @@ export const toAccreditationRequestDb = (data: Partial<AccreditationRequest>) =>
     approval_notes: data.approvalNotes,
     approval_date: data.approvalDate,
     approved_by: data.approvedBy,
+    requestor_name: data.requestorName,
+    requestor_position: data.requestorPosition,
+    special_requirements: data.specialRequirements,
+    request_type: data.requestType || 'media',
   };
 };
 
@@ -45,6 +49,14 @@ export const fromAccreditationRequestDb = (data: any): AccreditationRequest => {
     approvedBy: data.approved_by,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
+    requestorName: data.requestor_name,
+    requestorPosition: data.requestor_position,
+    specialRequirements: data.special_requirements,
+    requestType: data.request_type || 'media',
+    previouslyApproved: data.previously_approved,
+    responseDeadline: data.response_deadline,
+    documents: data.documents || [],
+    documentsUrls: data.documents_urls || [],
   };
 };
 
@@ -59,6 +71,11 @@ export const toAccreditationTypeDb = (data: Partial<AccreditationType>) => {
     max_requests: data.maxRequests,
     requires_approval: data.requiresApproval,
     created_by: data.createdBy,
+    color: data.color,
+    badge_template: data.badgeTemplate,
+    display_order: data.displayOrder,
+    display_in_public_form: data.displayInPublicForm !== undefined ? data.displayInPublicForm : true,
+    available_for_media_only: data.availableForMediaOnly !== undefined ? data.availableForMediaOnly : false,
   };
 };
 
@@ -74,6 +91,13 @@ export const fromAccreditationTypeDb = (data: any): AccreditationType => {
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     createdBy: data.created_by,
+    color: data.color,
+    badgeTemplate: data.badge_template,
+    displayOrder: data.display_order,
+    displayInPublicForm: data.display_in_public_form !== undefined ? data.display_in_public_form : true,
+    availableForMediaOnly: data.available_for_media_only !== undefined ? data.available_for_media_only : false,
+    validityPeriod: data.validity_period,
+    accessLevels: data.access_levels || [],
   };
 };
 
@@ -93,6 +117,11 @@ export const toAccreditationDb = (data: Partial<Accreditation>) => {
     checked_in_by: data.checkedInBy,
     revoked: data.revoked,
     revocation_reason: data.revocationReason,
+    status: data.status || 'pending',
+    badge_number: data.badgeNumber,
+    badge_printed: data.badgePrinted !== undefined ? data.badgePrinted : false,
+    badge_printed_at: data.badgePrintedAt,
+    notes: data.notes,
   };
 };
 
@@ -113,5 +142,11 @@ export const fromAccreditationDb = (data: any): Accreditation => {
     revocationReason: data.revocation_reason,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
+    status: data.status || 'pending',
+    badgeNumber: data.badge_number,
+    badgePrinted: data.badge_printed !== undefined ? data.badge_printed : false,
+    badgePrintedAt: data.badge_printed_at,
+    notes: data.notes,
+    accessHistory: data.access_history || [],
   };
 };
