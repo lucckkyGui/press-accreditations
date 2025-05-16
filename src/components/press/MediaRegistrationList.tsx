@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EyeIcon, Trash, MoreHorizontal, Check, X, AlertTriangle } from 'lucide-react';
+import { AlertCircle, EyeIcon, Trash, MoreHorizontal, Check, X, AlertTriangle } from 'lucide-react';
 
 import MediaDocumentList from './MediaDocumentList';
 

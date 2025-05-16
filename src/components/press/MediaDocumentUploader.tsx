@@ -1,12 +1,10 @@
-
 import React, { useState, useRef } from 'react';
 import { useMediaDocuments } from '@/hooks/press';
 import { MediaDocumentForm, MediaDocumentType } from '@/types/pressRelease';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -15,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, Upload, File, CheckCircle } from 'lucide-react';
+import { AlertCircle, Upload, CheckCircle } from 'lucide-react';
 
 interface MediaDocumentUploaderProps {
   registrationId: string;
@@ -28,7 +26,7 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState<MediaDocumentType>('press_id');
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus<'idle' | 'uploading' | 'success' | 'error'>>('idle');
   const [error, setError] = useState<string | null>(null);
   
   const documentTypeOptions = [
@@ -45,7 +43,7 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
       setError(null);
     }
   };
-  
+
   const handleDocumentTypeChange = (value: string) => {
     setDocumentType(value as MediaDocumentType);
   };

@@ -1,5 +1,6 @@
 
 import { User } from '@/types/user/user';
+import { MediaDocument } from './mediaDocument';
 
 export type MediaRegistrationStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested';
 

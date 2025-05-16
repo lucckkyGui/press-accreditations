@@ -1,14 +1,17 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   MediaRegistration, 
   MediaRegistrationForm,
   MediaRegistrationUpdateForm,
   MediaRegistrationQueryParams,
+  MediaRegistrationStatus,
+  SocialMedia,
   MediaDocument,
   MediaDocumentForm,
   MediaDocumentUpdateForm,
-  MediaDocumentQueryParams
+  MediaDocumentQueryParams,
+  MediaDocumentStatus,
+  MediaDocumentType
 } from "@/types/pressRelease";
 import { ApiResponse } from "@/types/api/apiResponse";
 import { v4 as uuidv4 } from 'uuid';
@@ -54,10 +57,10 @@ export const MediaRegistrationService = {
         mediaOrganization: item.media_organization,
         jobTitle: item.job_title,
         website: item.website,
-        socialMedia: item.social_media,
+        socialMedia: item.social_media as SocialMedia,
         previousAccreditation: item.previous_accreditation,
         coverageDescription: item.coverage_description,
-        status: item.status,
+        status: item.status as MediaRegistrationStatus,
         reviewerId: item.reviewer_id,
         rejectionReason: item.rejection_reason,
         createdAt: item.created_at,
@@ -68,8 +71,8 @@ export const MediaRegistrationService = {
           filePath: doc.file_path,
           fileName: doc.file_name,
           fileType: doc.file_type,
-          documentType: doc.document_type,
-          status: doc.status,
+          documentType: doc.document_type as MediaDocumentType,
+          status: doc.status as MediaDocumentStatus,
           reviewerNotes: doc.reviewer_notes,
           uploadedAt: doc.uploaded_at,
           reviewedAt: doc.reviewed_at
@@ -102,10 +105,10 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media,
+        socialMedia: data.social_media as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
-        status: data.status,
+        status: data.status as MediaRegistrationStatus,
         reviewerId: data.reviewer_id,
         rejectionReason: data.rejection_reason,
         createdAt: data.created_at,
@@ -116,8 +119,8 @@ export const MediaRegistrationService = {
           filePath: doc.file_path,
           fileName: doc.file_name,
           fileType: doc.file_type,
-          documentType: doc.document_type,
-          status: doc.status,
+          documentType: doc.document_type as MediaDocumentType,
+          status: doc.status as MediaDocumentStatus,
           reviewerNotes: doc.reviewer_notes,
           uploadedAt: doc.uploaded_at,
           reviewedAt: doc.reviewed_at
@@ -150,7 +153,7 @@ export const MediaRegistrationService = {
           social_media: form.socialMedia,
           previous_accreditation: form.previousAccreditation,
           coverage_description: form.coverageDescription,
-          status: 'pending'
+          status: 'pending' as MediaRegistrationStatus
         })
         .select()
         .single();
@@ -166,10 +169,10 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media,
+        socialMedia: data.social_media as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
-        status: data.status,
+        status: data.status as MediaRegistrationStatus,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         documents: []
@@ -226,10 +229,10 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media,
+        socialMedia: data.social_media as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
-        status: data.status,
+        status: data.status as MediaRegistrationStatus,
         reviewerId: data.reviewer_id,
         rejectionReason: data.rejection_reason,
         createdAt: data.created_at,
@@ -240,8 +243,8 @@ export const MediaRegistrationService = {
           filePath: doc.file_path,
           fileName: doc.file_name,
           fileType: doc.file_type,
-          documentType: doc.document_type,
-          status: doc.status,
+          documentType: doc.document_type as MediaDocumentType,
+          status: doc.status as MediaDocumentStatus,
           reviewerNotes: doc.reviewer_notes,
           uploadedAt: doc.uploaded_at,
           reviewedAt: doc.reviewed_at
@@ -302,8 +305,8 @@ export const MediaRegistrationService = {
         filePath: item.file_path,
         fileName: item.file_name,
         fileType: item.file_type,
-        documentType: item.document_type,
-        status: item.status,
+        documentType: item.document_type as MediaDocumentType,
+        status: item.status as MediaDocumentStatus,
         reviewerNotes: item.reviewer_notes,
         uploadedAt: item.uploaded_at,
         reviewedAt: item.reviewed_at
@@ -379,8 +382,8 @@ export const MediaRegistrationService = {
         filePath: data.file_path,
         fileName: data.file_name,
         fileType: data.file_type,
-        documentType: data.document_type,
-        status: data.status,
+        documentType: data.document_type as MediaDocumentType,
+        status: data.status as MediaDocumentStatus,
         reviewerNotes: data.reviewer_notes,
         uploadedAt: data.uploaded_at,
         reviewedAt: data.reviewed_at
@@ -423,8 +426,8 @@ export const MediaRegistrationService = {
         filePath: data.file_path,
         fileName: data.file_name,
         fileType: data.file_type,
-        documentType: data.document_type,
-        status: data.status,
+        documentType: data.document_type as MediaDocumentType,
+        status: data.status as MediaDocumentStatus,
         reviewerNotes: data.reviewer_notes,
         uploadedAt: data.uploaded_at,
         reviewedAt: data.reviewed_at

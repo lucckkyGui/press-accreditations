@@ -73,10 +73,15 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
     }
     
     const formData: RegistrationFormType = {
-      ...values,
-      socialMedia: Object.fromEntries(
-        Object.entries(values.socialMedia || {}).filter(([_, value]) => value)
-      ),
+      eventId: values.eventId,
+      mediaOrganization: values.mediaOrganization,
+      jobTitle: values.jobTitle,
+      website: values.website,
+      socialMedia: Object.entries(values.socialMedia || {})
+        .filter(([_, value]) => value)
+        .reduce((acc, [key, value]) => ({...acc, [key]: value}), {}),
+      previousAccreditation: values.previousAccreditation,
+      coverageDescription: values.coverageDescription,
     };
     
     createMediaRegistration(formData);

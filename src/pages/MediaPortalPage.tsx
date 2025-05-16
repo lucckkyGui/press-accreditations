@@ -1,10 +1,7 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useMediaRegistrations } from '@/hooks/press';
-import { Tab } from '@headlessui/react';
-import { cn } from '@/lib/utils';
 
 import {
   Card,
@@ -27,7 +24,10 @@ import MediaDocumentList from '@/components/press/MediaDocumentList';
 export default function MediaPortalPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
-  const { user, isOrganizer } = useAuth();
+  const { user } = useAuth();
+  
+  // Determine if user is organizer by checking role
+  const isOrganizer = user?.role === 'organizer';
   
   const [activeTab, setActiveTab] = useState('my-registrations');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
