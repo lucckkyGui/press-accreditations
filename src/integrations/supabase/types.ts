@@ -236,6 +236,112 @@ export type Database = {
         }
         Relationships: []
       }
+      media_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_path: string
+          file_type: string
+          id: string
+          registration_id: string
+          reviewed_at: string | null
+          reviewer_notes: string | null
+          status: string
+          uploaded_at: string
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_path: string
+          file_type: string
+          id?: string
+          registration_id: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          uploaded_at?: string
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          registration_id?: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_documents_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "media_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_registrations: {
+        Row: {
+          coverage_description: string | null
+          created_at: string
+          event_id: string
+          id: string
+          job_title: string
+          media_organization: string
+          previous_accreditation: boolean | null
+          rejection_reason: string | null
+          reviewer_id: string | null
+          social_media: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          coverage_description?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          job_title: string
+          media_organization: string
+          previous_accreditation?: boolean | null
+          rejection_reason?: string | null
+          reviewer_id?: string | null
+          social_media?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          coverage_description?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          job_title?: string
+          media_organization?: string
+          previous_accreditation?: boolean | null
+          rejection_reason?: string | null
+          reviewer_id?: string | null
+          social_media?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

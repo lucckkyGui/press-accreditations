@@ -19,6 +19,7 @@ import AccreditationRequest from '@/pages/AccreditationRequest';
 import AccreditationEvents from '@/pages/AccreditationEvents';
 import AccreditationCategories from '@/pages/AccreditationCategories';
 import PressReleasePage from '@/pages/PressReleasePage';
+import MediaPortalPage from '@/pages/MediaPortalPage';
 
 const AppRoutes = () => {
   return (
@@ -42,6 +43,8 @@ const AppRoutes = () => {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/accreditation/categories" element={<AccreditationCategories />} />
         <Route path="/press-releases" element={<PressReleasePage />} />
+        <Route path="/media-portal" element={<MediaPortalPage />} />
+        <Route path="/media-portal/:eventId" element={<MediaPortalPage />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />
