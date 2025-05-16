@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useMediaDocuments } from '@/hooks/press';
 import { MediaDocumentForm, MediaDocumentType } from '@/types/pressRelease';
@@ -26,7 +27,7 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState<MediaDocumentType>('press_id');
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadStatus, setUploadStatus<'idle' | 'uploading' | 'success' | 'error'>>('idle');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   
   const documentTypeOptions = [
