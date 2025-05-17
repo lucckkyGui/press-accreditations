@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useMediaRegistrations } from '@/hooks/press';
 import { MediaRegistration, MediaRegistrationStatus } from '@/types/pressRelease';

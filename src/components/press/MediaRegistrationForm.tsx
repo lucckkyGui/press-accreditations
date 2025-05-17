@@ -1,43 +1,25 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMediaRegistrations } from '@/hooks/press';
-import { useAuth } from '@/hooks/useAuth';
-import { MediaRegistrationForm as RegistrationFormType } from '@/types/pressRelease';
+import { MediaRegistrationForm as MediaRegistrationFormType, SocialMedia } from '@/types/pressRelease';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-
-const formSchema = z.object({
-  eventId: z.string().uuid(),
-  mediaOrganization: z.string().min(2, 'Organization name is required'),
-  jobTitle: z.string().min(2, 'Job title is required'),
-  website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
-  socialMedia: z.object({
-    twitter: z.string().optional(),
-    linkedin: z.string().optional(),
-    facebook: z.string().optional(),
-    instagram: z.string().optional(),
-    youtube: z.string().optional(),
-  }).optional(),
-  previousAccreditation: z.boolean().optional(),
-  coverageDescription: z.string().optional(),
-});
+import { Label } from '@/components/ui/label';
 
 interface MediaRegistrationFormProps {
   eventId: string;
@@ -45,47 +27,40 @@ interface MediaRegistrationFormProps {
 }
 
 export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegistrationFormProps) {
-  const { user } = useAuth();
   const { createMediaRegistration, isSubmitting } = useMediaRegistrations();
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<MediaRegistrationFormType>({
     defaultValues: {
-      eventId,
+      eventId: eventId,
       mediaOrganization: '',
       jobTitle: '',
       website: '',
       socialMedia: {
         twitter: '',
         linkedin: '',
-        facebook: '',
         instagram: '',
-        youtube: '',
       },
       previousAccreditation: false,
       coverageDescription: '',
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!user) {
-      return;
-    }
+  const onSubmit = (data: MediaRegistrationFormType) => {
+    // Clean up social media fields - remove empty values
+    const socialMedia: SocialMedia = {};
     
-    const formData: RegistrationFormType = {
-      eventId: values.eventId,
-      mediaOrganization: values.mediaOrganization,
-      jobTitle: values.jobTitle,
-      website: values.website,
-      socialMedia: Object.entries(values.socialMedia || {})
-        .filter(([_, value]) => value)
-        .reduce((acc, [key, value]) => ({...acc, [key]: value}), {}),
-      previousAccreditation: values.previousAccreditation,
-      coverageDescription: values.coverageDescription,
+    Object.entries(data.socialMedia || {}).forEach(([key, value]) => {
+      if (value && value.trim() !== '') {
+        socialMedia[key] = value.trim();
+      }
+    });
+
+    const formData: MediaRegistrationFormType = {
+      ...data,
+      eventId: eventId,  // Ensure eventId is set
+      socialMedia: Object.keys(socialMedia).length > 0 ? socialMedia : undefined,
     };
     
     createMediaRegistration(formData);
-    form.reset();
     
     if (onSuccess) {
       onSuccess();
@@ -93,27 +68,69 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Media Accreditation Registration</CardTitle>
-        <CardDescription>
-          Complete this form to request media accreditation for the event. All fields marked with * are required.
-        </CardDescription>
+        <CardTitle>Media Registration</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="mediaOrganization"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Media Organization</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your media organization name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="jobTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your role at the organization" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Your media organization's official website.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Media Information</h3>
+              <h3 className="text-md font-medium">Social Media Profiles</h3>
               
               <FormField
                 control={form.control}
-                name="mediaOrganization"
+                name="socialMedia.twitter"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Media Organization *</FormLabel>
+                    <FormLabel>Twitter / X</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your media organization name" {...field} />
+                      <Input placeholder="@username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,12 +139,12 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
               
               <FormField
                 control={form.control}
-                name="jobTitle"
+                name="socialMedia.linkedin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Job Title *</FormLabel>
+                    <FormLabel>LinkedIn</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your role in the organization" {...field} />
+                      <Input placeholder="LinkedIn profile URL" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -136,143 +153,70 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
               
               <FormField
                 control={form.control}
-                name="website"
+                name="socialMedia.instagram"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Website</FormLabel>
+                    <FormLabel>Instagram</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://www.example.com" {...field} />
+                      <Input placeholder="@username" {...field} />
                     </FormControl>
-                    <FormDescription>Enter the full URL including http:// or https://</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Separator />
-              
-              <h3 className="text-lg font-semibold">Social Media Profiles</h3>
-              
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="socialMedia.twitter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Twitter / X</FormLabel>
-                      <FormControl>
-                        <Input placeholder="@username" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="socialMedia.linkedin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>LinkedIn</FormLabel>
-                      <FormControl>
-                        <Input placeholder="LinkedIn profile URL" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="socialMedia.facebook"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Facebook</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Facebook page or profile" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="socialMedia.instagram"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instagram</FormLabel>
-                      <FormControl>
-                        <Input placeholder="@username" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="socialMedia.youtube"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>YouTube</FormLabel>
-                      <FormControl>
-                        <Input placeholder="YouTube channel URL" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <Separator />
-              
-              <h3 className="text-lg font-semibold">Additional Information</h3>
-              
-              <FormField
-                control={form.control}
-                name="previousAccreditation"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Previous Accreditation</FormLabel>
-                      <FormDescription>
-                        Have you been accredited for our events before?
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="coverageDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Coverage Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe how you plan to cover the event" 
-                        className="min-h-24"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Please include information about your audience, reach, and type of coverage you plan to produce.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
             
-            <div className="flex justify-end">
+            <FormField
+              control={form.control}
+              name="previousAccreditation"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Previous Accreditation</FormLabel>
+                    <FormDescription>
+                      Have you been accredited for a similar event before?
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="coverageDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coverage Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe how you plan to cover this event"
+                      className="min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Please explain what kind of content you plan to create and which aspects of the event you will be covering.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={onSuccess}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Submitting...' : 'Submit Application'}
               </Button>

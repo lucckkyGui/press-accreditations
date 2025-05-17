@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { 
   MediaRegistration, 
@@ -149,11 +150,11 @@ export const MediaRegistrationService = {
           event_id: form.eventId,
           media_organization: form.mediaOrganization,
           job_title: form.jobTitle,
-          website: form.website,
-          social_media: form.socialMedia,
-          previous_accreditation: form.previousAccreditation,
-          coverage_description: form.coverageDescription,
-          status: 'pending' as MediaRegistrationStatus
+          website: form.website || null,
+          social_media: form.socialMedia || null,
+          previous_accreditation: form.previousAccreditation || false,
+          coverage_description: form.coverageDescription || null,
+          status: 'pending'
         })
         .select()
         .single();

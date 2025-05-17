@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
@@ -70,12 +69,13 @@ const UserProfile = () => {
       if (user) {
         try {
           // In a real app, this would fetch from your profile database
-          // Replace with actual Supabase query when available
-          const firstName = user.user_metadata?.first_name || "";
-          const lastName = user.user_metadata?.last_name || "";
-          const role = user.user_metadata?.role || "guest";
-          const company = user.user_metadata?.company || "";
-          const createdAt = user.created_at ? new Date(user.created_at) : new Date();
+          // We now use our user object directly
+          const firstName = user.firstName || "";
+          const lastName = user.lastName || "";
+          const role = user.role || "guest";
+          // company isn't part of our User type, so keep it empty
+          const company = "";
+          const createdAt = user.createdAt || new Date();
           
           setUserData({
             email: user.email || "",

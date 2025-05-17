@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/user/user';
@@ -6,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  isOrganizer: boolean; // Add this property
+  isOrganizer: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -15,7 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  isOrganizer: false, // Add default value
+  isOrganizer: false,
   signIn: async () => {},
   signOut: async () => {},
 });
@@ -31,21 +32,30 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const { data: { session }, error } = await supabase.auth.getSession();
 
       if (session) {
-        const { data: user, error: userError } = await supabase
-          .from('users')
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
-        if (userError) {
-          console.error('Error fetching user:', userError);
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
           setIsLoading(false);
           return;
         }
 
-        setUser(user);
+        const userData: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          role: profile?.role || 'guest',
+          firstName: profile?.first_name || '',
+          lastName: profile?.last_name || '',
+          createdAt: profile?.created_at ? new Date(profile.created_at) : new Date()
+        };
+
+        setUser(userData);
         setIsAuthenticated(true);
-        setIsOrganizer(user?.role === 'organizer');
+        setIsOrganizer(userData.role === 'organizer');
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -59,20 +69,30 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
         if (session) {
-          const { data: user, error: userError } = await supabase
-            .from('users')
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
 
-          if (userError) {
-            console.error('Error fetching user:', userError);
+          if (profileError) {
+            console.error('Error fetching user profile:', profileError);
             setIsLoading(false);
             return;
           }
-          setUser(user);
+
+          const userData: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            role: profile?.role || 'guest',
+            firstName: profile?.first_name || '',
+            lastName: profile?.last_name || '',
+            createdAt: profile?.created_at ? new Date(profile.created_at) : new Date()
+          };
+
+          setUser(userData);
           setIsAuthenticated(true);
-          setIsOrganizer(user?.role === 'organizer');
+          setIsOrganizer(userData.role === 'organizer');
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -95,21 +115,30 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       throw error;
     }
 
-    const { data: user, error: userError } = await supabase
-      .from('users')
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
       .select('*')
       .eq('id', data.user?.id)
       .single();
 
-    if (userError) {
-      console.error('Error fetching user:', userError);
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
       setIsLoading(false);
       return;
     }
 
-    setUser(user);
+    const userData: User = {
+      id: data.user.id,
+      email: data.user.email || '',
+      role: profile?.role || 'guest',
+      firstName: profile?.first_name || '',
+      lastName: profile?.last_name || '',
+      createdAt: profile?.created_at ? new Date(profile.created_at) : new Date()
+    };
+
+    setUser(userData);
     setIsAuthenticated(true);
-    setIsOrganizer(user?.role === 'organizer');
+    setIsOrganizer(userData.role === 'organizer');
     setIsLoading(false);
   };
 
