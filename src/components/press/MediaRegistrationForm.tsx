@@ -7,7 +7,7 @@ import { MediaRegistrationForm as MediaRegistrationFormType, SocialMedia } from 
 import { Form } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Importuję nowe komponenty
+// Import form section components
 import BasicInfoSection from './form/BasicInfoSection';
 import SocialMediaSection from './form/SocialMediaSection';
 import AdditionalInfoSection from './form/AdditionalInfoSection';
@@ -48,7 +48,7 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
 
     const formData: MediaRegistrationFormType = {
       ...data,
-      eventId: eventId,  // Ensure eventId is set
+      eventId, // Fix here: Just use the value directly, not as a function call
       socialMedia: Object.keys(socialMedia).length > 0 ? socialMedia : undefined,
     };
     
