@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   MediaRegistration, 
@@ -58,7 +57,7 @@ export const MediaRegistrationService = {
         mediaOrganization: item.media_organization,
         jobTitle: item.job_title,
         website: item.website,
-        socialMedia: item.social_media as SocialMedia,
+        socialMedia: item.social_media as unknown as SocialMedia,
         previousAccreditation: item.previous_accreditation,
         coverageDescription: item.coverage_description,
         status: item.status as MediaRegistrationStatus,
@@ -106,7 +105,7 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media as SocialMedia,
+        socialMedia: data.social_media as unknown as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
         status: data.status as MediaRegistrationStatus,
@@ -143,6 +142,7 @@ export const MediaRegistrationService = {
         throw new Error('User not authenticated');
       }
       
+      // Convert the SocialMedia object to a format Supabase can handle
       const { data, error } = await supabase
         .from('media_registrations')
         .insert({
@@ -151,7 +151,7 @@ export const MediaRegistrationService = {
           media_organization: form.mediaOrganization,
           job_title: form.jobTitle,
           website: form.website || null,
-          social_media: form.socialMedia || null,
+          social_media: form.socialMedia ? form.socialMedia : null,
           previous_accreditation: form.previousAccreditation || false,
           coverage_description: form.coverageDescription || null,
           status: 'pending'
@@ -170,7 +170,7 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media as SocialMedia,
+        socialMedia: data.social_media as unknown as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
         status: data.status as MediaRegistrationStatus,
@@ -230,7 +230,7 @@ export const MediaRegistrationService = {
         mediaOrganization: data.media_organization,
         jobTitle: data.job_title,
         website: data.website,
-        socialMedia: data.social_media as SocialMedia,
+        socialMedia: data.social_media as unknown as SocialMedia,
         previousAccreditation: data.previous_accreditation,
         coverageDescription: data.coverage_description,
         status: data.status as MediaRegistrationStatus,

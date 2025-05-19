@@ -4,6 +4,7 @@ import { MediaDocument } from './mediaDocument';
 
 export type MediaRegistrationStatus = 'pending' | 'approved' | 'rejected' | 'changes_requested';
 
+// Modified SocialMedia interface to include an index signature for better JSON compatibility
 export interface SocialMedia {
   twitter?: string;
   linkedin?: string;
@@ -11,6 +12,7 @@ export interface SocialMedia {
   instagram?: string;
   youtube?: string;
   other?: Record<string, string>;
+  [key: string]: string | Record<string, string> | undefined;
 }
 
 export interface MediaRegistration {
