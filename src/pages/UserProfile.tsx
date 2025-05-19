@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
@@ -68,12 +69,12 @@ const UserProfile = () => {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          // In a real app, this would fetch from your profile database
-          // We now use our user object directly
+          // W rzeczywistej aplikacji, to pobierałoby dane z bazy danych profili
+          // Teraz używamy bezpośrednio obiektu user
           const firstName = user.firstName || "";
           const lastName = user.lastName || "";
           const role = user.role || "guest";
-          // company isn't part of our User type, so keep it empty
+          // company nie jest częścią naszego typu User, więc pozostaje puste
           const company = "";
           const createdAt = user.createdAt || new Date();
           
