@@ -49,7 +49,7 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
     const socialMedia: SocialMedia = {};
     
     Object.entries(data.socialMedia || {}).forEach(([key, value]) => {
-      if (value && value.trim() !== '') {
+      if (value && typeof value === 'string' && value.trim() !== '') {
         socialMedia[key] = value.trim();
       }
     });
