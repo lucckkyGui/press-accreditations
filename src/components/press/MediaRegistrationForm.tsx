@@ -50,7 +50,7 @@ export default function MediaRegistrationForm({ eventId, onSuccess }: MediaRegis
     
     Object.entries(data.socialMedia || {}).forEach(([key, value]) => {
       if (value && typeof value === 'string' && value.trim() !== '') {
-        socialMedia[key] = value.trim();
+        socialMedia[key as keyof SocialMedia] = value.trim();
       }
     });
 
