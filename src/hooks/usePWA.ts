@@ -6,72 +6,182 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-interface UsePWAReturn {
-  isInstallable: boolean;
-  isInstalled: boolean;
-  installPWA: () => Promise<void>;
+interface UsePWAOptions {
+  showDebugInfo?: boolean;
 }
 
-export function usePWA(): UsePWAReturn {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+export function usePWA(options: UsePWAOptions = {}) {
+  const { showDebugInfo = false } = options;
+  
+  const [isInstallable, setIsInstallable] = useState<boolean>(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installationStatus, setInstallationStatus] = useState<'none' | 'pending' | 'installed' | 'dismissed'>('none');
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
+  // Sprawdź, czy aplikacja jest w trybie standalone (zainstalowana)
   useEffect(() => {
-    // Sprawdź czy aplikacja jest już zainstalowana
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
+    const matchMedia = window.matchMedia('(display-mode: standalone)');
+    const isStandalone = matchMedia.matches || (window.navigator as any).standalone === true;
+    setIsInstalled(isStandalone);
+    
+    if (showDebugInfo) {
+      console.log('[PWA] App is in standalone mode:', isStandalone);
     }
-
-    // Nasłuchuj na zdarzenie beforeinstallprompt
+    
+    // Nasłuchuj na zmiany trybu wyświetlania
+    const handler = (e: MediaQueryListEvent) => {
+      setIsInstalled(e.matches);
+      if (showDebugInfo) {
+        console.log('[PWA] Display mode changed:', e.matches ? 'standalone' : 'browser');
+      }
+    };
+    
+    matchMedia.addEventListener('change', handler);
+    return () => matchMedia.removeEventListener('change', handler);
+  }, [showDebugInfo]);
+  
+  // Nasłuchuj na zdarzenie beforeinstallprompt, aby pokazać przycisk instalacji
+  useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Zapobiegnij wyświetleniu domyślnego dialogu
       e.preventDefault();
-      // Zapisz zdarzenie do późniejszego użycia
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      if (showDebugInfo) {
+        console.log('[PWA] Install prompt detected');
+      }
+      
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+      setIsInstallable(true);
     };
-
-    // Nasłuchuj na zdarzenie appinstalled
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-    };
-
+    
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-    };
-  }, []);
-
-  // Funkcja do instalacji PWA
-  const installPWA = async (): Promise<void> => {
-    if (!deferredPrompt) {
-      console.log('Nie można zainstalować aplikacji');
-      return;
-    }
-
-    // Wyświetl dialog instalacji
-    deferredPrompt.prompt();
-
-    // Czekaj na odpowiedź użytkownika
-    const choiceResult = await deferredPrompt.userChoice;
-    
-    if (choiceResult.outcome === 'accepted') {
-      console.log('Użytkownik zaakceptował instalację PWA');
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, [showDebugInfo]);
+  
+  // Nasłuchuj na zdarzenie appinstalled
+  useEffect(() => {
+    const handleAppInstalled = () => {
+      if (showDebugInfo) {
+        console.log('[PWA] App was installed');
+      }
+      
       setIsInstalled(true);
-    } else {
-      console.log('Użytkownik odrzucił instalację PWA');
+      setInstallPrompt(null);
+      setInstallationStatus('installed');
+    };
+    
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => window.removeEventListener('appinstalled', handleAppInstalled);
+  }, [showDebugInfo]);
+  
+  // Nasłuchuj na zmiany statusu online/offline
+  useEffect(() => {
+    const handleOnlineStatusChange = () => {
+      setIsOnline(navigator.onLine);
+      if (showDebugInfo) {
+        console.log('[PWA] Network status changed:', navigator.onLine ? 'online' : 'offline');
+      }
+    };
+    
+    window.addEventListener('online', handleOnlineStatusChange);
+    window.addEventListener('offline', handleOnlineStatusChange);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatusChange);
+      window.removeEventListener('offline', handleOnlineStatusChange);
+    };
+  }, [showDebugInfo]);
+  
+  // Funkcja do instalacji PWA
+  const installPWA = async () => {
+    if (!installPrompt) {
+      if (showDebugInfo) {
+        console.log('[PWA] No install prompt available');
+      }
+      return false;
     }
     
-    // Wyczyść zapisane zdarzenie
-    setDeferredPrompt(null);
+    setInstallationStatus('pending');
+    try {
+      if (showDebugInfo) {
+        console.log('[PWA] Showing install prompt');
+      }
+      
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      
+      if (choice.outcome === 'accepted') {
+        if (showDebugInfo) {
+          console.log('[PWA] User accepted the installation');
+        }
+        setInstallationStatus('installed');
+        setIsInstalled(true);
+        return true;
+      } else {
+        if (showDebugInfo) {
+          console.log('[PWA] User dismissed the installation');
+        }
+        setInstallationStatus('dismissed');
+        return false;
+      }
+    } catch (error) {
+      console.error('[PWA] Installation error:', error);
+      setInstallationStatus('none');
+      return false;
+    } finally {
+      setInstallPrompt(null);
+    }
   };
-
+  
+  // Sprawdź, czy Service Worker jest zarejestrowany
+  const [hasServiceWorker, setHasServiceWorker] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkServiceWorker = async () => {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          setHasServiceWorker(registrations.length > 0);
+          
+          if (showDebugInfo) {
+            console.log('[PWA] Service Worker registrations:', registrations);
+          }
+        } catch (error) {
+          console.error('[PWA] Error checking Service Worker:', error);
+          setHasServiceWorker(false);
+        }
+      }
+    };
+    
+    checkServiceWorker();
+  }, [showDebugInfo]);
+  
+  // Rejestruj Service Worker jeśli jeszcze nie jest zarejestrowany
+  const registerServiceWorker = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register('/serviceWorker.js');
+        
+        if (showDebugInfo) {
+          console.log('[PWA] Service Worker registered with scope:', registration.scope);
+        }
+        
+        setHasServiceWorker(true);
+        return registration;
+      } catch (error) {
+        console.error('[PWA] Service Worker registration failed:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+  
   return {
-    isInstallable: !!deferredPrompt,
+    isInstallable,
     isInstalled,
-    installPWA
+    installPWA,
+    installationStatus,
+    isOnline,
+    hasServiceWorker,
+    registerServiceWorker
   };
 }

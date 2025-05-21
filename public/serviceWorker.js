@@ -1,12 +1,13 @@
 
 // Wersja cache - zwiększaj, aby wymusić aktualizację plików
-const CACHE_NAME = 'event-manager-v1';
+const CACHE_NAME = 'event-manager-v2';
 
 // Lista plików do cache'owania
 const urlsToCache = [
   '/',
   '/index.html',
   '/favicon.ico',
+  // Dodaj więcej ścieżek do plików, które powinny być dostępne offline
 ];
 
 // Instalacja Service Workera
@@ -79,29 +80,60 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Obsługa powiadomień push
+// Rozszerzona obsługa powiadomień push
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
+  if (!event.data) return;
   
-  const options = {
-    body: data.body,
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
-    data: {
-      url: data.url || '/'
-    }
-  };
+  try {
+    const data = event.data.json();
+    
+    const options = {
+      body: data.body,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/',
+        timestamp: data.timestamp || Date.now()
+      },
+      actions: data.actions || [
+        {
+          action: 'view',
+          title: 'Zobacz szczegóły'
+        }
+      ],
+      tag: data.tag || 'default', // Tag pozwala na grupowanie i zastępowanie powiadomień
+      renotify: data.renotify || false
+    };
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+    event.waitUntil(
+      self.registration.showNotification(data.title, options)
+    );
+  } catch (error) {
+    console.error('Błąd podczas parsowania powiadomienia push:', error);
+  }
 });
 
 // Obsługa kliknięcia w powiadomienie
 self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
+  const notification = event.notification;
+  notification.close();
+
+  // Logowanie interakcji z powiadomieniem
+  console.log('Użytkownik kliknął powiadomienie:', notification.data);
+  
+  // Obsługa akcji z powiadomienia
+  if (event.action === 'view') {
+    console.log('Użytkownik kliknął "Zobacz szczegóły"');
+  }
 
   event.waitUntil(
-    clients.openWindow(event.notification.data.url)
+    clients.openWindow(notification.data.url)
   );
 });
+
+// Obsługa zamknięcia powiadomienia bez interakcji
+self.addEventListener('notificationclose', (event) => {
+  console.log('Użytkownik zamknął powiadomienie bez interakcji:', event.notification.data);
+});
+

@@ -10,6 +10,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Ticket as TicketType } from "@/hooks/useTickets";
+import { NotificationPermission } from "@/components/notifications/NotificationPermission";
+import { InstallPWA } from "@/components/common/InstallPWA";
 
 const UserProfile = () => {
   const { user } = useAuth();
@@ -135,6 +137,9 @@ const UserProfile = () => {
             </Button>
             <h1 className="text-xl font-bold">Mój profil</h1>
           </div>
+          
+          {/* Mobile app install */}
+          <InstallPWA showOfflineIndicator={false} />
         </div>
       </header>
       
@@ -144,6 +149,7 @@ const UserProfile = () => {
           <TabsList className="mb-8">
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="tickets">Moje bilety ({tickets.length})</TabsTrigger>
+            <TabsTrigger value="notifications">Powiadomienia</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
@@ -162,6 +168,38 @@ const UserProfile = () => {
           
           <TabsContent value="tickets">
             <PurchasedTickets tickets={tickets} />
+          </TabsContent>
+          
+          <TabsContent value="notifications" className="space-y-4">
+            <div className="bg-white p-6 rounded-lg border shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">Ustawienia powiadomień</h2>
+              
+              <div className="space-y-6">
+                {/* Powiadomienia push */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium">Powiadomienia mobilne</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Otrzymuj powiadomienia o nadchodzących wydarzeniach, zmianach i ważnych aktualizacjach.
+                  </p>
+                  <NotificationPermission className="mt-2" />
+                </div>
+                
+                {/* Instalacja aplikacji mobilnej */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium">Aplikacja mobilna</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Zainstaluj naszą aplikację, aby mieć szybszy dostęp do wszystkich funkcji i możliwość
+                    korzystania z aplikacji offline.
+                  </p>
+                  <InstallPWA className="mt-2" variant="default" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Offline indicator */}
+            <div>
+              <InstallPWA variant="ghost" showOfflineIndicator={true} />
+            </div>
           </TabsContent>
         </Tabs>
       </main>
