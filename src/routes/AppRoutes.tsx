@@ -20,6 +20,7 @@ import AccreditationEvents from '@/pages/AccreditationEvents';
 import AccreditationCategories from '@/pages/AccreditationCategories';
 import PressReleasePage from '@/pages/PressReleasePage';
 import MediaPortalPage from '@/pages/MediaPortalPage';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 const AppRoutes = () => {
   return (
@@ -31,7 +32,7 @@ const AppRoutes = () => {
       <Route path="/accreditation/events" element={<AccreditationEvents />} />
       
       {/* Protected Routes */}
-      <Route element={<MainLayout />}>
+      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />

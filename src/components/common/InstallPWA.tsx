@@ -72,7 +72,7 @@ export function InstallPWA({
     <div className={`space-y-2 ${className}`}>
       {/* Wskaźnik statusu offline */}
       {showOfflineIndicator && !isOnline && (
-        <Alert variant="destructive" className="bg-amber-50 border-amber-200">
+        <Alert className="bg-amber-50 border-amber-200">
           <WifiOff className="h-4 w-4 text-amber-500" />
           <AlertTitle>Tryb offline</AlertTitle>
           <AlertDescription>

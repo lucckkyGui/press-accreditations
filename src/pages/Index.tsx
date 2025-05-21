@@ -1,15 +1,15 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { withAuthValues } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, loading, isAuthenticated } = withAuthValues();
+  const { user, isLoading, isAuthenticated } = useAuth();
   
   useEffect(() => {
-    if (!loading) {
+    if (!isLoading) {
       if (isAuthenticated) {
         // If user is logged in, redirect to dashboard
         navigate('/dashboard');
@@ -18,7 +18,7 @@ const Index = () => {
         navigate('/home');
       }
     }
-  }, [navigate, isAuthenticated, loading]);
+  }, [navigate, isAuthenticated, isLoading]);
   
   return (
     <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-50">

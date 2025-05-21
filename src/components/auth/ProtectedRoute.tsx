@@ -9,12 +9,14 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
-  const { user, loading, isAuthenticated } = useAuth();
   const location = useLocation();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   // If page is still loading, show spinner
-  if (loading) {
-    return <LoadingSpinner />;
+  if (isLoading) {
+    return <div className="h-screen w-full flex items-center justify-center">
+      <LoadingSpinner />
+    </div>;
   }
 
   // If authentication is required and user is not logged in, redirect to login

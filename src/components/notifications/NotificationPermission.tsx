@@ -48,7 +48,7 @@ export function NotificationPermission({ className }: NotificationPermissionProp
     <div className={`flex flex-col gap-2 ${className}`}>
       {isSubscribed ? (
         <>
-          <Alert variant="default" className="bg-green-50 border-green-200">
+          <Alert className="bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-500" />
             <AlertTitle>{t('notifications.enabled')}</AlertTitle>
             <AlertDescription>
