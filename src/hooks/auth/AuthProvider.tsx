@@ -5,7 +5,7 @@ import { useAuthState } from './useAuthState';
 import { useAuthMethods } from './authMethods';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user, session, loading, isAuthenticated } = useAuthState();
+  const { user, session, loading, isLoading, isAuthenticated } = useAuthState();
   const { signUp, signIn, signOut, resetPassword } = useAuthMethods();
 
   // Make the context object
@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     session,
     loading,
+    isLoading,
     isAuthenticated,
     signUp,
     signIn,

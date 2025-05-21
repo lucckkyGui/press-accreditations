@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,11 @@ export const OrganizerLoginForm = ({
       }
       
       // For non-test mode or when test credentials don't match
-      const { error } = await signIn(email, password);
+      const result = await signIn(email, password);
       
-      if (error) throw error;
+      if (result && result.error) {
+        throw result.error;
+      }
       
       playSoundEffect("success", 0.5);
       toast.success(t('auth.loginSuccessful'));
