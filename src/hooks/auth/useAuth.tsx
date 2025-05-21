@@ -1,7 +1,4 @@
 
-// Auth hook implementation
-// Version: v1.0.2
-
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 
