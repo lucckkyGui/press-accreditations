@@ -1,9 +1,5 @@
 
-// Main export file for auth-related functionality
-// Version: v1.0.2
+import { useAuth } from "./useAuth";
 
-export * from './types';
-export * from './AuthContext';
-export * from './AuthProvider';
-export * from './useAuth';
-export * from './withAuthValues';
+export { useAuth };
+export * from "./types";
