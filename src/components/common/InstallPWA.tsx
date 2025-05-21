@@ -53,7 +53,7 @@ export function InstallPWA({
     try {
       const result = await installPWA();
       if (result) {
-        toast.success(t('notifications.appInstalled', 'Aplikacja zainstalowana'));
+        toast.success(t('notifications.appInstalled'));
       }
     } catch (error) {
       console.error('Błąd podczas instalacji PWA:', error);
@@ -72,7 +72,7 @@ export function InstallPWA({
     <div className={`space-y-2 ${className}`}>
       {/* Wskaźnik statusu offline */}
       {showOfflineIndicator && !isOnline && (
-        <Alert variant="warning" className="bg-amber-50 border-amber-200">
+        <Alert variant="destructive" className="bg-amber-50 border-amber-200">
           <WifiOff className="h-4 w-4 text-amber-500" />
           <AlertTitle>Tryb offline</AlertTitle>
           <AlertDescription>
@@ -93,7 +93,7 @@ export function InstallPWA({
           <Smartphone className="h-4 w-4" />
           {isInstalling 
             ? 'Instalowanie...' 
-            : t('notifications.installApp', 'Zainstaluj aplikację')}
+            : t('notifications.installApp')}
         </Button>
       ) : !hasServiceWorker && (
         <Button 

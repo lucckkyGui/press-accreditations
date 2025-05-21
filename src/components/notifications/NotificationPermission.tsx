@@ -24,9 +24,9 @@ export function NotificationPermission({ className }: NotificationPermissionProp
     return (
       <Alert variant="destructive" className={className}>
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>{t('notifications.notSupported', 'Powiadomienia nie są wspierane')}</AlertTitle>
+        <AlertTitle>{t('notifications.notSupported')}</AlertTitle>
         <AlertDescription>
-          {t('notifications.browserNotSupported', 'Twoja przeglądarka nie wspiera powiadomień push.')}
+          {t('notifications.browserNotSupported')}
         </AlertDescription>
       </Alert>
     );
@@ -34,11 +34,11 @@ export function NotificationPermission({ className }: NotificationPermissionProp
 
   if (permissionStatus === 'denied') {
     return (
-      <Alert variant="warning" className={className}>
+      <Alert variant="destructive" className={className}>
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>{t('notifications.permissionDenied', 'Dostęp do powiadomień odrzucony')}</AlertTitle>
+        <AlertTitle>{t('notifications.permissionDenied')}</AlertTitle>
         <AlertDescription>
-          {t('notifications.enableInBrowserSettings', 'Włącz powiadomienia w ustawieniach przeglądarki, aby otrzymywać aktualizacje.')}
+          {t('notifications.enableInBrowserSettings')}
         </AlertDescription>
       </Alert>
     );
@@ -48,11 +48,11 @@ export function NotificationPermission({ className }: NotificationPermissionProp
     <div className={`flex flex-col gap-2 ${className}`}>
       {isSubscribed ? (
         <>
-          <Alert variant="success" className="bg-green-50 border-green-200">
+          <Alert variant="default" className="bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-500" />
-            <AlertTitle>{t('notifications.enabled', 'Powiadomienia włączone')}</AlertTitle>
+            <AlertTitle>{t('notifications.enabled')}</AlertTitle>
             <AlertDescription>
-              {t('notifications.willReceive', 'Będziesz otrzymywać powiadomienia o ważnych aktualizacjach.')}
+              {t('notifications.willReceive')}
             </AlertDescription>
           </Alert>
           
@@ -63,7 +63,7 @@ export function NotificationPermission({ className }: NotificationPermissionProp
             className="self-start mt-2"
           >
             <BellOff className="h-4 w-4 mr-2" />
-            {t('notifications.disable', 'Wyłącz powiadomienia')}
+            {t('notifications.disable')}
           </Button>
         </>
       ) : (
@@ -73,7 +73,7 @@ export function NotificationPermission({ className }: NotificationPermissionProp
           className="self-start"
         >
           <BellRing className="h-4 w-4 mr-2" />
-          {t('notifications.enable', 'Włącz powiadomienia mobilne')}
+          {t('notifications.enable')}
         </Button>
       )}
     </div>

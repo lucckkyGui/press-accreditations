@@ -76,7 +76,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       if (Notification.permission !== 'granted') {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-          toast.error(t('notifications.permissionDenied', 'Odmówiono dostępu do powiadomień'));
+          toast.error(t('notifications.permissionDenied'));
           return;
         }
         setPermissionStatus(permission);
@@ -113,10 +113,10 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       setIsSubscribed(true);
       setSubscription(newSubscription);
       
-      toast.success(t('notifications.subscribed', 'Zasubskrybowano powiadomienia'));
+      toast.success(t('notifications.subscribed'));
     } catch (error) {
       console.error('Błąd podczas subskrypcji:', error);
-      toast.error(t('notifications.subscriptionFailed', 'Nie udało się zasubskrybować powiadomień'));
+      toast.error(t('notifications.subscriptionFailed'));
     }
   };
 
@@ -136,14 +136,14 @@ export function usePushNotifications(): UsePushNotificationsReturn {
           
           setIsSubscribed(false);
           setSubscription(null);
-          toast.success(t('notifications.unsubscribed', 'Anulowano subskrypcję powiadomień'));
+          toast.success(t('notifications.unsubscribed'));
         } else {
-          toast.error(t('notifications.unsubscriptionFailed', 'Nie udało się anulować subskrypcji'));
+          toast.error(t('notifications.unsubscriptionFailed'));
         }
       }
     } catch (error) {
       console.error('Błąd podczas anulowania subskrypcji:', error);
-      toast.error(t('notifications.unsubscriptionFailed', 'Nie udało się anulować subskrypcji'));
+      toast.error(t('notifications.unsubscriptionFailed'));
     }
   };
 
