@@ -13,7 +13,7 @@ export interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  isLoading: boolean; // Add this property
+  isLoading: boolean;
   isAuthenticated: boolean;
   signUp: (data: AuthData) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
