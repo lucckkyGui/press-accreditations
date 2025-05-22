@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useI18n } from '@/hooks/useI18n';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -33,6 +34,13 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const { t } = useI18n();
   const { openMobile, setOpenMobile } = useSidebar();
+  const { isMobile } = useWindowSize();
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar>
@@ -43,10 +51,10 @@ const AppSidebar: React.FC = () => {
               key={item.name}
               to={item.href}
               className={({ isActive }) =>
-                `flex items-center px-6 py-2 text-sm font-medium rounded-md transition-colors hover:bg-secondary hover:text-secondary-foreground ${isActive ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground'
+                `flex items-center px-4 md:px-6 py-2 text-sm font-medium rounded-md transition-colors hover:bg-secondary hover:text-secondary-foreground ${isActive ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground'
                 }`
               }
-              onClick={() => setOpenMobile(false)}
+              onClick={handleNavClick}
             >
               <item.icon className="w-4 h-4 mr-2" />
               {t(item.name)}
