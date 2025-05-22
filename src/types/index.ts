@@ -1,21 +1,24 @@
 
-export interface Event {
+// Public facing types
+export type Event = {
   id: string;
   name: string;
   description: string;
   location: string;
   startDate: Date;
+  endDate?: Date;
   organizerId: string;
-  isPublished: boolean;
-  maxGuests?: number;
+  isPublished?: boolean;
+  imageUrl?: string;
   category?: string;
-}
+  maxGuests?: number;
+};
 
-export type GuestZone = "vip" | "press" | "staff" | "general";
-export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
-export type GuestEmailStatus = "sent" | "opened" | "failed" | "unknown";
+export type GuestZone = 'vip' | 'press' | 'staff' | 'general';
+export type GuestStatus = 'invited' | 'confirmed' | 'declined' | 'checked-in';
+export type GuestEmailStatus = 'sent' | 'opened' | 'failed' | 'unknown';
 
-export interface Guest {
+export type Guest = {
   id: string;
   firstName: string;
   lastName: string;
@@ -29,4 +32,14 @@ export interface Guest {
   invitationSentAt?: Date;
   invitationOpenedAt?: Date;
   checkedInAt?: Date;
-}
+};
+
+export type InvitationTemplate = {
+  id: string;
+  name: string;
+  subject: string;
+  content: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};

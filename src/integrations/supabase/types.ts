@@ -196,10 +196,13 @@ export type Database = {
       }
       events: {
         Row: {
+          category: string | null
           created_at: string | null
           description: string | null
           end_date: string
           id: string
+          image_url: string | null
+          is_published: boolean | null
           location: string | null
           max_guests: number | null
           organizer_id: string | null
@@ -209,10 +212,13 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           end_date: string
           id?: string
+          image_url?: string | null
+          is_published?: boolean | null
           location?: string | null
           max_guests?: number | null
           organizer_id?: string | null
@@ -222,16 +228,114 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string
           id?: string
+          image_url?: string | null
+          is_published?: boolean | null
           location?: string | null
           max_guests?: number | null
           organizer_id?: string | null
           start_date?: string
           status?: string | null
           title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      guests: {
+        Row: {
+          checked_in_at: string | null
+          company: string | null
+          created_at: string | null
+          email: string
+          email_status: string | null
+          event_id: string
+          first_name: string
+          id: string
+          invitation_opened_at: string | null
+          invitation_sent_at: string | null
+          last_name: string
+          phone: string | null
+          qr_code: string
+          status: string
+          updated_at: string | null
+          zone: string
+        }
+        Insert: {
+          checked_in_at?: string | null
+          company?: string | null
+          created_at?: string | null
+          email: string
+          email_status?: string | null
+          event_id: string
+          first_name: string
+          id?: string
+          invitation_opened_at?: string | null
+          invitation_sent_at?: string | null
+          last_name: string
+          phone?: string | null
+          qr_code: string
+          status: string
+          updated_at?: string | null
+          zone: string
+        }
+        Update: {
+          checked_in_at?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          email_status?: string | null
+          event_id?: string
+          first_name?: string
+          id?: string
+          invitation_opened_at?: string | null
+          invitation_sent_at?: string | null
+          last_name?: string
+          phone?: string | null
+          qr_code?: string
+          status?: string
+          updated_at?: string | null
+          zone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitation_templates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          subject?: string
           updated_at?: string | null
         }
         Relationships: []
