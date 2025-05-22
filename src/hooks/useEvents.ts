@@ -15,7 +15,7 @@ export const useEvents = () => {
 
   // Query for fetching events
   const {
-    data: events,
+    data: eventsResponse,
     isLoading: isEventsLoading,
     isError: isEventsError,
     refetch: refetchEvents
@@ -109,8 +109,8 @@ export const useEvents = () => {
   );
 
   return {
-    events: events?.data || [],
-    pagination: events?.pagination,
+    events: eventsResponse?.data || [],
+    pagination: eventsResponse?.pagination,
     isEventsLoading,
     isEventsError,
     queryParams,

@@ -7,22 +7,25 @@ import { PaginationParams, FilterParams } from "../api/apiResponse";
  */
 
 // Rozszerzenie typu Guest o dodatkowe pola potrzebne w Supabase
-export interface GuestDB extends Omit<Guest, "invitationSentAt" | "invitationOpenedAt" | "checkedInAt"> {
-  eventId: string;
-  invitationSentAt?: string;
-  invitationOpenedAt?: string;
-  checkedInAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  customFieldValues?: Record<string, any>;
+export interface GuestDB {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  zone: string;
+  status: string;
+  email_status?: string;
+  qr_code: string;
+  event_id: string;
+  invitation_sent_at?: string;
+  invitation_opened_at?: string;
+  checked_in_at?: string;
+  created_at: string;
+  updated_at: string;
   notes?: string;
-  plusOneCount?: number;
-  plusOneNames?: string[];
-  ticketTypeId?: string;
-  invitationId?: string;
-  createdBy?: string;
-  updatedBy?: string;
-  tags?: string[];
+  custom_field_values?: Record<string, any>;
 }
 
 export interface GuestsQueryParams extends PaginationParams, FilterParams {

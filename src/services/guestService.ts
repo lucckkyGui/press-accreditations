@@ -52,7 +52,7 @@ export const guestService = {
       if (error) throw error;
 
       return {
-        data: data.map(mapDbGuestToGuest),
+        data: data.map(item => mapDbGuestToGuest(item as GuestDB)),
         pagination: count ? {
           total: count,
           page: params?.page || 0,
@@ -111,7 +111,7 @@ export const guestService = {
 
       if (error) throw error;
 
-      return { data: mapDbGuestToGuest(data) };
+      return { data: mapDbGuestToGuest(data as GuestDB) };
     } catch (error) {
       console.error('Error creating guest:', error);
       return { error: { message: error.message, code: 'CREATE_GUEST_ERROR' } };
@@ -142,7 +142,7 @@ export const guestService = {
 
       if (error) throw error;
 
-      return { data: data.map(mapDbGuestToGuest) };
+      return { data: data.map(item => mapDbGuestToGuest(item as GuestDB)) };
     } catch (error) {
       console.error('Error bulk creating guests:', error);
       return { error: { message: error.message, code: 'BULK_CREATE_GUESTS_ERROR' } };
@@ -294,10 +294,10 @@ function mapDbGuestToGuest(dbGuest: GuestDB): Guest {
     phone: dbGuest.phone,
     zone: dbGuest.zone as GuestZone, 
     status: dbGuest.status as GuestStatus,
-    emailStatus: dbGuest.email_status,
+    emailStatus: dbGuest.email_status as any,
     qrCode: dbGuest.qr_code,
-    invitationSentAt: dbGuest.invitationSentAt ? new Date(dbGuest.invitationSentAt) : undefined,
-    invitationOpenedAt: dbGuest.invitationOpenedAt ? new Date(dbGuest.invitationOpenedAt) : undefined,
-    checkedInAt: dbGuest.checkedInAt ? new Date(dbGuest.checkedInAt) : undefined
+    invitationSentAt: dbGuest.invitation_sent_at ? new Date(dbGuest.invitation_sent_at) : undefined,
+    invitationOpenedAt: dbGuest.invitation_opened_at ? new Date(dbGuest.invitation_opened_at) : undefined,
+    checkedInAt: dbGuest.checked_in_at ? new Date(dbGuest.checked_in_at) : undefined
   };
 }

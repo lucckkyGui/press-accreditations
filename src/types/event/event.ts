@@ -7,18 +7,21 @@ import { Event } from '@/types';
  */
 
 // Rozszerzenie typu Event o dodatkowe pola potrzebne w Supabase
-export interface EventDB extends Omit<Event, "startDate"> {
-  startDate: string; // format ISO dla bazy danych
-  endDate?: string;
-  organizationId: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  settings?: EventSettings;
-  venue?: Venue;
-  ticketTypes?: TicketType[];
-  attendanceStats?: EventStats;
-  isActive?: boolean;
+export interface EventDB {
+  id: string;
+  title: string;
+  description?: string;
+  location?: string;
+  start_date: string;
+  end_date?: string;
+  organizer_id: string;
+  is_published?: boolean;
+  image_url?: string;
+  category?: string;
+  max_guests?: number;
+  status?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Venue {

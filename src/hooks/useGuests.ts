@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { guestService } from '@/services/guestService';
@@ -17,7 +16,7 @@ export const useGuests = (eventId?: string) => {
 
   // Query for fetching guests
   const {
-    data: guests,
+    data: guestsResponse,
     isLoading: isGuestsLoading,
     isError: isGuestsError,
     refetch: refetchGuests
@@ -188,8 +187,8 @@ export const useGuests = (eventId?: string) => {
   );
 
   return {
-    guests: guests?.data || [],
-    pagination: guests?.pagination,
+    guests: guestsResponse?.data || [],
+    pagination: guestsResponse?.pagination,
     isGuestsLoading,
     isGuestsError,
     queryParams,

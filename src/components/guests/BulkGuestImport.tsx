@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Guest, GuestZone } from '@/types';
+import { Guest, GuestZone, GuestStatus } from '@/types';
 import { AlertCircle, FileUp, X, Check } from 'lucide-react';
 import Papa from 'papaparse';
 
@@ -134,7 +133,7 @@ const BulkGuestImport: React.FC<BulkGuestImportProps> = ({
           company: guest.company,
           phone: guest.phone,
           zone: guest.zone || defaultZone,
-          status: 'invited',
+          status: 'invited' as GuestStatus, // Explicitly cast to GuestStatus
           eventId
         }));
       
