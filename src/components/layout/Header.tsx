@@ -15,7 +15,8 @@ const Header: React.FC = () => {
   const { isMobile } = useWindowSize();
   
   const toggleMobileSidebar = () => {
-    setOpenMobile(prev => !prev);
+    // Fix: passing a boolean instead of a function
+    setOpenMobile(true);
   };
 
   return (
@@ -46,7 +47,7 @@ const Header: React.FC = () => {
         
         <div className="flex items-center gap-1 md:gap-2">
           {/* Language Switcher */}
-          <LanguageSwitcher variant={isMobile ? "compact" : "icon"} />
+          <LanguageSwitcher variant={isMobile ? "icon" : "full"} />
           
           {/* On mobile, only show user menu button */}
           {isMobile ? (

@@ -7,7 +7,7 @@ import { Languages } from "lucide-react";
 import { toast } from "sonner";
 
 interface LanguageSwitcherProps {
-  variant?: "icon" | "full";
+  variant?: "icon" | "full" | "compact";
 }
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" }) => {
@@ -46,6 +46,9 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" })
               <span className="mr-1">{getLanguageFlag(locale)}</span>
               <span>{getLanguageName(locale)}</span>
             </>
+          )}
+          {variant === "compact" && (
+            <span>{getLanguageFlag(locale)}</span>
           )}
         </Button>
       </DropdownMenuTrigger>
