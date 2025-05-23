@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types";
 import { EventDB, EventsQueryParams } from "@/types/event/event";
@@ -59,14 +58,14 @@ export const eventService = {
       if (error) throw error;
 
       return {
-        data: data.map(item => mapDbEventToEvent(item as EventDB)),
+        data: data.map((item: any) => mapDbEventToEvent(item)),
         pagination: count ? {
           total: count,
           page: params?.page || 0,
           pageSize: params?.pageSize || 10
         } : undefined
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching events:', error);
       return { error: { message: error.message, code: 'FETCH_EVENTS_ERROR' } };
     }
@@ -85,8 +84,8 @@ export const eventService = {
 
       if (error) throw error;
 
-      return { data: mapDbEventToEvent(data as EventDB) };
-    } catch (error) {
+      return { data: mapDbEventToEvent(data) };
+    } catch (error: any) {
       console.error(`Error fetching event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'FETCH_EVENT_ERROR' } };
     }
@@ -99,16 +98,17 @@ export const eventService = {
     try {
       const dbEvent = mapEventToDbEvent(event);
       
+      // Insert as a single object, not as an array
       const { data, error } = await supabase
         .from('events')
-        .insert([dbEvent])
+        .insert(dbEvent)
         .select()
         .single();
 
       if (error) throw error;
 
-      return { data: mapDbEventToEvent(data as EventDB) };
-    } catch (error) {
+      return { data: mapDbEventToEvent(data) };
+    } catch (error: any) {
       console.error('Error creating event:', error);
       return { error: { message: error.message, code: 'CREATE_EVENT_ERROR' } };
     }
@@ -130,7 +130,7 @@ export const eventService = {
 
       if (error) throw error;
 
-      return { data: mapDbEventToEvent(data as EventDB) };
+      return { data: mapDbEventToEvent(data) };
     } catch (error) {
       console.error(`Error updating event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'UPDATE_EVENT_ERROR' } };
@@ -170,7 +170,7 @@ export const eventService = {
 
       if (error) throw error;
 
-      return { data: mapDbEventToEvent(data as EventDB) };
+      return { data: mapDbEventToEvent(data) };
     } catch (error) {
       console.error(`Error updating publish state for event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'TOGGLE_PUBLISH_ERROR' } };
@@ -181,7 +181,7 @@ export const eventService = {
 /**
  * Map database event to our frontend Event type
  */
-function mapDbEventToEvent(dbEvent: EventDB): Event {
+function mapDbEventToEvent(dbEvent: any): Event {
   return {
     id: dbEvent.id,
     name: dbEvent.title,
@@ -200,8 +200,8 @@ function mapDbEventToEvent(dbEvent: EventDB): Event {
 /**
  * Map frontend Event type to database format
  */
-function mapEventToDbEvent(event: Partial<Event>): Partial<EventDB> {
-  const dbEvent: Partial<EventDB> = {};
+function mapEventToDbEvent(event: Partial<Event>): Record<string, any> {
+  const dbEvent: Record<string, any> = {};
   
   if (event.name !== undefined) dbEvent.title = event.name;
   if (event.description !== undefined) dbEvent.description = event.description;

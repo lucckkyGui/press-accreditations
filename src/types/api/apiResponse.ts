@@ -11,6 +11,11 @@ export interface ApiResponse<T = any> {
     code?: string;
     details?: any;
   };
+  pagination?: {
+    total: number;
+    page: number;
+    pageSize: number;
+  };
   meta?: {
     count?: number;
     totalCount?: number;

@@ -52,14 +52,14 @@ export const guestService = {
       if (error) throw error;
 
       return {
-        data: data.map(item => mapDbGuestToGuest(item as GuestDB)),
+        data: data.map((item: any) => mapDbGuestToGuest(item)),
         pagination: count ? {
           total: count,
           page: params?.page || 0,
           pageSize: params?.pageSize || 10
         } : undefined
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching guests:', error);
       return { error: { message: error.message, code: 'FETCH_GUESTS_ERROR' } };
     }
@@ -284,7 +284,7 @@ export const guestService = {
 /**
  * Map database guest to our frontend Guest type
  */
-function mapDbGuestToGuest(dbGuest: GuestDB): Guest {
+function mapDbGuestToGuest(dbGuest: any): Guest {
   return {
     id: dbGuest.id,
     firstName: dbGuest.first_name,
