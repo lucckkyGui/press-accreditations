@@ -1,7 +1,7 @@
 
 import { useApiMutation } from '@/hooks/useApi';
 import { guestService } from '@/services/guestService';
-import { Guest, GuestStatus, GuestZone } from '@/types';
+import { Guest } from '@/types';
 import { toast } from 'sonner';
 
 /**
@@ -36,7 +36,7 @@ export const useGuestMutations = (refetchGuests: () => void) => {
     (guests: Array<Partial<Guest> & { eventId: string }>) => guestService.createGuests(guests),
     {
       onSuccess: (response) => {
-        toast.success(`${response.data?.length || 0} guests added successfully!`);
+        toast.success(`${response?.length || 0} guests added successfully!`);
         refetchGuests();
       },
       onError: (err) => {

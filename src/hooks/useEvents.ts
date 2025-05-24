@@ -97,7 +97,7 @@ export const useEvents = () => {
       eventService.toggleEventPublishState(id, isPublished),
     {
       onSuccess: (response) => {
-        const status = response.data?.isPublished ? 'published' : 'unpublished';
+        const status = response?.isPublished ? 'published' : 'unpublished';
         toast.success(`Event ${status} successfully!`);
         refetchEvents();
       },

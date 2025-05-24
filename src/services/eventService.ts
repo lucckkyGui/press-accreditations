@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types";
 import { EventDB, EventsQueryParams } from "@/types/event/event";
@@ -102,7 +101,7 @@ export const eventService = {
       // Using single object insert
       const { data, error } = await supabase
         .from('events')
-        .insert([dbEvent])
+        .insert(dbEvent)
         .select()
         .single();
 
