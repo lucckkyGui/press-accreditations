@@ -98,10 +98,23 @@ export const eventService = {
     try {
       const dbEvent = mapEventToDbEvent(event);
       
-      // Using single object insert
+      // Ensure required fields are present
+      const insertData = {
+        title: dbEvent.title || '',
+        start_date: dbEvent.start_date || new Date().toISOString(),
+        end_date: dbEvent.end_date || new Date().toISOString(),
+        description: dbEvent.description,
+        location: dbEvent.location,
+        organizer_id: dbEvent.organizer_id,
+        is_published: dbEvent.is_published,
+        image_url: dbEvent.image_url,
+        category: dbEvent.category,
+        max_guests: dbEvent.max_guests
+      };
+
       const { data, error } = await supabase
         .from('events')
-        .insert(dbEvent)
+        .insert(insertData)
         .select()
         .single();
 
