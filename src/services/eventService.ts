@@ -102,7 +102,7 @@ export const eventService = {
       // Using single object insert
       const { data, error } = await supabase
         .from('events')
-        .insert(dbEvent)
+        .insert([dbEvent])
         .select()
         .single();
 
