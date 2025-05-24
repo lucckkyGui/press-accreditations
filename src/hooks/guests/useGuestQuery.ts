@@ -4,11 +4,21 @@ import { guestService } from '@/services/guestService';
 import { Guest } from '@/types';
 import { GuestsQueryParams } from '@/types/guest/guest';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 /**
  * Hook for querying guests data
  */
-export const useGuestQuery = (eventId?: string, queryParams?: GuestsQueryParams) => {
+export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQueryParams) => {
+  const [queryParams, setQueryParams] = useState<GuestsQueryParams>({
+    page: 0,
+    pageSize: 10,
+    status: 'all',
+    zone: 'all',
+    eventId,
+    ...initialQueryParams
+  });
+
   // Query for fetching guests
   const {
     data: guestsResponse,
@@ -49,6 +59,8 @@ export const useGuestQuery = (eventId?: string, queryParams?: GuestsQueryParams)
     guests: guestsResponse?.data || [],
     pagination: guestsResponse?.pagination,
     guest: guestResponse?.data,
+    queryParams,
+    setQueryParams,
     isGuestsLoading,
     isGuestsError,
     isGuestLoading,

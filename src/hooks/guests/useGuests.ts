@@ -10,10 +10,10 @@ export const useGuests = (eventId?: string) => {
   const {
     guests,
     pagination,
-    isGuestsLoading,
-    isGuestsError,
     queryParams,
     setQueryParams,
+    isGuestsLoading,
+    isGuestsError,
     refetchGuests
   } = useGuestQuery(eventId);
 
@@ -43,10 +43,10 @@ export const useGuests = (eventId?: string) => {
     // Guest querying
     guests,
     pagination,
-    isGuestsLoading,
-    isGuestsError,
     queryParams,
     setQueryParams,
+    isGuestsLoading,
+    isGuestsError,
     
     // Single guest mutations
     createGuest,
