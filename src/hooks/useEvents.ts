@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { eventService } from '@/services/eventService';
@@ -97,7 +96,7 @@ export const useEvents = () => {
       eventService.toggleEventPublishState(id, isPublished),
     {
       onSuccess: (response) => {
-        const status = response?.isPublished ? 'published' : 'unpublished';
+        const status = response?.data?.isPublished ? 'published' : 'unpublished';
         toast.success(`Event ${status} successfully!`);
         refetchEvents();
       },

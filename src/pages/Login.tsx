@@ -6,6 +6,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrganizerLoginForm } from "@/components/auth/OrganizerLoginForm";
+import { OrganizerSignupForm } from "@/components/auth/OrganizerSignupForm";
 import { GuestLoginForm } from "@/components/auth/GuestLoginForm";
 import { ResetPasswordDialog } from "@/components/auth/ResetPasswordDialog";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ import { useAuth } from "@/hooks/auth";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [activeTab, setActiveTab] = useState("organizator");
+  const [organizerMode, setOrganizerMode] = useState<"login" | "signup">("login");
   const [guestStep, setGuestStep] = useState<"email" | "verify">("email");
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [testModeEnabled, setTestModeEnabled] = useState(true);
@@ -116,17 +118,44 @@ const Login = () => {
           <TabsContent value="organizator">
             <Card>
               <CardHeader>
-                <CardTitle>{t('auth.organizerLogin')}</CardTitle>
+                <CardTitle>
+                  {organizerMode === "login" ? t('auth.organizerLogin') : "Create Organizer Account"}
+                </CardTitle>
                 <CardDescription>
-                  {t('auth.organizerLoginDescription')}
+                  {organizerMode === "login" 
+                    ? t('auth.organizerLoginDescription')
+                    : "Register your organization to start managing events and accreditations"}
                 </CardDescription>
               </CardHeader>
-              <OrganizerLoginForm 
-                onResetClick={() => setIsResetDialogOpen(true)} 
-                defaultEmail={testModeEnabled ? "admin@example.com" : ""} 
-                defaultPassword={testModeEnabled ? "password123" : ""}
-                testModeEnabled={testModeEnabled}
-              />
+              
+              {organizerMode === "login" ? (
+                <OrganizerLoginForm 
+                  onResetClick={() => setIsResetDialogOpen(true)} 
+                  defaultEmail={testModeEnabled ? "admin@example.com" : ""} 
+                  defaultPassword={testModeEnabled ? "password123" : ""}
+                  testModeEnabled={testModeEnabled}
+                />
+              ) : (
+                <OrganizerSignupForm 
+                  onSwitchToLogin={() => setOrganizerMode("login")}
+                />
+              )}
+              
+              {organizerMode === "login" && (
+                <div className="px-6 pb-6">
+                  <div className="text-center text-sm text-muted-foreground">
+                    New to our platform?{" "}
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="p-0 h-auto"
+                      onClick={() => setOrganizerMode("signup")}
+                    >
+                      Create an organizer account
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
           </TabsContent>
           

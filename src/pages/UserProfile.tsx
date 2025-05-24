@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
 import PurchasedTickets from "@/components/profile/PurchasedTickets";
-import ProfileEditForm from "@/components/profile/ProfileEditForm";
+import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEditForm";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -29,6 +29,11 @@ const UserProfile = () => {
     avatarUrl: "",
     role: "guest",
     company: "",
+    jobTitle: "",
+    phone: "",
+    website: "",
+    organizationType: "",
+    description: "",
     createdAt: new Date()
   });
   
@@ -71,13 +76,10 @@ const UserProfile = () => {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          // W rzeczywistej aplikacji, to pobierałoby dane z bazy danych profili
-          // Teraz używamy bezpośrednio obiektu user
+          // In a real app, this would fetch extended profile data from database
           const firstName = user.firstName || "";
           const lastName = user.lastName || "";
           const role = user.role || "guest";
-          // company nie jest częścią naszego typu User, więc pozostaje puste
-          const company = "";
           const createdAt = user.createdAt || new Date();
           
           setUserData({
@@ -86,12 +88,17 @@ const UserProfile = () => {
             lastName,
             avatarUrl: "",
             role,
-            company,
+            company: "",
+            jobTitle: "",
+            phone: "",
+            website: "",
+            organizationType: "",
+            description: "",
             createdAt
           });
         } catch (error) {
           console.error("Error fetching user profile:", error);
-          toast.error("Nie udało się załadować danych profilu");
+          toast.error("Failed to load profile data");
         }
       }
     };
@@ -107,22 +114,19 @@ const UserProfile = () => {
   }, [activeTab, navigate, location.search]);
   
   // Handle profile update
-  const handleSaveProfile = async (formData: { firstName: string; lastName: string; company?: string }) => {
+  const handleSaveProfile = async (formData: Partial<typeof userData>) => {
     try {
       // In a real app, this would update the database
-      // For now, we'll just update the local state
-      setUserData({
-        ...userData,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        company: formData.company || "",
-      });
+      setUserData(prev => ({
+        ...prev,
+        ...formData
+      }));
       
-      toast.success("Profil zaktualizowany pomyślnie");
+      toast.success("Profile updated successfully");
       setIsEditFormOpen(false);
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Nie udało się zaktualizować profilu");
+      toast.error("Failed to update profile");
     }
   };
   
@@ -147,9 +151,9 @@ const UserProfile = () => {
       <main className="flex-1 container py-8 max-w-4xl">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
-            <TabsTrigger value="tickets">Moje bilety ({tickets.length})</TabsTrigger>
-            <TabsTrigger value="notifications">Powiadomienia</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="tickets">My Tickets ({tickets.length})</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
@@ -158,7 +162,7 @@ const UserProfile = () => {
               onEditProfile={() => setIsEditFormOpen(true)}
             />
             
-            <ProfileEditForm
+            <EnhancedProfileEditForm
               user={userData}
               isOpen={isEditFormOpen}
               onClose={() => setIsEditFormOpen(false)}

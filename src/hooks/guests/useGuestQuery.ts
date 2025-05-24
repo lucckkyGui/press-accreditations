@@ -1,22 +1,14 @@
 
-import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApi';
 import { guestService } from '@/services/guestService';
+import { Guest } from '@/types';
 import { GuestsQueryParams } from '@/types/guest/guest';
 import { toast } from 'sonner';
 
 /**
- * Hook for querying guests with pagination and filtering
+ * Hook for querying guests data
  */
-export const useGuestQuery = (eventId?: string) => {
-  const [queryParams, setQueryParams] = useState<GuestsQueryParams>({
-    page: 0,
-    pageSize: 10,
-    status: 'all',
-    zone: 'all',
-    eventId
-  });
-
+export const useGuestQuery = (eventId?: string, queryParams?: GuestsQueryParams) => {
   // Query for fetching guests
   const {
     data: guestsResponse,
@@ -24,8 +16,8 @@ export const useGuestQuery = (eventId?: string) => {
     isError: isGuestsError,
     refetch: refetchGuests
   } = useApiQuery(
-    ['guests', queryParams],
-    () => guestService.getGuests(queryParams),
+    ['guests', eventId, queryParams],
+    () => guestService.getGuests({ ...queryParams, eventId }),
     {
       enabled: !!eventId,
       onError: (err) => {
@@ -35,13 +27,33 @@ export const useGuestQuery = (eventId?: string) => {
     }
   );
 
+  // Query for fetching a single guest
+  const {
+    data: guestResponse,
+    isLoading: isGuestLoading,
+    isError: isGuestError,
+    refetch: refetchGuest
+  } = useApiQuery(
+    ['guest', eventId],
+    () => guestService.getGuestById(eventId!),
+    {
+      enabled: !!eventId,
+      onError: (err) => {
+        toast.error('Failed to load guest');
+        console.error('Error loading guest:', err);
+      }
+    }
+  );
+
   return {
     guests: guestsResponse?.data || [],
     pagination: guestsResponse?.pagination,
+    guest: guestResponse?.data,
     isGuestsLoading,
     isGuestsError,
-    queryParams,
-    setQueryParams,
-    refetchGuests
+    isGuestLoading,
+    isGuestError,
+    refetchGuests,
+    refetchGuest
   };
 };
