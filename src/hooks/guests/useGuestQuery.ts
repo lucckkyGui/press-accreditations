@@ -55,14 +55,16 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQuery
     }
   );
 
-  // Handle the response data properly
-  const guests = Array.isArray(guestsResponse) 
+  // Handle the response data properly with better type safety
+  const guests: Guest[] = Array.isArray(guestsResponse) 
     ? guestsResponse 
-    : (guestsResponse as any)?.data || [];
+    : (guestsResponse && typeof guestsResponse === 'object' && 'data' in guestsResponse)
+      ? (guestsResponse as any).data || []
+      : [];
   
-  const pagination = Array.isArray(guestsResponse) 
-    ? undefined 
-    : (guestsResponse as any)?.pagination;
+  const pagination = (guestsResponse && typeof guestsResponse === 'object' && 'pagination' in guestsResponse)
+    ? (guestsResponse as any).pagination
+    : undefined;
 
   const guest = guestResponse;
 

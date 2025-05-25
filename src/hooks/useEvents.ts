@@ -97,7 +97,9 @@ export const useEvents = () => {
       eventService.toggleEventPublishState(id, isPublished),
     {
       onSuccess: (response) => {
-        const status = (response as any)?.isPublished ? 'published' : 'unpublished';
+        const status = (response && typeof response === 'object' && 'isPublished' in response)
+          ? ((response as any).isPublished ? 'published' : 'unpublished')
+          : 'updated';
         toast.success(`Event ${status} successfully!`);
         refetchEvents();
       },
@@ -108,14 +110,16 @@ export const useEvents = () => {
     }
   );
 
-  // Handle the response data properly
-  const events = Array.isArray(eventsResponse) 
+  // Handle the response data properly with better type safety
+  const events: Event[] = Array.isArray(eventsResponse) 
     ? eventsResponse 
-    : (eventsResponse as any)?.data || [];
+    : (eventsResponse && typeof eventsResponse === 'object' && 'data' in eventsResponse)
+      ? (eventsResponse as any).data || []
+      : [];
   
-  const pagination = Array.isArray(eventsResponse) 
-    ? undefined 
-    : (eventsResponse as any)?.pagination;
+  const pagination = (eventsResponse && typeof eventsResponse === 'object' && 'pagination' in eventsResponse)
+    ? (eventsResponse as any).pagination
+    : undefined;
 
   return {
     events,

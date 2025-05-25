@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApi';
 import { guestService } from '@/services/guestService';
@@ -61,7 +60,12 @@ export const useGuests = (eventId?: string) => {
     (guests: Array<Partial<Guest> & { eventId: string }>) => guestService.createGuests(guests),
     {
       onSuccess: (response) => {
-        toast.success(`${(response as any)?.length || 0} guests added successfully!`);
+        const count = (response && typeof response === 'object' && 'length' in response)
+          ? (response as any).length
+          : Array.isArray(response)
+            ? response.length
+            : 0;
+        toast.success(`${count} guests added successfully!`);
         refetchGuests();
       },
       onError: (err) => {
@@ -187,14 +191,16 @@ export const useGuests = (eventId?: string) => {
     }
   );
 
-  // Handle the response data properly
-  const guests = Array.isArray(guestsResponse) 
+  // Handle the response data properly with better type safety
+  const guests: Guest[] = Array.isArray(guestsResponse) 
     ? guestsResponse 
-    : (guestsResponse as any)?.data || [];
+    : (guestsResponse && typeof guestsResponse === 'object' && 'data' in guestsResponse)
+      ? (guestsResponse as any).data || []
+      : [];
   
-  const pagination = Array.isArray(guestsResponse) 
-    ? undefined 
-    : (guestsResponse as any)?.pagination;
+  const pagination = (guestsResponse && typeof guestsResponse === 'object' && 'pagination' in guestsResponse)
+    ? (guestsResponse as any).pagination
+    : undefined;
 
   return {
     guests,
