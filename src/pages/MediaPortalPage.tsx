@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,8 +19,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MediaRegistrationForm from '@/components/press/MediaRegistrationForm';
 import MediaRegistrationList from '@/components/press/MediaRegistrationList';
 import MediaRegistrationStatus from '@/components/press/MediaRegistrationStatus';
-import MediaDocumentUploader from '@/components/press/MediaDocumentUploader';
+import DocumentUploader from '@/components/documents/DocumentUploader';
 import MediaDocumentList from '@/components/press/MediaDocumentList';
+import BadgeGenerator from '@/components/badges/BadgeGenerator';
+import CheckInSystem from '@/components/checkin/CheckInSystem';
+import MediaAnalyticsDashboard from '@/components/analytics/MediaAnalyticsDashboard';
+import MediaCommunicationTool from '@/components/communication/MediaCommunicationTool';
+import CalendarIntegration from '@/components/calendar/CalendarIntegration';
 
 export default function MediaPortalPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -79,15 +85,19 @@ export default function MediaPortalPage() {
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Media Portal</h1>
       <p className="text-gray-600 mb-6">
-        Apply for media accreditation, manage your applications, and upload supporting documents.
+        Kompleksowy portal dla mediów - akredytacje, dokumenty, komunikacja i analityka.
       </p>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2">
+        <TabsList className="w-full grid grid-cols-2 lg:grid-cols-6">
           <TabsTrigger value="my-registrations">
-            {isOrganizer ? 'All Registrations' : 'My Registrations'}
+            {isOrganizer ? 'Akredytacje' : 'Moje zgłoszenia'}
           </TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="documents">Dokumenty</TabsTrigger>
+          <TabsTrigger value="badges">Identyfikatory</TabsTrigger>
+          <TabsTrigger value="checkin">Check-in</TabsTrigger>
+          <TabsTrigger value="analytics">Analityka</TabsTrigger>
+          <TabsTrigger value="communication">Komunikacja</TabsTrigger>
         </TabsList>
         
         <TabsContent value="my-registrations" className="space-y-4">
@@ -98,24 +108,23 @@ export default function MediaPortalPage() {
               {!showRegistrationForm && !userRegistration && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Apply for Media Accreditation</CardTitle>
+                    <CardTitle>Aplikuj o akredytację medialną</CardTitle>
                     <CardDescription>
-                      Submit your application for media accreditation to get access to the event.
+                      Złóż wniosek o akredytację medialną aby uzyskać dostęp do wydarzenia.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 mb-4">
-                      As a media representative, you can apply for accreditation to cover this event.
-                      Fill out the form with your details and upload supporting documents.
+                      Jako przedstawiciel mediów możesz aplikować o akredytację do relacjonowania tego wydarzenia.
                     </p>
                     <ul className="list-disc list-inside space-y-2 mb-4 text-gray-600">
-                      <li>Complete the registration form with your media organization details</li>
-                      <li>Upload supporting documents like press ID, portfolio, or assignment letter</li>
-                      <li>Track your application status and receive updates</li>
+                      <li>Wypełnij formularz rejestracyjny z danymi Twojej organizacji medialnej</li>
+                      <li>Prześlij dokumenty potwierdzające (legitymacja prasowa, portfolio)</li>
+                      <li>Śledź status swojego wniosku i otrzymuj aktualizacje</li>
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button onClick={handleCreateNewRegistration}>Apply Now</Button>
+                    <Button onClick={handleCreateNewRegistration}>Aplikuj teraz</Button>
                   </CardFooter>
                 </Card>
               )}
@@ -144,7 +153,10 @@ export default function MediaPortalPage() {
         
         <TabsContent value="documents" className="space-y-4">
           {!isOrganizer && userRegistration && (
-            <MediaDocumentUploader registrationId={userRegistration.id} />
+            <DocumentUploader 
+              registrationId={userRegistration.id}
+              onUploadComplete={(files) => console.log('Uploaded:', files)}
+            />
           )}
           
           {userRegistration && (
@@ -158,13 +170,93 @@ export default function MediaPortalPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="text-center">
-                  <p>You need to apply for accreditation before uploading documents.</p>
+                  <p>Musisz najpierw aplikować o akredytację aby móc przesyłać dokumenty.</p>
                   <Button 
                     className="mt-4" 
                     onClick={() => setActiveTab('my-registrations')}
                   >
-                    Apply for Accreditation
+                    Aplikuj o akredytację
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="badges" className="space-y-4">
+          {userRegistration && (
+            <BadgeGenerator
+              registrationId={userRegistration.id}
+              userInfo={{
+                firstName: user?.firstName || '',
+                lastName: user?.lastName || '',
+                mediaOrganization: userRegistration.mediaOrganization,
+                jobTitle: userRegistration.jobTitle
+              }}
+              eventInfo={{
+                name: 'Konferencja Tech 2024',
+                date: new Date().toLocaleDateString(),
+                location: 'Hotel Warsaw'
+              }}
+            />
+          )}
+          
+          {!userRegistration && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <p>Aby wygenerować identyfikator, musisz mieć zatwierdzoną akredytację.</p>
+                  <Button 
+                    className="mt-4" 
+                    onClick={() => setActiveTab('my-registrations')}
+                  >
+                    Sprawdź status akredytacji
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="checkin" className="space-y-4">
+          {isOrganizer ? (
+            <CheckInSystem />
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <p>System check-in/check-out jest dostępny tylko dla organizatorów.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          {isOrganizer ? (
+            <MediaAnalyticsDashboard />
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <p>Panel analityczny jest dostępny tylko dla organizatorów.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="communication" className="space-y-4">
+          {isOrganizer ? (
+            <div className="space-y-6">
+              <MediaCommunicationTool />
+              <CalendarIntegration />
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <p>Narzędzia komunikacji są dostępne tylko dla organizatorów.</p>
                 </div>
               </CardContent>
             </Card>

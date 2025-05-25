@@ -109,7 +109,7 @@ export const useEvents = () => {
   );
 
   return {
-    events: eventsResponse?.data || [],
+    events: Array.isArray(eventsResponse) ? eventsResponse : eventsResponse?.data || [],
     pagination: eventsResponse?.pagination,
     isEventsLoading,
     isEventsError,

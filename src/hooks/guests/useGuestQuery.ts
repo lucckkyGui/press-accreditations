@@ -56,9 +56,9 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQuery
   );
 
   return {
-    guests: guestsResponse?.data || [],
+    guests: Array.isArray(guestsResponse) ? guestsResponse : guestsResponse?.data || [],
     pagination: guestsResponse?.pagination,
-    guest: guestResponse?.data,
+    guest: guestResponse,
     queryParams,
     setQueryParams,
     isGuestsLoading,

@@ -188,7 +188,7 @@ export const useGuests = (eventId?: string) => {
   );
 
   return {
-    guests: guestsResponse?.data || [],
+    guests: Array.isArray(guestsResponse) ? guestsResponse : guestsResponse?.data || [],
     pagination: guestsResponse?.pagination,
     isGuestsLoading,
     isGuestsError,
