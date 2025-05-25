@@ -61,7 +61,7 @@ export const useGuests = (eventId?: string) => {
     (guests: Array<Partial<Guest> & { eventId: string }>) => guestService.createGuests(guests),
     {
       onSuccess: (response) => {
-        toast.success(`${response?.length || 0} guests added successfully!`);
+        toast.success(`${(response as any)?.length || 0} guests added successfully!`);
         refetchGuests();
       },
       onError: (err) => {
@@ -187,9 +187,18 @@ export const useGuests = (eventId?: string) => {
     }
   );
 
+  // Handle the response data properly
+  const guests = Array.isArray(guestsResponse) 
+    ? guestsResponse 
+    : (guestsResponse as any)?.data || [];
+  
+  const pagination = Array.isArray(guestsResponse) 
+    ? undefined 
+    : (guestsResponse as any)?.pagination;
+
   return {
-    guests: Array.isArray(guestsResponse) ? guestsResponse : guestsResponse?.data || [],
-    pagination: guestsResponse?.pagination,
+    guests,
+    pagination,
     isGuestsLoading,
     isGuestsError,
     queryParams,

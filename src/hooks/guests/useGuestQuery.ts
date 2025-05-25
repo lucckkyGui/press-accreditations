@@ -55,10 +55,21 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQuery
     }
   );
 
+  // Handle the response data properly
+  const guests = Array.isArray(guestsResponse) 
+    ? guestsResponse 
+    : (guestsResponse as any)?.data || [];
+  
+  const pagination = Array.isArray(guestsResponse) 
+    ? undefined 
+    : (guestsResponse as any)?.pagination;
+
+  const guest = guestResponse;
+
   return {
-    guests: Array.isArray(guestsResponse) ? guestsResponse : guestsResponse?.data || [],
-    pagination: guestsResponse?.pagination,
-    guest: guestResponse,
+    guests,
+    pagination,
+    guest,
     queryParams,
     setQueryParams,
     isGuestsLoading,

@@ -97,7 +97,7 @@ export const useEvents = () => {
       eventService.toggleEventPublishState(id, isPublished),
     {
       onSuccess: (response) => {
-        const status = response?.isPublished ? 'published' : 'unpublished';
+        const status = (response as any)?.isPublished ? 'published' : 'unpublished';
         toast.success(`Event ${status} successfully!`);
         refetchEvents();
       },
@@ -108,9 +108,18 @@ export const useEvents = () => {
     }
   );
 
+  // Handle the response data properly
+  const events = Array.isArray(eventsResponse) 
+    ? eventsResponse 
+    : (eventsResponse as any)?.data || [];
+  
+  const pagination = Array.isArray(eventsResponse) 
+    ? undefined 
+    : (eventsResponse as any)?.pagination;
+
   return {
-    events: Array.isArray(eventsResponse) ? eventsResponse : eventsResponse?.data || [],
-    pagination: eventsResponse?.pagination,
+    events,
+    pagination,
     isEventsLoading,
     isEventsError,
     queryParams,
