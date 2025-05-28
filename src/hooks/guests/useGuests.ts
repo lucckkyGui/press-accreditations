@@ -2,11 +2,12 @@
 import { useGuestQuery } from './useGuestQuery';
 import { useGuestMutations } from './useGuestMutations';
 import { useBulkGuestMutations } from './useBulkGuestMutations';
+import { GuestsQueryParams } from '@/types/guest/guest';
 
 /**
  * Main hook that combines all guest-related hooks
  */
-export const useGuests = (eventId?: string) => {
+export const useGuests = (eventId?: string, initialQueryParams?: Partial<GuestsQueryParams>) => {
   const {
     guests,
     pagination,
@@ -15,7 +16,7 @@ export const useGuests = (eventId?: string) => {
     isGuestsLoading,
     isGuestsError,
     refetchGuests
-  } = useGuestQuery(eventId);
+  } = useGuestQuery(eventId, initialQueryParams);
 
   const {
     createGuest,

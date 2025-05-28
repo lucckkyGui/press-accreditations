@@ -36,7 +36,12 @@ export const useGuestMutations = (refetchGuests: () => void) => {
     (guests: Array<Partial<Guest> & { eventId: string }>) => guestService.createGuests(guests),
     {
       onSuccess: (response) => {
-        toast.success(`${response?.length || 0} guests added successfully!`);
+        const count = (response && typeof response === 'object' && 'length' in response)
+          ? (response as any).length
+          : Array.isArray(response)
+            ? response.length
+            : 0;
+        toast.success(`${count} guests added successfully!`);
         refetchGuests();
       },
       onError: (err) => {

@@ -9,7 +9,7 @@ import { useState } from 'react';
 /**
  * Hook for querying guests data
  */
-export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQueryParams) => {
+export const useGuestQuery = (eventId?: string, initialQueryParams?: Partial<GuestsQueryParams>) => {
   const [queryParams, setQueryParams] = useState<GuestsQueryParams>({
     page: 0,
     pageSize: 10,
@@ -37,24 +37,6 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQuery
     }
   );
 
-  // Query for fetching a single guest
-  const {
-    data: guestResponse,
-    isLoading: isGuestLoading,
-    isError: isGuestError,
-    refetch: refetchGuest
-  } = useApiQuery(
-    ['guest', eventId],
-    () => guestService.getGuestById(eventId!),
-    {
-      enabled: !!eventId,
-      onError: (err) => {
-        toast.error('Failed to load guest');
-        console.error('Error loading guest:', err);
-      }
-    }
-  );
-
   // Handle the response data properly with better type safety
   const guests: Guest[] = Array.isArray(guestsResponse) 
     ? guestsResponse 
@@ -66,19 +48,13 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: GuestsQuery
     ? (guestsResponse as any).pagination
     : undefined;
 
-  const guest = guestResponse;
-
   return {
     guests,
     pagination,
-    guest,
     queryParams,
     setQueryParams,
     isGuestsLoading,
     isGuestsError,
-    isGuestLoading,
-    isGuestError,
-    refetchGuests,
-    refetchGuest
+    refetchGuests
   };
 };
