@@ -76,3 +76,16 @@ export interface Guest {
   notes?: string;
   customFieldValues?: Record<string, any>;
 }
+
+export interface ProcessedGuest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  pesel: string;
+  company: string;
+  phone: string;
+  zone: GuestZone;
+  valid: boolean;
+  errors: string[];
+  selected: boolean;
+}
