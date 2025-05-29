@@ -9,8 +9,28 @@ import GuestsBulkEmailTab from './GuestsBulkEmailTab';
 
 interface GuestsTabsProps {
   guests: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+  search: string;
+  statusFilter: any;
+  zoneFilter: any;
+  selectedGuests: any[];
   selectedEvent: any;
-  [key: string]: any;
+  isLoading: boolean;
+  setPage: (page: number) => void;
+  setPageSize: (size: number) => void;
+  setSearch: (search: string) => void;
+  setStatusFilter: (status: any) => void;
+  setZoneFilter: (zone: any) => void;
+  setSelectedGuests: (guests: any[]) => void;
+  handleEditGuest: (guest: any) => void;
+  handleDeleteGuest: (id: string) => void;
+  handleBulkEmail: () => void;
+  handleBulkStatusUpdate: (status: any) => void;
+  handleBulkZoneUpdate: (zone: any) => void;
+  handleBulkDeleteGuests: () => void;
+  handleEmailSent: () => void;
 }
 
 const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {

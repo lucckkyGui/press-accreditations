@@ -3,6 +3,7 @@ import React from 'react';
 import GuestForm from "@/components/guests/GuestForm";
 import EnhancedBulkGuestImport from "@/components/guests/EnhancedBulkGuestImport";
 import BulkEmailSender from "@/components/guests/BulkEmailSender";
+import { Guest } from "@/types";
 
 interface GuestsDialogsProps {
   showFormDialog: boolean;
@@ -15,8 +16,8 @@ interface GuestsDialogsProps {
   selectedEvent: any;
   selectedGuests: any[];
   isLoading: boolean;
-  handleSaveGuest: (guest: any) => void;
-  handleBulkImport: (guests: any[]) => void;
+  handleSaveGuest: (guest: Partial<Guest> & { eventId: string }) => Promise<void>;
+  handleBulkImport: (guests: Array<Partial<Guest> & { eventId: string }>) => Promise<void>;
   handleEmailSent: () => void;
 }
 
