@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,14 +21,19 @@ const Notifications = () => {
       // W rzeczywistej aplikacji tutaj byłoby zapytanie do API
       setTimeout(() => {
         // Mockowe dane wydarzenia
-        const mockEvent = {
+        const mockEvent: Event = {
           id: eventId || "1",
           name: "Konferencja Prasowa 2025",
           description: "Doroczna konferencja prasowa firmy XYZ prezentująca nowe produkty i plany na przyszły rok.",
           location: "Centrum Konferencyjne, Warszawa",
           startDate: new Date(2025, 3, 15),
+          endDate: new Date(2025, 3, 15, 18, 0),
           organizerId: "org-1",
+          organizationId: "org-1",
           isPublished: true,
+          createdAt: new Date(2024, 11, 1),
+          updatedAt: new Date(2024, 11, 15),
+          createdBy: "user-1"
         };
 
         // Mockowi goście
@@ -141,7 +145,7 @@ const Notifications = () => {
             status: "failed" as const,
           },
         ];
-
+        
         setEvent(mockEvent);
         setGuests(mockGuests);
         setNotifications(mockNotifications);

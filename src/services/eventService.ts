@@ -201,12 +201,16 @@ function mapDbEventToEvent(dbEvent: any): Event {
     description: dbEvent.description || "",
     location: dbEvent.location || "",
     startDate: new Date(dbEvent.start_date),
-    endDate: dbEvent.end_date ? new Date(dbEvent.end_date) : undefined,
+    endDate: dbEvent.end_date ? new Date(dbEvent.end_date) : new Date(dbEvent.start_date),
     organizerId: dbEvent.organizer_id || "",
+    organizationId: dbEvent.organizer_id || "", // Map to organizationId for compatibility
     isPublished: dbEvent.is_published || false,
     imageUrl: dbEvent.image_url,
     category: dbEvent.category,
-    maxGuests: dbEvent.max_guests
+    maxGuests: dbEvent.max_guests,
+    createdAt: new Date(dbEvent.created_at || Date.now()),
+    updatedAt: new Date(dbEvent.updated_at || Date.now()),
+    createdBy: dbEvent.organizer_id || "" // Use organizer_id as createdBy
   };
 }
 

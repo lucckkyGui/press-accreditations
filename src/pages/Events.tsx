@@ -88,8 +88,13 @@ const Events = () => {
       description: "Doroczna konferencja prasowa firmy XYZ prezentująca nowe produkty i plany na przyszły rok.",
       location: "Centrum Konferencyjne, Warszawa",
       startDate: new Date(2025, 3, 15),
+      endDate: new Date(2025, 3, 15, 18, 0),
       organizerId: "org-1",
+      organizationId: "org-1",
       isPublished: true,
+      createdAt: new Date(2024, 11, 1),
+      updatedAt: new Date(2024, 11, 15),
+      createdBy: "user-1"
     },
     {
       id: "2",
@@ -97,8 +102,13 @@ const Events = () => {
       description: "Oficjalne uruchomienie nowego produktu ABC na rynku polskim.",
       location: "Hotel Grand, Kraków",
       startDate: new Date(2025, 4, 22),
+      endDate: new Date(2025, 4, 22, 20, 0),
       organizerId: "org-1",
+      organizationId: "org-1",
       isPublished: true,
+      createdAt: new Date(2024, 11, 5),
+      updatedAt: new Date(2024, 11, 20),
+      createdBy: "user-1"
     },
     {
       id: "3",
@@ -106,8 +116,13 @@ const Events = () => {
       description: "Prezentacja najnowszych technologii i trendów w branży.",
       location: "Expo Center, Poznań",
       startDate: new Date(2025, 5, 10),
+      endDate: new Date(2025, 5, 12, 17, 0),
       organizerId: "org-1",
+      organizationId: "org-1",
       isPublished: false,
+      createdAt: new Date(2024, 11, 10),
+      updatedAt: new Date(2024, 11, 25),
+      createdBy: "user-1"
     },
     {
       id: "4",
@@ -115,8 +130,13 @@ const Events = () => {
       description: "Spotkanie z dziennikarzami i prezentacja wyników kwartalnych.",
       location: "Biuro Główne, Warszawa",
       startDate: new Date(2024, 3, 5),
+      endDate: new Date(2024, 3, 5, 16, 0),
       organizerId: "org-1",
+      organizationId: "org-1",
       isPublished: true,
+      createdAt: new Date(2024, 2, 1),
+      updatedAt: new Date(2024, 2, 15),
+      createdBy: "user-1"
     },
     {
       id: "5",
@@ -124,8 +144,13 @@ const Events = () => {
       description: "Prezentacja strategii rozwoju firmy na kolejne lata.",
       location: "Wirtualne spotkanie online",
       startDate: new Date(),
+      endDate: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours later
       organizerId: "org-1",
+      organizationId: "org-1",
       isPublished: true,
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      createdBy: "user-1"
     },
   ]);
 
@@ -136,16 +161,25 @@ const Events = () => {
       const startDateTime = new Date(data.startDate);
       startDateTime.setHours(hours, minutes, 0);
       
+      // End date is 2 hours after start by default
+      const endDateTime = new Date(startDateTime);
+      endDateTime.setHours(startDateTime.getHours() + 2);
+      
       const newEvent: Event = {
         id: Math.random().toString(36).substr(2, 9),
         name: data.name,
         description: data.description || "",
         location: data.location,
         startDate: startDateTime,
+        endDate: endDateTime,
         organizerId: "org-1", // Mock ID
+        organizationId: "org-1", // Mock ID
         isPublished: data.isPublished,
         maxGuests: data.maxGuests,
         category: data.category,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: "user-1" // Mock user ID
       };
       
       setEvents([...events, newEvent]);

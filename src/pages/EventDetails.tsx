@@ -30,14 +30,19 @@ const EventDetails = () => {
   useEffect(() => {
     // W rzeczywistej aplikacji tutaj byłoby zapytanie do API
     setTimeout(() => {
-      const mockEvent = {
+      const mockEvent: Event = {
         id: eventId || "1",
         name: "Konferencja Prasowa 2025",
         description: "Doroczna konferencja prasowa firmy XYZ prezentująca nowe produkty i plany na przyszły rok.",
         location: "Centrum Konferencyjne, Warszawa",
         startDate: new Date(2025, 3, 15),
+        endDate: new Date(2025, 3, 15, 18, 0), // 6 PM same day
         organizerId: "org-1",
+        organizationId: "org-1",
         isPublished: true,
+        createdAt: new Date(2024, 11, 1),
+        updatedAt: new Date(2024, 11, 15),
+        createdBy: "user-1"
       };
       
       const mockGuests = [

@@ -382,7 +382,7 @@ const Guests = () => {
       />
 
       <GuestForm
-        open={showFormDialog}
+        isOpen={showFormDialog}
         onOpenChange={setShowFormDialog}
         guest={selectedGuest}
         eventId={selectedEvent?.id || ''}
