@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Guest, GuestStatus, GuestZone } from "@/types";
-import { GuestDB, GuestsQueryParams } from "@/types/guest/guest";
+import { GuestDB, GuestsQueryParams, BulkEmailRequest } from "@/types/guest/guest";
 import { ApiResponse } from "@/types/api/apiResponse";
 import { v4 as uuidv4 } from "uuid";
 
@@ -36,7 +35,7 @@ export const guestService = {
         }
 
         if (params.search) {
-          query = query.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%`);
+          query = query.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%,pesel.ilike.%${params.search}%`);
         }
 
         // Handle pagination
@@ -99,6 +98,7 @@ export const guestService = {
           first_name: guest.firstName,
           last_name: guest.lastName,
           email: guest.email,
+          pesel: guest.pesel,
           company: guest.company,
           phone: guest.phone,
           zone: guest.zone || 'general',
@@ -127,6 +127,7 @@ export const guestService = {
         first_name: guest.firstName,
         last_name: guest.lastName,
         email: guest.email,
+        pesel: guest.pesel,
         company: guest.company,
         phone: guest.phone,
         zone: guest.zone || 'general',
@@ -159,6 +160,7 @@ export const guestService = {
       if (guest.firstName !== undefined) updateData.first_name = guest.firstName;
       if (guest.lastName !== undefined) updateData.last_name = guest.lastName;
       if (guest.email !== undefined) updateData.email = guest.email;
+      if (guest.pesel !== undefined) updateData.pesel = guest.pesel;
       if (guest.company !== undefined) updateData.company = guest.company;
       if (guest.phone !== undefined) updateData.phone = guest.phone;
       if (guest.zone !== undefined) updateData.zone = guest.zone;
@@ -278,6 +280,33 @@ export const guestService = {
       console.error(`Error sending invitations:`, error);
       return { error: { message: error.message, code: 'SEND_INVITATIONS_ERROR' } };
     }
+  },
+
+  /**
+   * Send bulk email invitations
+   */
+  async sendBulkInvitations(request: BulkEmailRequest): Promise<ApiResponse<void>> {
+    try {
+      console.log('Sending bulk invitations:', request);
+      
+      // Tutaj będzie integracja z rzeczywistym dostawcą email
+      // Na razie symulujemy wysyłkę
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('guests')
+        .update({ 
+          invitation_sent_at: now,
+          email_status: 'sent'
+        })
+        .in('id', request.guestIds);
+
+      if (error) throw error;
+
+      return { data: undefined };
+    } catch (error) {
+      console.error('Error sending bulk invitations:', error);
+      return { error: { message: error.message, code: 'SEND_BULK_INVITATIONS_ERROR' } };
+    }
   }
 };
 
@@ -290,6 +319,7 @@ function mapDbGuestToGuest(dbGuest: any): Guest {
     firstName: dbGuest.first_name,
     lastName: dbGuest.last_name,
     email: dbGuest.email,
+    pesel: dbGuest.pesel,
     company: dbGuest.company,
     phone: dbGuest.phone,
     zone: dbGuest.zone as GuestZone, 

@@ -12,6 +12,7 @@ export interface GuestDB {
   first_name: string;
   last_name: string;
   email: string;
+  pesel?: string;
   company?: string;
   phone?: string;
   zone: string;
@@ -35,4 +36,21 @@ export interface GuestsQueryParams extends PaginationParams, FilterParams {
   emailStatus?: GuestEmailStatus | "all";
   ticketTypeId?: string;
   tags?: string[];
+}
+
+export interface BulkEmailRequest {
+  eventId: string;
+  guestIds: string[];
+  templateId?: string;
+  subject: string;
+  customMessage?: string;
+}
+
+export interface EmailDeliveryStats {
+  sent: number;
+  delivered: number;
+  opened: number;
+  clicked: number;
+  failed: number;
+  bounced: number;
 }

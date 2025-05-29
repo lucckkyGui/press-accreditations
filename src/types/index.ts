@@ -1,28 +1,65 @@
+export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
+export type GuestZone = "vip" | "press" | "staff" | "general";
+export type GuestEmailStatus = "sent" | "opened" | "failed" | "pending";
 
-// Public facing types
-export type Event = {
+export interface Pagination {
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface ApiResponse<T = any> {
+  data?: T;
+  error?: {
+    message: string;
+    code: string;
+  };
+  pagination?: Pagination;
+}
+
+export interface Event {
   id: string;
   name: string;
-  description: string;
-  location: string;
+  description?: string;
+  location?: string;
   startDate: Date;
-  endDate?: Date;
-  organizerId: string;
-  isPublished?: boolean;
+  endDate: Date;
+  isPublished: boolean;
+  organizationId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
   imageUrl?: string;
-  category?: string;
-  maxGuests?: number;
-};
+  customFields?: Record<string, any>;
+}
 
-export type GuestZone = 'vip' | 'press' | 'staff' | 'general';
-export type GuestStatus = 'invited' | 'confirmed' | 'declined' | 'checked-in';
-export type GuestEmailStatus = 'sent' | 'opened' | 'failed' | 'unknown';
+export interface Organization {
+  id: string;
+  name: string;
+  description?: string;
+  logoUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
 
-export type Guest = {
+export interface User {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+  organizationId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Guest {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  pesel?: string;
   company?: string;
   phone?: string;
   zone: GuestZone;
@@ -32,14 +69,6 @@ export type Guest = {
   invitationSentAt?: Date;
   invitationOpenedAt?: Date;
   checkedInAt?: Date;
-};
-
-export type InvitationTemplate = {
-  id: string;
-  name: string;
-  subject: string;
-  content: string;
-  isDefault: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
+  notes?: string;
+  customFieldValues?: Record<string, any>;
+}

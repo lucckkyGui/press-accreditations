@@ -15,6 +15,10 @@ const guestFormSchema = z.object({
   firstName: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
   lastName: z.string().min(2, "Nazwisko musi mieć co najmniej 2 znaki"),
   email: z.string().email("Podaj prawidłowy adres email"),
+  pesel: z.string().optional().refine((pesel) => {
+    if (!pesel) return true; // PESEL jest opcjonalny
+    return /^\d{11}$/.test(pesel);
+  }, "PESEL musi składać się z 11 cyfr"),
   phone: z.string().optional(),
   company: z.string().optional(),
   zone: z.enum(['vip', 'press', 'staff', 'general']),
@@ -47,6 +51,7 @@ const GuestForm: React.FC<GuestFormProps> = ({
       firstName: guest?.firstName || "",
       lastName: guest?.lastName || "",
       email: guest?.email || "",
+      pesel: guest?.pesel || "",
       phone: guest?.phone || "",
       company: guest?.company || "",
       zone: guest?.zone || "general",
@@ -120,6 +125,25 @@ const GuestForm: React.FC<GuestFormProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField
             control={form.control}
+            name="pesel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>PESEL (opcjonalnie)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="80010112345" 
+                    maxLength={11}
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
             name="phone"
             render={({ field }) => (
               <FormItem>
@@ -135,25 +159,25 @@ const GuestForm: React.FC<GuestFormProps> = ({
               </FormItem>
             )}
           />
-          
-          <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Firma</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="ABC Corp" 
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+        
+        <FormField
+          control={form.control}
+          name="company"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Firma</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="ABC Corp" 
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField

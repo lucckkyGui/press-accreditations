@@ -12,6 +12,9 @@ import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AdvancedFilters, FilterOption, FilterValues } from "@/components/common/AdvancedFilters";
 import { BulkActions } from "@/components/common/BulkActions";
+import BulkEmailSender from "@/components/guests/BulkEmailSender";
+import EnhancedBulkGuestImport from "@/components/guests/EnhancedBulkGuestImport";
+import EmailTemplateEditor from "@/components/guests/EmailTemplateEditor";
 
 const Guests = () => {
   const [guests, setGuests] = useState<Guest[]>([
@@ -75,6 +78,10 @@ const Guests = () => {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [selectedGuestIds, setSelectedGuestIds] = useState<string[]>([]);
   const [advancedFilters, setAdvancedFilters] = useState<FilterValues>({});
+  
+  const [emailSenderOpen, setEmailSenderOpen] = useState(false);
+  const [templateEditorOpen, setTemplateEditorOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   
   // Opcje dla zaawansowanych filtrów
   const filterOptions: FilterOption[] = [
@@ -175,6 +182,24 @@ const Guests = () => {
     toast.success(`Zaimportowano ${importedGuests.length} gości`);
   };
 
+  const handleSendBulkEmails = () => {
+    if (selectedGuestIds.length === 0) {
+      toast.error('Nie wybrano żadnych gości');
+      return;
+    }
+    setEmailSenderOpen(true);
+  };
+
+  const handleEmailSent = () => {
+    // Aktualizuj status email dla wybranych gości
+    setGuests(guests.map(guest => 
+      selectedGuestIds.includes(guest.id) 
+        ? { ...guest, emailStatus: 'sent', invitationSentAt: new Date() }
+        : guest
+    ));
+    setSelectedGuestIds([]);
+  };
+
   const handleViewQR = (guest: Guest) => {
     setCurrentQRGuest(guest);
     setQrDialogOpen(true);
@@ -204,16 +229,13 @@ const Guests = () => {
     toast.success(`Zaproszenie wysłane ponownie do ${guest.firstName} ${guest.lastName}`);
   };
 
-  // Masowe operacje
+  // Zaktualizowane masowe operacje
   const bulkActions = [
     {
-      id: "resend",
+      id: "sendEmails",
       label: "Wyślij zaproszenia",
       icon: <Mail className="h-4 w-4" />,
-      onClick: (ids: string[]) => {
-        toast.success(`Wysłano zaproszenia do ${ids.length} gości`);
-        setSelectedGuestIds([]);
-      }
+      onClick: handleSendBulkEmails
     },
     {
       id: "changeZone",
@@ -251,12 +273,27 @@ const Guests = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Goście</h1>
           <p className="text-muted-foreground">
-            Zarządzaj listą gości, wysyłaj zaproszenia.
+            Zarządzaj listą gości, wysyłaj zaproszenia z QR kodami.
           </p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
-          <ImportGuestsDialog onImport={handleImportGuests} />
+          <Button 
+            variant="outline" 
+            onClick={() => setTemplateEditorOpen(true)}
+            className="whitespace-nowrap"
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Szablony email
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setImportDialogOpen(true)}
+            className="whitespace-nowrap"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importuj z pliku
+          </Button>
           <Button variant="outline" className="whitespace-nowrap">
             <Plus className="mr-2 h-4 w-4" />
             Dodaj gościa
@@ -447,6 +484,31 @@ const Guests = () => {
         guest={selectedGuest} 
         open={detailsDialogOpen} 
         onOpenChange={setDetailsDialogOpen} 
+      />
+
+      {/* Nowe dialogi */}
+      <BulkEmailSender
+        open={emailSenderOpen}
+        onOpenChange={setEmailSenderOpen}
+        selectedGuests={guests.filter(g => selectedGuestIds.includes(g.id))}
+        eventId="mock-event-id"
+        onEmailSent={handleEmailSent}
+      />
+
+      <EnhancedBulkGuestImport
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onImport={handleImportGuests}
+        eventId="mock-event-id"
+      />
+
+      <EmailTemplateEditor
+        open={templateEditorOpen}
+        onOpenChange={setTemplateEditorOpen}
+        onTemplateSave={(template) => {
+          console.log('Saved template:', template);
+          toast.success('Szablon został zapisany');
+        }}
       />
     </div>
   );
