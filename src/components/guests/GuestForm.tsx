@@ -1,258 +1,194 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Guest, GuestZone, GuestStatus } from '@/types';
 
-import React from 'react';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Guest, GuestZone, GuestStatus } from "@/types";
-import { toast } from "sonner";
-
-// Form validation schema
-const guestFormSchema = z.object({
-  firstName: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
-  lastName: z.string().min(2, "Nazwisko musi mieć co najmniej 2 znaki"),
-  email: z.string().email("Podaj prawidłowy adres email"),
-  pesel: z.string().optional().refine((pesel) => {
-    if (!pesel) return true; // PESEL jest opcjonalny
-    return /^\d{11}$/.test(pesel);
-  }, "PESEL musi składać się z 11 cyfr"),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  zone: z.enum(['vip', 'press', 'staff', 'general']),
-  status: z.enum(['invited', 'confirmed', 'declined', 'checked-in']).default('invited'),
-});
-
-type GuestFormValues = z.infer<typeof guestFormSchema>;
-
-interface GuestFormProps {
-  guest?: Guest;
+export interface GuestFormProps {
+  guest?: Guest | null;
   eventId: string;
   onSubmit: (guest: Partial<Guest> & { eventId: string }) => Promise<void>;
   onCancel: () => void;
-  isSubmitting?: boolean;
+  isSubmitting: boolean;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const GuestForm: React.FC<GuestFormProps> = ({ 
-  guest, 
-  eventId,
-  onSubmit, 
-  onCancel,
-  isSubmitting = false
-}) => {
-  const isEditMode = !!guest;
-
-  // Initialize form with default values or guest data
-  const form = useForm<GuestFormValues>({
-    resolver: zodResolver(guestFormSchema),
-    defaultValues: {
-      firstName: guest?.firstName || "",
-      lastName: guest?.lastName || "",
-      email: guest?.email || "",
-      pesel: guest?.pesel || "",
-      phone: guest?.phone || "",
-      company: guest?.company || "",
-      zone: guest?.zone || "general",
-      status: guest?.status || "invited",
-    },
+const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, onOpenChange }: GuestFormProps) => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    pesel: '',
+    company: '',
+    phone: '',
+    zone: 'general' as GuestZone,
+    status: 'invited' as GuestStatus,
+    notes: ''
   });
 
-  const handleSubmit = async (values: GuestFormValues) => {
-    try {
-      await onSubmit({
-        ...values,
-        eventId
+  useEffect(() => {
+    if (guest) {
+      setFormData({
+        firstName: guest.firstName || '',
+        lastName: guest.lastName || '',
+        email: guest.email || '',
+        pesel: guest.pesel || '',
+        company: guest.company || '',
+        phone: guest.phone || '',
+        zone: guest.zone || 'general',
+        status: guest.status || 'invited',
+        notes: guest.notes || ''
       });
-    } catch (error) {
-      console.error('Error in guest form submission:', error);
-      toast.error('Wystąpił błąd podczas zapisywania gościa. Spróbuj ponownie.');
+    } else {
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        pesel: '',
+        company: '',
+        phone: '',
+        zone: 'general',
+        status: 'invited',
+        notes: ''
+      });
     }
+  }, [guest, isOpen]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit({ ...formData, eventId });
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Imię</FormLabel>
-                <FormControl>
-                  <Input placeholder="Jan" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nazwisko</FormLabel>
-                <FormControl>
-                  <Input placeholder="Kowalski" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>{guest ? 'Edytuj gościa' : 'Dodaj nowego gościa'}</DialogTitle>
+        </DialogHeader>
         
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="jan.kowalski@example.com" 
-                  type="email"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField
-            control={form.control}
-            name="pesel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>PESEL (opcjonalnie)</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="80010112345" 
-                    maxLength={11}
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefon</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="+48 123 456 789" 
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="company"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Firma</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="ABC Corp" 
-                  {...field}
-                  value={field.value || ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField
-            control={form.control}
-            name="zone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Strefa dostępu</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Wybierz strefę dostępu" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="general">Ogólna</SelectItem>
-                    <SelectItem value="vip">VIP</SelectItem>
-                    <SelectItem value="press">Press</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Strefa dostępu określa uprawnienia gościa podczas wydarzenia
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {isEditMode && (
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Wybierz status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="invited">Zaproszony</SelectItem>
-                      <SelectItem value="confirmed">Potwierdzony</SelectItem>
-                      <SelectItem value="declined">Odrzucony</SelectItem>
-                      <SelectItem value="checked-in">Obecny</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Status określa aktualny stan zaproszenia gościa
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">Imię *</Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Nazwisko *</Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              required
             />
-          )}
-        </div>
-        
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onCancel} type="button">
-            Anuluj
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Zapisywanie..." : isEditMode ? "Zapisz zmiany" : "Dodaj gościa"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          </div>
+
+          <div>
+            <Label htmlFor="pesel">PESEL</Label>
+            <Input
+              id="pesel"
+              value={formData.pesel}
+              onChange={(e) => handleInputChange('pesel', e.target.value)}
+              placeholder="11 cyfr"
+              maxLength={11}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="company">Firma</Label>
+              <Input
+                id="company"
+                value={formData.company}
+                onChange={(e) => handleInputChange('company', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Telefon</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="zone">Strefa</Label>
+              <Select value={formData.zone} onValueChange={(value: GuestZone) => handleInputChange('zone', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">Ogólna</SelectItem>
+                  <SelectItem value="vip">VIP</SelectItem>
+                  <SelectItem value="press">Press</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value: GuestStatus) => handleInputChange('status', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="invited">Zaproszony</SelectItem>
+                  <SelectItem value="confirmed">Potwierdzony</SelectItem>
+                  <SelectItem value="declined">Odrzucony</SelectItem>
+                  <SelectItem value="checked-in">Obecny</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="notes">Notatki</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleInputChange('notes', e.target.value)}
+              placeholder="Dodatkowe informacje o gościu..."
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Anuluj
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Zapisywanie...' : (guest ? 'Zaktualizuj' : 'Dodaj')}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

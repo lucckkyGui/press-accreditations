@@ -5,28 +5,13 @@ import { GuestsQueryParams } from "@/types/guest/guest";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Pagination,
-} from "@/components/ui/pagination"
 import { Plus, Edit, Trash2, Mail, CheckCheck, UserPlus, Upload } from 'lucide-react';
 import { toast } from "sonner";
 import { confirm } from "@/components/ui/confirm-dialog"
 import GuestForm from "@/components/guests/GuestForm";
 import BulkEmailSender from "@/components/guests/BulkEmailSender";
-import { Badge } from "@/components/ui/badge";
 import { GuestsTable } from "@/components/guests/GuestsTable";
-import BulkGuestImport from "@/components/guests/BulkGuestImport";
-import { EnhancedBulkGuestImport } from "@/components/guests/EnhancedBulkGuestImport";
+import EnhancedBulkGuestImport from "@/components/guests/EnhancedBulkGuestImport";
 
 interface GuestsProps {
   eventId: string;
@@ -77,7 +62,6 @@ const Guests = () => {
   }, [page, pageSize, search, statusFilter, zoneFilter, selectedEvent]);
 
   useEffect(() => {
-    // Pobierz dane gości tylko, gdy istnieje selectedEvent
     if (selectedEvent) {
       fetchGuests();
     }
@@ -89,22 +73,22 @@ const Guests = () => {
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
-    setPage(0); // Reset to the first page when page size changes
+    setPage(0);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    setPage(0); // Reset to the first page when searching
+    setPage(0);
   };
 
   const handleStatusFilterChange = (status: GuestStatus | 'all') => {
     setStatusFilter(status);
-    setPage(0); // Reset to the first page when status filter changes
+    setPage(0);
   };
 
   const handleZoneFilterChange = (zone: GuestZone | 'all') => {
     setZoneFilter(zone);
-    setPage(0); // Reset to the first page when zone filter changes
+    setPage(0);
   };
 
   const handleCreateGuest = () => {
@@ -149,10 +133,8 @@ const Guests = () => {
     try {
       let result;
       if (selectedGuest) {
-        // Update existing guest
         result = await guestService.updateGuest(selectedGuest.id, guest);
       } else {
-        // Create new guest
         result = await guestService.createGuest(guest);
       }
 
@@ -297,7 +279,6 @@ const Guests = () => {
       } else {
         toast.success(`Zaimportowano ${guests.length} gości`);
         setShowImportDialog(false);
-        // Refresh guest list
         if (selectedEvent) {
           fetchGuests();
         }
