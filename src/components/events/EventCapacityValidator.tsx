@@ -224,9 +224,9 @@ const EventCapacityValidator: React.FC<EventCapacityValidatorProps> = ({
           <AlertDescription>
             <strong>Rekomendacje:</strong>
             <ul className="list-disc list-inside mt-2 space-y-1 text-xs">
-              <li>Dla grup >2000 gości użyj strategii Enterprise retry</li>
+              <li>Dla grup większych niż 2000 gości użyj strategii Enterprise retry</li>
               <li>Planuj wysyłkę w godzinach o niskim ruchu (2:00-6:00)</li>
-              <li>Monitoruj delivery rate - cel: >95%</li>
+              <li>Monitoruj delivery rate - cel: powyżej 95%</li>
               <li>Przygotuj backup plan dla failed emaili</li>
             </ul>
           </AlertDescription>
