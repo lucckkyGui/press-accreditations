@@ -194,6 +194,118 @@ export type Database = {
           },
         ]
       }
+      email_campaigns: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          event_id: string
+          failed_count: number | null
+          id: string
+          name: string
+          opened_count: number | null
+          sent_count: number | null
+          started_at: string | null
+          status: string
+          total_recipients: number
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          event_id: string
+          failed_count?: number | null
+          id?: string
+          name: string
+          opened_count?: number | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          total_recipients?: number
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          event_id?: string
+          failed_count?: number | null
+          id?: string
+          name?: string
+          opened_count?: number | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string
+          total_recipients?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_queue: {
+        Row: {
+          attempts: number | null
+          content: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          invitation_id: string
+          last_attempt_at: string | null
+          max_attempts: number | null
+          priority: number | null
+          recipient_email: string
+          scheduled_for: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          content: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          invitation_id: string
+          last_attempt_at?: string | null
+          max_attempts?: number | null
+          priority?: number | null
+          recipient_email: string
+          scheduled_for?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          content?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          invitation_id?: string
+          last_attempt_at?: string | null
+          max_attempts?: number | null
+          priority?: number | null
+          recipient_email?: string
+          scheduled_for?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           category: string | null
@@ -339,6 +451,76 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      invitations: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          generated_at: string | null
+          guest_id: string
+          id: string
+          is_used: boolean | null
+          metadata: Json | null
+          opened_at: string | null
+          qr_code_data: string
+          sent_at: string | null
+          template_id: string | null
+          updated_at: string | null
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          generated_at?: string | null
+          guest_id: string
+          id?: string
+          is_used?: boolean | null
+          metadata?: Json | null
+          opened_at?: string | null
+          qr_code_data: string
+          sent_at?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          generated_at?: string | null
+          guest_id?: string
+          id?: string
+          is_used?: boolean | null
+          metadata?: Json | null
+          opened_at?: string | null
+          qr_code_data?: string
+          sent_at?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "invitation_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_documents: {
         Row: {
