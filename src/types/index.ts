@@ -1,3 +1,4 @@
+
 export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
 export type GuestZone = "vip" | "press" | "staff" | "general";
 export type GuestEmailStatus = "sent" | "opened" | "failed" | "pending";
@@ -31,6 +32,9 @@ export interface Event {
   createdBy: string;
   imageUrl?: string;
   customFields?: Record<string, any>;
+  category?: string;
+  maxGuests?: number;
+  organizerId?: string; // Compatibility field
 }
 
 export interface Organization {
