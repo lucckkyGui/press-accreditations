@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,7 +12,6 @@ import Events from "@/pages/Events";
 import Scanner from "@/pages/Scanner";
 import SettingsPage from "@/pages/Settings";
 import Notifications from "@/pages/Notifications";
-import Account from "@/pages/Account";
 import NotFound from "@/pages/NotFound";
 
 const AppRoutes = () => {
@@ -27,7 +27,6 @@ const AppRoutes = () => {
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/notifications" element={<Notifications />} />
-        <Route path="/account" element={<Account />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Calendar, Users, QrCode, Settings, BarChart3, Zap } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
