@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
+import HomePage from "@/pages/HomePage";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import EnhancedDashboard from "@/pages/EnhancedDashboard";
@@ -19,6 +21,7 @@ const AppRoutes = () => {
     <>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
