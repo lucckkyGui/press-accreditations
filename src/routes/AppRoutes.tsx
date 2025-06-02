@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +7,7 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import EnhancedDashboard from "@/pages/EnhancedDashboard";
 import Guests from "@/pages/Guests";
+import AdvancedGuests from "@/pages/AdvancedGuests";
 import Events from "@/pages/Events";
 import Scanner from "@/pages/Scanner";
 import SettingsPage from "@/pages/Settings";
@@ -23,6 +23,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
+        <Route path="/advanced-guests" element={<AdvancedGuests />} />
         <Route path="/events" element={<Events />} />
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/settings" element={<SettingsPage />} />

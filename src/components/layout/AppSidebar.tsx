@@ -1,6 +1,5 @@
-
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Zap } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -30,20 +29,26 @@ const navigation = [
     icon: Users,
   },
   {
+    title: "Advanced Guests",
+    url: "/advanced-guests",
+    icon: Shield,
+    isNew: true
+  },
+  {
     title: "Scanner",
     url: "/scanner",
     icon: QrCode,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
   },
   {
     title: "Enhanced Dashboard",
     url: "/enhanced-dashboard",
     icon: Zap,
     isNew: true
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
   },
 ];
 
