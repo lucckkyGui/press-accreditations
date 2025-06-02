@@ -1,66 +1,82 @@
-
-import React from 'react';
-import { 
-  Sidebar, 
-  SidebarContent,
-  useSidebar
-} from "@/components/ui/sidebar";
+import React from "react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
 import {
-  Home,
-  CalendarDays,
-  Settings,
-  Users,
-  QrCode,
-  Ticket,
-  BellRing,
-  Send
-} from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { useI18n } from '@/hooks/useI18n';
-import { useWindowSize } from '@/hooks/useWindowSize';
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
-const navigationItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Wydarzenia', href: '/events', icon: CalendarDays },
-  { name: 'Goście', href: '/guests', icon: Users },
-  { name: 'Skaner', href: '/scanner', icon: QrCode },
-  { name: 'Bilety', href: '/tickets', icon: Ticket },
-  { name: 'Powiadomienia', href: '/notifications', icon: BellRing },
-  { name: 'Komunikaty prasowe', href: '/press-releases', icon: Send },
-  { name: 'Ustawienia', href: '/settings', icon: Settings },
+const navigation = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: BarChart3,
+  },
+  {
+    title: "Events",
+    url: "/events",
+    icon: Calendar,
+  },
+  {
+    title: "Guests",
+    url: "/guests",
+    icon: Users,
+  },
+  {
+    title: "Scanner",
+    url: "/scanner",
+    icon: QrCode,
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+  },
+  {
+    title: "Enhanced Dashboard",
+    url: "/enhanced-dashboard",
+    icon: Zap,
+    isNew: true
+  },
 ];
 
-const AppSidebar: React.FC = () => {
+const AppSidebar = () => {
   const location = useLocation();
-  const { t } = useI18n();
-  const { openMobile, setOpenMobile } = useSidebar();
-  const { isMobile } = useWindowSize();
-
-  const handleNavClick = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
 
   return (
     <Sidebar>
       <SidebarContent>
-        <div className="py-2">
-          {navigationItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              className={({ isActive }) =>
-                `flex items-center px-4 md:px-6 py-2 text-sm font-medium rounded-md transition-colors hover:bg-secondary hover:text-secondary-foreground ${isActive ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground'
-                }`
-              }
-              onClick={handleNavClick}
-            >
-              <item.icon className="w-4 h-4 mr-2" />
-              {t(item.name)}
-            </NavLink>
-          ))}
-        </div>
+        <SidebarGroup>
+          <SidebarGroupLabel>Press Acreditations</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigation.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      {item.isNew && (
+                        <span className="ml-auto bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                          NEW
+                        </span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

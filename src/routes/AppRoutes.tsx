@@ -1,55 +1,38 @@
-
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import HomePage from '@/pages/HomePage';
-import Dashboard from '@/pages/Dashboard';
-import Events from '@/pages/Events';
-import Guests from '@/pages/Guests';
-import EventDetails from '@/pages/EventDetails';
-import Settings from '@/pages/Settings';
-import Login from '@/pages/Login';
-import UserProfile from '@/pages/UserProfile';
-import NotFound from '@/pages/NotFound';
-import Scanner from '@/pages/Scanner';
-import Ticketing from '@/pages/Ticketing';
-import Notifications from '@/pages/Notifications';
-import Purchase from '@/pages/Purchase';
-import MainLayout from '@/components/layout/MainLayout';
-import AccreditationRequest from '@/pages/AccreditationRequest';
-import AccreditationEvents from '@/pages/AccreditationEvents';
-import AccreditationCategories from '@/pages/AccreditationCategories';
-import PressReleasePage from '@/pages/PressReleasePage';
-import MediaPortalPage from '@/pages/MediaPortalPage';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import EnhancedDashboard from "@/pages/EnhancedDashboard";
+import Guests from "@/pages/Guests";
+import Events from "@/pages/Events";
+import Scanner from "@/pages/Scanner";
+import SettingsPage from "@/pages/Settings";
+import Notifications from "@/pages/Notifications";
+import Account from "@/pages/Account";
+import NotFound from "@/pages/NotFound";
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/purchase" element={<Purchase />} />
-      <Route path="/accreditation/request" element={<AccreditationRequest />} />
-      <Route path="/accreditation/events" element={<AccreditationEvents />} />
-      
-      {/* Protected Routes */}
-      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
+        <Route path="/events" element={<Events />} />
         <Route path="/scanner" element={<Scanner />} />
-        <Route path="/tickets" element={<Ticketing />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/accreditation/categories" element={<AccreditationCategories />} />
-        <Route path="/press-releases" element={<PressReleasePage />} />
-        <Route path="/media-portal" element={<MediaPortalPage />} />
-        <Route path="/media-portal/:eventId" element={<MediaPortalPage />} />
-      </Route>
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/account" element={<Account />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+      <SonnerToaster />
+    </>
   );
 };
 
