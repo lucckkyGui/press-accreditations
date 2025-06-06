@@ -4,6 +4,12 @@ import { pl } from "../i18n/pl";
 import { en } from "../i18n/en";
 import { es } from "../i18n/es";
 import { zh } from "../i18n/zh";
+import { hi } from "../i18n/hi";
+import { ar } from "../i18n/ar";
+import { pt } from "../i18n/pt";
+import { ru } from "../i18n/ru";
+import { ja } from "../i18n/ja";
+import { de } from "../i18n/de";
 import { supportedLanguages, type SupportedLanguage } from "../i18n/languages";
 
 // Create a type that represents the full translation structure
@@ -57,17 +63,23 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
 
   const [locale, setLocale] = useState<SupportedLanguage>(getDefaultLocale());
   
-  const getTranslations = (locale: SupportedLanguage): TranslationsType => {
+  const getTranslations = (locale: SupportedLanguage): any => {
     switch (locale) {
       case 'pl': return pl;
       case 'en': return en;
       case 'es': return es;
       case 'zh': return zh;
+      case 'hi': return hi;
+      case 'ar': return ar;
+      case 'pt': return pt;
+      case 'ru': return ru;
+      case 'ja': return ja;
+      case 'de': return de;
       default: return en; // Fallback dla innych języków
     }
   };
 
-  const [translations, setTranslations] = useState<TranslationsType>(getTranslations(locale));
+  const [translations, setTranslations] = useState<any>(getTranslations(locale));
   
   const changeLocale = (newLocale: SupportedLanguage) => {
     setLocale(newLocale);
