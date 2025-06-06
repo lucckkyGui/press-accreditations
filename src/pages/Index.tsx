@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Index = () => {

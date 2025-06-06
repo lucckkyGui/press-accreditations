@@ -19,7 +19,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   title,
   subtitle,
   showBackButton = true,
-  backTo = "/",
+  backTo = "/dashboard",
   backLabel
 }) => {
   const navigate = useNavigate();
@@ -39,9 +39,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             )}
           </div>
           <div className="flex items-center gap-1 md:gap-2">
-            <Button variant="ghost" size={isMobile ? "sm" : "default"} onClick={() => navigate("/")}>
+            <Button variant="ghost" size={isMobile ? "sm" : "default"} onClick={() => navigate("/dashboard")}>
               <Home className="h-4 w-4" />
-              {!isMobile && <span className="ml-2">Home</span>}
+              {!isMobile && <span className="ml-2">Dashboard</span>}
             </Button>
             <Button variant="ghost" size={isMobile ? "sm" : "default"} onClick={() => navigate("/profile")}>
               <User className="h-4 w-4" />

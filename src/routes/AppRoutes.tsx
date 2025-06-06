@@ -16,6 +16,7 @@ import SettingsPage from "@/pages/Settings";
 import Notifications from "@/pages/Notifications";
 import Ticketing from "@/pages/Ticketing";
 import PressReleasePage from "@/pages/PressReleasePage";
+import UserProfile from "@/pages/UserProfile";
 import NotFound from "@/pages/NotFound";
 
 const AppRoutes = () => {
@@ -35,6 +36,7 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/ticketing" element={<Ticketing />} />
         <Route path="/press-releases" element={<PressReleasePage />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />

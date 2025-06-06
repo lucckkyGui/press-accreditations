@@ -28,7 +28,7 @@ const NotFound = () => {
         <p className="text-gray-500">
           Przepraszamy, nie mogliśmy znaleźć strony, której szukasz.
         </p>
-        <Button size="lg" className="mt-6" onClick={() => navigate("/")}>
+        <Button size="lg" className="mt-6" onClick={() => navigate("/home")}>
           Powrót do strony głównej
         </Button>
       </div>

@@ -5,7 +5,7 @@ import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "./hooks/auth"; // Fixed import
+import { AuthProvider } from "./hooks/auth/AuthProvider";
 import { I18nProvider } from "./hooks/useI18n";
 
 // Create a new QueryClient instance
