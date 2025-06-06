@@ -6,7 +6,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   
   useEffect(() => {
     if (!isLoading) {

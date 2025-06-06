@@ -3,7 +3,6 @@ import React, { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, QrCode, User, Home } from "lucide-react";
-import { useI18n } from "@/hooks/useI18n";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
 interface PageLayoutProps {
@@ -24,7 +23,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   backLabel
 }) => {
   const navigate = useNavigate();
-  const { t } = useI18n();
   const { isMobile } = useWindowSize();
 
   return (
@@ -43,11 +41,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           <div className="flex items-center gap-1 md:gap-2">
             <Button variant="ghost" size={isMobile ? "sm" : "default"} onClick={() => navigate("/")}>
               <Home className="h-4 w-4" />
-              {!isMobile && <span className="ml-2">{t('common.home')}</span>}
+              {!isMobile && <span className="ml-2">Home</span>}
             </Button>
             <Button variant="ghost" size={isMobile ? "sm" : "default"} onClick={() => navigate("/profile")}>
               <User className="h-4 w-4" />
-              {!isMobile && <span className="ml-2">{t('navigation.myProfile')}</span>}
+              {!isMobile && <span className="ml-2">Profile</span>}
             </Button>
           </div>
         </div>
@@ -69,7 +67,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
               onClick={() => navigate(backTo)}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {backLabel || t('common.back')}
+              {backLabel || "Back"}
             </Button>
           )}
         </div>
@@ -80,7 +78,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       {/* Footer */}
       <footer className="bg-muted py-4 md:py-6 border-t">
         <div className="container text-center text-sm">
-          <p className="text-muted-foreground">&copy; {new Date().getFullYear()} PressAccreditations. {t('components.footer.rightsReserved')}</p>
+          <p className="text-muted-foreground">&copy; {new Date().getFullYear()} PressAccreditations. All rights reserved.</p>
         </div>
       </footer>
     </div>
