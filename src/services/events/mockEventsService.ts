@@ -1,5 +1,4 @@
-
-import { Locale } from "@/hooks/useI18n";
+import { SupportedLanguage } from "@/hooks/useI18n";
 
 export interface MockEvent {
   id: string;
@@ -598,7 +597,7 @@ export const getMockEvents = (categoryId: string): MockEvent[] => {
 };
 
 // Category name mapping helper
-export const getCategoryName = (categoryId: string, language: Locale) => {
+export const getCategoryName = (categoryId: string, language: SupportedLanguage) => {
   const categories: Record<string, { en: string, pl: string }> = {
     "festivals": { en: "Festivals", pl: "Festiwale" },
     "sports": { en: "Sports Events", pl: "Wydarzenia sportowe" },
@@ -616,7 +615,7 @@ export const getCategoryName = (categoryId: string, language: Locale) => {
 };
 
 // Sort events by the given criteria
-export const sortEvents = (events: MockEvent[], sortOrder: EventSortOrder, language: Locale): MockEvent[] => {
+export const sortEvents = (events: MockEvent[], sortOrder: EventSortOrder, language: SupportedLanguage): MockEvent[] => {
   return [...events].sort((a, b) => {
     switch(sortOrder) {
       case "date-asc":
@@ -638,7 +637,7 @@ export const sortEvents = (events: MockEvent[], sortOrder: EventSortOrder, langu
 };
 
 // Filter events based on search query
-export const filterEventsBySearch = (events: MockEvent[], searchQuery: string, language: Locale): MockEvent[] => {
+export const filterEventsBySearch = (events: MockEvent[], searchQuery: string, language: SupportedLanguage): MockEvent[] => {
   if (!searchQuery) return events;
   
   return events.filter(event => 
