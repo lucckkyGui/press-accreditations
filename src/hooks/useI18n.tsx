@@ -2,19 +2,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { pl } from "../i18n/pl";
 import { en } from "../i18n/en";
-
-// Define allowed locale types
-export type Locale = "pl" | "en";
+import { es } from "../i18n/es";
+import { zh } from "../i18n/zh";
+import { supportedLanguages, type SupportedLanguage } from "../i18n/languages";
 
 // Create a type that represents the full translation structure
 export type TranslationsType = typeof en;
 
 interface I18nContextType {
-  locale: Locale;
-  currentLanguage: Locale; // Dodajemy tę właściwość
+  locale: SupportedLanguage;
+  currentLanguage: SupportedLanguage;
   t: (key: string, replacements?: Record<string, string>) => string;
-  changeLocale: (locale: Locale) => void;
-  locales: Locale[];
+  changeLocale: (locale: SupportedLanguage) => void;
+  locales: SupportedLanguage[];
+  supportedLanguages: typeof supportedLanguages;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -42,27 +43,39 @@ const applyReplacements = (text: string, replacements?: Record<string, string>):
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   // Default locale from browser or localStorage
-  const getDefaultLocale = (): Locale => {
-    const savedLocale = localStorage.getItem("locale") as Locale | null;
-    if (savedLocale && ["pl", "en"].includes(savedLocale)) {
+  const getDefaultLocale = (): SupportedLanguage => {
+    const savedLocale = localStorage.getItem("locale") as SupportedLanguage | null;
+    if (savedLocale && supportedLanguages.some(lang => lang.code === savedLocale)) {
       return savedLocale;
     }
     
     // Based on browser language
     const browserLang = navigator.language.split("-")[0];
-    return browserLang === "pl" ? "pl" : "en";
+    const supportedLang = supportedLanguages.find(lang => lang.code === browserLang);
+    return supportedLang ? supportedLang.code : "en";
   };
 
-  const [locale, setLocale] = useState<Locale>(getDefaultLocale());
-  const [translations, setTranslations] = useState<TranslationsType>(locale === "pl" ? pl : en);
+  const [locale, setLocale] = useState<SupportedLanguage>(getDefaultLocale());
   
-  const changeLocale = (newLocale: Locale) => {
+  const getTranslations = (locale: SupportedLanguage): TranslationsType => {
+    switch (locale) {
+      case 'pl': return pl;
+      case 'en': return en;
+      case 'es': return es;
+      case 'zh': return zh;
+      default: return en; // Fallback dla innych języków
+    }
+  };
+
+  const [translations, setTranslations] = useState<TranslationsType>(getTranslations(locale));
+  
+  const changeLocale = (newLocale: SupportedLanguage) => {
     setLocale(newLocale);
     localStorage.setItem("locale", newLocale);
     document.documentElement.lang = newLocale;
     
     // Update translations based on locale
-    setTranslations(newLocale === "pl" ? pl : en);
+    setTranslations(getTranslations(newLocale));
     
     // Add a visual feedback for language change
     document.documentElement.classList.add('language-transition');
@@ -83,10 +96,11 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   return (
     <I18nContext.Provider value={{ 
       locale, 
-      currentLanguage: locale, // Dodajemy currentLanguage jako alias dla locale
+      currentLanguage: locale,
       t, 
       changeLocale, 
-      locales: ["pl", "en"] 
+      locales: supportedLanguages.map(lang => lang.code),
+      supportedLanguages
     }}>
       {children}
     </I18nContext.Provider>

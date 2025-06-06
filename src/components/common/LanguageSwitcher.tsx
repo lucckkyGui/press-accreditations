@@ -11,56 +11,44 @@ interface LanguageSwitcherProps {
 }
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "full" }) => {
-  const { locale, changeLocale, locales, t } = useI18n();
-  
-  const getLanguageName = (code: string) => {
-    switch (code) {
-      case "pl": return "Polski";
-      case "en": return "English";
-      default: return code.toUpperCase();
-    }
-  };
-  
-  const getLanguageFlag = (code: string) => {
-    switch (code) {
-      case "pl": return "🇵🇱";
-      case "en": return "🇬🇧";
-      default: return "🌐";
-    }
-  };
+  const { locale, changeLocale, supportedLanguages, t } = useI18n();
 
   const handleLanguageChange = (newLocale: typeof locale) => {
     if (newLocale !== locale) {
       changeLocale(newLocale);
-      toast.success(t('notifications.languageChanged').replace('{language}', getLanguageName(newLocale)));
+      const selectedLang = supportedLanguages.find(lang => lang.code === newLocale);
+      toast.success(`Język zmieniony na ${selectedLang?.native || newLocale}`);
     }
   };
+
+  const currentLanguage = supportedLanguages.find(lang => lang.code === locale);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size={variant === "icon" ? "icon" : "sm"} className="gap-2">
           <Languages className="h-4 w-4" />
-          {variant === "full" && (
+          {variant === "full" && currentLanguage && (
             <>
-              <span className="mr-1">{getLanguageFlag(locale)}</span>
-              <span>{getLanguageName(locale)}</span>
+              <span className="mr-1">{currentLanguage.flag}</span>
+              <span>{currentLanguage.native}</span>
             </>
           )}
-          {variant === "compact" && (
-            <span>{getLanguageFlag(locale)}</span>
+          {variant === "compact" && currentLanguage && (
+            <span>{currentLanguage.flag}</span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-background">
-        {locales.map((loc) => (
+      <DropdownMenuContent align="end" className="bg-background max-h-80 overflow-y-auto">
+        {supportedLanguages.map((lang) => (
           <DropdownMenuItem 
-            key={loc}
-            onClick={() => handleLanguageChange(loc)}
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
             className="gap-2 cursor-pointer"
           >
-            <span>{getLanguageFlag(loc)}</span>
-            <span>{getLanguageName(loc)}</span>
+            <span>{lang.flag}</span>
+            <span>{lang.native}</span>
+            <span className="text-xs text-muted-foreground ml-auto">{lang.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
