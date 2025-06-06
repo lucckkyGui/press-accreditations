@@ -1,4 +1,4 @@
-import { SupportedLanguage } from "@/hooks/useI18n";
+import { SupportedLanguage } from "@/i18n/languages";
 
 export interface MockEvent {
   id: string;
