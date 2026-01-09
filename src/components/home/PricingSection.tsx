@@ -3,39 +3,42 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
 
 interface PricingCardProps {
   title: string;
   price: string;
+  period: string;
+  description: string;
   features: string[];
   buttonText: string;
   isPrimary?: boolean;
+  badge?: string;
   onSelect: () => void;
 }
 
-const PricingCard = ({ title, price, features, buttonText, isPrimary = false, onSelect }: PricingCardProps) => (
-  <Card className={`flex flex-col ${isPrimary ? 'border-primary shadow-lg' : ''}`}>
-    <CardHeader>
-      <CardTitle>{title}</CardTitle>
-      <CardDescription>Dla {title.toLowerCase()}</CardDescription>
-      <div className="mt-2">
-        <span className="text-3xl font-bold">{price}</span>
-        {price !== "Darmowy" && <span className="text-muted-foreground"> / miesiąc</span>}
+const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, onSelect }: PricingCardProps) => (
+  <Card className={`flex flex-col relative ${isPrimary ? 'border-2 border-primary shadow-xl scale-105' : 'border'}`}>
+    {badge && (
+      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+        {badge}
+      </Badge>
+    )}
+    <CardHeader className="text-center pb-4">
+      <CardTitle className="text-xl">{title}</CardTitle>
+      <CardDescription>{description}</CardDescription>
+      <div className="mt-4">
+        <span className="text-4xl font-bold">{price}</span>
+        {period && <span className="text-muted-foreground"> {period}</span>}
       </div>
     </CardHeader>
     <CardContent className="flex-grow">
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {features.map((feature, index) => (
-          <li key={index} className="flex items-start">
-            <svg
-              className="h-5 w-5 text-primary shrink-0 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            {feature}
+          <li key={index} className="flex items-start gap-3">
+            <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <span className="text-sm">{feature}</span>
           </li>
         ))}
       </ul>
@@ -44,6 +47,7 @@ const PricingCard = ({ title, price, features, buttonText, isPrimary = false, on
       <Button 
         className="w-full" 
         variant={isPrimary ? "default" : "outline"}
+        size="lg"
         onClick={onSelect}
       >
         {buttonText}
@@ -60,60 +64,74 @@ const PricingSection = () => {
   };
 
   return (
-    <section className="py-16 container">
-      <h2 className="text-3xl font-bold text-center mb-4">Cennik</h2>
-      <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12">
-        Wybierz pakiet dopasowany do wielkości Twojego wydarzenia
-      </p>
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+    <section className="py-20 container">
+      <div className="text-center mb-14">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          Choose the plan that fits your event size. All plans include full access to invitation templates and QR check-in.
+        </p>
+      </div>
+      
+      <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
         <PricingCard
-          title="Podstawowy"
-          price="99 PLN"
+          title="Starter"
+          price="$29"
+          period="/ month"
+          description="Perfect for small events"
           features={[
-            "Do 100 gości",
-            "Podstawowe zarządzanie wydarzeniami",
-            "Skanowanie QR kodów",
-            "Eksport listy gości",
-            "1 organizator",
+            "Up to 100 guests per event",
+            "Professional email templates",
+            "QR code check-in",
+            "Real-time analytics",
+            "CSV import/export",
             "Email support",
           ]}
-          buttonText="Wybierz pakiet"
+          buttonText="Start Free Trial"
           onSelect={() => handleSelectPackage("basic")}
         />
         <PricingCard
-          title="Standard"
-          price="299 PLN"
+          title="Professional"
+          price="$79"
+          period="/ month"
+          description="For growing organizations"
           features={[
-            "Do 500 gości",
-            "Zaawansowane zarządzanie wydarzeniami",
-            "Skanowanie QR kodów",
-            "Eksport danych",
-            "Dostęp dla 3 organizatorów",
-            "Priorytetowe wsparcie",
+            "Up to 500 guests per event",
+            "Custom branded templates",
+            "Bulk email sending",
+            "Team access (3 users)",
+            "Priority support",
+            "Advanced reporting",
+            "Offline scanner mode",
           ]}
-          buttonText="Wybierz pakiet"
+          buttonText="Start Free Trial"
           isPrimary={true}
+          badge="Most Popular"
           onSelect={() => handleSelectPackage("standard")}
         />
         <PricingCard
-          title="Premium"
-          price="599 PLN"
+          title="Enterprise"
+          price="$199"
+          period="/ month"
+          description="For large-scale events"
           features={[
-            "Nieograniczona liczba gości",
-            "Pełne zarządzanie wydarzeniami",
-            "Skanowanie QR kodów",
-            "Zaawansowane raporty",
-            "Dostęp dla 10 organizatorów",
-            "Wsparcie premium 24/7",
+            "Unlimited guests",
+            "White-label solution",
+            "API access",
+            "Unlimited team members",
+            "Dedicated account manager",
+            "Custom integrations",
+            "SLA guarantee",
+            "On-site training",
           ]}
-          buttonText="Wybierz pakiet"
+          buttonText="Contact Sales"
           onSelect={() => handleSelectPackage("premium")}
         />
       </div>
-      <div className="text-center mt-8">
-        <Button variant="link" size="lg" onClick={() => handleSelectPackage("enterprise")}>
-          Potrzebujesz rozwiązania dla większej organizacji? Sprawdź nasz pakiet Enterprise
-        </Button>
+      
+      <div className="text-center mt-12">
+        <p className="text-muted-foreground">
+          All plans include a 14-day free trial. No credit card required.
+        </p>
       </div>
     </section>
   );
