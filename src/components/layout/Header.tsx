@@ -8,6 +8,7 @@ import { useI18n } from "@/hooks/useI18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 const Header: React.FC = () => {
   const { t } = useI18n();
@@ -83,12 +84,7 @@ const Header: React.FC = () => {
             </Sheet>
           ) : (
             <>
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/notifications">
-                  <Bell className="h-5 w-5" />
-                  <span className="sr-only">{t("navigation.notifications")}</span>
-                </Link>
-              </Button>
+              <NotificationCenter />
               
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/settings">
