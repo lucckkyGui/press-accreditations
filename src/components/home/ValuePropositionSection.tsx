@@ -1,208 +1,147 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Brain, Shield, Fingerprint, TrendingUp, Zap, Star, ArrowRight } from 'lucide-react';
+import { 
+  Mail, 
+  QrCode, 
+  Users, 
+  Zap, 
+  Clock, 
+  FileText,
+  CheckCircle2,
+  ArrowRight
+} from 'lucide-react';
 
 const ValuePropositionSection: React.FC = () => {
-  const features = [
+  const steps = [
     {
-      icon: <Brain className="h-8 w-8 text-blue-600" />,
-      title: "AI-First Fraud Detection",
-      subtitle: "Zaawansowana detekcja fraudu",
-      description: "Algorytmy sztucznej inteligencji automatycznie wykrywają podejrzane wzorce rejestracji i próby oszustw w czasie rzeczywistym.",
-      accuracy: "94.2%",
-      metric: "dokładność wykrywania",
-      features: [
-        "Analiza wzorców zachowań",
-        "Detekcja duplikatów w czasie rzeczywistym", 
-        "Automatyczne blokowanie podejrzanych kont",
-        "Machine learning z każdym wydarzeniem"
-      ],
-      gradient: "from-blue-500 to-cyan-500"
+      step: "01",
+      icon: <FileText className="h-6 w-6" />,
+      title: "Create Your Event",
+      description: "Set up your event in seconds. Add details, dates, and customize your branding.",
+      time: "30 seconds"
     },
     {
-      icon: <Shield className="h-8 w-8 text-purple-600" />,
-      title: "Blockchain Credentials",
-      subtitle: "Bezpieczne cyfrowe akredytacje",
-      description: "Akredytacje zabezpieczone technologią blockchain są niemożliwe do sfałszowania i weryfikowalne w czasie rzeczywistym.",
-      accuracy: "100%",
-      metric: "bezpieczeństwo weryfikacji",
-      features: [
-        "Niemożliwe do sfałszowania certyfikaty",
-        "Publiczna weryfikacja w blockchain",
-        "Smart contracts dla automatyzacji",
-        "Decentralized identity management"
-      ],
-      gradient: "from-purple-500 to-pink-500"
+      step: "02",
+      icon: <Users className="h-6 w-6" />,
+      title: "Import Guest List",
+      description: "Upload a CSV file or add guests manually. We handle duplicates and formatting automatically.",
+      time: "1 minute"
     },
     {
-      icon: <Fingerprint className="h-8 w-8 text-green-600" />,
-      title: "Biometric Verification",
-      subtitle: "Najnowocześniejsze zabezpieczenia",
-      description: "Weryfikacja biometryczna wykorzystująca rozpoznawanie twarzy, odciski palców i skan tęczówki dla maksymalnego bezpieczeństwa.",
-      accuracy: "99.8%",
-      metric: "dokładność weryfikacji",
-      features: [
-        "Rozpoznawanie twarzy 3D",
-        "Skanowanie odcisków palców",
-        "Analiza tęczówki oka",
-        "Multi-factor biometric authentication"
-      ],
-      gradient: "from-green-500 to-emerald-500"
+      step: "03",
+      icon: <Mail className="h-6 w-6" />,
+      title: "Send Invitations",
+      description: "Choose a template, personalize your message, and send to all guests with one click.",
+      time: "2 minutes"
     },
     {
-      icon: <TrendingUp className="h-8 w-8 text-orange-600" />,
-      title: "Predictive Analytics",
-      subtitle: "Przewidywanie uczestnictwa AI",
-      description: "Zaawansowana analityka predykcyjna przewiduje frekwencję, identyfikuje ryzyko i optymalizuje procesy wydarzeń.",
-      accuracy: "87%",
-      metric: "trafność prognoz",
-      features: [
-        "Prognozowanie frekwencji w czasie rzeczywistym",
-        "Analiza ryzyka bezpieczeństwa",
-        "Optymalizacja przepływu gości",
-        "Behavioral pattern recognition"
-      ],
-      gradient: "from-orange-500 to-red-500"
+      step: "04",
+      icon: <QrCode className="h-6 w-6" />,
+      title: "Check In Guests",
+      description: "Scan QR codes at your event. Works offline. Real-time attendance tracking.",
+      time: "2 seconds per guest"
     }
   ];
 
+  const highlights = [
+    { icon: <Clock className="h-5 w-5" />, text: "Setup in under 5 minutes" },
+    { icon: <Zap className="h-5 w-5" />, text: "No technical skills needed" },
+    { icon: <CheckCircle2 className="h-5 w-5" />, text: "Works offline" },
+  ];
+
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <section className="py-20 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 px-4 py-2">
-            <Star className="h-4 w-4 mr-2" />
-            AI-First Platform
+          <Badge variant="outline" className="mb-4 px-4 py-2 text-sm">
+            <Zap className="h-4 w-4 mr-2 text-primary" />
+            Incredibly Simple
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-            Unikalna Propozycja Wartości
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            From Setup to Check-In in{" "}
+            <span className="text-primary">4 Easy Steps</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Jedyna platforma akredytacyjna na świecie łącząca zaawansowaną sztuczną inteligencję, 
-            technologię blockchain, weryfikację biometryczną i analitykę predykcyjną w jednym rozwiązaniu.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            No complex configurations. No training required. Just a straightforward system 
+            that works the way you expect it to.
           </p>
-        </div>
-
-        {/* Stats Banner */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-16 text-white">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold">94.2%</div>
-              <div className="text-blue-100">AI Accuracy</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">100%</div>
-              <div className="text-blue-100">Blockchain Security</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">99.8%</div>
-              <div className="text-blue-100">Biometric Precision</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">87%</div>
-              <div className="text-blue-100">Prediction Accuracy</div>
-            </div>
+          
+          {/* Highlight badges */}
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            {highlights.map((highlight, index) => (
+              <div 
+                key={index}
+                className="inline-flex items-center gap-2 bg-primary/5 text-primary px-4 py-2 rounded-full"
+              >
+                {highlight.icon}
+                <span className="text-sm font-medium">{highlight.text}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {features.map((feature, index) => (
-            <Card key={index} className="group relative overflow-hidden border-2 hover:border-primary/20 transition-all duration-300 hover:shadow-2xl">
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-              
-              <CardHeader className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-lg">
-                    {feature.icon}
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {steps.map((item, index) => (
+            <Card 
+              key={index} 
+              className="relative group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20"
+            >
+              <CardContent className="pt-8 pb-6 px-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
+                    {item.icon}
                   </div>
-                  <Badge variant="secondary" className="ml-4">
-                    <Zap className="h-3 w-3 mr-1" />
-                    {feature.accuracy} {feature.metric}
-                  </Badge>
+                  <span className="text-4xl font-bold text-muted-foreground/20">{item.step}</span>
                 </div>
-                <CardTitle className="text-2xl font-bold mb-2">{feature.title}</CardTitle>
-                <p className="text-primary font-medium">{feature.subtitle}</p>
-              </CardHeader>
-              
-              <CardContent className="relative">
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {feature.description}
+                
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {item.description}
                 </p>
                 
-                <div className="space-y-3">
-                  {feature.features.map((item, idx) => (
-                    <div key={idx} className="flex items-center text-sm">
-                      <div className="w-2 h-2 bg-gradient-to-r from-primary to-primary/60 rounded-full mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">{item}</span>
-                    </div>
-                  ))}
+                <div className="flex items-center text-sm text-primary font-medium">
+                  <Clock className="h-4 w-4 mr-1" />
+                  {item.time}
                 </div>
               </CardContent>
+              
+              {/* Arrow connector (hidden on last item and mobile) */}
+              {index < steps.length - 1 && (
+                <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+                  <ArrowRight className="h-6 w-6 text-muted-foreground/30" />
+                </div>
+              )}
             </Card>
           ))}
         </div>
 
-        {/* Why We're Different */}
-        <div className="bg-white rounded-3xl p-12 shadow-xl border border-gray-100">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4">Dlaczego jesteśmy wyjątkowi?</h3>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Podczas gdy konkurencja oferuje podstawowe funkcje, my dostarczamy przyszłość akredytacji
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Tradycyjne platformy:</h4>
-              <div className="space-y-4">
-                {[
-                  "Podstawowe zarządzanie gośćmi",
-                  "Statyczne raportowanie",
-                  "Manualna weryfikacja dokumentów",
-                  "Brak analizy predykcyjnej",
-                  "Standardowe zabezpieczenia"
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center text-gray-500">
-                    <div className="w-4 h-4 border-2 border-gray-300 rounded mr-3" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Nasza platforma AI-First:
-              </h4>
-              <div className="space-y-4">
-                {[
-                  "AI-powered fraud detection w czasie rzeczywistym",
-                  "Blockchain-secured credentials",
-                  "Automatyczna weryfikacja biometryczna",
-                  "Predictive analytics i forecasting",
-                  "Enterprise-grade security + AI"
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center text-gray-800">
-                    <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-blue-500 rounded mr-3 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full" />
-                    </div>
-                    <span className="font-medium">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3">
-              Zobacz demo AI-First Platform
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
+        {/* Bottom callout */}
+        <div className="bg-primary/5 rounded-2xl p-8 md:p-12 text-center">
+          <h3 className="text-2xl md:text-3xl font-bold mb-4">
+            Ready to simplify your event management?
+          </h3>
+          <p className="text-muted-foreground text-lg mb-6 max-w-2xl mx-auto">
+            Join hundreds of organizers who've switched to a simpler, more efficient way 
+            of managing invitations and check-ins.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="/purchase" 
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              Start Your Free Trial
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </a>
+            <a 
+              href="/events" 
+              className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg font-medium hover:bg-muted transition-colors"
+            >
+              See How It Works
+            </a>
           </div>
         </div>
       </div>
