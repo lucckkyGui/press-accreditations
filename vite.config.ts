@@ -17,17 +17,14 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force a single React instance (fixes "dispatcher is null" hook crashes)
-      react: path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
     },
     // Prevent "dispatcher is null" hook errors caused by duplicated React copies
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
   optimizeDeps: {
-    // Force Vite to re-bundle deps so dedupe takes effect immediately in dev
+    // In some embedded preview environments, pre-bundling can end up with a second React copy.
+    // Excluding React forces Vite to use the project dependency graph instead.
+    exclude: ["react", "react-dom", "react/jsx-runtime"],
     force: true,
-    include: ["react", "react-dom"],
   },
 }));
