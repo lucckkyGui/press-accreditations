@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode } from "lucide-react";
+import { QrCode, AlertCircle } from "lucide-react";
 import { Guest } from "@/types";
 import ScannerSettings from "./ScannerSettings";
 import ScanResultDisplay from "./ScanResultDisplay";
@@ -10,17 +10,22 @@ import { toast } from "sonner";
 import "./QRScanner.css";
 import { useI18n } from "@/hooks/useI18n";
 import { playSound, isAudioSupported } from "@/utils/soundEffects";
+import { guestScannerService, ScanResult } from "@/services/scanner/guestScannerService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface QRScannerProps {
   onScanSuccess?: (guest: Guest) => void;
+  eventId?: string;
 }
 
-const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
+const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
   const { t } = useI18n();
   const [scanning, setScanning] = useState(false);
   const [lastScannedGuest, setLastScannedGuest] = useState<Guest | null>(null);
   const [scanResult, setScanResult] = useState<"success" | "error" | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [settings, setSettings] = useState({
     autoScan: false,
     hapticFeedback: true,
@@ -53,61 +58,54 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
     }
   };
 
-  const handleQrCodeDetected = (qrCode: string) => {
+  const handleQrCodeDetected = async (qrCode: string) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    setErrorMessage(null);
     console.log("QR code detected:", qrCode);
+    
     try {
-      // Try to decode QR data as JSON
-      let guestData = null;
+      // Use the real scanner service to verify and check in
+      const result: ScanResult = await guestScannerService.verifyAndCheckIn(qrCode, eventId);
       
-      try {
-        guestData = JSON.parse(qrCode);
-      } catch (e) {
-        // If parsing doesn't work, assume it's a simple string (e.g. ID)
-        console.log("Could not parse QR code as JSON, trying to find guest by ID");
+      if (result.success && result.guest) {
+        setScanning(false);
+        setLastScannedGuest(result.guest);
+        
+        if (result.alreadyCheckedIn) {
+          setScanResult("error");
+          setErrorMessage(`${result.guest.firstName} ${result.guest.lastName} już został zarejestrowany o ${new Date(result.checkInTime!).toLocaleTimeString('pl-PL')}`);
+          performFeedback(false);
+        } else {
+          setScanResult("success");
+          performFeedback(true);
+          toast.success(result.message);
+          if (onScanSuccess) onScanSuccess(result.guest);
+        }
+      } else {
+        setScanResult("error");
+        setErrorMessage(result.message);
+        performFeedback(false);
+        toast.error(result.message);
+        setScanning(false);
       }
       
-      // In a real app this would be an API call to verify the guest
-      // For demo we're creating test data
-      const mockGuest: Guest = guestData || {
-        id: qrCode || Math.random().toString(36).substr(2, 9),
-        firstName: "Anna",
-        lastName: "Nowak",
-        email: "anna.nowak@example.com",
-        company: "XYZ Media",
-        zone: "press",
-        status: "confirmed",
-        qrCode: qrCode,
-      };
-      
-      handleScanResult(mockGuest);
+      if (settings.autoScan) {
+        setTimeout(() => {
+          resetScan();
+          startScanning();
+        }, 3000);
+      }
     } catch (error) {
-      console.error("Error processing data from QR code:", error);
+      console.error("Error processing QR code:", error);
+      setScanResult("error");
+      setErrorMessage("Błąd podczas przetwarzania kodu QR");
+      performFeedback(false);
       toast.error(t("common.error"));
       setScanning(false);
-    }
-  };
-
-  const handleScanResult = (guest: Guest) => {
-    setScanning(false);
-    setLastScannedGuest(guest);
-    
-    // Symulacja weryfikacji dostępu - w rzeczywistej aplikacji byłaby prawdziwa logika
-    const hasAccess = Math.random() > 0.2;
-    
-    if (hasAccess) {
-      setScanResult("success");
-      performFeedback(true);
-      if (onScanSuccess) onScanSuccess(guest);
-    } else {
-      setScanResult("error");
-      performFeedback(false);
-    }
-    
-    if (settings.autoScan) {
-      setTimeout(() => {
-        resetScan();
-        startScanning();
-      }, 3000);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -115,6 +113,7 @@ const QRScanner = ({ onScanSuccess }: QRScannerProps) => {
     setLastScannedGuest(null);
     setScanResult(null);
     setCameraActive(false);
+    setErrorMessage(null);
   };
 
   const updateSetting = (key: keyof typeof settings, value: boolean) => {
