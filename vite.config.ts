@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
@@ -17,14 +17,17 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Hard-pin React to one exact entry file to avoid duplicate React singletons
+      react: path.resolve(__dirname, "./node_modules/react/index.js"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime.js"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom/index.js"),
+      "react-dom/client": path.resolve(__dirname, "./node_modules/react-dom/client.js"),
     },
     // Prevent "dispatcher is null" hook errors caused by duplicated React copies
-    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
   optimizeDeps: {
-    // In some embedded preview environments, pre-bundling can end up with a second React copy.
-    // Excluding React forces Vite to use the project dependency graph instead.
-    exclude: ["react", "react-dom", "react/jsx-runtime"],
-    force: true,
+    // Completely disable dependency pre-bundling to avoid duplicate React copies
+    disabled: true,
   },
 }));
