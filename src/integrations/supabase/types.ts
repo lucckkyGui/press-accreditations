@@ -608,6 +608,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
+          created_by: string | null
           id: string
           is_default: boolean | null
           name: string
@@ -617,6 +618,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           is_default?: boolean | null
           name: string
@@ -626,6 +628,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           is_default?: boolean | null
           name?: string
