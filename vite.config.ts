@@ -22,10 +22,6 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
   optimizeDeps: {
-    // Vite 5.1+ removed optimizeDeps.disabled. Use noDiscovery + empty include instead.
-    noDiscovery: true,
-    include: [],
-    // In some embedded preview environments, pre-bundling can end up with a second React copy.
-    exclude: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
+    include: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
 }));
