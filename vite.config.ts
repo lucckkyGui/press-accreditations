@@ -22,12 +22,7 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
   optimizeDeps: {
-    include: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
-    force: true,
-  },
-  build: {
-    commonjsOptions: {
-      include: [/node_modules/],
-    },
+    // Avoid pre-bundling React to prevent multiple React copies in embedded previews
+    exclude: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
 }));
