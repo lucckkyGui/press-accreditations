@@ -6,6 +6,7 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
 import HomePage from "@/pages/HomePage";
 import Login from "@/pages/Login";
+import AuthCallback from "@/pages/AuthCallback";
 import Dashboard from "@/pages/Dashboard";
 import EnhancedDashboard from "@/pages/EnhancedDashboard";
 import Guests from "@/pages/Guests";
@@ -26,6 +27,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
