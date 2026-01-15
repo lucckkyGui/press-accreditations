@@ -14,12 +14,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    // Prevent "dispatcher is null" hook errors caused by duplicated React copies
-    dedupe: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
-  },
-  optimizeDeps: {
-    // In embedded preview environments, pre-bundling can create a second React copy.
-    // Excluding React keeps hooks dispatcher stable.
-    exclude: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
   },
 }));
