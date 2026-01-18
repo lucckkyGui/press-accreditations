@@ -481,8 +481,17 @@ export const MediaRegistrationService = {
     }
   },
   
-  getDocumentUrl(filePath: string): string {
-    const { data } = supabase.storage.from('media_documents').getPublicUrl(filePath);
-    return data.publicUrl;
+  async getDocumentUrl(filePath: string): Promise<string> {
+    // Use signed URLs for secure access to private documents
+    const { data, error } = await supabase.storage
+      .from('media_documents')
+      .createSignedUrl(filePath, 3600); // 1 hour expiry
+    
+    if (error || !data?.signedUrl) {
+      console.error('Error creating signed URL:', error);
+      throw new Error('Failed to generate document URL');
+    }
+    
+    return data.signedUrl;
   }
 };
