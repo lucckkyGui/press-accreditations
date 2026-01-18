@@ -69,9 +69,13 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
     }
   };
   
-  const handleDownload = (document: MediaDocument) => {
-    const url = getDocumentUrl(document.filePath);
-    window.open(url, '_blank');
+  const handleDownload = async (document: MediaDocument) => {
+    try {
+      const url = await getDocumentUrl(document.filePath);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Failed to get document URL:', error);
+    }
   };
   
   const handleDelete = (id: string) => {

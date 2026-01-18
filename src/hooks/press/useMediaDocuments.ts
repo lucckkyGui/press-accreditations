@@ -109,8 +109,8 @@ export function useMediaDocuments(params: MediaDocumentQueryParams = {}, options
   );
 
   const getDocumentUrl = useCallback(
-    (filePath: string): string => {
-      return MediaRegistrationService.getDocumentUrl(filePath);
+    async (filePath: string): Promise<string> => {
+      return await MediaRegistrationService.getDocumentUrl(filePath);
     },
     []
   );
