@@ -13,25 +13,57 @@ interface SendInvitationRequest {
   batchSize?: number;
 }
 
-const supabaseClient = createClient(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - missing token' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Verify the token and get user claims
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error('Token validation failed:', claimsError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid token' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log(`Authenticated user: ${userId}`);
+
+    // Use service role client for database operations
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
     const { campaignId, batchSize = 50 }: SendInvitationRequest = await req.json();
 
     console.log(`Processing campaign: ${campaignId}, batch size: ${batchSize}`);
 
     // Get pending emails for this campaign
-    const { data: pendingEmails, error: queueError } = await supabaseClient
+    const { data: pendingEmails, error: queueError } = await serviceClient
       .from('email_queue')
       .select(`
         *,
@@ -64,19 +96,10 @@ const handler = async (req: Request): Promise<Response> => {
     for (const emailItem of pendingEmails) {
       try {
         // Update status to sending
-        await supabaseClient
+        await serviceClient
           .from('email_queue')
           .update({ status: 'sending' })
           .eq('id', emailItem.id);
-
-        // Generate QR code for the invitation
-        const qrData = {
-          type: 'invitation',
-          id: emailItem.invitation.id,
-          guestId: emailItem.invitation.guest.id,
-          eventId: emailItem.invitation.event.id,
-          timestamp: Date.now()
-        };
 
         // Create invitation HTML with QR code
         const invitationHtml = `
@@ -134,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         // Update email status to sent
-        await supabaseClient
+        await serviceClient
           .from('email_queue')
           .update({ 
             status: 'sent',
@@ -143,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('id', emailItem.id);
 
         // Update invitation sent_at timestamp
-        await supabaseClient
+        await serviceClient
           .from('invitations')
           .update({ sent_at: new Date().toISOString() })
           .eq('id', emailItem.invitation.id);
@@ -155,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.error(`Failed to send email to ${emailItem.recipient_email}:`, emailError);
         
         // Update email status to failed
-        await supabaseClient
+        await serviceClient
           .from('email_queue')
           .update({ 
             status: 'failed',
@@ -173,14 +196,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Update campaign statistics
     if (campaignId) {
-      const { data: campaign } = await supabaseClient
+      const { data: campaign } = await serviceClient
         .from('email_campaigns')
         .select('sent_count, failed_count')
         .eq('id', campaignId)
         .single();
 
       if (campaign) {
-        await supabaseClient
+        await serviceClient
           .from('email_campaigns')
           .update({
             sent_count: (campaign.sent_count || 0) + sentCount,

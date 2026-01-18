@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,9 +7,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Guest, Event } from '@/types';
 import { FileImage, Mail, Users, CheckCircle, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import DOMPurify from 'dompurify';
 import InvitationGenerator from '@/components/invitations/InvitationGenerator';
 import EnhancedBulkEmailSender from '@/components/invitations/EnhancedBulkEmailSender';
-
 interface GeneratedInvitation {
   guestId: string;
   guestName: string;
@@ -164,7 +163,11 @@ const GuestsInvitationManager: React.FC<GuestsInvitationManagerProps> = ({
                     <div 
                       className="max-h-96 overflow-y-auto border rounded bg-white p-4"
                       dangerouslySetInnerHTML={{ 
-                        __html: generatedInvitations[0].invitationHtml 
+                        __html: DOMPurify.sanitize(generatedInvitations[0].invitationHtml, {
+                          USE_PROFILES: { html: true },
+                          ADD_TAGS: ['style'],
+                          ADD_ATTR: ['style']
+                        })
                       }}
                     />
                   </div>
