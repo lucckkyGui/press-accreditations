@@ -2,15 +2,15 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Guest, Event } from '@/types';
-import { Download, FileImage, Mail } from 'lucide-react';
+import { FileImage } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
+import DOMPurify from 'dompurify';
 
 interface InvitationGeneratorProps {
   guests: Guest[];
@@ -82,13 +82,20 @@ const InvitationGenerator: React.FC<InvitationGeneratorProps> = ({
 
     const qrCodeDataUrl = await generateQRCode(qrData);
 
-    // Zastąp placeholdery w szablonie
-    const invitationHtml = invitationTemplate
-      .replace(/{{eventName}}/g, event.name)
-      .replace(/{{guestName}}/g, `${guest.firstName} ${guest.lastName}`)
+    // Zastąp placeholdery w szablonie - użyj DOMPurify do sanityzacji
+    const rawHtml = invitationTemplate
+      .replace(/{{eventName}}/g, DOMPurify.sanitize(event.name))
+      .replace(/{{guestName}}/g, DOMPurify.sanitize(`${guest.firstName} ${guest.lastName}`))
       .replace(/{{eventDate}}/g, event.startDate.toLocaleDateString('pl-PL'))
-      .replace(/{{eventLocation}}/g, event.location || 'Do ustalenia')
+      .replace(/{{eventLocation}}/g, DOMPurify.sanitize(event.location || 'Do ustalenia'))
       .replace(/{{qrCodeUrl}}/g, qrCodeDataUrl);
+
+    // Sanityzuj cały HTML aby zapobiec XSS
+    const invitationHtml = DOMPurify.sanitize(rawHtml, {
+      USE_PROFILES: { html: true },
+      ADD_TAGS: ['style'],
+      ADD_ATTR: ['style']
+    });
 
     return {
       guestId: guest.id,
