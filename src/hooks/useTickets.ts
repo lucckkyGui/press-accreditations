@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from './auth';
 
 // Types for the tickets
 export interface Ticket {

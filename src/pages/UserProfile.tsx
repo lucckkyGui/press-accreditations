@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
 import PurchasedTickets from "@/components/profile/PurchasedTickets";
 import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEditForm";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { NotificationPermission } from "@/components/notifications/NotificationP
 import { InstallPWA } from "@/components/common/InstallPWA";
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, profile, isOrganizer, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
@@ -76,17 +76,17 @@ const UserProfile = () => {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          // In a real app, this would fetch extended profile data from database
-          const firstName = user.firstName || "";
-          const lastName = user.lastName || "";
-          const role = user.role || "guest";
-          const createdAt = user.createdAt || new Date();
+          // Use profile data from auth context
+          const firstName = profile?.firstName || "";
+          const lastName = profile?.lastName || "";
+          const role = isOrganizer ? "organizer" : isAdmin ? "admin" : "guest";
+          const createdAt = user.created_at ? new Date(user.created_at) : new Date();
           
           setUserData({
             email: user.email || "",
             firstName,
             lastName,
-            avatarUrl: "",
+            avatarUrl: profile?.avatarUrl || "",
             role,
             company: "",
             jobTitle: "",

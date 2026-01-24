@@ -8,7 +8,7 @@ import { ArrowLeft, Info } from "lucide-react";
 import { AccreditationForm } from "@/components/accreditation/AccreditationForm";
 import { useI18n } from "@/hooks/useI18n";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 
 // Przykładowe dane wydarzenia
 const getMockEvent = (eventId: string) => {
