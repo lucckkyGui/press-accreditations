@@ -1,8 +1,6 @@
 
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
 import HomePage from "@/pages/HomePage";
 import Login from "@/pages/Login";
@@ -19,15 +17,26 @@ import Ticketing from "@/pages/Ticketing";
 import PressReleasePage from "@/pages/PressReleasePage";
 import UserProfile from "@/pages/UserProfile";
 import NotFound from "@/pages/NotFound";
+import MainLayout from "@/components/layout/MainLayout";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const AppRoutes = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      {/* Protected routes with MainLayout */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
@@ -39,11 +48,10 @@ const AppRoutes = () => {
         <Route path="/ticketing" element={<Ticketing />} />
         <Route path="/press-releases" element={<PressReleasePage />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-      <SonnerToaster />
-    </>
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
