@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { useMediaRegistrations } from '@/hooks/press';
 
 import {
@@ -30,10 +30,7 @@ import CalendarIntegration from '@/components/calendar/CalendarIntegration';
 export default function MediaPortalPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  // Determine if user is organizer by checking role
-  const isOrganizer = user?.role === 'organizer';
+  const { user, profile, isOrganizer } = useAuth();
   
   const [activeTab, setActiveTab] = useState('my-registrations');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
@@ -188,8 +185,8 @@ export default function MediaPortalPage() {
             <BadgeGenerator
               registrationId={userRegistration.id}
               userInfo={{
-                firstName: user?.firstName || '',
-                lastName: user?.lastName || '',
+                firstName: profile?.firstName || '',
+                lastName: profile?.lastName || '',
                 mediaOrganization: userRegistration.mediaOrganization,
                 jobTitle: userRegistration.jobTitle
               }}
