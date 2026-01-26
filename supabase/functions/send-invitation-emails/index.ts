@@ -83,7 +83,64 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { campaignId, batchSize = 50 }: SendInvitationRequest = await req.json();
 
+    if (!campaignId) {
+      return new Response(
+        JSON.stringify({ error: 'Campaign ID is required' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log(`Processing campaign: ${campaignId}, batch size: ${batchSize}`);
+
+    // Authorization check: Verify user owns the campaign's event
+    const { data: campaign, error: campaignError } = await serviceClient
+      .from('email_campaigns')
+      .select('event_id')
+      .eq('id', campaignId)
+      .single();
+
+    if (campaignError || !campaign) {
+      console.error('Campaign not found:', campaignError);
+      return new Response(
+        JSON.stringify({ error: 'Campaign not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const { data: event, error: eventError } = await serviceClient
+      .from('events')
+      .select('organizer_id')
+      .eq('id', campaign.event_id)
+      .single();
+
+    if (eventError || !event) {
+      console.error('Event not found:', eventError);
+      return new Response(
+        JSON.stringify({ error: 'Event not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Check if user is the event organizer or an admin
+    const { data: userRole } = await serviceClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    const isAdmin = !!userRole;
+    const isOrganizer = event.organizer_id === userId;
+
+    if (!isOrganizer && !isAdmin) {
+      console.warn(`User ${userId} attempted to access campaign ${campaignId} without authorization`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - not event organizer or admin' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log(`Authorization passed for user ${userId} (organizer: ${isOrganizer}, admin: ${isAdmin})`);
 
     // Get pending emails for this campaign
     const { data: pendingEmails, error: queueError } = await serviceClient
