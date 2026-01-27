@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) =
   // If authentication is required and user is not logged in, redirect to login
   if (requireAuth && !isAuthenticated) {
     // Pass the current location to redirect back after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+    return <Navigate to="/auth/login" state={{ from: location.pathname }} />;
   }
 
   // Otherwise, render the content

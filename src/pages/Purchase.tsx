@@ -529,7 +529,7 @@ const Purchase = () => {
         <Button size="lg" onClick={handleBackToHome}>
           Wróć do strony głównej
         </Button>
-        <Button size="lg" variant="outline" onClick={() => navigate("/login", { state: { role: "organizator" } })}>
+        <Button size="lg" variant="outline" onClick={() => navigate("/auth/login", { state: { role: "organizator" } })}>
           Przejdź do logowania
         </Button>
       </div>

@@ -15,11 +15,11 @@ const UserNavigation = () => {
   const { t } = useI18n();
 
   const handleOrganizatorLogin = () => {
-    navigate("/login", { state: { role: "organizator" } });
+    navigate("/auth/login", { state: { role: "organizator" } });
   };
 
   const handleGuestLogin = () => {
-    navigate("/login", { state: { role: "guest" } });
+    navigate("/auth/login", { state: { role: "guest" } });
   };
 
   const handleProfileClick = () => {

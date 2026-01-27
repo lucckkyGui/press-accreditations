@@ -20,7 +20,7 @@ const AuthCallback = () => {
             description: error.message || "Wystąpił błąd podczas logowania przez OAuth.",
             variant: "destructive",
           });
-          navigate("/login", { replace: true });
+          navigate("/auth/login", { replace: true });
           return;
         }
 
@@ -36,7 +36,7 @@ const AuthCallback = () => {
             description: "Nie udało się zalogować. Spróbuj ponownie.",
             variant: "destructive",
           });
-          navigate("/login", { replace: true });
+          navigate("/auth/login", { replace: true });
         }
       } catch (err) {
         console.error("Unexpected error during OAuth callback:", err);
@@ -45,7 +45,7 @@ const AuthCallback = () => {
           description: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
           variant: "destructive",
         });
-        navigate("/login", { replace: true });
+        navigate("/auth/login", { replace: true });
       }
     };
 

@@ -57,7 +57,7 @@ const HeroSection = () => {
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0 gap-2 px-8 py-6 text-lg shadow-lg shadow-blue-500/25"
-                onClick={() => navigate("/login", { state: { role: "organizator" } })}
+                onClick={() => navigate("/auth/login", { state: { role: "organizator" } })}
               >
                 <CheckCircle2 className="h-5 w-5" />
                 Zaloguj się
