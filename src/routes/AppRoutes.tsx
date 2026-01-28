@@ -21,6 +21,12 @@ import PressReleasePage from "@/pages/PressReleasePage";
 import UserProfile from "@/pages/UserProfile";
 import Products from "@/pages/products/Products";
 import ProductDetails from "@/pages/products/ProductDetails";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
+import Orders from "@/pages/Orders";
+import OrderDetails from "@/pages/OrderDetails";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -42,6 +48,16 @@ const AppRoutes = () => {
       {/* Products routes */}
       <Route path="/products" element={<Products />} />
       <Route path="/products/:productId" element={<ProductDetails />} />
+      
+      {/* Shopping routes */}
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/orders" element={<Orders />} />
+      <Route path="/orders/:id" element={<OrderDetails />} />
+      
+      {/* Info pages */}
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Protected routes with MainLayout */}
       <Route
