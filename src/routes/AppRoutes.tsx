@@ -11,6 +11,7 @@ import EnhancedDashboard from "@/pages/EnhancedDashboard";
 import Guests from "@/pages/Guests";
 import AdvancedGuests from "@/pages/AdvancedGuests";
 import Events from "@/pages/Events";
+import EventDetails from "@/pages/EventDetails";
 import Scanner from "@/pages/Scanner";
 import SettingsPage from "@/pages/Settings";
 import ProfileSettings from "@/pages/settings/ProfileSettings";
@@ -18,6 +19,7 @@ import AccountSettings from "@/pages/settings/AccountSettings";
 import Notifications from "@/pages/Notifications";
 import Ticketing from "@/pages/Ticketing";
 import PressReleasePage from "@/pages/PressReleasePage";
+import MediaPortalPage from "@/pages/MediaPortalPage";
 import UserProfile from "@/pages/UserProfile";
 import Products from "@/pages/products/Products";
 import ProductDetails from "@/pages/products/ProductDetails";
@@ -25,8 +27,13 @@ import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import Orders from "@/pages/Orders";
 import OrderDetails from "@/pages/OrderDetails";
+import Purchase from "@/pages/Purchase";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import AccreditationCategories from "@/pages/AccreditationCategories";
+import AccreditationEvents from "@/pages/AccreditationEvents";
+import AccreditationRequest from "@/pages/AccreditationRequest";
+import InvitationEditor from "@/pages/InvitationEditor";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -58,6 +65,11 @@ const AppRoutes = () => {
       {/* Info pages */}
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      
+      {/* Accreditation public routes */}
+      <Route path="/accreditation-categories" element={<AccreditationCategories />} />
+      <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
+      <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
       {/* Protected routes with MainLayout */}
       <Route
@@ -72,6 +84,7 @@ const AppRoutes = () => {
         <Route path="/guests" element={<Guests />} />
         <Route path="/advanced-guests" element={<AdvancedGuests />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/events/:eventId" element={<EventDetails />} />
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/profile" element={<ProfileSettings />} />
@@ -79,7 +92,10 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/ticketing" element={<Ticketing />} />
         <Route path="/press-releases" element={<PressReleasePage />} />
+        <Route path="/media-portal" element={<MediaPortalPage />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/invitation-editor" element={<InvitationEditor />} />
+        <Route path="/purchase" element={<Purchase />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
