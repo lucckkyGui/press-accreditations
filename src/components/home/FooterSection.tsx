@@ -1,11 +1,12 @@
-
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { QrCode, Package, LifeBuoy, Building } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 
 const FooterSection = () => {
   const { t } = useI18n();
+  const navigate = useNavigate();
   
   return (
     <footer className="bg-muted py-12 border-t">
@@ -31,6 +32,7 @@ const FooterSection = () => {
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.pricing')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.faq')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.forWhom')}</Button></li>
+              <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate('/accreditation-categories')}>{t('navigation.accreditation') || 'Akredytacja'}</Button></li>
             </ul>
           </div>
           
