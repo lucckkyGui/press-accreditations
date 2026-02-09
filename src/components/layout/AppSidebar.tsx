@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -38,6 +38,18 @@ const navigation = [
     title: "Scanner",
     url: "/scanner",
     icon: QrCode,
+  },
+  {
+    title: "RFID Scanner",
+    url: "/rfid-scanner",
+    icon: Radio,
+    isNew: true
+  },
+  {
+    title: "Opaski RFID",
+    url: "/wristbands",
+    icon: Radio,
+    isNew: true
   },
   {
     title: "Enhanced Dashboard",
