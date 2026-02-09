@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          denial_reason: string | null
+          device_info: string | null
+          event_id: string
+          id: string
+          scanned_by: string | null
+          wristband_id: string
+          zone_name: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          denial_reason?: string | null
+          device_info?: string | null
+          event_id: string
+          id?: string
+          scanned_by?: string | null
+          wristband_id: string
+          zone_name: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          denial_reason?: string | null
+          device_info?: string | null
+          event_id?: string
+          id?: string
+          scanned_by?: string | null
+          wristband_id?: string
+          zone_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_logs_wristband_id_fkey"
+            columns: ["wristband_id"]
+            isOneToOne: false
+            referencedRelation: "wristbands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accreditation_requests: {
         Row: {
           approval_date: string | null
@@ -917,6 +968,105 @@ export type Database = {
         }
         Relationships: []
       }
+      wristbands: {
+        Row: {
+          assigned_at: string
+          created_at: string
+          deactivated_at: string | null
+          deactivation_reason: string | null
+          event_id: string
+          guest_id: string
+          id: string
+          is_active: boolean
+          rfid_code: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string
+          created_at?: string
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
+          event_id: string
+          guest_id: string
+          id?: string
+          is_active?: boolean
+          rfid_code: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string
+          created_at?: string
+          deactivated_at?: string | null
+          deactivation_reason?: string | null
+          event_id?: string
+          guest_id?: string
+          id?: string
+          is_active?: boolean
+          rfid_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wristbands_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wristbands_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zone_presence: {
+        Row: {
+          entered_at: string
+          event_id: string
+          exited_at: string | null
+          id: string
+          is_inside: boolean
+          wristband_id: string
+          zone_name: string
+        }
+        Insert: {
+          entered_at?: string
+          event_id: string
+          exited_at?: string | null
+          id?: string
+          is_inside?: boolean
+          wristband_id: string
+          zone_name: string
+        }
+        Update: {
+          entered_at?: string
+          event_id?: string
+          exited_at?: string | null
+          id?: string
+          is_inside?: boolean
+          wristband_id?: string
+          zone_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zone_presence_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "zone_presence_wristband_id_fkey"
+            columns: ["wristband_id"]
+            isOneToOne: false
+            referencedRelation: "wristbands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -933,6 +1083,16 @@ export type Database = {
       is_event_organizer: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
+      }
+      process_rfid_scan: {
+        Args: {
+          _device_info?: string
+          _event_id: string
+          _rfid_code: string
+          _scanned_by?: string
+          _zone_name: string
+        }
+        Returns: Json
       }
     }
     Enums: {

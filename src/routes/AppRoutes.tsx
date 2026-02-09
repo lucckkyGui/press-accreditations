@@ -34,6 +34,8 @@ import AccreditationCategories from "@/pages/AccreditationCategories";
 import AccreditationEvents from "@/pages/AccreditationEvents";
 import AccreditationRequest from "@/pages/AccreditationRequest";
 import InvitationEditor from "@/pages/InvitationEditor";
+import RfidScanner from "@/pages/RfidScanner";
+import WristbandManagement from "@/pages/WristbandManagement";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -95,6 +97,8 @@ const AppRoutes = () => {
         <Route path="/media-portal" element={<MediaPortalPage />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/invitation-editor" element={<InvitationEditor />} />
+        <Route path="/rfid-scanner" element={<RfidScanner />} />
+        <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/purchase" element={<Purchase />} />
       </Route>
 
