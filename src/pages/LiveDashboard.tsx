@@ -6,6 +6,22 @@ import { Link } from 'react-router-dom';
 
 const ZONES = ['VIP', 'Backstage', 'Press', 'General', 'Artist Lounge'];
 
+// Demo data for when no real data is available
+const DEMO_ZONE_STATS: Record<string, number> = {
+  VIP: 23, Backstage: 12, Press: 18, General: 247, 'Artist Lounge': 8,
+};
+
+const DEMO_SCANS = [
+  { id: '1', action: 'entry', zone_name: 'VIP', created_at: new Date(Date.now() - 15000).toISOString(), guest_name: 'Anna Kowalska' },
+  { id: '2', action: 'entry', zone_name: 'General', created_at: new Date(Date.now() - 45000).toISOString(), guest_name: 'Marek Nowak' },
+  { id: '3', action: 'exit', zone_name: 'Backstage', created_at: new Date(Date.now() - 90000).toISOString(), guest_name: 'Katarzyna Wiśniewska' },
+  { id: '4', action: 'entry', zone_name: 'Press', created_at: new Date(Date.now() - 120000).toISOString(), guest_name: 'Tomasz Zieliński' },
+  { id: '5', action: 'denied', zone_name: 'VIP', created_at: new Date(Date.now() - 180000).toISOString(), guest_name: 'Piotr Kamiński' },
+  { id: '6', action: 'entry', zone_name: 'Artist Lounge', created_at: new Date(Date.now() - 240000).toISOString(), guest_name: 'Maria Lewandowska' },
+  { id: '7', action: 'exit', zone_name: 'General', created_at: new Date(Date.now() - 300000).toISOString(), guest_name: 'Jan Wójcik' },
+  { id: '8', action: 'entry', zone_name: 'VIP', created_at: new Date(Date.now() - 360000).toISOString(), guest_name: 'Aleksandra Dąbrowska' },
+];
+
 const LiveDashboard = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState('');
@@ -15,6 +31,7 @@ const LiveDashboard = () => {
   const [guestCount, setGuestCount] = useState(0);
   const [checkedInCount, setCheckedInCount] = useState(0);
   const [clock, setClock] = useState(new Date());
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setClock(new Date()), 1000);
@@ -24,17 +41,26 @@ const LiveDashboard = () => {
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      setEvents(data || []);
       if (data && data.length > 0) {
+        setEvents(data);
         setSelectedEvent(data[0].id);
         setEventTitle(data[0].title);
+      } else {
+        // No events — use demo mode
+        setIsDemo(true);
+        setEventTitle('Festiwal Muzyczny 2026 — Demo');
+        setZoneStats(DEMO_ZONE_STATS);
+        setRecentScans(DEMO_SCANS);
+        setGuestCount(520);
+        setCheckedInCount(308);
+        setSelectedEvent('demo');
       }
     };
     load();
   }, []);
 
   useEffect(() => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || isDemo) return;
     const loadData = async () => {
       const [presenceRes, logsRes, guestsRes] = await Promise.all([
         supabase.from('zone_presence').select('zone_name').eq('event_id', selectedEvent).eq('is_inside', true),
@@ -46,9 +72,8 @@ const LiveDashboard = () => {
       (presenceRes.data || []).forEach((p: any) => {
         stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
       });
-      setZoneStats(stats);
 
-      setRecentScans((logsRes.data || []).map((l: any) => ({
+      const scans = (logsRes.data || []).map((l: any) => ({
         id: l.id,
         action: l.action,
         zone_name: l.zone_name,
@@ -56,17 +81,30 @@ const LiveDashboard = () => {
         guest_name: l.wristbands?.guests
           ? `${l.wristbands.guests.first_name} ${l.wristbands.guests.last_name}`
           : 'Nieznany',
-      })));
+      }));
 
       const guests = guestsRes.data || [];
-      setGuestCount(guests.length);
-      setCheckedInCount(guests.filter((g: any) => g.checked_in_at).length);
+
+      // If no real data, switch to demo
+      const hasRealData = Object.keys(stats).length > 0 || scans.length > 0 || guests.length > 0;
+      if (!hasRealData) {
+        setIsDemo(true);
+        setZoneStats(DEMO_ZONE_STATS);
+        setRecentScans(DEMO_SCANS);
+        setGuestCount(520);
+        setCheckedInCount(308);
+      } else {
+        setZoneStats(stats);
+        setRecentScans(scans);
+        setGuestCount(guests.length);
+        setCheckedInCount(guests.filter((g: any) => g.checked_in_at).length);
+      }
     };
 
     loadData();
     const interval = setInterval(loadData, 4000);
     return () => clearInterval(interval);
-  }, [selectedEvent]);
+  }, [selectedEvent, isDemo]);
 
   const totalInside = Object.values(zoneStats).reduce((a, b) => a + b, 0);
 
@@ -79,7 +117,6 @@ const LiveDashboard = () => {
     }
   };
 
-  // Event selector
   if (!selectedEvent) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -103,6 +140,11 @@ const LiveDashboard = () => {
             <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
             <span className="text-white/60 text-sm font-medium">LIVE</span>
           </div>
+          {isDemo && (
+            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              DEMO
+            </span>
+          )}
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{eventTitle}</h1>
         <span className="text-3xl font-mono text-white/80">
@@ -113,24 +155,9 @@ const LiveDashboard = () => {
       <div className="flex-1 grid grid-cols-12 gap-6 p-6">
         {/* Left: Big stats */}
         <div className="col-span-4 flex flex-col gap-6">
-          <StatBox
-            icon={<Users className="h-8 w-8" />}
-            value={totalInside}
-            label="W strefach teraz"
-            color="text-blue-400"
-          />
-          <StatBox
-            icon={<Radio className="h-8 w-8" />}
-            value={guestCount}
-            label="Zaproszonych gości"
-            color="text-purple-400"
-          />
-          <StatBox
-            icon={<TrendingUp className="h-8 w-8" />}
-            value={guestCount > 0 ? `${Math.round((checkedInCount / guestCount) * 100)}%` : '0%'}
-            label="Check-in rate"
-            color="text-emerald-400"
-          />
+          <StatBox icon={<Users className="h-8 w-8" />} value={totalInside} label="W strefach teraz" color="text-blue-400" />
+          <StatBox icon={<Radio className="h-8 w-8" />} value={guestCount} label="Zaproszonych gości" color="text-purple-400" />
+          <StatBox icon={<TrendingUp className="h-8 w-8" />} value={guestCount > 0 ? `${Math.round((checkedInCount / guestCount) * 100)}%` : '0%'} label="Check-in rate" color="text-emerald-400" />
         </div>
 
         {/* Center: Zone heatmap */}
@@ -142,10 +169,7 @@ const LiveDashboard = () => {
               const maxEstimate = zone === 'General' ? 500 : zone === 'VIP' ? 50 : 30;
               const percent = Math.min((count / maxEstimate) * 100, 100);
               return (
-                <div
-                  key={zone}
-                  className="relative rounded-xl border border-white/10 overflow-hidden flex items-center justify-between px-6"
-                >
+                <div key={zone} className="relative rounded-xl border border-white/10 overflow-hidden flex items-center justify-between px-6">
                   <div
                     className={`absolute inset-0 transition-all duration-1000 ${
                       percent >= 80 ? 'bg-red-500/20' : percent >= 50 ? 'bg-orange-500/15' : 'bg-emerald-500/10'
@@ -184,11 +208,6 @@ const LiveDashboard = () => {
                 </span>
               </div>
             ))}
-            {recentScans.length === 0 && (
-              <div className="flex items-center justify-center h-full text-white/30">
-                Brak aktywności
-              </div>
-            )}
           </div>
         </div>
       </div>

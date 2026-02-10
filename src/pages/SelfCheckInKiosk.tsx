@@ -5,6 +5,14 @@ import { CheckCircle, XCircle, Radio, QrCode, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
+// Demo scan cycle for when no real event exists
+const DEMO_RESULTS: RfidScanResult[] = [
+  { success: true, action: 'entry', guest_name: 'Anna Kowalska', company: 'MediaTech Sp. z o.o.', message: 'Witamy na wydarzeniu! Strefa: General' },
+  { success: true, action: 'entry', guest_name: 'Marek Nowak', company: 'Event Pro', message: 'Witamy na wydarzeniu! Strefa: VIP' },
+  { success: false, action: 'denied', reason: 'Opaska nieaktywna — skontaktuj się z obsługą' },
+  { success: true, action: 'entry', guest_name: 'Katarzyna Wiśniewska', message: 'Witamy na wydarzeniu! Strefa: General' },
+];
+
 const SelfCheckInKiosk = () => {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [eventTitle, setEventTitle] = useState('');
@@ -13,8 +21,11 @@ const SelfCheckInKiosk = () => {
   const [lastResult, setLastResult] = useState<RfidScanResult | null>(null);
   const [idle, setIdle] = useState(true);
   const [clock, setClock] = useState(new Date());
+  const [isDemo, setIsDemo] = useState(false);
   const bufferTimeoutRef = useRef<NodeJS.Timeout>();
   const resetTimeoutRef = useRef<NodeJS.Timeout>();
+  const demoIndexRef = useRef(0);
+  const demoIntervalRef = useRef<NodeJS.Timeout>();
 
   // Clock
   useEffect(() => {
@@ -26,17 +37,43 @@ const SelfCheckInKiosk = () => {
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      setEvents(data || []);
       if (data && data.length > 0) {
+        setEvents(data);
         setSelectedEvent(data[0].id);
         setEventTitle(data[0].title);
+      } else {
+        setIsDemo(true);
+        setSelectedEvent('demo');
+        setEventTitle('Festiwal Muzyczny 2026 — Demo');
       }
     };
     load();
   }, []);
 
+  // Demo auto-cycle
+  useEffect(() => {
+    if (!isDemo) return;
+    const cycle = () => {
+      const result = DEMO_RESULTS[demoIndexRef.current % DEMO_RESULTS.length];
+      demoIndexRef.current++;
+      setIdle(false);
+      setLastResult(result);
+      setTimeout(() => {
+        setLastResult(null);
+        setIdle(true);
+      }, 4000);
+    };
+    // First scan after 2s
+    const initial = setTimeout(cycle, 2000);
+    demoIntervalRef.current = setInterval(cycle, 7000);
+    return () => {
+      clearTimeout(initial);
+      if (demoIntervalRef.current) clearInterval(demoIntervalRef.current);
+    };
+  }, [isDemo]);
+
   const processScan = useCallback(async (code: string) => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || isDemo) return;
     setIdle(false);
     try {
       const result = await rfidService.processRfidScan(code, selectedEvent, 'General');
@@ -44,16 +81,16 @@ const SelfCheckInKiosk = () => {
     } catch {
       setLastResult({ success: false, action: 'denied', reason: 'Błąd systemu' });
     }
-    // Reset to idle after 5 seconds
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     resetTimeoutRef.current = setTimeout(() => {
       setLastResult(null);
       setIdle(true);
     }, 5000);
-  }, [selectedEvent]);
+  }, [selectedEvent, isDemo]);
 
   // Keyboard listener for RFID/barcode
   useEffect(() => {
+    if (isDemo) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && scanBuffer.length > 0) {
         e.preventDefault();
@@ -73,29 +110,7 @@ const SelfCheckInKiosk = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [scanBuffer, processScan]);
-
-  // Event selector screen
-  if (!selectedEvent && events.length > 0) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-8">
-        <div className="text-center space-y-8">
-          <h1 className="text-4xl font-bold">Wybierz wydarzenie</h1>
-          <div className="grid gap-4 max-w-lg">
-            {events.map(e => (
-              <button
-                key={e.id}
-                onClick={() => { setSelectedEvent(e.id); setEventTitle(e.title); }}
-                className="p-6 rounded-2xl border-2 border-border hover:border-primary bg-card text-card-foreground text-xl font-medium transition-colors"
-              >
-                {e.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  }, [scanBuffer, processScan, isDemo]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col select-none cursor-default">
@@ -107,7 +122,14 @@ const SelfCheckInKiosk = () => {
             Wyjdź
           </Button>
         </Link>
-        <h2 className="text-lg font-semibold text-muted-foreground">{eventTitle}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-muted-foreground">{eventTitle}</h2>
+          {isDemo && (
+            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-600 border border-amber-500/30">
+              DEMO
+            </span>
+          )}
+        </div>
         <span className="text-lg font-mono text-muted-foreground">
           {clock.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
@@ -139,9 +161,7 @@ const SelfCheckInKiosk = () => {
               <CheckCircle className="h-28 w-28 text-green-500" />
             </div>
             <div>
-              <h1 className="text-5xl font-bold tracking-tight text-green-600 mb-2">
-                Witamy!
-              </h1>
+              <h1 className="text-5xl font-bold tracking-tight text-green-600 mb-2">Witamy!</h1>
               <p className="text-4xl font-semibold mb-2">{lastResult.guest_name}</p>
               {lastResult.company && (
                 <p className="text-2xl text-muted-foreground">{lastResult.company}</p>
@@ -157,13 +177,9 @@ const SelfCheckInKiosk = () => {
               <XCircle className="h-28 w-28 text-destructive" />
             </div>
             <div>
-              <h1 className="text-5xl font-bold tracking-tight text-destructive mb-2">
-                Odmowa
-              </h1>
+              <h1 className="text-5xl font-bold tracking-tight text-destructive mb-2">Odmowa</h1>
               <p className="text-2xl text-muted-foreground">{lastResult.reason}</p>
-              <p className="text-xl text-muted-foreground mt-4">
-                Skontaktuj się z obsługą
-              </p>
+              <p className="text-xl text-muted-foreground mt-4">Skontaktuj się z obsługą</p>
             </div>
           </div>
         )}
@@ -172,7 +188,7 @@ const SelfCheckInKiosk = () => {
       {/* Bottom bar */}
       <div className="px-8 py-4 border-t border-border text-center">
         <p className="text-sm text-muted-foreground">
-          Self Check-In Kiosk • System aktywny
+          Self Check-In Kiosk • {isDemo ? 'Tryb demonstracyjny' : 'System aktywny'}
         </p>
       </div>
     </div>
