@@ -33,7 +33,7 @@ Zespół Organizacyjny`
   const [invitationTemplate, setInvitationTemplate] = useState<TemplateType>("basic");
   const [brandColor, setBrandColor] = useState("#1EAEDB");
   const [activeTab, setActiveTab] = useState("content");
-  const [logoUrl, setLogoUrl] = useState("https://via.placeholder.com/150x50?text=Logo");
+  const [logoUrl, setLogoUrl] = useState("/placeholder.svg");
   const [showFullPreview, setShowFullPreview] = useState(false);
   const [testEmail, setTestEmail] = useState("");
 
@@ -195,7 +195,7 @@ Zespół Organizacyjny`
                           className="max-h-20 max-w-full object-contain"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = "https://via.placeholder.com/150x50?text=Invalid+Image";
+                            target.src = "/placeholder.svg";
                           }}
                         />
                       </div>
@@ -272,7 +272,7 @@ Zespół Organizacyjny`
                             className="max-h-16 mx-auto" 
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = "https://via.placeholder.com/150x50?text=Logo";
+                              target.src = "/placeholder.svg";
                             }}
                           />
                         </div>
@@ -378,7 +378,7 @@ Zespół Organizacyjny`
                       className="max-h-16 mx-auto" 
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = "https://via.placeholder.com/150x50?text=Logo";
+                        target.src = "/placeholder.svg";
                       }}
                     />
                   </div>

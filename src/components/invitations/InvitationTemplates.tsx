@@ -18,31 +18,31 @@ const templates: InvitationTemplate[] = [
     id: "basic",
     name: "Podstawowy",
     description: "Prosty, przejrzysty układ z logiem na górze",
-    previewImage: "https://via.placeholder.com/300x200?text=Basic+Template",
+    previewImage: "/placeholder.svg",
   },
   {
     id: "elegant",
     name: "Elegancki",
     description: "Stonowane kolory, delikatne elementy ozdobne",
-    previewImage: "https://via.placeholder.com/300x200?text=Elegant+Template",
+    previewImage: "/placeholder.svg",
   },
   {
     id: "minimal",
     name: "Minimalistyczny",
     description: "Jak najmniej elementów, maksimum treści",
-    previewImage: "https://via.placeholder.com/300x200?text=Minimal+Template",
+    previewImage: "/placeholder.svg",
   },
   {
     id: "corporate",
     name: "Korporacyjny",
     description: "Profesjonalny wygląd dla wydarzeń biznesowych",
-    previewImage: "https://via.placeholder.com/300x200?text=Corporate+Template",
+    previewImage: "/placeholder.svg",
   },
   {
     id: "casual",
     name: "Casual",
     description: "Swobodny styl dla nieformalnych wydarzeń",
-    previewImage: "https://via.placeholder.com/300x200?text=Casual+Template",
+    previewImage: "/placeholder.svg",
   },
 ];
 
