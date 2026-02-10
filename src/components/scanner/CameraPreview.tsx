@@ -46,7 +46,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           console.log("QR kod wykryty:", decodedText);
           if (onQrCodeDetected) {
             onQrCodeDetected(decodedText);
-            qrScanner.stop().catch(error => console.error("Błąd przy zatrzymywaniu skanera:", error));
+            qrScanner.stop().catch(() => {});
           }
         },
         (errorMessage) => {
@@ -64,12 +64,19 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
 
     return () => {
       // Clean up scanner when component unmounts
-      if (qrScannerRef.current && scanning) {
-        qrScannerRef.current.stop().catch(error => 
-          console.error("Błąd przy zatrzymywaniu skanera:", error)
-        );
+      if (qrScannerRef.current) {
+        const scanner = qrScannerRef.current;
         qrScannerRef.current = null;
         setIsCameraReady(false);
+        try {
+          const state = scanner.getState();
+          // Only stop if scanner is actively scanning or paused (states 2 and 3)
+          if (state === 2 || state === 3) {
+            scanner.stop().catch(() => {});
+          }
+        } catch {
+          // Scanner not in a stoppable state, ignore
+        }
       }
     };
   }, [scanning, onQrCodeDetected]);
