@@ -36,6 +36,9 @@ import AccreditationRequest from "@/pages/AccreditationRequest";
 import InvitationEditor from "@/pages/InvitationEditor";
 import RfidScanner from "@/pages/RfidScanner";
 import WristbandManagement from "@/pages/WristbandManagement";
+import ZoneHeatmap from "@/pages/ZoneHeatmap";
+import SelfCheckInKiosk from "@/pages/SelfCheckInKiosk";
+import LiveDashboard from "@/pages/LiveDashboard";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -100,7 +103,12 @@ const AppRoutes = () => {
         <Route path="/rfid-scanner" element={<RfidScanner />} />
         <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/purchase" element={<Purchase />} />
+        <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
       </Route>
+
+      {/* Full-screen routes (no MainLayout) */}
+      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
+      <Route path="/live-dashboard" element={<LiveDashboard />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
