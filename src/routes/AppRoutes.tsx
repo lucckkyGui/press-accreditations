@@ -76,25 +76,8 @@ const AppRoutes = () => {
       <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
-      {/* Public RFID demo routes with MainLayout */}
+      {/* All app routes with MainLayout — public access */}
       <Route element={<MainLayout />}>
-        <Route path="/rfid-scanner" element={<RfidScanner />} />
-        <Route path="/wristbands" element={<WristbandManagement />} />
-        <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
-      </Route>
-
-      {/* Full-screen public RFID demo routes */}
-      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
-      <Route path="/live-dashboard" element={<LiveDashboard />} />
-
-      {/* Protected routes with MainLayout */}
-      <Route
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
@@ -112,7 +95,14 @@ const AppRoutes = () => {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/invitation-editor" element={<InvitationEditor />} />
         <Route path="/purchase" element={<Purchase />} />
+        <Route path="/rfid-scanner" element={<RfidScanner />} />
+        <Route path="/wristbands" element={<WristbandManagement />} />
+        <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
       </Route>
+
+      {/* Full-screen routes */}
+      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
+      <Route path="/live-dashboard" element={<LiveDashboard />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
