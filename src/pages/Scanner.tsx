@@ -1,9 +1,10 @@
 
 import React from 'react';
 import PageContent from '@/components/layout/PageContent';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EnhancedQRScanner from '@/components/scanner/EnhancedQRScanner';
-import { QrCode } from 'lucide-react';
+import FaceRecognitionCheckIn from '@/components/scanner/FaceRecognitionCheckIn';
+import { QrCode, ScanFace } from 'lucide-react';
 
 // Mock event - w rzeczywistej aplikacji byłby pobierany z kontekstu/API
 const mockEvent = {
@@ -23,26 +24,41 @@ const mockEvent = {
 const Scanner = () => {
   const handleGuestCheckedIn = (guest: any) => {
     console.log('Guest checked in:', guest);
-    // Tu można dodać logikę aktualizacji bazy danych
   };
 
   return (
     <PageContent>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
-            <QrCode className="h-8 w-8" />
-            Skaner QR Kodów
-          </h1>
+          <h1 className="text-3xl font-bold mb-2">Skaner Check-in</h1>
           <p className="text-muted-foreground">
-            Skanuj kody QR gości aby zarejestrować ich obecność na wydarzeniu
+            Skanuj kody QR lub użyj rozpoznawania twarzy aby zarejestrować gości
           </p>
         </div>
 
-        <EnhancedQRScanner
-          event={mockEvent}
-          onGuestCheckedIn={handleGuestCheckedIn}
-        />
+        <Tabs defaultValue="qr" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="qr" className="flex items-center gap-2">
+              <QrCode className="h-4 w-4" />
+              Kod QR
+            </TabsTrigger>
+            <TabsTrigger value="face" className="flex items-center gap-2">
+              <ScanFace className="h-4 w-4" />
+              Rozpoznawanie twarzy
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="qr">
+            <EnhancedQRScanner
+              event={mockEvent}
+              onGuestCheckedIn={handleGuestCheckedIn}
+            />
+          </TabsContent>
+
+          <TabsContent value="face">
+            <FaceRecognitionCheckIn />
+          </TabsContent>
+        </Tabs>
       </div>
     </PageContent>
   );
