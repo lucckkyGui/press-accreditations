@@ -164,9 +164,10 @@ const GuestsInvitationManager: React.FC<GuestsInvitationManagerProps> = ({
                       className="max-h-96 overflow-y-auto border rounded bg-white p-4"
                       dangerouslySetInnerHTML={{ 
                         __html: DOMPurify.sanitize(generatedInvitations[0].invitationHtml, {
-                          USE_PROFILES: { html: true },
-                          ADD_TAGS: ['style'],
-                          ADD_ATTR: ['style']
+                          ALLOWED_TAGS: ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'strong', 'em', 'br', 'span', 'img', 'table', 'tr', 'td', 'th', 'tbody', 'thead'],
+                          ALLOWED_ATTR: ['class', 'src', 'alt', 'title', 'width', 'height'],
+                          ALLOW_DATA_ATTR: false,
+                          ALLOW_UNKNOWN_PROTOCOLS: false
                         })
                       }}
                     />
