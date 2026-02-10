@@ -8,13 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileDown, Users, Mail, Clock, TrendingUp, MapPin, BarChart3, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { FileDown, Users, Mail, Clock, TrendingUp, MapPin, BarChart3, Loader2, GitCompareArrows } from 'lucide-react';
 import {
   AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { useEventAnalytics } from '@/hooks/analytics/useEventAnalytics';
 import { generateEventPdfReport } from '@/utils/pdfReportGenerator';
+import EventComparisonView from '@/components/analytics/EventComparisonView';
 import { toast } from 'sonner';
 
 const ZONE_COLORS: Record<string, string> = {
@@ -27,6 +30,8 @@ const ZONE_COLORS: Record<string, string> = {
 
 const PostEventReport = () => {
   const [selectedEventId, setSelectedEventId] = useState<string>('');
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareEventId, setCompareEventId] = useState<string>('');
 
   const { data: events } = useQuery({
     queryKey: ['events-for-report'],
@@ -37,6 +42,9 @@ const PostEventReport = () => {
   });
 
   const { data: analytics, isLoading } = useEventAnalytics(selectedEventId || undefined);
+  const { data: compareAnalytics, isLoading: compareLoading } = useEventAnalytics(
+    compareMode && compareEventId ? compareEventId : undefined
+  );
 
   const handleExportPdf = () => {
     if (!analytics) return;
@@ -64,23 +72,43 @@ const PostEventReport = () => {
               Analityka i eksport PDF dla sponsorów i zarządu
             </p>
           </div>
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-wrap gap-3 items-center">
             <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-              <SelectTrigger className="w-[280px]">
+              <SelectTrigger className="w-[240px]">
                 <SelectValue placeholder="Wybierz wydarzenie..." />
               </SelectTrigger>
               <SelectContent>
                 {events?.map(e => (
-                  <SelectItem key={e.id} value={e.id}>
-                    {e.title}
-                  </SelectItem>
+                  <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleExportPdf} disabled={!analytics}>
-              <FileDown className="h-4 w-4 mr-2" />
-              Eksport PDF
-            </Button>
+
+            <div className="flex items-center gap-2">
+              <Switch checked={compareMode} onCheckedChange={(c) => { setCompareMode(c); if (!c) setCompareEventId(''); }} />
+              <Label className="text-sm flex items-center gap-1">
+                <GitCompareArrows className="h-4 w-4" /> Porównaj
+              </Label>
+            </div>
+
+            {compareMode && (
+              <Select value={compareEventId} onValueChange={setCompareEventId}>
+                <SelectTrigger className="w-[240px]">
+                  <SelectValue placeholder="Drugie wydarzenie..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {events?.filter(e => e.id !== selectedEventId).map(e => (
+                    <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {!compareMode && (
+              <Button onClick={handleExportPdf} disabled={!analytics}>
+                <FileDown className="h-4 w-4 mr-2" /> Eksport PDF
+              </Button>
+            )}
           </div>
         </div>
 
@@ -93,7 +121,7 @@ const PostEventReport = () => {
           </Card>
         )}
 
-        {isLoading && (
+        {(isLoading || compareLoading) && (
           <Card>
             <CardContent className="flex items-center justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -101,7 +129,22 @@ const PostEventReport = () => {
           </Card>
         )}
 
-        {analytics && (
+        {/* Comparison mode */}
+        {compareMode && analytics && compareAnalytics && (
+          <EventComparisonView left={analytics} right={compareAnalytics} />
+        )}
+
+        {compareMode && analytics && !compareEventId && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <GitCompareArrows className="h-12 w-12 mb-4 opacity-50" />
+              <p className="text-lg">Wybierz drugie wydarzenie do porównania</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Single event mode */}
+        {!compareMode && analytics && (
           <>
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -153,9 +196,7 @@ const PostEventReport = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{analytics.checkIns.avgDurationMinutes} min</div>
-                  <p className="text-xs text-muted-foreground">
-                    Na podstawie danych RFID
-                  </p>
+                  <p className="text-xs text-muted-foreground">Na podstawie danych RFID</p>
                 </CardContent>
               </Card>
             </div>
@@ -172,9 +213,7 @@ const PostEventReport = () => {
               <TabsContent value="attendance" className="space-y-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Status gości</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>Status gości</CardTitle></CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
@@ -185,38 +224,26 @@ const PostEventReport = () => {
                               { name: 'Zaproszeni', value: analytics.guests.invited, color: '#f59e0b' },
                               { name: 'Odrzuceni', value: analytics.guests.declined, color: '#ef4444' },
                             ]}
-                            cx="50%" cy="50%" outerRadius={100}
-                            dataKey="value"
+                            cx="50%" cy="50%" outerRadius={100} dataKey="value"
                             label={({ name, value }) => value > 0 ? `${name}: ${value}` : ''}
                           >
-                            {[
-                              { color: '#10b981' },
-                              { color: '#3b82f6' },
-                              { color: '#f59e0b' },
-                              { color: '#ef4444' },
-                            ].map((entry, i) => (
+                            {[{ color: '#10b981' }, { color: '#3b82f6' }, { color: '#f59e0b' }, { color: '#ef4444' }].map((entry, i) => (
                               <Cell key={i} fill={entry.color} />
                             ))}
                           </Pie>
-                          <Tooltip />
-                          <Legend />
+                          <Tooltip /><Legend />
                         </PieChart>
                       </ResponsiveContainer>
                     </CardContent>
                   </Card>
 
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Goście według stref</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>Goście według stref</CardTitle></CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={analytics.guests.byZone}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="zone" />
-                          <YAxis />
-                          <Tooltip />
-                          <Legend />
+                          <XAxis dataKey="zone" /><YAxis /><Tooltip /><Legend />
                           <Bar dataKey="total" name="Łącznie" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                           <Bar dataKey="checkedIn" name="Obecni" fill="#10b981" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -228,21 +255,14 @@ const PostEventReport = () => {
 
               <TabsContent value="timeline">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Check-ins w czasie</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Check-ins w czasie</CardTitle></CardHeader>
                   <CardContent>
                     {analytics.checkIns.byHour.length > 0 ? (
                       <ResponsiveContainer width="100%" height={350}>
                         <AreaChart data={analytics.checkIns.byHour}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="hour" />
-                          <YAxis />
-                          <Tooltip />
-                          <Area
-                            type="monotone" dataKey="count" name="Wejścia"
-                            stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2}
-                          />
+                          <XAxis dataKey="hour" /><YAxis /><Tooltip />
+                          <Area type="monotone" dataKey="count" name="Wejścia" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
@@ -283,9 +303,7 @@ const PostEventReport = () => {
                   })}
                   {analytics.guests.byZone.length === 0 && (
                     <Card className="col-span-2">
-                      <CardContent className="py-12 text-center text-muted-foreground">
-                        Brak danych o strefach
-                      </CardContent>
+                      <CardContent className="py-12 text-center text-muted-foreground">Brak danych o strefach</CardContent>
                     </Card>
                   )}
                 </div>
@@ -294,26 +312,18 @@ const PostEventReport = () => {
               <TabsContent value="emails">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Wysłane</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">{analytics.emails.sent}</div>
-                    </CardContent>
+                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Wysłane</CardTitle></CardHeader>
+                    <CardContent><div className="text-3xl font-bold">{analytics.emails.sent}</div></CardContent>
                   </Card>
                   <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Otwarte</CardTitle>
-                    </CardHeader>
+                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Otwarte</CardTitle></CardHeader>
                     <CardContent>
                       <div className="text-3xl font-bold text-primary">{analytics.emails.opened}</div>
                       <p className="text-xs text-muted-foreground">{emailOpenRate.toFixed(1)}% open rate</p>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Nieudane</CardTitle>
-                    </CardHeader>
+                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Nieudane</CardTitle></CardHeader>
                     <CardContent>
                       <div className="text-3xl font-bold text-destructive">{analytics.emails.failed}</div>
                       <p className="text-xs text-muted-foreground">{analytics.emails.pending} oczekujących</p>
