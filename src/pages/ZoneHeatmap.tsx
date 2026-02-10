@@ -17,11 +17,16 @@ const ZONE_COLORS: Record<string, { bg: string; border: string; text: string }> 
   'Artist Lounge': { bg: 'bg-rose-500', border: 'border-rose-400', text: 'text-rose-100' },
 };
 
+const DEMO_ZONE_STATS: Record<string, number> = {
+  VIP: 38, Backstage: 12, Press: 28, General: 423, 'Artist Lounge': 17,
+};
+
 const ZoneHeatmap = () => {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [events, setEvents] = useState<any[]>([]);
   const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
   const [alertedZones, setAlertedZones] = useState<Set<string>>(new Set());
+  const [isDemo, setIsDemo] = useState(false);
   const [maxCapacity] = useState<Record<string, number>>({
     VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20,
   });
@@ -29,14 +34,23 @@ const ZoneHeatmap = () => {
   useEffect(() => {
     const loadEvents = async () => {
       const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      setEvents(data || []);
-      if (data && data.length > 0) setSelectedEvent(data[0].id);
+      if (data && data.length > 0) {
+        setEvents(data);
+        setSelectedEvent(data[0].id);
+      } else {
+        setIsDemo(true);
+        setEvents([{ id: 'demo', title: 'Festiwal Muzyczny 2026 — Demo' }]);
+        setSelectedEvent('demo');
+        setZoneStats(DEMO_ZONE_STATS);
+        // Simulate alert for Artist Lounge (17/20 = 85%)
+        setAlertedZones(new Set(['Artist Lounge']));
+      }
     };
     loadEvents();
   }, []);
 
   useEffect(() => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || isDemo) return;
     const loadStats = async () => {
       const { data } = await supabase
         .from('zone_presence')
@@ -47,9 +61,17 @@ const ZoneHeatmap = () => {
       (data || []).forEach((p: any) => {
         stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
       });
+
+      const hasRealData = Object.keys(stats).length > 0;
+      if (!hasRealData) {
+        setIsDemo(true);
+        setZoneStats(DEMO_ZONE_STATS);
+        setAlertedZones(new Set(['Artist Lounge']));
+        return;
+      }
+
       setZoneStats(stats);
 
-      // Check for new critical zones and show toast
       const newCritical = new Set<string>();
       Object.entries(stats).forEach(([zone, count]) => {
         const cap = maxCapacity[zone] || 100;
@@ -68,7 +90,7 @@ const ZoneHeatmap = () => {
     loadStats();
     const interval = setInterval(loadStats, 3000);
     return () => clearInterval(interval);
-  }, [selectedEvent]);
+  }, [selectedEvent, isDemo]);
 
   const getOccupancyPercent = (zone: string) => {
     const count = zoneStats[zone] || 0;
@@ -94,6 +116,11 @@ const ZoneHeatmap = () => {
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
               <Map className="h-8 w-8 text-primary" />
               Heatmapa stref
+              {isDemo && (
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-600 border border-amber-500/30">
+                  DEMO
+                </span>
+              )}
             </h1>
             <p className="text-muted-foreground">
               Wizualizacja zagęszczenia w strefach w czasie rzeczywistym
@@ -176,7 +203,6 @@ const ZoneHeatmap = () => {
 
             return (
               <Card key={zone} className="overflow-hidden relative">
-                {/* Background heat indicator */}
                 <div
                   className={`absolute inset-0 opacity-[0.07] transition-all duration-1000 ${colors.bg}`}
                   style={{ height: `${percent}%`, top: `${100 - percent}%` }}
@@ -194,7 +220,6 @@ const ZoneHeatmap = () => {
                     <p className="text-5xl font-bold tracking-tighter">{count}</p>
                     <p className="text-sm text-muted-foreground">/ {cap} maks.</p>
                   </div>
-                  {/* Progress bar */}
                   <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-1000 ease-out ${

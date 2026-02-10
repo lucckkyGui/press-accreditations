@@ -29,6 +29,18 @@ interface ImportResult {
   errors: string[];
 }
 
+// Demo wristbands
+const DEMO_WRISTBANDS: WristbandAssignment[] = [
+  { id: 'd1', event_id: 'demo', guest_id: 'g1', guest_name: 'Anna Kowalska', guest_company: 'MediaTech', rfid_code: 'RFID-0041', is_active: true, assigned_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'd2', event_id: 'demo', guest_id: 'g2', guest_name: 'Marek Nowak', guest_company: 'Event Pro', rfid_code: 'RFID-0042', is_active: true, assigned_at: new Date(Date.now() - 72000000).toISOString() },
+  { id: 'd3', event_id: 'demo', guest_id: 'g3', guest_name: 'Katarzyna Wiśniewska', guest_company: '', rfid_code: 'RFID-0043', is_active: true, assigned_at: new Date(Date.now() - 50000000).toISOString() },
+  { id: 'd4', event_id: 'demo', guest_id: 'g4', guest_name: 'Tomasz Zieliński', guest_company: 'Press24', rfid_code: 'RFID-0044', is_active: false, assigned_at: new Date(Date.now() - 40000000).toISOString() },
+  { id: 'd5', event_id: 'demo', guest_id: 'g5', guest_name: 'Piotr Kamiński', guest_company: 'VIP Services', rfid_code: 'RFID-0045', is_active: true, assigned_at: new Date(Date.now() - 30000000).toISOString() },
+  { id: 'd6', event_id: 'demo', guest_id: 'g6', guest_name: 'Maria Lewandowska', guest_company: 'Sound Studio', rfid_code: 'RFID-0046', is_active: true, assigned_at: new Date(Date.now() - 20000000).toISOString() },
+  { id: 'd7', event_id: 'demo', guest_id: 'g7', guest_name: 'Jan Wójcik', guest_company: '', rfid_code: 'RFID-0047', is_active: true, assigned_at: new Date(Date.now() - 10000000).toISOString() },
+  { id: 'd8', event_id: 'demo', guest_id: 'g8', guest_name: 'Aleksandra Dąbrowska', guest_company: 'ArtMedia', rfid_code: 'RFID-0048', is_active: false, assigned_at: new Date(Date.now() - 5000000).toISOString() },
+];
+
 const WristbandManagement = () => {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [events, setEvents] = useState<any[]>([]);
@@ -39,6 +51,7 @@ const WristbandManagement = () => {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [newRfid, setNewRfid] = useState('');
   const [newGuestId, setNewGuestId] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
 
   // CSV import state
   const [csvData, setCsvData] = useState<CsvRow[]>([]);
@@ -52,29 +65,41 @@ const WristbandManagement = () => {
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      setEvents(data || []);
-      if (data && data.length > 0) setSelectedEvent(data[0].id);
+      if (data && data.length > 0) {
+        setEvents(data);
+        setSelectedEvent(data[0].id);
+      } else {
+        setIsDemo(true);
+        setEvents([{ id: 'demo', title: 'Festiwal Muzyczny 2026 — Demo' }]);
+        setSelectedEvent('demo');
+        setWristbands(DEMO_WRISTBANDS);
+      }
     };
     load();
   }, []);
 
   const loadData = useCallback(async () => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || isDemo) return;
     const [wb, g] = await Promise.all([
       rfidService.getWristbands(selectedEvent),
       supabase.from('guests').select('id, first_name, last_name, company, email').eq('event_id', selectedEvent)
     ]);
+
+    if (wb.length === 0 && (g.data || []).length === 0) {
+      setIsDemo(true);
+      setWristbands(DEMO_WRISTBANDS);
+      return;
+    }
+
     setWristbands(wb);
     setGuests(g.data || []);
-  }, [selectedEvent]);
+  }, [selectedEvent, isDemo]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
   const handleAssign = async () => {
-    if (!newRfid || !newGuestId) {
-      toast.error('Wypełnij wszystkie pola');
-      return;
-    }
+    if (isDemo) { toast.info('Tryb demo — operacja niedostępna'); return; }
+    if (!newRfid || !newGuestId) { toast.error('Wypełnij wszystkie pola'); return; }
     try {
       await rfidService.assignWristband(selectedEvent, newGuestId, newRfid);
       toast.success('Opaska przypisana');
@@ -88,6 +113,7 @@ const WristbandManagement = () => {
   };
 
   const handleDeactivate = async (id: string) => {
+    if (isDemo) { toast.info('Tryb demo — operacja niedostępna'); return; }
     try {
       await rfidService.deactivateWristband(id, 'Dezaktywacja manualna');
       toast.success('Opaska dezaktywowana');
@@ -101,100 +127,59 @@ const WristbandManagement = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setCsvErrors([]);
     setImportResult(null);
     setImportProgress(0);
-
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
         const errors: string[] = [];
         const rows: CsvRow[] = [];
-
         results.data.forEach((row: any, i: number) => {
           const rfid = (row.rfid_code || row.rfid || row.code || row.RFID || '').toString().trim();
-          if (!rfid) {
-            errors.push(`Wiersz ${i + 2}: brak kodu RFID`);
-            return;
-          }
-
+          if (!rfid) { errors.push(`Wiersz ${i + 2}: brak kodu RFID`); return; }
           const email = (row.guest_email || row.email || row.Email || '').toString().trim();
           const firstName = (row.guest_first_name || row.first_name || row.imie || row.Imię || '').toString().trim();
           const lastName = (row.guest_last_name || row.last_name || row.nazwisko || row.Nazwisko || '').toString().trim();
-
-          if (!email && (!firstName || !lastName)) {
-            errors.push(`Wiersz ${i + 2}: brak emaila lub imienia i nazwiska dla kodu ${rfid}`);
-            return;
-          }
-
+          if (!email && (!firstName || !lastName)) { errors.push(`Wiersz ${i + 2}: brak emaila lub imienia i nazwiska dla kodu ${rfid}`); return; }
           rows.push({ rfid_code: rfid, guest_email: email, guest_first_name: firstName, guest_last_name: lastName });
         });
-
         setCsvData(rows);
         setCsvPreview(rows.slice(0, 10));
         setCsvErrors(errors);
-
-        if (rows.length > 0 && rows[0].guest_email) {
-          setImportMode('email');
-        } else {
-          setImportMode('name');
-        }
+        if (rows.length > 0 && rows[0].guest_email) { setImportMode('email'); } else { setImportMode('name'); }
       },
-      error: (err) => {
-        toast.error('Błąd parsowania CSV', { description: err.message });
-      }
+      error: (err) => { toast.error('Błąd parsowania CSV', { description: err.message }); }
     });
   };
 
   const handleBulkImport = async () => {
+    if (isDemo) { toast.info('Tryb demo — operacja niedostępna'); return; }
     if (!selectedEvent || csvData.length === 0) return;
-
     setIsImporting(true);
     setImportProgress(0);
     const result: ImportResult = { total: csvData.length, success: 0, failed: 0, errors: [] };
-
     for (let i = 0; i < csvData.length; i++) {
       const row = csvData[i];
       setImportProgress(Math.round(((i + 1) / csvData.length) * 100));
-
       try {
-        // Find guest by email or name
         let guest: any = null;
-
         if (importMode === 'email' && row.guest_email) {
           guest = guests.find(g => g.email?.toLowerCase() === row.guest_email?.toLowerCase());
         } else if (row.guest_first_name && row.guest_last_name) {
-          guest = guests.find(g =>
-            g.first_name?.toLowerCase() === row.guest_first_name?.toLowerCase() &&
-            g.last_name?.toLowerCase() === row.guest_last_name?.toLowerCase()
-          );
+          guest = guests.find(g => g.first_name?.toLowerCase() === row.guest_first_name?.toLowerCase() && g.last_name?.toLowerCase() === row.guest_last_name?.toLowerCase());
         }
-
-        if (!guest) {
-          result.failed++;
-          result.errors.push(`${row.rfid_code}: nie znaleziono gościa (${row.guest_email || `${row.guest_first_name} ${row.guest_last_name}`})`);
-          continue;
-        }
-
+        if (!guest) { result.failed++; result.errors.push(`${row.rfid_code}: nie znaleziono gościa (${row.guest_email || `${row.guest_first_name} ${row.guest_last_name}`})`); continue; }
         await rfidService.assignWristband(selectedEvent, guest.id, row.rfid_code);
         result.success++;
-      } catch (err: any) {
-        result.failed++;
-        result.errors.push(`${row.rfid_code}: ${err.message}`);
-      }
+      } catch (err: any) { result.failed++; result.errors.push(`${row.rfid_code}: ${err.message}`); }
     }
-
     setImportResult(result);
     setIsImporting(false);
     await loadData();
-
-    if (result.failed === 0) {
-      toast.success(`Zaimportowano ${result.success} opasek`);
-    } else {
-      toast.warning(`Zaimportowano ${result.success}/${result.total}, ${result.failed} błędów`);
-    }
+    if (result.failed === 0) { toast.success(`Zaimportowano ${result.success} opasek`); }
+    else { toast.warning(`Zaimportowano ${result.success}/${result.total}, ${result.failed} błędów`); }
   };
 
   const downloadTemplate = () => {
@@ -234,6 +219,11 @@ const WristbandManagement = () => {
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
               <Radio className="h-8 w-8 text-primary" />
               Zarządzanie opaskami RFID
+              {isDemo && (
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-600 border border-amber-500/30">
+                  DEMO
+                </span>
+              )}
             </h1>
             <p className="text-muted-foreground">Przypisuj opaski do gości i zarządzaj dostępem</p>
           </div>
@@ -250,9 +240,7 @@ const WristbandManagement = () => {
                     Masowy import opasek RFID
                   </DialogTitle>
                 </DialogHeader>
-
                 <div className="space-y-4">
-                  {/* Template download */}
                   <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div>
                       <p className="font-medium text-sm">Pobierz szablon CSV</p>
@@ -262,14 +250,10 @@ const WristbandManagement = () => {
                       <Download className="h-4 w-4 mr-2" />Szablon
                     </Button>
                   </div>
-
-                  {/* File upload */}
                   <div>
                     <Label>Plik CSV</Label>
                     <Input type="file" accept=".csv" onChange={handleFileUpload} className="mt-1" />
                   </div>
-
-                  {/* CSV parse errors */}
                   {csvErrors.length > 0 && (
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
@@ -282,16 +266,12 @@ const WristbandManagement = () => {
                       </AlertDescription>
                     </Alert>
                   )}
-
-                  {/* Preview */}
                   {csvPreview.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium">Podgląd ({csvData.length} wierszy)</p>
                         <Select value={importMode} onValueChange={(v: 'email' | 'name') => setImportMode(v)}>
-                          <SelectTrigger className="w-[200px]">
-                            <SelectValue />
-                          </SelectTrigger>
+                          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="email">Dopasuj po emailu</SelectItem>
                             <SelectItem value="name">Dopasuj po imieniu/nazwisku</SelectItem>
@@ -303,37 +283,25 @@ const WristbandManagement = () => {
                           <thead className="bg-muted/50">
                             <tr>
                               <th className="px-3 py-2 text-left font-medium">Kod RFID</th>
-                              <th className="px-3 py-2 text-left font-medium">
-                                {importMode === 'email' ? 'Email' : 'Imię i nazwisko'}
-                              </th>
+                              <th className="px-3 py-2 text-left font-medium">{importMode === 'email' ? 'Email' : 'Imię i nazwisko'}</th>
                               <th className="px-3 py-2 text-left font-medium">Status</th>
                             </tr>
                           </thead>
                           <tbody>
                             {csvPreview.map((row, i) => {
-                              const matchField = importMode === 'email'
-                                ? row.guest_email
-                                : `${row.guest_first_name} ${row.guest_last_name}`;
+                              const matchField = importMode === 'email' ? row.guest_email : `${row.guest_first_name} ${row.guest_last_name}`;
                               const found = importMode === 'email'
                                 ? guests.some(g => g.email?.toLowerCase() === row.guest_email?.toLowerCase())
-                                : guests.some(g =>
-                                    g.first_name?.toLowerCase() === row.guest_first_name?.toLowerCase() &&
-                                    g.last_name?.toLowerCase() === row.guest_last_name?.toLowerCase()
-                                  );
+                                : guests.some(g => g.first_name?.toLowerCase() === row.guest_first_name?.toLowerCase() && g.last_name?.toLowerCase() === row.guest_last_name?.toLowerCase());
                               const alreadyAssigned = wristbands.some(w => w.rfid_code === row.rfid_code);
-
                               return (
                                 <tr key={i} className="border-t">
                                   <td className="px-3 py-2 font-mono text-xs">{row.rfid_code}</td>
                                   <td className="px-3 py-2">{matchField}</td>
                                   <td className="px-3 py-2">
-                                    {alreadyAssigned ? (
-                                      <Badge variant="secondary" className="text-xs">Już przypisana</Badge>
-                                    ) : found ? (
-                                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">Znaleziono</Badge>
-                                    ) : (
-                                      <Badge variant="destructive" className="text-xs">Nie znaleziono</Badge>
-                                    )}
+                                    {alreadyAssigned ? <Badge variant="secondary" className="text-xs">Już przypisana</Badge>
+                                      : found ? <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">Znaleziono</Badge>
+                                      : <Badge variant="destructive" className="text-xs">Nie znaleziono</Badge>}
                                   </td>
                                 </tr>
                               );
@@ -341,67 +309,36 @@ const WristbandManagement = () => {
                           </tbody>
                         </table>
                         {csvData.length > 10 && (
-                          <div className="px-3 py-2 bg-muted/30 text-xs text-muted-foreground text-center">
-                            ...i {csvData.length - 10} więcej wierszy
-                          </div>
+                          <div className="px-3 py-2 bg-muted/30 text-xs text-muted-foreground text-center">...i {csvData.length - 10} więcej wierszy</div>
                         )}
                       </div>
                     </div>
                   )}
-
-                  {/* Import progress */}
                   {isImporting && (
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Importowanie...</span>
-                        <span>{importProgress}%</span>
-                      </div>
+                      <div className="flex justify-between text-sm"><span>Importowanie...</span><span>{importProgress}%</span></div>
                       <Progress value={importProgress} />
                     </div>
                   )}
-
-                  {/* Import result */}
                   {importResult && (
                     <div className="space-y-2">
                       <div className="grid grid-cols-3 gap-2">
-                        <div className="text-center p-2 rounded bg-muted/50">
-                          <p className="text-lg font-bold">{importResult.total}</p>
-                          <p className="text-xs text-muted-foreground">Łącznie</p>
-                        </div>
-                        <div className="text-center p-2 rounded bg-green-500/10">
-                          <p className="text-lg font-bold text-green-600">{importResult.success}</p>
-                          <p className="text-xs text-muted-foreground">Sukces</p>
-                        </div>
-                        <div className="text-center p-2 rounded bg-destructive/10">
-                          <p className="text-lg font-bold text-destructive">{importResult.failed}</p>
-                          <p className="text-xs text-muted-foreground">Błędy</p>
-                        </div>
+                        <div className="text-center p-2 rounded bg-muted/50"><p className="text-lg font-bold">{importResult.total}</p><p className="text-xs text-muted-foreground">Łącznie</p></div>
+                        <div className="text-center p-2 rounded bg-green-500/10"><p className="text-lg font-bold text-green-600">{importResult.success}</p><p className="text-xs text-muted-foreground">Sukces</p></div>
+                        <div className="text-center p-2 rounded bg-destructive/10"><p className="text-lg font-bold text-destructive">{importResult.failed}</p><p className="text-xs text-muted-foreground">Błędy</p></div>
                       </div>
                       {importResult.errors.length > 0 && (
                         <div className="max-h-32 overflow-y-auto text-xs space-y-1 p-2 rounded bg-muted/30">
-                          {importResult.errors.map((e, i) => (
-                            <div key={i} className="flex items-start gap-1">
-                              <XCircle className="h-3 w-3 text-destructive mt-0.5 shrink-0" />
-                              <span>{e}</span>
-                            </div>
-                          ))}
+                          {importResult.errors.map((e, i) => (<div key={i} className="flex items-start gap-1"><XCircle className="h-3 w-3 text-destructive mt-0.5 shrink-0" /><span>{e}</span></div>))}
                         </div>
                       )}
                     </div>
                   )}
-
-                  {/* Actions */}
                   {csvData.length > 0 && !importResult && (
-                    <Button onClick={handleBulkImport} disabled={isImporting} className="w-full">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Importuj {csvData.length} opasek
-                    </Button>
+                    <Button onClick={handleBulkImport} disabled={isImporting} className="w-full"><Upload className="h-4 w-4 mr-2" />Importuj {csvData.length} opasek</Button>
                   )}
-
                   {importResult && (
-                    <Button onClick={() => { resetImport(); setImportDialogOpen(false); }} className="w-full">
-                      <CheckCircle className="h-4 w-4 mr-2" />Zamknij
-                    </Button>
+                    <Button onClick={() => { resetImport(); setImportDialogOpen(false); }} className="w-full"><CheckCircle className="h-4 w-4 mr-2" />Zamknij</Button>
                   )}
                 </div>
               </DialogContent>

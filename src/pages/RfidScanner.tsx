@@ -14,6 +14,26 @@ import { useAuth } from '@/hooks/auth';
 
 const ZONES = ['VIP', 'Backstage', 'Press', 'General', 'Artist Lounge'];
 
+const DEMO_ZONE_STATS: Record<string, number> = { VIP: 23, Backstage: 12, Press: 18, General: 247, 'Artist Lounge': 8 };
+
+const DEMO_SCANS = [
+  { id: '1', action: 'entry', zone_name: 'VIP', created_at: new Date(Date.now() - 15000).toISOString(), guest_name: 'Anna Kowalska', rfid_code: 'RFID-0041' },
+  { id: '2', action: 'entry', zone_name: 'General', created_at: new Date(Date.now() - 45000).toISOString(), guest_name: 'Marek Nowak', rfid_code: 'RFID-0042' },
+  { id: '3', action: 'exit', zone_name: 'Backstage', created_at: new Date(Date.now() - 90000).toISOString(), guest_name: 'Katarzyna Wiśniewska', rfid_code: 'RFID-0043' },
+  { id: '4', action: 'entry', zone_name: 'Press', created_at: new Date(Date.now() - 120000).toISOString(), guest_name: 'Tomasz Zieliński', rfid_code: 'RFID-0044' },
+  { id: '5', action: 'denied', zone_name: 'VIP', created_at: new Date(Date.now() - 180000).toISOString(), guest_name: 'Piotr Kamiński', rfid_code: 'RFID-0045' },
+  { id: '6', action: 'entry', zone_name: 'Artist Lounge', created_at: new Date(Date.now() - 240000).toISOString(), guest_name: 'Maria Lewandowska', rfid_code: 'RFID-0046' },
+];
+
+const DEMO_PRESENCE = [
+  { id: 'p1', zone_name: 'VIP', guest_name: 'Anna Kowalska', entered_at: new Date(Date.now() - 600000).toISOString() },
+  { id: 'p2', zone_name: 'VIP', guest_name: 'Aleksandra Dąbrowska', entered_at: new Date(Date.now() - 300000).toISOString() },
+  { id: 'p3', zone_name: 'Backstage', guest_name: 'Jan Wójcik', entered_at: new Date(Date.now() - 900000).toISOString() },
+  { id: 'p4', zone_name: 'Press', guest_name: 'Tomasz Zieliński', entered_at: new Date(Date.now() - 1200000).toISOString() },
+  { id: 'p5', zone_name: 'General', guest_name: 'Marek Nowak', entered_at: new Date(Date.now() - 400000).toISOString() },
+  { id: 'p6', zone_name: 'Artist Lounge', guest_name: 'Maria Lewandowska', entered_at: new Date(Date.now() - 500000).toISOString() },
+];
+
 const RfidScanner = () => {
   const { user } = useAuth();
   const [selectedEvent, setSelectedEvent] = useState('');
@@ -25,6 +45,7 @@ const RfidScanner = () => {
   const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
   const [zonePresence, setZonePresence] = useState<any[]>([]);
   const [isListening, setIsListening] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bufferTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -32,21 +53,40 @@ const RfidScanner = () => {
   useEffect(() => {
     const loadEvents = async () => {
       const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      setEvents(data || []);
-      if (data && data.length > 0) setSelectedEvent(data[0].id);
+      if (data && data.length > 0) {
+        setEvents(data);
+        setSelectedEvent(data[0].id);
+      } else {
+        setIsDemo(true);
+        setEvents([{ id: 'demo', title: 'Festiwal Muzyczny 2026 — Demo' }]);
+        setSelectedEvent('demo');
+        setZoneStats(DEMO_ZONE_STATS);
+        setRecentScans(DEMO_SCANS);
+        setZonePresence(DEMO_PRESENCE);
+      }
     };
     loadEvents();
   }, []);
 
   // Load zone data when event changes
   useEffect(() => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || isDemo) return;
     const loadData = async () => {
       const [stats, logs, presence] = await Promise.all([
         rfidService.getZoneStats(selectedEvent),
         rfidService.getAccessLogs(selectedEvent, 20),
         rfidService.getZonePresence(selectedEvent),
       ]);
+
+      const hasData = Object.keys(stats).length > 0 || logs.length > 0 || presence.length > 0;
+      if (!hasData) {
+        setIsDemo(true);
+        setZoneStats(DEMO_ZONE_STATS);
+        setRecentScans(DEMO_SCANS);
+        setZonePresence(DEMO_PRESENCE);
+        return;
+      }
+
       setZoneStats(stats);
       setRecentScans(logs);
       setZonePresence(presence);
@@ -54,12 +94,11 @@ const RfidScanner = () => {
     loadData();
     const interval = setInterval(loadData, 5000);
     return () => clearInterval(interval);
-  }, [selectedEvent]);
+  }, [selectedEvent, isDemo]);
 
-  // USB RFID reader handler - reads keyboard input
+  // USB RFID reader handler
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!isListening || !selectedEvent) return;
-    
+    if (!isListening || !selectedEvent || isDemo) return;
     if (e.key === 'Enter' && scanBuffer.length > 0) {
       e.preventDefault();
       processScan(scanBuffer);
@@ -67,7 +106,6 @@ const RfidScanner = () => {
       if (bufferTimeoutRef.current) clearTimeout(bufferTimeoutRef.current);
       return;
     }
-
     if (e.key.length === 1) {
       setScanBuffer(prev => {
         const next = prev + e.key;
@@ -76,7 +114,7 @@ const RfidScanner = () => {
         return next;
       });
     }
-  }, [isListening, selectedEvent, scanBuffer]);
+  }, [isListening, selectedEvent, scanBuffer, isDemo]);
 
   useEffect(() => {
     if (isListening) {
@@ -86,21 +124,15 @@ const RfidScanner = () => {
   }, [isListening, handleKeyDown]);
 
   const processScan = async (rfidCode: string) => {
+    if (isDemo) { toast.info('Tryb demo — skanowanie niedostępne'); return; }
     try {
-      const result = await rfidService.processRfidScan(
-        rfidCode, selectedEvent, selectedZone, user?.id
-      );
+      const result = await rfidService.processRfidScan(rfidCode, selectedEvent, selectedZone, user?.id);
       setLastScan(result);
-
       if (result.success) {
-        toast.success(`${result.action === 'entry' ? '🟢 Wejście' : '🔴 Wyjście'}: ${result.guest_name}`, {
-          description: result.message
-        });
+        toast.success(`${result.action === 'entry' ? '🟢 Wejście' : '🔴 Wyjście'}: ${result.guest_name}`, { description: result.message });
       } else {
         toast.error('⛔ Odmowa dostępu', { description: result.reason });
       }
-
-      // Refresh data
       const [stats, logs, presence] = await Promise.all([
         rfidService.getZoneStats(selectedEvent),
         rfidService.getAccessLogs(selectedEvent, 20),
@@ -109,11 +141,7 @@ const RfidScanner = () => {
       setZoneStats(stats);
       setRecentScans(logs);
       setZonePresence(presence);
-
-      // Check zone capacity alerts (fire and forget)
-      const maxCapacity: Record<string, number> = {
-        VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20,
-      };
+      const maxCapacity: Record<string, number> = { VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20 };
       rfidService.checkZoneCapacityAlerts(selectedEvent, stats, maxCapacity).catch(() => {});
     } catch (err: any) {
       toast.error('Błąd skanowania', { description: err.message });
@@ -155,6 +183,11 @@ const RfidScanner = () => {
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
               <Radio className="h-8 w-8 text-primary" />
               Skaner RFID — Anti-Passback
+              {isDemo && (
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-600 border border-amber-500/30">
+                  DEMO
+                </span>
+              )}
             </h1>
             <p className="text-muted-foreground">
               System kontroli dostępu oparty na opaskach RFID z zabezpieczeniem przed przekazywaniem
@@ -205,12 +238,12 @@ const RfidScanner = () => {
 
         {/* Last scan result */}
         {lastScan && (
-          <Card className={`border-2 ${lastScan.success 
+          <Card className={`border-2 ${lastScan.success
             ? lastScan.action === 'entry' ? 'border-green-500 bg-green-500/5' : 'border-blue-500 bg-blue-500/5'
             : 'border-destructive bg-destructive/5'}`}>
             <CardContent className="py-6 flex items-center gap-4">
               {lastScan.success ? (
-                lastScan.action === 'entry' 
+                lastScan.action === 'entry'
                   ? <CheckCircle className="h-12 w-12 text-green-500" />
                   : <ArrowRightLeft className="h-12 w-12 text-blue-500" />
               ) : (
