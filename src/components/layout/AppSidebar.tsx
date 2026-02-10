@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet, FileBarChart } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -73,6 +73,12 @@ const navigation = [
     title: "Enhanced Dashboard",
     url: "/enhanced-dashboard",
     icon: Zap,
+    isNew: true
+  },
+  {
+    title: "Raport po wydarzeniu",
+    url: "/post-event-report",
+    icon: FileBarChart,
     isNew: true
   },
   {

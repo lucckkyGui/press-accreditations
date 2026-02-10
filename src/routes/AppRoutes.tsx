@@ -39,6 +39,7 @@ import WristbandManagement from "@/pages/WristbandManagement";
 import ZoneHeatmap from "@/pages/ZoneHeatmap";
 import SelfCheckInKiosk from "@/pages/SelfCheckInKiosk";
 import LiveDashboard from "@/pages/LiveDashboard";
+import PostEventReport from "@/pages/PostEventReport";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -98,6 +99,7 @@ const AppRoutes = () => {
         <Route path="/rfid-scanner" element={<RfidScanner />} />
         <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
+        <Route path="/post-event-report" element={<PostEventReport />} />
       </Route>
 
       {/* Full-screen routes */}
