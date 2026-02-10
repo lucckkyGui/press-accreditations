@@ -139,5 +139,62 @@ export const rfidService = {
       stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
     });
     return stats;
+  },
+
+  async checkZoneCapacityAlerts(
+    eventId: string,
+    zoneStats: Record<string, number>,
+    maxCapacity: Record<string, number>
+  ) {
+    const criticalZones: string[] = [];
+    
+    for (const [zone, count] of Object.entries(zoneStats)) {
+      const cap = maxCapacity[zone];
+      if (!cap) continue;
+      const percent = (count / cap) * 100;
+      if (percent >= 90) {
+        criticalZones.push(zone);
+      }
+    }
+
+    if (criticalZones.length === 0) return;
+
+    // Get event organizer
+    const { data: event } = await supabase
+      .from('events')
+      .select('organizer_id')
+      .eq('id', eventId)
+      .single();
+
+    if (!event?.organizer_id) return;
+
+    // Check if we already sent an alert in the last 10 minutes for these zones
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    
+    for (const zone of criticalZones) {
+      const { data: existing } = await supabase
+        .from('user_notifications')
+        .select('id')
+        .eq('user_id', event.organizer_id)
+        .eq('type', 'zone_alert')
+        .gte('created_at', tenMinutesAgo)
+        .like('title', `%${zone}%`)
+        .limit(1);
+
+      if (existing && existing.length > 0) continue;
+
+      const count = zoneStats[zone];
+      const cap = maxCapacity[zone];
+      const percent = Math.round((count / cap) * 100);
+
+      await supabase.from('user_notifications').insert({
+        user_id: event.organizer_id,
+        event_id: eventId,
+        type: 'zone_alert',
+        title: `⚠️ Strefa ${zone} — ${percent}% pojemności`,
+        message: `Strefa ${zone} osiągnęła ${count}/${cap} osób (${percent}%). Rozważ przekierowanie gości do innych stref.`,
+        action_url: '/zone-heatmap',
+      });
+    }
   }
 };

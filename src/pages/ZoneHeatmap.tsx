@@ -4,7 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import PageContent from '@/components/layout/PageContent';
-import { Map, Users, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Map, Users, TrendingUp, AlertTriangle, Bell } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ZONES = ['VIP', 'Backstage', 'Press', 'General', 'Artist Lounge'];
 
@@ -20,6 +21,7 @@ const ZoneHeatmap = () => {
   const [selectedEvent, setSelectedEvent] = useState('');
   const [events, setEvents] = useState<any[]>([]);
   const [zoneStats, setZoneStats] = useState<Record<string, number>>({});
+  const [alertedZones, setAlertedZones] = useState<Set<string>>(new Set());
   const [maxCapacity] = useState<Record<string, number>>({
     VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20,
   });
@@ -46,6 +48,22 @@ const ZoneHeatmap = () => {
         stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
       });
       setZoneStats(stats);
+
+      // Check for new critical zones and show toast
+      const newCritical = new Set<string>();
+      Object.entries(stats).forEach(([zone, count]) => {
+        const cap = maxCapacity[zone] || 100;
+        if ((count / cap) * 100 >= 90) newCritical.add(zone);
+      });
+      newCritical.forEach(zone => {
+        if (!alertedZones.has(zone)) {
+          toast.error(`⚠️ Strefa ${zone} przekroczyła 90% pojemności!`, {
+            description: `${stats[zone]}/${maxCapacity[zone]} osób — rozważ przekierowanie gości`,
+            duration: 10000,
+          });
+        }
+      });
+      setAlertedZones(newCritical);
     };
     loadStats();
     const interval = setInterval(loadStats, 3000);
@@ -90,6 +108,23 @@ const ZoneHeatmap = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Critical zone alert banner */}
+        {alertedZones.size > 0 && (
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardContent className="py-4 flex items-center gap-3">
+              <Bell className="h-5 w-5 text-destructive animate-pulse" />
+              <div>
+                <p className="font-semibold text-destructive">
+                  Alerty pojemności — {alertedZones.size} {alertedZones.size === 1 ? 'strefa przekroczyła' : 'strefy przekroczyły'} 90%
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Strefy: {Array.from(alertedZones).join(', ')} • Powiadomienie wysłane do organizatora
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Summary cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
