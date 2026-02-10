@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
-import { TabsContent } from "@/components/ui/tabs";
+
 import { 
   getMockEvents, 
   getCategoryName,
@@ -95,23 +95,12 @@ const AccreditationEvents = () => {
           translations={filterTranslations}
         />
         
-        <TabsContent value="all">
-          <EventsGrid 
-            events={activeTab === "all" ? tabEvents : []}
-            currentLanguage={currentLanguage}
-            noEventsMessage={t('common.noEventsFound')}
-            translations={eventCardTranslations}
-          />
-        </TabsContent>
-        
-        <TabsContent value="featured">
-          <EventsGrid 
-            events={activeTab === "featured" ? tabEvents : []}
-            currentLanguage={currentLanguage}
-            noEventsMessage={t('common.noEventsFound')}
-            translations={eventCardTranslations}
-          />
-        </TabsContent>
+        <EventsGrid 
+          events={tabEvents}
+          currentLanguage={currentLanguage}
+          noEventsMessage={t('common.noEventsFound')}
+          translations={eventCardTranslations}
+        />
       </div>
     </div>
   );
