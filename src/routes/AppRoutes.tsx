@@ -76,6 +76,17 @@ const AppRoutes = () => {
       <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
+      {/* Public RFID demo routes with MainLayout */}
+      <Route element={<MainLayout />}>
+        <Route path="/rfid-scanner" element={<RfidScanner />} />
+        <Route path="/wristbands" element={<WristbandManagement />} />
+        <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
+      </Route>
+
+      {/* Full-screen public RFID demo routes */}
+      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
+      <Route path="/live-dashboard" element={<LiveDashboard />} />
+
       {/* Protected routes with MainLayout */}
       <Route
         element={
@@ -100,15 +111,8 @@ const AppRoutes = () => {
         <Route path="/media-portal" element={<MediaPortalPage />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/invitation-editor" element={<InvitationEditor />} />
-        <Route path="/rfid-scanner" element={<RfidScanner />} />
-        <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/purchase" element={<Purchase />} />
-        <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
       </Route>
-
-      {/* Full-screen routes (no MainLayout) */}
-      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
-      <Route path="/live-dashboard" element={<LiveDashboard />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
