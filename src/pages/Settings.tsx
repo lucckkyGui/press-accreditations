@@ -38,26 +38,26 @@ const Settings = () => {
       </div>
       
       <Tabs defaultValue="organization" className="space-y-6">
-        <TabsList className="w-full border-b rounded-none justify-start">
-          <TabsTrigger value="organization" className="gap-2">
+        <TabsList className="w-full border-b rounded-none justify-start overflow-x-auto flex-nowrap">
+          <TabsTrigger value="organization" className="gap-2 whitespace-nowrap">
             <Building2 className="h-4 w-4" /> 
-            Organizacja
+            <span className="hidden sm:inline">Organizacja</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
+          <TabsTrigger value="notifications" className="gap-2 whitespace-nowrap">
             <Settings2 className="h-4 w-4" /> 
-            Powiadomienia
+            <span className="hidden sm:inline">Powiadomienia</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-2">
+          <TabsTrigger value="security" className="gap-2 whitespace-nowrap">
             <Lock className="h-4 w-4" /> 
-            Bezpieczeństwo
+            <span className="hidden sm:inline">Bezpieczeństwo</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="gap-2">
+          <TabsTrigger value="users" className="gap-2 whitespace-nowrap">
             <Users className="h-4 w-4" /> 
-            Użytkownicy
+            <span className="hidden sm:inline">Użytkownicy</span>
           </TabsTrigger>
-          <TabsTrigger value="export" className="gap-2">
+          <TabsTrigger value="export" className="gap-2 whitespace-nowrap">
             <Download className="h-4 w-4" /> 
-            Eksport
+            <span className="hidden sm:inline">Eksport</span>
           </TabsTrigger>
         </TabsList>
         
@@ -303,7 +303,7 @@ const Settings = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Uwierzytelnianie dwuskładnikowe</h3>
                   
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                     <div>
                       <p className="font-medium">Status: <span className="text-red-500">Wyłączone</span></p>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -311,7 +311,7 @@ const Settings = () => {
                         Po włączeniu będziesz potrzebować kodu z aplikacji do logowania.
                       </p>
                     </div>
-                    <Button variant="outline">Włącz 2FA</Button>
+                    <Button variant="outline" className="w-full sm:w-auto shrink-0">Włącz 2FA</Button>
                   </div>
                   
                   <Separator />
@@ -371,7 +371,7 @@ const Settings = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="p-4 border border-red-200 rounded-md bg-white">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
               <div>
                 <h4 className="font-medium text-red-800">Usuń wszystkie dane z konta</h4>
                 <p className="text-sm text-red-700 mt-1">
@@ -381,7 +381,7 @@ const Settings = () => {
               </div>
               <Button 
                 variant="outline" 
-                className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 w-full sm:w-auto shrink-0"
                 onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
               >
                 Usuń dane
@@ -390,7 +390,7 @@ const Settings = () => {
           </div>
           
           <div className="p-4 border border-red-200 rounded-md bg-white">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
               <div>
                 <h4 className="font-medium text-red-800">Zamknij konto</h4>
                 <p className="text-sm text-red-700 mt-1">
@@ -399,6 +399,7 @@ const Settings = () => {
               </div>
               <Button 
                 variant="destructive"
+                className="w-full sm:w-auto shrink-0"
                 onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
               >
                 Zamknij konto

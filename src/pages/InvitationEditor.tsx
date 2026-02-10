@@ -55,46 +55,46 @@ Zespół Organizacyjny`
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edytor zaproszeń</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Edytor zaproszeń</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Personalizuj treść i wygląd zaproszeń dla gości.
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExport} className="gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={handleExport} size="sm" className="gap-2 flex-1 sm:flex-none">
             <Download className="h-4 w-4" />
-            Eksportuj
+            <span className="hidden sm:inline">Eksportuj</span>
           </Button>
-          <Button variant="outline" onClick={() => setShowFullPreview(true)} className="gap-2">
+          <Button variant="outline" onClick={() => setShowFullPreview(true)} size="sm" className="gap-2 flex-1 sm:flex-none">
             <Eye className="h-4 w-4" />
-            Podgląd
+            <span className="hidden sm:inline">Podgląd</span>
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} size="sm" className="flex-1 sm:flex-none">
             Zapisz
           </Button>
         </div>
       </div>
       
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="w-full border-b rounded-none justify-start">
-            <TabsTrigger value="content" className="gap-2">
+          <TabsList className="w-full border-b rounded-none justify-start overflow-x-auto flex-nowrap">
+            <TabsTrigger value="content" className="gap-2 whitespace-nowrap">
               <File className="h-4 w-4" />
-              Treść
+              <span className="hidden sm:inline">Treść</span>
             </TabsTrigger>
-            <TabsTrigger value="template" className="gap-2">
+            <TabsTrigger value="template" className="gap-2 whitespace-nowrap">
               <Layout className="h-4 w-4" />
-              Szablon
+              <span className="hidden sm:inline">Szablon</span>
             </TabsTrigger>
-            <TabsTrigger value="branding" className="gap-2">
+            <TabsTrigger value="branding" className="gap-2 whitespace-nowrap">
               <Image className="h-4 w-4" />
-              Branding
+              <span className="hidden sm:inline">Branding</span>
             </TabsTrigger>
-            <TabsTrigger value="test" className="gap-2">
+            <TabsTrigger value="test" className="gap-2 whitespace-nowrap">
               <Mail className="h-4 w-4" />
-              Test
+              <span className="hidden sm:inline">Test</span>
             </TabsTrigger>
           </TabsList>
           
