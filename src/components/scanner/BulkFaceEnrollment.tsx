@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, UserPlus, X } from 'lucide-react';
+import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, UserPlus, X, Wand2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -122,6 +122,41 @@ export default function BulkFaceEnrollment() {
 
   const assignedCount = thumbnails.filter((t) => t.assignedGuestId).length;
   const assignedGuestIds = new Set(thumbnails.map((t) => t.assignedGuestId).filter(Boolean));
+
+  const autoMatchGuests = useCallback(() => {
+    if (!guests?.length || thumbnails.length === 0) return;
+    let matched = 0;
+    const usedGuestIds = new Set<string>();
+    const updated = thumbnails.map((t) => {
+      if (t.assignedGuestId) {
+        usedGuestIds.add(t.assignedGuestId);
+        return t;
+      }
+      const baseName = t.fileName.replace(/\.(jpe?g|png|webp)$/i, '').toLowerCase();
+      const guest = guests.find((g) => {
+        if (usedGuestIds.has(g.id)) return false;
+        const email = g.email.toLowerCase();
+        const fullName = `${g.first_name}.${g.last_name}`.toLowerCase();
+        const fullNameAlt = `${g.first_name}_${g.last_name}`.toLowerCase();
+        const fullNameSpace = `${g.first_name} ${g.last_name}`.toLowerCase();
+        return baseName === email || baseName.includes(email)
+          || baseName === fullName || baseName === fullNameAlt || baseName === fullNameSpace
+          || baseName === g.id;
+      });
+      if (guest) {
+        matched++;
+        usedGuestIds.add(guest.id);
+        return { ...t, assignedGuestId: guest.id };
+      }
+      return t;
+    });
+    setThumbnails(updated);
+    if (matched > 0) {
+      toast.success(`Automatycznie dopasowano ${matched} gości`);
+    } else {
+      toast.info('Nie udało się dopasować żadnego gościa po nazwie pliku');
+    }
+  }, [guests, thumbnails]);
 
   const processManualEnrollment = async () => {
     if (!zipFile || !selectedEventId || !guests?.length) return;
@@ -416,14 +451,25 @@ export default function BulkFaceEnrollment() {
               </TabsContent>
 
               <TabsContent value="manual" className="space-y-4 mt-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <label className="flex items-center gap-2 text-sm font-medium">
                     <UserPlus className="h-4 w-4" />
                     Przypisz gości do zdjęć ({assignedCount}/{thumbnails.length})
                   </label>
-                  {assignedCount > 0 && (
-                    <Badge variant="secondary">{assignedCount} przypisanych</Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={autoMatchGuests}
+                      disabled={isProcessing || !guests?.length}
+                    >
+                      <Wand2 className="h-3.5 w-3.5 mr-1" />
+                      Auto-dopasuj
+                    </Button>
+                    {assignedCount > 0 && (
+                      <Badge variant="secondary">{assignedCount} przypisanych</Badge>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
@@ -545,6 +591,7 @@ export default function BulkFaceEnrollment() {
               <ul className="list-disc pl-4 space-y-0.5 text-xs">
                 <li><strong>Mapowanie CSV:</strong> Prześlij CSV z kolumnami <code>email</code> + <code>file</code></li>
                 <li><strong>Ręczne przypisanie:</strong> Wybierz gościa z listy dla każdego zdjęcia</li>
+                <li><strong>Auto-dopasowanie:</strong> Nazwij pliki wg emaila (np. <code>jan@firma.pl.jpg</code>) lub imienia i nazwiska (np. <code>jan.kowalski.jpg</code>)</li>
               </ul>
             </div>
           </div>
