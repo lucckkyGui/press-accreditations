@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, ImageIcon } from 'lucide-react';
+import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, UserPlus, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import JSZip from 'jszip';
 import Papa from 'papaparse';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface EnrollmentResult {
   guestName: string;
@@ -20,8 +21,9 @@ interface EnrollmentResult {
 
 interface ThumbnailPreview {
   fileName: string;
+  fullPath: string;
   dataUrl: string;
-  guestMatch?: string;
+  assignedGuestId?: string;
 }
 
 export default function BulkFaceEnrollment() {
@@ -35,6 +37,8 @@ export default function BulkFaceEnrollment() {
   const [results, setResults] = useState<EnrollmentResult[]>([]);
   const [thumbnails, setThumbnails] = useState<ThumbnailPreview[]>([]);
   const [isLoadingThumbnails, setIsLoadingThumbnails] = useState(false);
+  const [mappingMode, setMappingMode] = useState<'csv' | 'manual'>('csv');
+
   const { data: events } = useQuery({
     queryKey: ['events-bulk-enroll'],
     queryFn: async () => {
@@ -69,7 +73,7 @@ export default function BulkFaceEnrollment() {
           (f) => !zip.files[f].dir && /\.(jpe?g|png|webp)$/i.test(f)
         );
         const previews: ThumbnailPreview[] = [];
-        const maxPreviews = Math.min(imageFiles.length, 20);
+        const maxPreviews = Math.min(imageFiles.length, 50);
         for (let i = 0; i < maxPreviews; i++) {
           const entry = zip.file(imageFiles[i]);
           if (!entry) continue;
@@ -77,10 +81,14 @@ export default function BulkFaceEnrollment() {
           const ext = imageFiles[i].split('.').pop()?.toLowerCase() || 'jpg';
           const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
           const shortName = imageFiles[i].split('/').pop() || imageFiles[i];
-          previews.push({ fileName: shortName, dataUrl: `data:${mime};base64,${base64}` });
+          previews.push({
+            fileName: shortName,
+            fullPath: imageFiles[i],
+            dataUrl: `data:${mime};base64,${base64}`,
+          });
         }
         setThumbnails(previews);
-        toast.success(`Znaleziono ${imageFiles.length} zdjęć w ZIP${imageFiles.length > 20 ? ' (podgląd pierwszych 20)' : ''}`);
+        toast.success(`Znaleziono ${imageFiles.length} zdjęć w ZIP${imageFiles.length > 50 ? ' (podgląd pierwszych 50)' : ''}`);
       } catch {
         toast.error('Nie udało się odczytać ZIP');
       } finally {
@@ -100,7 +108,89 @@ export default function BulkFaceEnrollment() {
     }
   }, []);
 
-  const processBulkEnrollment = async () => {
+  const assignGuestToThumbnail = (thumbnailIndex: number, guestId: string) => {
+    setThumbnails((prev) =>
+      prev.map((t, i) => (i === thumbnailIndex ? { ...t, assignedGuestId: guestId || undefined } : t))
+    );
+  };
+
+  const clearAssignment = (thumbnailIndex: number) => {
+    setThumbnails((prev) =>
+      prev.map((t, i) => (i === thumbnailIndex ? { ...t, assignedGuestId: undefined } : t))
+    );
+  };
+
+  const assignedCount = thumbnails.filter((t) => t.assignedGuestId).length;
+  const assignedGuestIds = new Set(thumbnails.map((t) => t.assignedGuestId).filter(Boolean));
+
+  const processManualEnrollment = async () => {
+    if (!zipFile || !selectedEventId || !guests?.length) return;
+    const mapped = thumbnails.filter((t) => t.assignedGuestId);
+    if (mapped.length === 0) {
+      toast.error('Przypisz przynajmniej jednego gościa do zdjęcia');
+      return;
+    }
+
+    setIsProcessing(true);
+    setResults([]);
+    setProgress(0);
+    setProcessedItems(0);
+    setTotalItems(mapped.length);
+
+    try {
+      const zipData = await zipFile.arrayBuffer();
+      const zip = await JSZip.loadAsync(zipData);
+      const enrollResults: EnrollmentResult[] = [];
+
+      for (let i = 0; i < mapped.length; i++) {
+        const item = mapped[i];
+        const guest = guests.find((g) => g.id === item.assignedGuestId);
+        if (!guest) {
+          enrollResults.push({ guestName: '?', fileName: item.fileName, success: false, message: 'Nie znaleziono gościa' });
+          setProcessedItems(i + 1);
+          setProgress(((i + 1) / mapped.length) * 100);
+          continue;
+        }
+
+        try {
+          const { data, error } = await supabase.functions.invoke('face-recognition', {
+            body: {
+              action: 'enroll',
+              capturedImageBase64: item.dataUrl,
+              eventId: selectedEventId,
+              guestId: guest.id,
+            },
+          });
+          if (error) throw error;
+          enrollResults.push({
+            guestName: `${guest.first_name} ${guest.last_name}`,
+            fileName: item.fileName,
+            success: true,
+            message: data.message || 'Zapisano',
+          });
+        } catch (err: any) {
+          enrollResults.push({
+            guestName: `${guest.first_name} ${guest.last_name}`,
+            fileName: item.fileName,
+            success: false,
+            message: err.message || 'Błąd zapisu',
+          });
+        }
+        setProcessedItems(i + 1);
+        setProgress(((i + 1) / mapped.length) * 100);
+      }
+
+      setResults(enrollResults);
+      const successCount = enrollResults.filter((r) => r.success).length;
+      toast.success(`Enrollment zakończony: ${successCount}/${enrollResults.length} zapisanych`);
+    } catch (err: any) {
+      toast.error(err.message || 'Błąd przetwarzania');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const processCsvEnrollment = async () => {
     if (!zipFile || !csvFile || !selectedEventId || !guests?.length) return;
 
     setIsProcessing(true);
@@ -109,7 +199,6 @@ export default function BulkFaceEnrollment() {
     setProcessedItems(0);
 
     try {
-      // Parse CSV
       const csvText = await csvFile.text();
       const parsed = Papa.parse<Record<string, string>>(csvText, {
         header: true,
@@ -123,37 +212,20 @@ export default function BulkFaceEnrollment() {
         return;
       }
 
-      // Expect columns: email (or id), filename
       const rows = parsed.data;
-      if (rows.length === 0) {
-        toast.error('Plik CSV jest pusty');
-        setIsProcessing(false);
-        return;
-      }
+      if (rows.length === 0) { toast.error('Plik CSV jest pusty'); setIsProcessing(false); return; }
 
-      // Detect columns
       const firstRow = rows[0];
       const keys = Object.keys(firstRow);
       const emailCol = keys.find((k) => k.includes('email') || k.includes('e-mail'));
       const idCol = keys.find((k) => k === 'id' || k === 'guest_id');
       const fileCol = keys.find((k) => k.includes('file') || k.includes('photo') || k.includes('zdjęcie') || k.includes('zdjecie') || k.includes('plik'));
 
-      if (!fileCol) {
-        toast.error('Brak kolumny z nazwą pliku w CSV (oczekiwana: file, photo, plik, zdjęcie)');
-        setIsProcessing(false);
-        return;
-      }
+      if (!fileCol) { toast.error('Brak kolumny z nazwą pliku w CSV'); setIsProcessing(false); return; }
+      if (!emailCol && !idCol) { toast.error('Brak kolumny identyfikującej gościa'); setIsProcessing(false); return; }
 
-      if (!emailCol && !idCol) {
-        toast.error('Brak kolumny identyfikującej gościa (oczekiwana: email lub id)');
-        setIsProcessing(false);
-        return;
-      }
-
-      // Load ZIP
       const zipData = await zipFile.arrayBuffer();
       const zip = await JSZip.loadAsync(zipData);
-
       setTotalItems(rows.length);
       const enrollResults: EnrollmentResult[] = [];
 
@@ -163,80 +235,42 @@ export default function BulkFaceEnrollment() {
         const email = emailCol ? row[emailCol]?.trim() : undefined;
         const guestId = idCol ? row[idCol]?.trim() : undefined;
 
-        // Find guest
         let guest = guestId
           ? guests.find((g) => g.id === guestId)
           : guests.find((g) => g.email.toLowerCase() === email?.toLowerCase());
 
         if (!guest) {
-          enrollResults.push({
-            guestName: email || guestId || '?',
-            fileName: fileName || '?',
-            success: false,
-            message: 'Nie znaleziono gościa',
-          });
-          setProcessedItems(i + 1);
-          setProgress(((i + 1) / rows.length) * 100);
-          continue;
+          enrollResults.push({ guestName: email || guestId || '?', fileName: fileName || '?', success: false, message: 'Nie znaleziono gościa' });
+          setProcessedItems(i + 1); setProgress(((i + 1) / rows.length) * 100); continue;
         }
 
-        // Find file in ZIP (support nested paths)
         let zipEntry = zip.file(fileName);
         if (!zipEntry) {
-          // Search in subdirectories
           const allFiles = Object.keys(zip.files);
           const match = allFiles.find((f) => f.endsWith(`/${fileName}`) || f === fileName);
           if (match) zipEntry = zip.file(match);
         }
 
         if (!zipEntry) {
-          enrollResults.push({
-            guestName: `${guest.first_name} ${guest.last_name}`,
-            fileName: fileName || '?',
-            success: false,
-            message: 'Nie znaleziono pliku w ZIP',
-          });
-          setProcessedItems(i + 1);
-          setProgress(((i + 1) / rows.length) * 100);
-          continue;
+          enrollResults.push({ guestName: `${guest.first_name} ${guest.last_name}`, fileName: fileName || '?', success: false, message: 'Nie znaleziono pliku w ZIP' });
+          setProcessedItems(i + 1); setProgress(((i + 1) / rows.length) * 100); continue;
         }
 
         try {
-          // Read image from ZIP as base64
           const base64 = await zipEntry.async('base64');
           const ext = fileName.split('.').pop()?.toLowerCase() || 'jpg';
           const mimeType = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
           const dataUrl = `data:${mimeType};base64,${base64}`;
 
-          // Call edge function for enrollment
           const { data, error } = await supabase.functions.invoke('face-recognition', {
-            body: {
-              action: 'enroll',
-              capturedImageBase64: dataUrl,
-              eventId: selectedEventId,
-              guestId: guest.id,
-            },
+            body: { action: 'enroll', capturedImageBase64: dataUrl, eventId: selectedEventId, guestId: guest.id },
           });
-
           if (error) throw error;
-
-          enrollResults.push({
-            guestName: `${guest.first_name} ${guest.last_name}`,
-            fileName,
-            success: true,
-            message: data.message || 'Zapisano',
-          });
+          enrollResults.push({ guestName: `${guest.first_name} ${guest.last_name}`, fileName, success: true, message: data.message || 'Zapisano' });
         } catch (err: any) {
-          enrollResults.push({
-            guestName: `${guest.first_name} ${guest.last_name}`,
-            fileName,
-            success: false,
-            message: err.message || 'Błąd zapisu',
-          });
+          enrollResults.push({ guestName: `${guest.first_name} ${guest.last_name}`, fileName, success: false, message: err.message || 'Błąd zapisu' });
         }
-
-        setProcessedItems(i + 1);
-        setProgress(((i + 1) / rows.length) * 100);
+        setProcessedItems(i + 1); setProgress(((i + 1) / rows.length) * 100);
       }
 
       setResults(enrollResults);
@@ -259,7 +293,7 @@ export default function BulkFaceEnrollment() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Upload className="h-5 w-5" />
-            Masowy enrollment twarzy (ZIP + CSV)
+            Masowy enrollment twarzy
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -282,33 +316,9 @@ export default function BulkFaceEnrollment() {
         </CardContent>
       </Card>
 
-      {/* File uploads */}
+      {/* ZIP upload */}
       <Card>
         <CardContent className="pt-4 space-y-4">
-          {/* CSV */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium">
-              <FileSpreadsheet className="h-4 w-4" />
-              Plik CSV (mapowanie gość → zdjęcie)
-            </label>
-            <p className="text-xs text-muted-foreground">
-              Kolumny: <code>email</code> (lub <code>id</code>) + <code>file</code> (nazwa pliku w ZIP)
-            </p>
-            <input
-              type="file"
-              accept=".csv,.txt"
-              onChange={handleCsvChange}
-              disabled={isProcessing}
-              className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
-            />
-            {csvFile && (
-              <Badge variant="secondary" className="text-xs">
-                {csvFile.name}
-              </Badge>
-            )}
-          </div>
-
-          {/* ZIP */}
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium">
               <FileArchive className="h-4 w-4" />
@@ -331,52 +341,157 @@ export default function BulkFaceEnrollment() {
             )}
           </div>
 
-          {/* Thumbnail previews */}
           {isLoadingThumbnails && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               Ładowanie podglądu zdjęć...
             </div>
           )}
-          {thumbnails.length > 0 && (
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <Eye className="h-4 w-4" />
-                Podgląd zdjęć z ZIP ({thumbnails.length})
-              </label>
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
-                {thumbnails.map((t, i) => (
-                  <div key={i} className="relative group">
-                    <div className="aspect-square rounded-md overflow-hidden border border-border bg-muted">
-                      <img
-                        src={t.dataUrl}
-                        alt={t.fileName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground truncate mt-0.5" title={t.fileName}>
-                      {t.fileName}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={processBulkEnrollment}
-            disabled={isProcessing || !zipFile || !csvFile || !selectedEventId}
-            className="w-full"
-          >
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4 mr-2" />
-            )}
-            {isProcessing ? `Przetwarzanie ${processedItems}/${totalItems}...` : 'Rozpocznij enrollment'}
-          </Button>
         </CardContent>
       </Card>
+
+      {/* Mapping mode */}
+      {thumbnails.length > 0 && selectedEventId && (
+        <Card>
+          <CardContent className="pt-4">
+            <Tabs value={mappingMode} onValueChange={(v) => setMappingMode(v as 'csv' | 'manual')}>
+              <TabsList className="w-full">
+                <TabsTrigger value="csv" className="flex-1 gap-1">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Mapowanie CSV
+                </TabsTrigger>
+                <TabsTrigger value="manual" className="flex-1 gap-1">
+                  <UserPlus className="h-4 w-4" />
+                  Ręczne przypisanie
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="csv" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <FileSpreadsheet className="h-4 w-4" />
+                    Plik CSV (mapowanie gość → zdjęcie)
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Kolumny: <code>email</code> (lub <code>id</code>) + <code>file</code> (nazwa pliku w ZIP)
+                  </p>
+                  <input
+                    type="file"
+                    accept=".csv,.txt"
+                    onChange={handleCsvChange}
+                    disabled={isProcessing}
+                    className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                  />
+                  {csvFile && (
+                    <Badge variant="secondary" className="text-xs">{csvFile.name}</Badge>
+                  )}
+                </div>
+
+                {/* CSV thumbnail preview */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Eye className="h-4 w-4" />
+                    Podgląd zdjęć ({thumbnails.length})
+                  </label>
+                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-1.5 max-h-36 overflow-y-auto p-1">
+                    {thumbnails.map((t, i) => (
+                      <div key={i} className="relative">
+                        <div className="aspect-square rounded overflow-hidden border border-border bg-muted">
+                          <img src={t.dataUrl} alt={t.fileName} className="w-full h-full object-cover" />
+                        </div>
+                        <p className="text-[9px] text-muted-foreground truncate" title={t.fileName}>{t.fileName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={processCsvEnrollment}
+                  disabled={isProcessing || !zipFile || !csvFile || !selectedEventId}
+                  className="w-full"
+                >
+                  {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {isProcessing ? `Przetwarzanie ${processedItems}/${totalItems}...` : 'Rozpocznij enrollment (CSV)'}
+                </Button>
+              </TabsContent>
+
+              <TabsContent value="manual" className="space-y-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <UserPlus className="h-4 w-4" />
+                    Przypisz gości do zdjęć ({assignedCount}/{thumbnails.length})
+                  </label>
+                  {assignedCount > 0 && (
+                    <Badge variant="secondary">{assignedCount} przypisanych</Badge>
+                  )}
+                </div>
+
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                  {thumbnails.map((t, i) => {
+                    const assignedGuest = guests?.find((g) => g.id === t.assignedGuestId);
+                    return (
+                      <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-card">
+                        <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden border border-border bg-muted">
+                          <img src={t.dataUrl} alt={t.fileName} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <p className="text-xs text-muted-foreground truncate" title={t.fileName}>{t.fileName}</p>
+                          <Select
+                            value={t.assignedGuestId || ''}
+                            onValueChange={(val) => assignGuestToThumbnail(i, val)}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Wybierz gościa..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {guests?.map((g) => (
+                                <SelectItem
+                                  key={g.id}
+                                  value={g.id}
+                                  disabled={assignedGuestIds.has(g.id) && g.id !== t.assignedGuestId}
+                                >
+                                  <span className="flex items-center gap-1">
+                                    {g.first_name} {g.last_name}
+                                    <span className="text-muted-foreground ml-1">({g.email})</span>
+                                    {assignedGuestIds.has(g.id) && g.id !== t.assignedGuestId && (
+                                      <span className="text-destructive ml-1">✓</span>
+                                    )}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {t.assignedGuestId && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0"
+                            onClick={() => clearAssignment(i)}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  onClick={processManualEnrollment}
+                  disabled={isProcessing || assignedCount === 0 || !selectedEventId}
+                  className="w-full"
+                >
+                  {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {isProcessing
+                    ? `Przetwarzanie ${processedItems}/${totalItems}...`
+                    : `Rozpocznij enrollment (${assignedCount} zdjęć)`}
+                </Button>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Progress */}
       {isProcessing && (
@@ -426,12 +541,11 @@ export default function BulkFaceEnrollment() {
           <div className="flex gap-2 text-sm">
             <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
             <div className="space-y-1 text-muted-foreground">
-              <p className="font-medium text-foreground">Przykładowy format CSV:</p>
-              <pre className="bg-muted p-2 rounded text-xs overflow-x-auto">
-{`email,file
-jan.kowalski@firma.pl,jan_kowalski.jpg
-anna.nowak@firma.pl,anna_nowak.jpg`}
-              </pre>
+              <p className="font-medium text-foreground">Jak to działa?</p>
+              <ul className="list-disc pl-4 space-y-0.5 text-xs">
+                <li><strong>Mapowanie CSV:</strong> Prześlij CSV z kolumnami <code>email</code> + <code>file</code></li>
+                <li><strong>Ręczne przypisanie:</strong> Wybierz gościa z listy dla każdego zdjęcia</li>
+              </ul>
             </div>
           </div>
         </CardContent>
