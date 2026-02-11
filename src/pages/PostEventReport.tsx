@@ -56,6 +56,7 @@ const PostEventReport = () => {
     }
   };
 
+  const isDemo = analytics && 'isDemo' in analytics && (analytics as any).isDemo;
   const checkInRate = analytics && analytics.guests.total > 0
     ? (analytics.guests.checkedIn / analytics.guests.total) * 100 : 0;
   const emailOpenRate = analytics && analytics.emails.sent > 0
@@ -146,6 +147,12 @@ const PostEventReport = () => {
         {/* Single event mode */}
         {!compareMode && analytics && (
           <>
+            {isDemo && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-sm">
+                <BarChart3 className="h-4 w-4 shrink-0" />
+                <span>Tryb demo — wyświetlane są przykładowe dane. Zaloguj się jako organizator wydarzenia, aby zobaczyć rzeczywiste statystyki.</span>
+              </div>
+            )}
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
