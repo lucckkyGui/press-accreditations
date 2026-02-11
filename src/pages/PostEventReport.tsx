@@ -16,7 +16,7 @@ import {
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { useEventAnalytics } from '@/hooks/analytics/useEventAnalytics';
-import { generateEventPdfReport } from '@/utils/pdfReportGenerator';
+import { generateEventPdfReport, generateComparisonPdfReport } from '@/utils/pdfReportGenerator';
 import EventComparisonView from '@/components/analytics/EventComparisonView';
 import { toast } from 'sonner';
 
@@ -103,6 +103,19 @@ const PostEventReport = () => {
                   ))}
                 </SelectContent>
               </Select>
+            )}
+
+            {compareMode && analytics && compareAnalytics && (
+              <Button onClick={() => {
+                try {
+                  generateComparisonPdfReport(analytics, compareAnalytics);
+                  toast.success('Raport porównawczy PDF wygenerowany pomyślnie');
+                } catch {
+                  toast.error('Błąd podczas generowania PDF');
+                }
+              }}>
+                <FileDown className="h-4 w-4 mr-2" /> Eksport PDF porównania
+              </Button>
             )}
 
             {!compareMode && (
