@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,12 @@ interface EnrollmentResult {
   message: string;
 }
 
+interface ThumbnailPreview {
+  fileName: string;
+  dataUrl: string;
+  guestMatch?: string;
+}
+
 export default function BulkFaceEnrollment() {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [zipFile, setZipFile] = useState<File | null>(null);
@@ -27,7 +33,8 @@ export default function BulkFaceEnrollment() {
   const [totalItems, setTotalItems] = useState(0);
   const [processedItems, setProcessedItems] = useState(0);
   const [results, setResults] = useState<EnrollmentResult[]>([]);
-
+  const [thumbnails, setThumbnails] = useState<ThumbnailPreview[]>([]);
+  const [isLoadingThumbnails, setIsLoadingThumbnails] = useState(false);
   const { data: events } = useQuery({
     queryKey: ['events-bulk-enroll'],
     queryFn: async () => {
@@ -49,10 +56,36 @@ export default function BulkFaceEnrollment() {
     enabled: !!selectedEventId,
   });
 
-  const handleZipChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.zip')) {
       setZipFile(file);
+      setThumbnails([]);
+      setIsLoadingThumbnails(true);
+      try {
+        const zipData = await file.arrayBuffer();
+        const zip = await JSZip.loadAsync(zipData);
+        const imageFiles = Object.keys(zip.files).filter(
+          (f) => !zip.files[f].dir && /\.(jpe?g|png|webp)$/i.test(f)
+        );
+        const previews: ThumbnailPreview[] = [];
+        const maxPreviews = Math.min(imageFiles.length, 20);
+        for (let i = 0; i < maxPreviews; i++) {
+          const entry = zip.file(imageFiles[i]);
+          if (!entry) continue;
+          const base64 = await entry.async('base64');
+          const ext = imageFiles[i].split('.').pop()?.toLowerCase() || 'jpg';
+          const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+          const shortName = imageFiles[i].split('/').pop() || imageFiles[i];
+          previews.push({ fileName: shortName, dataUrl: `data:${mime};base64,${base64}` });
+        }
+        setThumbnails(previews);
+        toast.success(`Znaleziono ${imageFiles.length} zdjęć w ZIP${imageFiles.length > 20 ? ' (podgląd pierwszych 20)' : ''}`);
+      } catch {
+        toast.error('Nie udało się odczytać ZIP');
+      } finally {
+        setIsLoadingThumbnails(false);
+      }
     } else {
       toast.error('Wybierz plik ZIP');
     }
@@ -297,6 +330,38 @@ export default function BulkFaceEnrollment() {
               </Badge>
             )}
           </div>
+
+          {/* Thumbnail previews */}
+          {isLoadingThumbnails && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Ładowanie podglądu zdjęć...
+            </div>
+          )}
+          {thumbnails.length > 0 && (
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <Eye className="h-4 w-4" />
+                Podgląd zdjęć z ZIP ({thumbnails.length})
+              </label>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
+                {thumbnails.map((t, i) => (
+                  <div key={i} className="relative group">
+                    <div className="aspect-square rounded-md overflow-hidden border border-border bg-muted">
+                      <img
+                        src={t.dataUrl}
+                        alt={t.fileName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5" title={t.fileName}>
+                      {t.fileName}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Button
             onClick={processBulkEnrollment}
