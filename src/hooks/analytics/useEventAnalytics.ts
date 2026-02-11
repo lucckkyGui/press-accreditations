@@ -55,9 +55,11 @@ export function useEventAnalytics(eventId: string | undefined) {
       const accessLogs = accessLogsRes.data || [];
       const zonePresence = zonePresenceRes.data || [];
 
-      if (!event) throw new Error('Event not found');
+      // Demo mode: if event not found in DB or no guests data
+      if (!event) {
+        return getMockEventAnalytics(eventId);
+      }
 
-      // Demo mode: if no guests data (e.g. RLS blocks), return mock
       if (guests.length === 0) {
         return getMockEventAnalytics(eventId, event.title);
       }

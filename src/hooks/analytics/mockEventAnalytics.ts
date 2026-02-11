@@ -75,7 +75,8 @@ function hashIndex(id: string, max: number): number {
 }
 
 export function getMockEventAnalytics(eventId: string, eventTitle?: string): EventAnalyticsData & { isDemo: true } {
-  const idx = hashIndex(eventId, demoDatasets.length);
+  // Force dataset 1 for demo tech summit, otherwise hash-based
+  const idx = eventId === 'demo-tech-summit-2026' ? 1 : hashIndex(eventId, demoDatasets.length);
   const dataset = demoDatasets[idx];
   return {
     ...dataset,
