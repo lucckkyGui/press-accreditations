@@ -1,11 +1,13 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { EventAnalyticsData } from '@/hooks/analytics/useEventAnalytics';
+import { drawPieChart, drawBarChart, drawAreaChart } from './pdfChartDrawer';
 
 export function generateEventPdfReport(data: EventAnalyticsData) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
 
+  // Header
   doc.setFontSize(22);
   doc.setTextColor(30, 30, 30);
   doc.text('Raport po wydarzeniu', pageWidth / 2, 25, { align: 'center' });
@@ -29,6 +31,11 @@ export function generateEventPdfReport(data: EventAnalyticsData) {
   renderZonesSection(doc, data);
   renderAccessSection(doc, data);
   renderTimelineSection(doc, data);
+
+  // --- Charts page ---
+  doc.addPage();
+  renderChartsPage(doc, data);
+
   addFooter(doc);
 
   const fileName = `raport_${sanitize(data.event.title)}_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -108,10 +115,109 @@ export function generateComparisonPdfReport(left: EventAnalyticsData, right: Eve
     columnStyles: { 3: { fontStyle: 'bold' } },
   });
 
+  // --- Comparison charts page ---
+  doc.addPage();
+  renderComparisonChartsPage(doc, left, right);
+
   addFooter(doc);
 
   const fileName = `porownanie_${sanitize(left.event.title)}_vs_${sanitize(right.event.title)}_${new Date().toISOString().split('T')[0]}.pdf`;
   doc.save(fileName);
+}
+
+// ---- Chart rendering ----
+
+function renderChartsPage(doc: jsPDF, data: EventAnalyticsData) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(16);
+  doc.setTextColor(30, 30, 30);
+  doc.text('Wykresy', pageWidth / 2, 20, { align: 'center' });
+
+  // Pie chart - guest status (left side)
+  drawPieChart(doc, [
+    { label: 'Obecni', value: data.guests.checkedIn, color: [16, 185, 129] },
+    { label: 'Potwierdzeni', value: data.guests.confirmed, color: [59, 130, 246] },
+    { label: 'Zaproszeni', value: data.guests.invited, color: [245, 158, 11] },
+    { label: 'Odrzuceni', value: data.guests.declined, color: [239, 68, 68] },
+  ], 55, 72, 30, 'Status gości');
+
+  // Bar chart - zones (right side)
+  if (data.guests.byZone.length > 0) {
+    drawBarChart(
+      doc,
+      data.guests.byZone.map(z => ({
+        label: z.zone,
+        values: [
+          { value: z.total, color: [59, 130, 246] as [number, number, number], name: 'Łącznie' },
+          { value: z.checkedIn, color: [16, 185, 129] as [number, number, number], name: 'Obecni' },
+        ],
+      })),
+      115, 38, 75, 55,
+      'Goście wg stref'
+    );
+  }
+
+  // Area chart - check-ins timeline (full width, bottom)
+  if (data.checkIns.byHour.length > 0) {
+    drawAreaChart(
+      doc,
+      data.checkIns.byHour.map(h => ({ label: h.hour, value: h.count })),
+      35, 140, 145, 70,
+      [59, 130, 246],
+      'Check-ins w czasie'
+    );
+  }
+}
+
+function renderComparisonChartsPage(doc: jsPDF, left: EventAnalyticsData, right: EventAnalyticsData) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(16);
+  doc.setTextColor(30, 30, 30);
+  doc.text('Wykresy porównawcze', pageWidth / 2, 20, { align: 'center' });
+
+  // Side-by-side zone bar charts
+  const allZones = Array.from(new Set([
+    ...left.guests.byZone.map(z => z.zone),
+    ...right.guests.byZone.map(z => z.zone),
+  ]));
+
+  if (allZones.length > 0) {
+    drawBarChart(
+      doc,
+      allZones.map(zone => ({
+        label: zone,
+        values: [
+          { value: left.guests.byZone.find(z => z.zone === zone)?.total || 0, color: [59, 130, 246] as [number, number, number], name: left.event.title },
+          { value: right.guests.byZone.find(z => z.zone === zone)?.total || 0, color: [139, 92, 246] as [number, number, number], name: right.event.title },
+        ],
+      })),
+      25, 38, 165, 60,
+      'Goście wg stref — porównanie'
+    );
+  }
+
+  // Side-by-side timeline
+  if (left.checkIns.byHour.length > 0) {
+    drawAreaChart(
+      doc,
+      left.checkIns.byHour.map(h => ({ label: h.hour, value: h.count })),
+      25, 130, 75, 55,
+      [59, 130, 246],
+      left.event.title
+    );
+  }
+
+  if (right.checkIns.byHour.length > 0) {
+    drawAreaChart(
+      doc,
+      right.checkIns.byHour.map(h => ({ label: h.hour, value: h.count })),
+      115, 130, 75, 55,
+      [139, 92, 246],
+      right.event.title
+    );
+  }
 }
 
 // ---- Internal helpers ----
