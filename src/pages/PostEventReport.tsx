@@ -37,7 +37,18 @@ const PostEventReport = () => {
     queryKey: ['events-for-report'],
     queryFn: async () => {
       const { data } = await supabase.from('events').select('id, title, start_date, end_date').order('start_date', { ascending: false });
-      return data || [];
+      const dbEvents = data || [];
+      // Add demo event if not already in DB
+      const demoEvent = {
+        id: 'demo-tech-summit-2026',
+        title: 'Konferencja Tech Summit 2026',
+        start_date: '2026-03-22T09:00:00+00:00',
+        end_date: '2026-03-22T18:00:00+00:00',
+      };
+      if (!dbEvents.find(e => e.id === demoEvent.id)) {
+        dbEvents.push(demoEvent);
+      }
+      return dbEvents;
     },
   });
 
