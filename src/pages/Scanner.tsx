@@ -4,7 +4,8 @@ import PageContent from '@/components/layout/PageContent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EnhancedQRScanner from '@/components/scanner/EnhancedQRScanner';
 import FaceRecognitionCheckIn from '@/components/scanner/FaceRecognitionCheckIn';
-import { QrCode, ScanFace } from 'lucide-react';
+import BulkFaceEnrollment from '@/components/scanner/BulkFaceEnrollment';
+import { QrCode, ScanFace, Upload } from 'lucide-react';
 
 // Mock event - w rzeczywistej aplikacji byłby pobierany z kontekstu/API
 const mockEvent = {
@@ -32,19 +33,23 @@ const Scanner = () => {
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold mb-2">Skaner Check-in</h1>
           <p className="text-muted-foreground">
-            Skanuj kody QR lub użyj rozpoznawania twarzy aby zarejestrować gości
+            Skanuj kody QR, użyj rozpoznawania twarzy lub masowego enrollmentu
           </p>
         </div>
 
         <Tabs defaultValue="qr" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="qr" className="flex items-center gap-2">
               <QrCode className="h-4 w-4" />
               Kod QR
             </TabsTrigger>
             <TabsTrigger value="face" className="flex items-center gap-2">
               <ScanFace className="h-4 w-4" />
-              Rozpoznawanie twarzy
+              Twarz
+            </TabsTrigger>
+            <TabsTrigger value="bulk" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Masowy enrollment
             </TabsTrigger>
           </TabsList>
 
@@ -57,6 +62,10 @@ const Scanner = () => {
 
           <TabsContent value="face">
             <FaceRecognitionCheckIn />
+          </TabsContent>
+
+          <TabsContent value="bulk">
+            <BulkFaceEnrollment />
           </TabsContent>
         </Tabs>
       </div>
