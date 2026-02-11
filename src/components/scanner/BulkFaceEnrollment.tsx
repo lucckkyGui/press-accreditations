@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, UserPlus, X, Wand2 } from 'lucide-react';
+import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, AlertCircle, Eye, UserPlus, X, Wand2, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -321,6 +321,23 @@ export default function BulkFaceEnrollment() {
   const successCount = results.filter((r) => r.success).length;
   const failCount = results.filter((r) => !r.success).length;
 
+  const exportResultsToCsv = useCallback(() => {
+    if (results.length === 0) return;
+    const header = 'Gość,Plik,Status,Wiadomość';
+    const rows = results.map((r) =>
+      [r.guestName, r.fileName, r.success ? 'OK' : 'Błąd', `"${r.message.replace(/"/g, '""')}"`].join(',')
+    );
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `enrollment-wyniki-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Wyeksportowano wyniki do CSV');
+  }, [results]);
+
   return (
     <div className="space-y-4">
       {/* Event selection */}
@@ -555,12 +572,16 @@ export default function BulkFaceEnrollment() {
       {/* Results */}
       {results.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base flex items-center gap-3">
               Wyniki enrollmentu
               <Badge variant="default">{successCount} ✓</Badge>
               {failCount > 0 && <Badge variant="destructive">{failCount} ✗</Badge>}
             </CardTitle>
+            <Button variant="outline" size="sm" onClick={exportResultsToCsv}>
+              <Download className="h-3.5 w-3.5 mr-1" />
+              Eksport CSV
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="max-h-64 overflow-y-auto space-y-2">
