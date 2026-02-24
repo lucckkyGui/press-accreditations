@@ -40,6 +40,7 @@ import ZoneHeatmap from "@/pages/ZoneHeatmap";
 import SelfCheckInKiosk from "@/pages/SelfCheckInKiosk";
 import LiveDashboard from "@/pages/LiveDashboard";
 import PostEventReport from "@/pages/PostEventReport";
+import PitchDeck from "@/pages/PitchDeck";
 import NotFound from "@/pages/NotFound";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -71,6 +72,7 @@ const AppRoutes = () => {
       {/* Info pages */}
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/pitch" element={<PitchDeck />} />
       
       {/* Accreditation public routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
