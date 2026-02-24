@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet, FileBarChart } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet, FileBarChart, Presentation } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -79,6 +79,12 @@ const navigation = [
     title: "Raport po wydarzeniu",
     url: "/post-event-report",
     icon: FileBarChart,
+    isNew: true
+  },
+  {
+    title: "Pitch Deck",
+    url: "/pitch",
+    icon: Presentation,
     isNew: true
   },
   {

@@ -67,10 +67,10 @@ const HeroSection = () => {
                 size="lg" 
                 variant="outline" 
                 className="border-white/20 bg-white/5 text-white hover:bg-white/10 gap-2 px-8 py-6 text-lg backdrop-blur-sm"
-                onClick={() => navigate("/ticketing")}
+                onClick={() => navigate("/pitch")}
               >
                 <Play className="h-5 w-5" />
-                Zobacz demo
+                Pitch Deck
               </Button>
             </div>
             
