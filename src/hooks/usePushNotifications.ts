@@ -50,7 +50,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
   const checkSubscription = async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
-      const currentSubscription = await registration.pushManager.getSubscription();
+      const currentSubscription = await (registration as any).pushManager?.getSubscription();
       
       setIsSubscribed(!!currentSubscription);
       if (currentSubscription) {
@@ -92,7 +92,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       const applicationServerKey = urlBase64ToUint8Array(demoPublicVapidKey);
       
       // Tworzenie subskrypcji
-      const pushSubscription = await registration.pushManager.subscribe({
+      const pushSubscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey as BufferSource
       });
@@ -124,7 +124,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
   const unsubscribeUser = async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await (registration as any).pushManager?.getSubscription();
       
       if (subscription) {
         // Anuluj subskrypcję
