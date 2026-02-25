@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Users, Target, Award, Zap, Globe, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const values = [
   {
@@ -53,6 +55,26 @@ const team = [
 
 const About = () => {
   const navigate = useNavigate();
+
+  const { data: stats } = useQuery({
+    queryKey: ["about-stats"],
+    queryFn: async () => {
+      const [eventsRes, guestsRes] = await Promise.all([
+        supabase.from("events").select("id", { count: "exact", head: true }),
+        supabase.from("guests").select("id", { count: "exact", head: true }),
+      ]);
+      return {
+        events: eventsRes.count ?? 0,
+        guests: guestsRes.count ?? 0,
+      };
+    },
+  });
+
+  const formatStat = (value: number) => {
+    if (value >= 1000) return `${(value / 1000).toFixed(0)}k+`;
+    if (value > 0) return `${value}+`;
+    return "0";
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,11 +130,15 @@ const About = () => {
                 <CardContent className="p-8">
                   <div className="grid grid-cols-2 gap-6 text-center">
                     <div>
-                      <p className="text-4xl font-bold text-primary">500+</p>
+                      <p className="text-4xl font-bold text-primary">
+                        {formatStat(stats?.events ?? 0)}
+                      </p>
                       <p className="text-muted-foreground">Wydarzeń</p>
                     </div>
                     <div>
-                      <p className="text-4xl font-bold text-primary">50k+</p>
+                      <p className="text-4xl font-bold text-primary">
+                        {formatStat(stats?.guests ?? 0)}
+                      </p>
                       <p className="text-muted-foreground">Gości</p>
                     </div>
                     <div>
