@@ -15,7 +15,7 @@ const HomePage = () => {
     <div className="min-h-screen">
       {/* Navigation bar */}
       <header className="absolute top-0 left-0 right-0 z-50 py-4">
-        <div className="container flex justify-end">
+        <div className="container px-4">
           <UserNavigation />
         </div>
       </header>
