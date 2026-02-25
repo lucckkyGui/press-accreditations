@@ -30,6 +30,8 @@ import OrderDetails from "@/pages/OrderDetails";
 import Purchase from "@/pages/Purchase";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 import AccreditationCategories from "@/pages/AccreditationCategories";
 import AccreditationEvents from "@/pages/AccreditationEvents";
 import AccreditationRequest from "@/pages/AccreditationRequest";
@@ -72,6 +74,8 @@ const AppRoutes = () => {
       {/* Info pages */}
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/pitch" element={<PitchDeck />} />
       
       {/* Accreditation public routes */}

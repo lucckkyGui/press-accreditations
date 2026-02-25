@@ -7,6 +7,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./hooks/auth/AuthProvider";
 import { I18nProvider } from "./hooks/useI18n";
+import CookieConsent from "./components/common/CookieConsent";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => {
           <AuthProvider>
             <TooltipProvider delayDuration={0}>
               <AppRoutes />
+              <CookieConsent />
               <Toaster />
               <Sonner />
             </TooltipProvider>
