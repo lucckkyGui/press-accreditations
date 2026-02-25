@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet, FileBarChart, Presentation } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Zap, Shield, Radio, Map, Monitor, Tablet, FileBarChart, Presentation, Lock } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const navigation = [
+const coreNavigation = [
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -29,63 +29,9 @@ const navigation = [
     icon: Users,
   },
   {
-    title: "Advanced Guests",
-    url: "/advanced-guests",
-    icon: Shield,
-    isNew: true
-  },
-  {
     title: "Scanner",
     url: "/scanner",
     icon: QrCode,
-  },
-  {
-    title: "RFID Scanner",
-    url: "/rfid-scanner",
-    icon: Radio,
-    isNew: true
-  },
-  {
-    title: "Opaski RFID",
-    url: "/wristbands",
-    icon: Radio,
-    isNew: true
-  },
-  {
-    title: "Heatmapa stref",
-    url: "/zone-heatmap",
-    icon: Map,
-    isNew: true
-  },
-  {
-    title: "Kiosk Check-In",
-    url: "/kiosk",
-    icon: Tablet,
-    isNew: true
-  },
-  {
-    title: "Dashboard TV",
-    url: "/live-dashboard",
-    icon: Monitor,
-    isNew: true
-  },
-  {
-    title: "Enhanced Dashboard",
-    url: "/enhanced-dashboard",
-    icon: Zap,
-    isNew: true
-  },
-  {
-    title: "Raport po wydarzeniu",
-    url: "/post-event-report",
-    icon: FileBarChart,
-    isNew: true
-  },
-  {
-    title: "Pitch Deck",
-    url: "/pitch",
-    icon: Presentation,
-    isNew: true
   },
   {
     title: "Settings",
@@ -94,6 +40,40 @@ const navigation = [
   },
 ];
 
+const comingSoonNavigation = [
+  {
+    title: "Advanced Guests",
+    icon: Shield,
+  },
+  {
+    title: "RFID Scanner",
+    icon: Radio,
+  },
+  {
+    title: "Opaski RFID",
+    icon: Radio,
+  },
+  {
+    title: "Heatmapa stref",
+    icon: Map,
+  },
+  {
+    title: "Kiosk Check-In",
+    icon: Tablet,
+  },
+  {
+    title: "Dashboard TV",
+    icon: Monitor,
+  },
+  {
+    title: "Enhanced Dashboard",
+    icon: Zap,
+  },
+  {
+    title: "Raport po wydarzeniu",
+    icon: FileBarChart,
+  },
+];
 const AppSidebar = () => {
   const location = useLocation();
 
@@ -104,7 +84,7 @@ const AppSidebar = () => {
           <SidebarGroupLabel>Press Acreditations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item) => (
+              {coreNavigation.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
@@ -113,12 +93,26 @@ const AppSidebar = () => {
                     <Link to={item.url} className="flex items-center gap-2">
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {item.isNew && (
-                        <span className="ml-auto bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                          NEW
-                        </span>
-                      )}
                     </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Coming Soon</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {comingSoonNavigation.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton disabled className="opacity-50 cursor-not-allowed">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                    <span className="ml-auto bg-muted-foreground/20 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full">
+                      SOON
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

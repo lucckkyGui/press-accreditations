@@ -55,10 +55,11 @@ const FooterSection = () => {
               {t('footer.company.title')}
             </h3>
             <ul className="space-y-2">
-              <li><Button variant="link" className="p-0 h-auto">{t('footer.company.about')}</Button></li>
+              <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate('/about')}>{t('footer.company.about')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.company.blog')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.company.careers')}</Button></li>
-              <li><Button variant="link" className="p-0 h-auto">{t('footer.company.privacy')}</Button></li>
+              <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate('/privacy')}>Polityka prywatności</Button></li>
+              <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate('/terms')}>Regulamin</Button></li>
             </ul>
           </div>
         </div>
