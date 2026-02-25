@@ -18,7 +18,7 @@ interface PricingCardProps {
 }
 
 const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, onSelect }: PricingCardProps) => (
-  <Card className={`flex flex-col relative ${isPrimary ? 'border-2 border-primary shadow-xl scale-105' : 'border'}`}>
+  <Card className={`flex flex-col relative ${isPrimary ? 'border-2 border-primary shadow-xl md:scale-105' : 'border'}`}>
     {badge && (
       <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
         {badge}
@@ -71,7 +71,7 @@ const PricingSection = () => {
         </p>
       </div>
       
-      <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto items-start px-4 md:px-0">
         <PricingCard
           title="Starter"
           price="119 zł"
