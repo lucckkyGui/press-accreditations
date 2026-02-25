@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { QrCode, ArrowLeft, Info } from "lucide-react";
+import { QrCode, ArrowLeft } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,8 +9,6 @@ import { OrganizerLoginForm } from "@/components/auth/OrganizerLoginForm";
 import { OrganizerSignupForm } from "@/components/auth/OrganizerSignupForm";
 import { GuestLoginForm } from "@/components/auth/GuestLoginForm";
 import { ResetPasswordDialog } from "@/components/auth/ResetPasswordDialog";
-import { toast } from "sonner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from "@/hooks/useI18n";
 import { useAuth } from "@/hooks/auth";
 
@@ -20,7 +18,6 @@ const Login = () => {
   const [organizerMode, setOrganizerMode] = useState<"login" | "signup">("login");
   const [guestStep, setGuestStep] = useState<"email" | "verify">("email");
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
-  const [testModeEnabled, setTestModeEnabled] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useI18n();
@@ -40,30 +37,8 @@ const Login = () => {
       setActiveTab(role);
     }
 
-    // Auto-fill test data if test mode enabled
-    if (testModeEnabled) {
-      if (activeTab === "organizator") {
-        setEmail("admin@example.com");
-      } else if (activeTab === "guest") {
-        setEmail("guest@example.com");
-      }
-    }
-  }, [location.state, activeTab, testModeEnabled]);
+  }, [location.state]);
 
-  const handleTestLogin = () => {
-    // Directly navigate to dashboard in test mode
-    if (activeTab === "organizator") {
-      toast.success(t('auth.testLoginSuccess'));
-      setTimeout(() => {
-        const from = location.state?.from || "/dashboard";
-        navigate(from, { replace: true });
-      }, 500);
-    } else {
-      setEmail("guest@example.com");
-      setGuestStep("verify");
-      toast.success(t('auth.testDataFilled'));
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
@@ -89,26 +64,6 @@ const Login = () => {
           {t('common.backToHome')}
         </Button>
 
-        {testModeEnabled && (
-          <Alert className="mb-4">
-            <Info className="h-4 w-4" />
-            <AlertTitle>{t('auth.testModeTitle')}</AlertTitle>
-            <AlertDescription>
-              {t('auth.testModeDescription')}
-            </AlertDescription>
-            <div className="mt-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="w-full"
-                onClick={handleTestLogin}
-              >
-                TEST - {t('auth.loginAs')} {activeTab === "organizator" ? t('auth.organizer') : t('auth.guest')}
-              </Button>
-            </div>
-          </Alert>
-        )}
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="organizator">{t('auth.organizer')}</TabsTrigger>
@@ -119,21 +74,21 @@ const Login = () => {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {organizerMode === "login" ? t('auth.organizerLogin') : "Create Organizer Account"}
+                  {organizerMode === "login" ? t('auth.organizerLogin') : "Utwórz konto organizatora"}
                 </CardTitle>
                 <CardDescription>
                   {organizerMode === "login" 
                     ? t('auth.organizerLoginDescription')
-                    : "Register your organization to start managing events and accreditations"}
+                    : "Zarejestruj swoją organizację, aby zarządzać wydarzeniami i akredytacjami"}
                 </CardDescription>
               </CardHeader>
               
               {organizerMode === "login" ? (
                 <OrganizerLoginForm 
                   onResetClick={() => setIsResetDialogOpen(true)} 
-                  defaultEmail={testModeEnabled ? "admin@example.com" : ""} 
-                  defaultPassword={testModeEnabled ? "password123" : ""}
-                  testModeEnabled={testModeEnabled}
+                  defaultEmail="" 
+                  defaultPassword=""
+                  testModeEnabled={false}
                 />
               ) : (
                 <OrganizerSignupForm 
@@ -144,14 +99,14 @@ const Login = () => {
               {organizerMode === "login" && (
                 <div className="px-6 pb-6">
                   <div className="text-center text-sm text-muted-foreground">
-                    New to our platform?{" "}
+                    Nie masz jeszcze konta?{" "}
                     <Button 
                       variant="link" 
                       size="sm" 
                       className="p-0 h-auto"
                       onClick={() => setOrganizerMode("signup")}
                     >
-                      Create an organizer account
+                      Utwórz konto organizatora
                     </Button>
                   </div>
                 </div>
@@ -178,28 +133,12 @@ const Login = () => {
                 setEmail={setEmail}
                 guestStep={guestStep}
                 setGuestStep={setGuestStep}
-                testModeEnabled={testModeEnabled}
+                testModeEnabled={false}
               />
             </Card>
           </TabsContent>
         </Tabs>
 
-        <div className="mt-4 text-center">
-          <Button
-            variant="link"
-            size="sm"
-            onClick={() => {
-              setTestModeEnabled(!testModeEnabled);
-              toast.info(testModeEnabled 
-                ? t('auth.testModeDisabled') 
-                : t('auth.testModeEnabled'));
-            }}
-          >
-            {testModeEnabled 
-              ? t('auth.disableTestMode') 
-              : t('auth.enableTestMode')}
-          </Button>
-        </div>
       </div>
       
       <ResetPasswordDialog 

@@ -91,11 +91,6 @@ const Privacy = () => {
             </p>
           </section>
 
-          <div className="mt-12 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              ⚠️ Ta polityka prywatności jest szablonem i wymaga weryfikacji przez prawnika / IOD przed wdrożeniem produkcyjnym.
-            </p>
-          </div>
         </div>
       </main>
     </div>

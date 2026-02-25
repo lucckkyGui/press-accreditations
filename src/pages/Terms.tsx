@@ -80,11 +80,6 @@ const Terms = () => {
             </p>
           </section>
 
-          <div className="mt-12 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              ⚠️ Ten regulamin jest szablonem i wymaga weryfikacji przez prawnika przed wdrożeniem produkcyjnym.
-            </p>
-          </div>
         </div>
       </main>
     </div>
