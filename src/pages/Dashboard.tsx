@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/auth";
 import OrganizerDashboard from "@/components/dashboard/OrganizerDashboard";
 import GuestDashboard from "@/components/dashboard/GuestDashboard";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading, roles } = useAuth();
@@ -18,7 +19,12 @@ const Dashboard = () => {
 
   // Show organizer dashboard for organizers and admins
   if (isOrganizer || isAdmin) {
-    return <OrganizerDashboard />;
+    return (
+      <>
+        <OnboardingWizard />
+        <OrganizerDashboard />
+      </>
+    );
   }
 
   // Show guest dashboard for regular users

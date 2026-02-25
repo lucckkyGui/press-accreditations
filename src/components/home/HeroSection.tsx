@@ -1,92 +1,87 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Zap, Ticket, Play, ArrowRight, Sparkles } from "lucide-react";
+import { CheckCircle2, Play, ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-background">
-      {/* Animated gradient background */}
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+      {/* Dark gradient background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-600/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/15 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-600/10 via-transparent to-transparent" />
         
-        {/* Grid pattern */}
+        {/* Subtle grid */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
+            backgroundSize: '60px 60px'
           }}
         />
         
-        {/* Floating orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        {/* Floating orbs — subtler */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-indigo-500/8 rounded-full blur-[100px]" />
       </div>
       
       <div className="container relative z-10 py-20">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="text-white">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8">
-              <Sparkles className="h-4 w-4 text-yellow-400" />
-              <span className="text-sm font-medium text-white/90">AI-Powered Accreditation Platform</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/10 mb-8">
+              <Sparkles className="h-4 w-4 text-amber-400" />
+              <span className="text-sm font-medium text-white/80">Platforma akredytacyjna nowej generacji</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="block">Inteligentne</span>
-              <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Akredytacje
-              </span>
-              <span className="block text-3xl md:text-4xl text-white/70 font-normal mt-2">
-                dla profesjonalistów
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight">
+              <span className="block">Akredytacje</span>
+              <span className="block bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                bez chaosu.
               </span>
             </h1>
             
-            <p className="text-xl text-white/60 max-w-xl mb-10 leading-relaxed">
-              Zautomatyzuj weryfikację gości, wysyłaj zaproszenia jednym kliknięciem 
-              i śledź check-iny w czasie rzeczywistym. Wszystko w jednym miejscu.
+            <p className="text-lg md:text-xl text-white/50 max-w-lg mb-10 leading-relaxed">
+              Zaproszenia z QR, automatyczny mailing, check-in w&nbsp;2&nbsp;sekundy — 
+              nawet offline. Jedno narzędzie do obsługi gości na&nbsp;każdym wydarzeniu.
             </p>
             
-            <div className="flex flex-wrap gap-4 mb-12">
+            <div className="flex flex-wrap gap-4 mb-14">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0 gap-2 px-8 py-6 text-lg shadow-lg shadow-blue-500/25"
-                onClick={() => navigate("/auth/login", { state: { role: "organizator" } })}
+                className="bg-white text-slate-900 hover:bg-white/90 gap-2 px-8 py-6 text-base font-semibold shadow-lg shadow-white/10"
+                onClick={() => navigate("/auth/register")}
               >
-                <CheckCircle2 className="h-5 w-5" />
-                Zaloguj się
-                <ArrowRight className="h-5 w-5 ml-2" />
+                Wypróbuj za darmo
+                <ArrowRight className="h-5 w-5" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10 gap-2 px-8 py-6 text-lg backdrop-blur-sm"
+                className="border-white/15 bg-white/[0.04] text-white hover:bg-white/[0.08] gap-2 px-8 py-6 text-base backdrop-blur-sm"
                 onClick={() => navigate("/pitch")}
               >
-                <Play className="h-5 w-5" />
-                Pitch Deck
+                <Play className="h-4 w-4" />
+                Zobacz demo
               </Button>
             </div>
             
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8">
-              <div>
-                <div className="text-3xl font-bold text-white">50k+</div>
-                <div className="text-white/50 text-sm">Gości obsłużonych</div>
+            {/* Trust indicators */}
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <Shield className="h-4 w-4" />
+                <span>Zgodne z RODO</span>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-white">99.9%</div>
-                <div className="text-white/50 text-sm">Uptime systemu</div>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <Zap className="h-4 w-4" />
+                <span>Setup w 5 minut</span>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-white">&lt;2s</div>
-                <div className="text-white/50 text-sm">Czas skanowania</div>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Działa offline</span>
               </div>
             </div>
           </div>
@@ -95,70 +90,57 @@ const HeroSection = () => {
           <div className="hidden lg:block relative">
             <div className="relative">
               {/* Main card */}
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/20 p-6 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span className="text-white/40 text-sm ml-4">Dashboard</span>
+                  <div className="w-3 h-3 rounded-full bg-red-400/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-400/80" />
+                  <span className="text-white/30 text-sm ml-4 font-mono">dashboard</span>
                 </div>
                 
                 {/* Mock dashboard content */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-white/10 rounded-lg p-4">
+                    <div className="bg-white/[0.06] rounded-lg p-4">
                       <div className="text-2xl font-bold text-white">247</div>
-                      <div className="text-white/50 text-xs">Zarejestrowani</div>
+                      <div className="text-white/40 text-xs">Zarejestrowani</div>
                     </div>
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-400">189</div>
-                      <div className="text-white/50 text-xs">Check-in</div>
+                    <div className="bg-white/[0.06] rounded-lg p-4">
+                      <div className="text-2xl font-bold text-emerald-400">189</div>
+                      <div className="text-white/40 text-xs">Check-in</div>
                     </div>
-                    <div className="bg-white/10 rounded-lg p-4">
+                    <div className="bg-white/[0.06] rounded-lg p-4">
                       <div className="text-2xl font-bold text-blue-400">76%</div>
-                      <div className="text-white/50 text-xs">Frekwencja</div>
+                      <div className="text-white/40 text-xs">Frekwencja</div>
                     </div>
                   </div>
                   
                   {/* Activity bars */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-20 text-white/40 text-xs">VIP</div>
-                      <div className="flex-1 bg-white/10 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: '85%' }} />
+                  <div className="space-y-2.5">
+                    {[
+                      { label: 'VIP', pct: '85%', color: 'from-purple-500 to-pink-500' },
+                      { label: 'Media', pct: '72%', color: 'from-blue-500 to-cyan-500' },
+                      { label: 'Standard', pct: '91%', color: 'from-emerald-500 to-green-500' },
+                    ].map((bar) => (
+                      <div key={bar.label} className="flex items-center gap-3">
+                        <div className="w-16 text-white/35 text-xs font-mono">{bar.label}</div>
+                        <div className="flex-1 bg-white/[0.06] rounded-full h-1.5">
+                          <div className={`bg-gradient-to-r ${bar.color} h-1.5 rounded-full`} style={{ width: bar.pct }} />
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-20 text-white/40 text-xs">Media</div>
-                      <div className="flex-1 bg-white/10 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style={{ width: '72%' }} />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-20 text-white/40 text-xs">Standard</div>
-                      <div className="flex-1 bg-white/10 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '91%' }} />
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
               
-              {/* Floating notification card */}
-              <div className="absolute -bottom-4 -left-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 shadow-lg shadow-green-500/25 transform -rotate-3 animate-pulse">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
+              {/* Floating notification */}
+              <div className="absolute -bottom-4 -left-6 bg-emerald-500 rounded-xl p-3.5 shadow-lg shadow-emerald-500/20">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-5 w-5 text-white" />
                   <div>
-                    <div className="text-white font-medium text-sm">Check-in successful</div>
-                    <div className="text-white/70 text-xs">Anna Kowalska • VIP</div>
+                    <div className="text-white font-medium text-sm">Check-in OK</div>
+                    <div className="text-white/70 text-xs">Anna K. • VIP</div>
                   </div>
-                </div>
-              </div>
-              
-              {/* QR scan card */}
-              <div className="absolute -top-4 -right-8 bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/20 transform rotate-6">
-                <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
-                  <div className="w-12 h-12 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMSAyMSI+PHBhdGggZD0iTTEgMWg3djdIMXoiLz48cGF0aCBkPSJNMTMgMWg3djdoLTd6Ii8+PHBhdGggZD0iTTEgMTNoN3Y3SDF6Ii8+PHBhdGggZD0iTTMgM2gzdjNIM3oiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMTUgM2gzdjNoLTN6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTMgMTVoM3YzSDN6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEzIDEzaDJ2MmgtMnoiLz48cGF0aCBkPSJNMTcgMTNoMnYyaC0yeiIvPjxwYXRoIGQ9Ik0xMyAxN2gydjJoLTJ6Ii8+PHBhdGggZD0iTTE3IDE3aDJ2MmgtMnoiLz48cGF0aCBkPSJNMTUgMTVoMnYyaC0yeiIvPjxwYXRoIGQ9Ik05IDloM3YzSDl6Ii8+PC9zdmc+')] bg-contain" />
                 </div>
               </div>
             </div>
