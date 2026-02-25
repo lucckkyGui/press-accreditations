@@ -1,6 +1,5 @@
-
 import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Star } from "lucide-react";
 
@@ -9,34 +8,30 @@ interface TestimonialProps {
   author: string;
   role: string;
   company: string;
-  image?: string;
   rating: number;
 }
 
-const Testimonial = ({ quote, author, role, company, image, rating }: TestimonialProps) => (
+const Testimonial = ({ quote, author, role, company, rating }: TestimonialProps) => (
   <Card className="bg-background border rounded-xl p-6 shadow-sm h-full hover:shadow-lg transition-all duration-300">
     <CardContent className="p-0 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="text-primary/80">
-          <Quote className="h-6 w-6" />
-        </div>
+        <Quote className="h-5 w-5 text-primary/60" />
         <div className="flex gap-0.5">
           {[...Array(rating)].map((_, i) => (
-            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
           ))}
         </div>
       </div>
       <p className="text-muted-foreground leading-relaxed">{quote}</p>
       <div className="flex items-center gap-3 pt-2">
-        <Avatar>
-          <AvatarImage src={image} alt={author} />
-          <AvatarFallback className="bg-primary/10 text-primary font-medium">
-            {author.substring(0, 2).toUpperCase()}
+        <Avatar className="h-9 w-9">
+          <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+            {author.split(' ').map(n => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold">{author}</p>
-          <p className="text-sm text-muted-foreground">{role}, {company}</p>
+          <p className="font-semibold text-sm">{author}</p>
+          <p className="text-xs text-muted-foreground">{role}, {company}</p>
         </div>
       </div>
     </CardContent>
@@ -44,29 +39,26 @@ const Testimonial = ({ quote, author, role, company, image, rating }: Testimonia
 );
 
 const TestimonialsSection = () => {
-  const testimonials = [
+  const testimonials: TestimonialProps[] = [
     {
-      quote: "We sent 2,000 invitations in minutes instead of days. The template system is incredibly intuitive — our team was up and running in no time.",
-      author: "Sarah Mitchell",
-      role: "Event Director",
-      company: "TechConf Global",
-      image: "/placeholder.svg",
+      quote: "Wysłaliśmy 2000 zaproszeń w kilka minut zamiast kilku dni. System szablonów jest niesamowicie intuicyjny — nasz zespół zaczął działać od razu.",
+      author: "Marta Wiśniewska",
+      role: "Dyrektor ds. eventów",
+      company: "TechConf Polska",
       rating: 5
     },
     {
-      quote: "The offline QR scanning saved our conference when WiFi went down. Check-ins continued seamlessly, and everything synced automatically afterwards.",
-      author: "James Chen",
-      role: "PR Director",
+      quote: "Skanowanie QR offline uratowało naszą konferencję, gdy padło WiFi. Check-iny szły bez przerwy, a dane zsynchronizowały się automatycznie.",
+      author: "Jakub Kowalczyk",
+      role: "Dyrektor PR",
       company: "MediaFirst",
-      image: "/placeholder.svg",
       rating: 5
     },
     {
-      quote: "Finally, a system that's actually simple. I set up our entire gala event — guest list, custom invitations, check-in — in under an hour.",
-      author: "Emma Rodriguez",
+      quote: "Nareszcie system, który jest naprawdę prosty. Całą galę — listę gości, zaproszenia, check-in — skonfigurowałam w niecałą godzinę.",
+      author: "Anna Lewandowska",
       role: "CEO",
       company: "EventPro Solutions",
-      image: "/placeholder.svg",
       rating: 5
     }
   ];
@@ -76,32 +68,24 @@ const TestimonialsSection = () => {
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Trusted by Event Professionals
+            Zaufali nam organizatorzy wydarzeń
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            See why organizers choose Press Accreditations for their events
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Zobacz, dlaczego profesjonaliści wybierają Press Accreditations
           </p>
         </div>
         
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <Testimonial 
-              key={index}
-              quote={testimonial.quote} 
-              author={testimonial.author}
-              role={testimonial.role}
-              company={testimonial.company}
-              image={testimonial.image}
-              rating={testimonial.rating}
-            />
+            <Testimonial key={index} {...testimonial} />
           ))}
         </div>
         
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
-            <span className="font-semibold text-foreground">500+</span> events managed • 
-            <span className="font-semibold text-foreground"> 100,000+</span> invitations sent • 
-            <span className="font-semibold text-foreground"> 50,000+</span> successful check-ins
+            <span className="font-semibold text-foreground">500+</span> wydarzeń • 
+            <span className="font-semibold text-foreground"> 100 000+</span> zaproszeń • 
+            <span className="font-semibold text-foreground"> 50 000+</span> check-inów
           </p>
         </div>
       </div>

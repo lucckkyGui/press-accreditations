@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -66,71 +65,71 @@ const PricingSection = () => {
   return (
     <section className="py-20 container">
       <div className="text-center mb-14">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Prosty, przejrzysty cennik</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-          Choose the plan that fits your event size. All plans include full access to invitation templates and QR check-in.
+          Wybierz plan dopasowany do skali Twoich wydarzeń. Każdy plan zawiera szablony zaproszeń i QR check-in.
         </p>
       </div>
       
       <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
         <PricingCard
           title="Starter"
-          price="$29"
-          period="/ month"
-          description="Perfect for small events"
+          price="119 zł"
+          period="/ miesiąc"
+          description="Idealny na małe eventy"
           features={[
-            "Up to 100 guests per event",
-            "Professional email templates",
+            "Do 100 gości na wydarzenie",
+            "Profesjonalne szablony e-mail",
             "QR code check-in",
-            "Real-time analytics",
-            "CSV import/export",
-            "Email support",
+            "Analityka w czasie rzeczywistym",
+            "Import/export CSV",
+            "Wsparcie e-mail",
           ]}
-          buttonText="Start Free Trial"
+          buttonText="Wypróbuj za darmo"
           onSelect={() => handleSelectPackage("basic")}
         />
         <PricingCard
           title="Professional"
-          price="$79"
-          period="/ month"
-          description="For growing organizations"
+          price="319 zł"
+          period="/ miesiąc"
+          description="Dla rosnących organizacji"
           features={[
-            "Up to 500 guests per event",
-            "Custom branded templates",
-            "Bulk email sending",
-            "Team access (3 users)",
-            "Priority support",
-            "Advanced reporting",
-            "Offline scanner mode",
+            "Do 500 gości na wydarzenie",
+            "Szablony z własnym brandingiem",
+            "Masowy mailing",
+            "Dostęp dla zespołu (3 osoby)",
+            "Priorytetowe wsparcie",
+            "Zaawansowane raporty",
+            "Tryb offline skanera",
           ]}
-          buttonText="Start Free Trial"
+          buttonText="Wypróbuj za darmo"
           isPrimary={true}
-          badge="Most Popular"
+          badge="Najpopularniejszy"
           onSelect={() => handleSelectPackage("standard")}
         />
         <PricingCard
           title="Enterprise"
-          price="$199"
-          period="/ month"
-          description="For large-scale events"
+          price="799 zł"
+          period="/ miesiąc"
+          description="Dla dużych wydarzeń"
           features={[
-            "Unlimited guests",
-            "White-label solution",
-            "API access",
-            "Unlimited team members",
-            "Dedicated account manager",
-            "Custom integrations",
-            "SLA guarantee",
-            "On-site training",
+            "Nieograniczona liczba gości",
+            "White-label (własna marka)",
+            "Dostęp do API",
+            "Nielimitowani członkowie zespołu",
+            "Dedykowany opiekun konta",
+            "Integracje na zamówienie",
+            "Gwarancja SLA",
+            "Szkolenie on-site",
           ]}
-          buttonText="Contact Sales"
+          buttonText="Skontaktuj się"
           onSelect={() => handleSelectPackage("premium")}
         />
       </div>
       
       <div className="text-center mt-12">
         <p className="text-muted-foreground">
-          All plans include a 14-day free trial. No credit card required.
+          Każdy plan zawiera 14-dniowy okres próbny. Karta kredytowa nie jest wymagana.
         </p>
       </div>
     </section>
