@@ -3,23 +3,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
-  TrendingUp, Mail, Clock, BarChart3, Plus, Eye, Settings, 
-  UserPlus, Send, FileText, Activity, CreditCard, Crown,
-  ArrowRight, Sparkles
+  TrendingUp, FileText, Activity, CreditCard, Crown,
+  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/StatCard";
-import GuestStatusChart from "@/components/dashboard/GuestStatusChart";
-import RecentActivity from "@/components/dashboard/RecentActivity";
 import DatabaseSchema from "@/components/database/DatabaseSchema";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { mockDashboardService } from "@/services/api/mockDashboardService";
-import { mockEventStatsService } from "@/services/api/mockEventStatsService";
 import { useQuery } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useAuth } from "@/hooks/auth";
@@ -32,13 +26,11 @@ import { STRIPE_TIERS } from "@/config/stripe";
 const OrganizerDashboard = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
-  const [timeRange, setTimeRange] = useState<"today" | "week" | "month" | "year">("today");
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "schema">("overview");
   const { isOnline, wasOffline } = useOnlineStatus();
   const { subscribed, tier, subscriptionEnd, isLoading: subLoading } = useSubscription();
   const { openCustomerPortal, isLoading: portalLoading } = useCheckout();
 
-  // Fetch organizer's events
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
     queryKey: ['organizerEvents', user?.id],
     queryFn: async () => {
@@ -110,11 +102,11 @@ const OrganizerDashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header with greeting */}
+      {/* Header */}
       <div className="flex flex-wrap justify-between items-end gap-4">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-primary tracking-wide uppercase">Dashboard</p>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+          <p className="text-sm font-semibold text-primary tracking-widest uppercase">Dashboard</p>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
             Witaj, {profile?.firstName || 'Organizatorze'}! 👋
           </h1>
           <p className="text-muted-foreground text-base">
@@ -132,25 +124,25 @@ const OrganizerDashboard = () => {
 
       {/* Offline alert */}
       {!isOnline && (
-        <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-900 rounded-xl">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-800">Tryb offline</AlertTitle>
-          <AlertDescription className="text-amber-700">
+        <Alert variant="destructive" className="bg-warning/10 border-warning/30 text-foreground rounded-xl">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <AlertTitle className="text-warning">Tryb offline</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
             Pracujesz w trybie offline. Niektóre dane mogą być nieaktualne.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Subscription status - refined */}
-      <Card className={`rounded-2xl overflow-hidden border-0 shadow-md ${subscribed ? 'bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5' : 'bg-gradient-to-r from-amber-50 to-orange-50'}`}>
+      {/* Subscription card */}
+      <Card className={`rounded-2xl overflow-hidden border-0 shadow-md ${subscribed ? 'bg-primary/5' : 'bg-warning/5'}`}>
         <CardContent className="flex flex-wrap items-center justify-between gap-4 py-5 px-6">
           <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-2xl ${subscribed ? 'bg-primary/15 text-primary' : 'bg-amber-100 text-amber-600'}`}>
+            <div className={`p-3 rounded-2xl ${subscribed ? 'bg-primary/15 text-primary' : 'bg-warning/15 text-warning'}`}>
               <Crown className="h-6 w-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-lg">
+                <span className="font-semibold text-lg text-foreground">
                   {subLoading ? 'Sprawdzanie...' : subscribed ? `Plan ${tier ? STRIPE_TIERS[tier].name : 'Aktywny'}` : 'Brak aktywnego planu'}
                 </span>
                 {subscribed && (
@@ -180,7 +172,7 @@ const OrganizerDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Quick stats - refined cards */}
+      {/* Stats grid */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Wszystkie wydarzenia"
@@ -210,18 +202,18 @@ const OrganizerDashboard = () => {
         />
       </div>
 
-      {/* Main content tabs */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-        <TabsList className="mb-6 bg-muted/50 p-1 rounded-xl">
-          <TabsTrigger value="overview" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
+        <TabsList className="mb-6 bg-primary/5 p-1 rounded-xl border border-border">
+          <TabsTrigger value="overview" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
             <BarChart3 className="h-4 w-4" />
             Przegląd
           </TabsTrigger>
-          <TabsTrigger value="events" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
+          <TabsTrigger value="events" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
             <Calendar className="h-4 w-4" />
             Wydarzenia
           </TabsTrigger>
-          <TabsTrigger value="schema" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
+          <TabsTrigger value="schema" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
             <Database className="h-4 w-4" />
             Baza danych
           </TabsTrigger>
@@ -230,13 +222,13 @@ const OrganizerDashboard = () => {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Pending accreditations */}
-            <Card className="rounded-2xl border-border/60">
+            <Card className="rounded-2xl border-border">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div>
-                  <CardTitle className="text-lg font-semibold">Oczekujące akredytacje</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground">Oczekujące akredytacje</CardTitle>
                   <CardDescription className="mt-1">Prośby wymagające Twojej decyzji</CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/guests')} className="text-primary gap-1">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/guests')} className="text-primary gap-1 hover:bg-primary/10">
                   Zobacz wszystkie
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
@@ -244,18 +236,18 @@ const OrganizerDashboard = () => {
               <CardContent>
                 {accreditationRequests?.length === 0 ? (
                   <div className="text-center py-10 text-muted-foreground">
-                    <div className="mx-auto mb-3 h-14 w-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                      <CheckCircle className="h-7 w-7 text-emerald-500" />
+                    <div className="mx-auto mb-3 h-14 w-14 rounded-2xl bg-success/15 flex items-center justify-center">
+                      <CheckCircle className="h-7 w-7 text-success" />
                     </div>
-                    <p className="font-medium">Brak oczekujących akredytacji</p>
+                    <p className="font-medium text-foreground">Brak oczekujących akredytacji</p>
                     <p className="text-sm mt-1">Wszystko jest na bieżąco 🎉</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {accreditationRequests?.slice(0, 4).map((request) => (
-                      <div key={request.id} className="flex items-center justify-between p-3.5 rounded-xl border bg-muted/20 hover:bg-muted/40 transition-colors">
+                      <div key={request.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-muted/30 hover:bg-primary/5 transition-colors">
                         <div>
-                          <p className="font-medium text-sm">{request.media_name}</p>
+                          <p className="font-medium text-sm text-foreground">{request.media_name}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{request.contact_email}</p>
                         </div>
                         <div className="flex gap-2">
@@ -269,26 +261,26 @@ const OrganizerDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Quick actions - redesigned */}
-            <Card className="rounded-2xl border-border/60">
+            {/* Quick actions */}
+            <Card className="rounded-2xl border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold">Szybkie akcje</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground">Szybkie akcje</CardTitle>
                 <CardDescription className="mt-1">Najczęściej używane funkcje</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { icon: Plus, label: "Dodaj wydarzenie", path: "/events", color: "text-primary" },
-                    { icon: UserPlus, label: "Dodaj gości", path: "/guests", color: "text-secondary" },
-                    { icon: QrCode, label: "Skaner QR", path: "/scanner", color: "text-accent" },
-                    { icon: Settings, label: "Ustawienia", path: "/settings", color: "text-muted-foreground" },
-                  ].map(({ icon: Icon, label, path, color }) => (
+                    { icon: Plus, label: "Dodaj wydarzenie", path: "/events" },
+                    { icon: UserPlus, label: "Dodaj gości", path: "/guests" },
+                    { icon: QrCode, label: "Skaner QR", path: "/scanner" },
+                    { icon: Settings, label: "Ustawienia", path: "/settings" },
+                  ].map(({ icon: Icon, label, path }) => (
                     <button
                       key={path}
                       onClick={() => navigate(path)}
-                      className="group flex flex-col items-center justify-center gap-2.5 p-5 rounded-xl border border-border/60 bg-card hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm transition-all duration-200"
+                      className="group flex flex-col items-center justify-center gap-2.5 p-5 rounded-xl border border-border bg-card hover:bg-primary/5 hover:border-primary/30 hover:shadow-sm transition-all duration-200"
                     >
-                      <div className={`h-10 w-10 rounded-xl bg-muted/60 flex items-center justify-center ${color} group-hover:bg-primary/10 group-hover:text-primary transition-colors duration-200`}>
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
                         <Icon className="h-5 w-5" />
                       </div>
                       <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{label}</span>
@@ -299,16 +291,16 @@ const OrganizerDashboard = () => {
             </Card>
           </div>
 
-          {/* Activity chart placeholder */}
-          <Card className="rounded-2xl border-border/60">
+          {/* Activity placeholder */}
+          <Card className="rounded-2xl border-border">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">Aktywność check-in</CardTitle>
+              <CardTitle className="text-lg font-semibold text-foreground">Aktywność check-in</CardTitle>
               <CardDescription>Statystyki zameldowań w czasie</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground rounded-xl bg-muted/20 border border-dashed border-border/60">
-                <Activity className="h-10 w-10 mb-3 opacity-40" />
-                <span className="font-medium">Wykres aktywności</span>
+              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground rounded-xl bg-primary/5 border border-dashed border-primary/20">
+                <Activity className="h-10 w-10 mb-3 text-primary/30" />
+                <span className="font-medium text-foreground/60">Wykres aktywności</span>
                 <span className="text-xs mt-1">Dane pojawią się po pierwszych zameldowaniach</span>
               </div>
             </CardContent>
@@ -316,21 +308,20 @@ const OrganizerDashboard = () => {
         </TabsContent>
 
         <TabsContent value="events" className="space-y-6">
-          {/* Active events */}
           {activeEvents.length > 0 && (
-            <Card className="border-0 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 shadow-sm">
+            <Card className="border-0 rounded-2xl bg-success/5 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-2.5">
-                  <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <CardTitle className="text-lg text-emerald-800 font-semibold">Aktywne wydarzenia</CardTitle>
+                  <div className="h-3 w-3 rounded-full bg-success animate-pulse" />
+                  <CardTitle className="text-lg text-success font-semibold">Aktywne wydarzenia</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {activeEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-4 rounded-xl bg-white/80 border border-emerald-100 backdrop-blur-sm">
+                    <div key={event.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-success/20">
                       <div>
-                        <h4 className="font-semibold">{event.title}</h4>
+                        <h4 className="font-semibold text-foreground">{event.title}</h4>
                         <p className="text-sm text-muted-foreground">{event.location}</p>
                       </div>
                       <div className="flex gap-2">
@@ -338,7 +329,7 @@ const OrganizerDashboard = () => {
                           <QrCode className="h-4 w-4 mr-1" />
                           Skanuj
                         </Button>
-                        <Button size="sm" onClick={() => navigate(`/events`)} className="rounded-lg">
+                        <Button size="sm" onClick={() => navigate('/events')} className="rounded-lg">
                           <Eye className="h-4 w-4 mr-1" />
                           Szczegóły
                         </Button>
@@ -350,11 +341,10 @@ const OrganizerDashboard = () => {
             </Card>
           )}
 
-          {/* Upcoming events */}
-          <Card className="rounded-2xl border-border/60">
+          <Card className="rounded-2xl border-border">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">Nadchodzące wydarzenia</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground">Nadchodzące wydarzenia</CardTitle>
                 <CardDescription className="mt-1">Twoje zaplanowane wydarzenia</CardDescription>
               </div>
               <Button onClick={() => navigate('/events')} className="rounded-xl gap-1.5">
@@ -366,15 +356,15 @@ const OrganizerDashboard = () => {
               {eventsLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 rounded-xl bg-muted/40 animate-pulse" />
+                    <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
                   ))}
                 </div>
               ) : upcomingEvents.length === 0 ? (
                 <div className="text-center py-14 text-muted-foreground">
-                  <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center">
-                    <Calendar className="h-8 w-8 opacity-40" />
+                  <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <Calendar className="h-8 w-8 text-primary/40" />
                   </div>
-                  <p className="font-medium">Brak nadchodzących wydarzeń</p>
+                  <p className="font-medium text-foreground">Brak nadchodzących wydarzeń</p>
                   <p className="text-sm mt-1 mb-4">Utwórz swoje pierwsze wydarzenie</p>
                   <Button className="rounded-xl" onClick={() => navigate('/events')}>
                     <Plus className="h-4 w-4 mr-1.5" />
@@ -384,7 +374,7 @@ const OrganizerDashboard = () => {
               ) : (
                 <div className="space-y-3">
                   {upcomingEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-4 rounded-xl border border-border/60 hover:bg-muted/30 hover:border-primary/20 transition-all duration-200 group">
+                    <div key={event.id} className="flex items-center justify-between p-4 rounded-xl border border-border hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 group">
                       <div className="flex items-center gap-4">
                         <div className="text-center p-2.5 bg-primary/10 rounded-xl min-w-[60px]">
                           <div className="text-lg font-bold text-primary leading-none">
@@ -395,7 +385,7 @@ const OrganizerDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <h4 className="font-semibold group-hover:text-primary transition-colors">{event.title}</h4>
+                          <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{event.title}</h4>
                           <p className="text-sm text-muted-foreground">{event.location || 'Brak lokalizacji'}</p>
                         </div>
                       </div>
@@ -403,7 +393,7 @@ const OrganizerDashboard = () => {
                         <Badge variant={event.is_published ? "default" : "secondary"} className="rounded-lg">
                           {event.is_published ? "Opublikowane" : "Szkic"}
                         </Badge>
-                        <Button size="sm" variant="ghost" className="rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button size="sm" variant="ghost" className="rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
