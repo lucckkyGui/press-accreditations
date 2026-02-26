@@ -44,30 +44,33 @@ const faqItems = [
 
 const FAQSection = () => {
   return (
-    <section className="py-16 bg-muted/30">
-      <div className="container">
+    <section className="py-16 bg-muted/40 relative overflow-hidden">
+      <div className="absolute -bottom-20 -right-20 w-[300px] h-[300px] bg-primary/5 blob blur-[80px]" />
+      
+      <div className="container relative z-10">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-4">
-            <HelpCircle className="h-6 w-6 text-primary" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+            <HelpCircle className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold text-primary">FAQ</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Najczęściej zadawane pytania
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
             Wszystko co musisz wiedzieć o Press Accreditations. 
-            Nie znalazłeś odpowiedzi? <a href="/contact" className="text-primary hover:underline">Napisz do nas</a>.
+            Nie znalazłeś odpowiedzi? <a href="/contact" className="text-primary hover:underline font-medium">Napisz do nas</a>.
           </p>
         </div>
         
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full space-y-2">
+          <Accordion type="single" collapsible className="w-full space-y-3">
             {faqItems.map((item, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-background border rounded-lg px-6 data-[state=open]:shadow-md transition-shadow"
+                className="bg-card border rounded-2xl px-6 data-[state=open]:shadow-card data-[state=open]:border-primary/20 transition-all"
               >
-                <AccordionTrigger className="text-left text-base md:text-lg font-medium hover:no-underline py-5">
+                <AccordionTrigger className="text-left text-base md:text-lg font-semibold hover:no-underline py-5 hover:text-primary transition-colors">
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
