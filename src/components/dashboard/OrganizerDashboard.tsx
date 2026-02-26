@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
   TrendingUp, Mail, Clock, BarChart3, Plus, Eye, Settings, 
-  UserPlus, Send, FileText, Activity
+  UserPlus, Send, FileText, Activity, CreditCard, Crown
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,9 @@ import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useCheckout } from "@/hooks/useCheckout";
+import { STRIPE_TIERS } from "@/config/stripe";
 
 const OrganizerDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +34,8 @@ const OrganizerDashboard = () => {
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month" | "year">("today");
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "schema">("overview");
   const { isOnline, wasOffline } = useOnlineStatus();
+  const { subscribed, tier, subscriptionEnd, isLoading: subLoading } = useSubscription();
+  const { openCustomerPortal, isLoading: portalLoading } = useCheckout();
 
   // Fetch organizer's events
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
@@ -136,6 +141,45 @@ const OrganizerDashboard = () => {
           </AlertDescription>
         </Alert>
       )}
+
+      {/* Subscription status */}
+      <Card className={`border ${subscribed ? 'border-primary/30 bg-primary/5' : 'border-amber-200 bg-amber-50/50'}`}>
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${subscribed ? 'bg-primary/10' : 'bg-amber-100'}`}>
+              <Crown className={`h-5 w-5 ${subscribed ? 'text-primary' : 'text-amber-600'}`} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">
+                  {subLoading ? 'Sprawdzanie...' : subscribed ? `Plan ${tier ? STRIPE_TIERS[tier].name : 'Aktywny'}` : 'Brak aktywnego planu'}
+                </span>
+                {subscribed && (
+                  <Badge variant="default" className="text-xs">Aktywny</Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {subscribed && subscriptionEnd
+                  ? `Odnowienie: ${new Date(subscriptionEnd).toLocaleDateString('pl-PL')}`
+                  : 'Wybierz plan, aby odblokować pełne możliwości'}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {subscribed ? (
+              <Button variant="outline" size="sm" onClick={openCustomerPortal} disabled={portalLoading}>
+                <CreditCard className="h-4 w-4 mr-2" />
+                {portalLoading ? 'Otwieranie...' : 'Zarządzaj subskrypcją'}
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => navigate('/home#pricing')}>
+                <Crown className="h-4 w-4 mr-2" />
+                Wybierz plan
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
