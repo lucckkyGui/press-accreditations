@@ -16,7 +16,7 @@ export const OrganizerLoginForm = ({
   onResetClick,
   defaultEmail = "",
   defaultPassword = "",
-  testModeEnabled = false
+  testModeEnabled: _testModeEnabled = false
 }: { 
   onResetClick: () => void;
   defaultEmail?: string;
@@ -37,18 +37,6 @@ export const OrganizerLoginForm = ({
     setIsLoading(true);
     
     try {
-      if (testModeEnabled) {
-        if (email === "TEST" || (email === "admin@example.com" && password === "password123")) {
-          playSoundEffect("success", 0.5);
-          toast.success(t('auth.testLoginSuccess'));
-          setTimeout(() => {
-            const from = location.state?.from || "/dashboard";
-            navigate(from, { replace: true });
-          }, 500);
-          return;
-        }
-      }
-      
       const result = await signIn(email, password);
       
       if (result && result.error) {
