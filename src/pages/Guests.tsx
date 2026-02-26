@@ -96,6 +96,7 @@ const Guests = () => {
             selectedEvent={guestsPageProps.selectedEvent}
             onImportClick={() => guestsPageProps.setShowImportDialog(true)}
             onCreateClick={guestsPageProps.handleCreateGuest}
+            guestCount={guestsPageProps.total}
           />
           <GuestsTabs {...guestsPageProps} />
           <GuestsDialogs {...guestsPageProps} />
