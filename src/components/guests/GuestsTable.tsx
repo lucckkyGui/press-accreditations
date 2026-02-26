@@ -4,8 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Guest } from "@/types";
+import { Card } from "@/components/ui/card";
 
 interface GuestsTableProps {
   guests: Guest[];
@@ -35,11 +36,7 @@ export const GuestsTable = ({
   isLoading
 }: GuestsTableProps) => {
   const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedGuests(guests);
-    } else {
-      setSelectedGuests([]);
-    }
+    setSelectedGuests(checked ? guests : []);
   };
 
   const handleSelectGuest = (guest: Guest, checked: boolean) => {
@@ -51,113 +48,97 @@ export const GuestsTable = ({
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      invited: "outline",
-      confirmed: "default",
-      declined: "destructive",
-      "checked-in": "secondary"
+    const config: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; className: string }> = {
+      invited: { variant: "outline", className: "border-primary/30 text-primary" },
+      confirmed: { variant: "default", className: "bg-success text-success-foreground" },
+      declined: { variant: "destructive", className: "" },
+      "checked-in": { variant: "secondary", className: "bg-secondary/15 text-secondary border-0" }
     };
-    
     const labels: Record<string, string> = {
       invited: "Zaproszony",
-      confirmed: "Potwierdzony", 
+      confirmed: "Potwierdzony",
       declined: "Odrzucony",
       "checked-in": "Obecny"
     };
-
-    return (
-      <Badge variant={variants[status] || "outline"}>
-        {labels[status] || status}
-      </Badge>
-    );
+    const c = config[status] || { variant: "outline" as const, className: "" };
+    return <Badge variant={c.variant} className={`rounded-lg text-xs ${c.className}`}>{labels[status] || status}</Badge>;
   };
 
   const getZoneBadge = (zone: string) => {
-    const colors: Record<string, string> = {
-      vip: "bg-purple-100 text-purple-800",
-      press: "bg-blue-100 text-blue-800",
-      staff: "bg-green-100 text-green-800",
-      general: "bg-gray-100 text-gray-800"
+    const config: Record<string, string> = {
+      vip: "bg-primary/15 text-primary border-0",
+      press: "bg-info/15 text-info border-0",
+      staff: "bg-success/15 text-success border-0",
+      general: "bg-muted text-muted-foreground border-0"
     };
-
     const labels: Record<string, string> = {
-      vip: "VIP",
-      press: "Press",
-      staff: "Staff",
-      general: "Ogólna"
+      vip: "VIP", press: "Press", staff: "Staff", general: "Ogólna"
     };
-
-    return (
-      <Badge className={colors[zone] || "bg-gray-100 text-gray-800"}>
-        {labels[zone] || zone}
-      </Badge>
-    );
+    return <Badge className={`rounded-lg text-xs ${config[zone] || "bg-muted text-muted-foreground"}`}>{labels[zone] || zone}</Badge>;
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">Ładowanie...</div>;
+    return (
+      <Card className="rounded-2xl border-border">
+        <div className="space-y-3 p-6">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-14 rounded-xl bg-muted animate-pulse" />)}
+        </div>
+      </Card>
+    );
   }
 
   return (
-    <div className="rounded-md border">
+    <Card className="rounded-2xl border-border overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="bg-muted/30 hover:bg-muted/30">
             <TableHead className="w-12">
               <Checkbox
                 checked={selectedGuests.length === guests.length && guests.length > 0}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>Imię i nazwisko</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>PESEL</TableHead>
-            <TableHead>Firma</TableHead>
-            <TableHead>Telefon</TableHead>
-            <TableHead>Strefa</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Akcje</TableHead>
+            <TableHead className="font-semibold text-foreground">Imię i nazwisko</TableHead>
+            <TableHead className="font-semibold text-foreground">Email</TableHead>
+            <TableHead className="font-semibold text-foreground">PESEL</TableHead>
+            <TableHead className="font-semibold text-foreground">Firma</TableHead>
+            <TableHead className="font-semibold text-foreground">Telefon</TableHead>
+            <TableHead className="font-semibold text-foreground">Strefa</TableHead>
+            <TableHead className="font-semibold text-foreground">Status</TableHead>
+            <TableHead className="text-right font-semibold text-foreground">Akcje</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {guests.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-4">
+              <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                 Brak gości do wyświetlenia
               </TableCell>
             </TableRow>
           ) : (
             guests.map((guest) => (
-              <TableRow key={guest.id}>
+              <TableRow key={guest.id} className="group hover:bg-primary/5 transition-colors">
                 <TableCell>
                   <Checkbox
                     checked={selectedGuests.some(g => g.id === guest.id)}
                     onCheckedChange={(checked) => handleSelectGuest(guest, !!checked)}
                   />
                 </TableCell>
-                <TableCell className="font-medium">
+                <TableCell className="font-medium text-foreground">
                   {guest.firstName} {guest.lastName}
                 </TableCell>
-                <TableCell>{guest.email}</TableCell>
-                <TableCell>{guest.pesel || '-'}</TableCell>
-                <TableCell>{guest.company || '-'}</TableCell>
-                <TableCell>{guest.phone || '-'}</TableCell>
+                <TableCell className="text-muted-foreground">{guest.email}</TableCell>
+                <TableCell className="text-muted-foreground">{guest.pesel || '—'}</TableCell>
+                <TableCell className="text-muted-foreground">{guest.company || '—'}</TableCell>
+                <TableCell className="text-muted-foreground">{guest.phone || '—'}</TableCell>
                 <TableCell>{getZoneBadge(guest.zone)}</TableCell>
                 <TableCell>{getStatusBadge(guest.status)}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(guest)}
-                    >
+                  <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="sm" onClick={() => onEdit(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDelete(guest.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => onDelete(guest.id)} className="rounded-lg h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -167,33 +148,37 @@ export const GuestsTable = ({
           )}
         </TableBody>
       </Table>
-      
-      <div className="flex items-center justify-between px-4 py-3 border-t">
-        <div className="text-sm text-muted-foreground">
-          Pokazano {guests.length} z {total} gości
-        </div>
+
+      <div className="flex items-center justify-between px-5 py-3.5 border-t border-border bg-muted/20">
+        <span className="text-sm text-muted-foreground">
+          Pokazano {guests.length} z {total}
+        </span>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onPageChange(Math.max(0, page - 1))}
             disabled={page === 0}
+            className="rounded-lg h-8 gap-1"
           >
-            Poprzednia
+            <ChevronLeft className="h-4 w-4" />
+            Wstecz
           </Button>
-          <span className="text-sm">
-            Strona {page + 1} z {Math.ceil(total / pageSize)}
+          <span className="text-sm text-muted-foreground px-2">
+            {page + 1} / {Math.max(1, Math.ceil(total / pageSize))}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onPageChange(page + 1)}
             disabled={(page + 1) * pageSize >= total}
+            className="rounded-lg h-8 gap-1"
           >
-            Następna
+            Dalej
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

@@ -9,11 +9,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { CalendarDays } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Guests = () => {
   const guestsPageProps = useGuestsPage();
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -60,35 +64,43 @@ const Guests = () => {
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-16">
-        <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Brak wydarzeń</h2>
-        <p className="text-muted-foreground">Utwórz wydarzenie, aby zarządzać gośćmi</p>
+      <div className="text-center py-20">
+        <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <CalendarDays className="h-8 w-8 text-primary/40" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-2">Brak wydarzeń</h2>
+        <p className="text-muted-foreground mb-6">Utwórz wydarzenie, aby zarządzać gośćmi</p>
+        <Button className="rounded-xl" onClick={() => navigate('/events')}>Utwórz wydarzenie</Button>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <label className="text-sm font-medium text-muted-foreground mb-2 block">Wybierz wydarzenie</label>
-        <Select
-          value={guestsPageProps.selectedEvent?.id || ''}
-          onValueChange={(val) => {
-            const ev = events.find(e => e.id === val);
-            if (ev) guestsPageProps.setSelectedEvent(ev);
-          }}
-        >
-          <SelectTrigger className="max-w-md">
-            <SelectValue placeholder="Wybierz wydarzenie" />
-          </SelectTrigger>
-          <SelectContent>
-            {events.map(ev => (
-              <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="space-y-6">
+      {/* Event selector */}
+      <Card className="rounded-2xl border-border bg-primary/5">
+        <CardContent className="py-4 px-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <label className="text-sm font-semibold text-foreground whitespace-nowrap">Wydarzenie:</label>
+            <Select
+              value={guestsPageProps.selectedEvent?.id || ''}
+              onValueChange={(val) => {
+                const ev = events.find(e => e.id === val);
+                if (ev) guestsPageProps.setSelectedEvent(ev);
+              }}
+            >
+              <SelectTrigger className="max-w-md h-11 rounded-xl border-border/60 bg-card">
+                <SelectValue placeholder="Wybierz wydarzenie" />
+              </SelectTrigger>
+              <SelectContent>
+                {events.map(ev => (
+                  <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {guestsPageProps.selectedEvent && (
         <>
