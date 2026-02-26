@@ -28,3 +28,58 @@ export const getTierByProductId = (productId: string): SubscriptionTier | null =
   }
   return null;
 };
+
+// Feature limits per plan
+export interface PlanLimits {
+  maxGuests: number;
+  bulkEmail: boolean;
+  massEmail: boolean;
+  apiAccess: boolean;
+  webhooks: boolean;
+  analytics: boolean;
+  customBranding: boolean;
+  maxEvents: number;
+}
+
+export const PLAN_LIMITS: Record<SubscriptionTier | 'free', PlanLimits> = {
+  free: {
+    maxGuests: 50,
+    bulkEmail: false,
+    massEmail: false,
+    apiAccess: false,
+    webhooks: false,
+    analytics: false,
+    customBranding: false,
+    maxEvents: 1,
+  },
+  starter: {
+    maxGuests: 500,
+    bulkEmail: true,
+    massEmail: false,
+    apiAccess: false,
+    webhooks: false,
+    analytics: false,
+    customBranding: false,
+    maxEvents: 5,
+  },
+  professional: {
+    maxGuests: 5000,
+    bulkEmail: true,
+    massEmail: true,
+    apiAccess: false,
+    webhooks: false,
+    analytics: true,
+    customBranding: true,
+    maxEvents: 20,
+  },
+  enterprise: {
+    maxGuests: Infinity,
+    bulkEmail: true,
+    massEmail: true,
+    apiAccess: true,
+    webhooks: true,
+    analytics: true,
+    customBranding: true,
+    maxEvents: Infinity,
+  },
+};
