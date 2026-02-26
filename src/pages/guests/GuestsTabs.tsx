@@ -38,25 +38,25 @@ interface GuestsTabsProps {
 const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {
   const [activeTab, setActiveTab] = useState('guests');
   const { canUseFeature, getRequiredTierForFeature } = useFeatureAccess();
-  
   const hasBulkEmail = canUseFeature('bulkEmail');
-  const hasMassEmail = canUseFeature('massEmail');
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="guests" className="flex items-center gap-2">
+      <TabsList className="grid w-full grid-cols-3 bg-primary/5 p-1 rounded-xl border border-border h-12">
+        <TabsTrigger value="guests" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
           <Users className="h-4 w-4" />
-          Lista gości
-          <Badge variant="secondary">{props.guests.length}</Badge>
+          <span className="hidden sm:inline">Lista gości</span>
+          <Badge variant="secondary" className="rounded-md text-[10px] h-5 bg-primary/10 text-primary border-0 data-[state=active]:bg-primary-foreground/20 data-[state=active]:text-primary-foreground">
+            {props.guests.length}
+          </Badge>
         </TabsTrigger>
-        <TabsTrigger value="invitations" className="flex items-center gap-2">
+        <TabsTrigger value="invitations" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
           <FileImage className="h-4 w-4" />
-          Zaproszenia z QR
+          <span className="hidden sm:inline">Zaproszenia QR</span>
         </TabsTrigger>
-        <TabsTrigger value="bulk-email" className="flex items-center gap-2">
+        <TabsTrigger value="bulk-email" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
           <Mail className="h-4 w-4" />
-          Wysyłka masowa
+          <span className="hidden sm:inline">Wysyłka</span>
           {!hasBulkEmail && <Lock className="h-3 w-3 text-muted-foreground" />}
         </TabsTrigger>
       </TabsList>
@@ -66,25 +66,23 @@ const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {
       </TabsContent>
 
       <TabsContent value="invitations">
-        <GuestsInvitationTab 
+        <GuestsInvitationTab
           guests={props.guests}
           event={props.selectedEvent}
-          onInvitationsSent={() => {
-            props.setSelectedGuests([]);
-          }}
+          onInvitationsSent={() => props.setSelectedGuests([])}
         />
       </TabsContent>
 
       <TabsContent value="bulk-email">
         {hasBulkEmail ? (
-          <GuestsBulkEmailTab 
+          <GuestsBulkEmailTab
             guests={props.guests}
             selectedEvent={props.selectedEvent}
             onEmailSent={props.handleEmailSent}
             onTabChange={setActiveTab}
           />
         ) : (
-          <UpgradeBanner 
+          <UpgradeBanner
             requiredTier={getRequiredTierForFeature('bulkEmail')}
             featureLabel="Wysyłka masowa e-maili"
           />

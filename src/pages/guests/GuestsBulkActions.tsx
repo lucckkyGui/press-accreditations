@@ -19,25 +19,30 @@ const GuestsBulkActions: React.FC<GuestsBulkActionsProps> = ({
   onBulkZoneUpdate,
   onBulkDelete
 }) => {
-  const hasSelectedGuests = selectedGuests.length > 0;
+  const count = selectedGuests.length;
+  if (count === 0) return null;
 
   return (
-    <div className="mb-4">
-      <Button variant="outline" size="sm" onClick={onBulkEmail} disabled={!hasSelectedGuests}>
-        <Mail className="mr-2 h-4 w-4" />
+    <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl bg-primary/5 border border-primary/20 animate-fade-in">
+      <span className="text-sm font-medium text-primary mr-1">
+        Zaznaczono {count}
+      </span>
+      <div className="h-4 w-px bg-primary/20" />
+      <Button variant="outline" size="sm" onClick={onBulkEmail} className="rounded-lg gap-1.5 h-8 text-xs">
+        <Mail className="h-3.5 w-3.5" />
         Wyślij email
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onBulkStatusUpdate('confirmed')} disabled={!hasSelectedGuests}>
-        <CheckCheck className="mr-2 h-4 w-4" />
+      <Button variant="outline" size="sm" onClick={() => onBulkStatusUpdate('confirmed')} className="rounded-lg gap-1.5 h-8 text-xs">
+        <CheckCheck className="h-3.5 w-3.5" />
         Potwierdź
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onBulkZoneUpdate('vip')} disabled={!hasSelectedGuests}>
-        <UserPlus className="mr-2 h-4 w-4" />
-        Ustaw VIP
+      <Button variant="outline" size="sm" onClick={() => onBulkZoneUpdate('vip')} className="rounded-lg gap-1.5 h-8 text-xs">
+        <UserPlus className="h-3.5 w-3.5" />
+        VIP
       </Button>
-      <Button variant="destructive" size="sm" onClick={onBulkDelete} disabled={!hasSelectedGuests}>
-        <Trash2 className="mr-2 h-4 w-4" />
-        Usuń
+      <Button variant="destructive" size="sm" onClick={onBulkDelete} className="rounded-lg gap-1.5 h-8 text-xs ml-auto">
+        <Trash2 className="h-3.5 w-3.5" />
+        Usuń ({count})
       </Button>
     </div>
   );
