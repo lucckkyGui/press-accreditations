@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/auth";
 import { useCheckout } from "@/hooks/useCheckout";
 import { STRIPE_TIERS } from "@/config/stripe";
@@ -23,9 +23,10 @@ interface PricingCardProps {
 }
 
 const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, isLoading, onSelect }: PricingCardProps) => (
-  <Card className={`flex flex-col relative ${isPrimary ? 'border-2 border-primary shadow-xl md:scale-105' : 'border'}`}>
+  <Card className={`flex flex-col relative rounded-2xl transition-all duration-300 hover:-translate-y-1 ${isPrimary ? 'border-2 border-primary shadow-xl shadow-primary/10 md:scale-105 bg-card' : 'border bg-card shadow-soft hover:shadow-card-hover'}`}>
     {badge && (
-      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground border-0 px-4 py-1">
+        <Sparkles className="h-3 w-3 mr-1" />
         {badge}
       </Badge>
     )}
@@ -33,7 +34,7 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
       <CardTitle className="text-xl">{title}</CardTitle>
       <CardDescription>{description}</CardDescription>
       <div className="mt-4">
-        <span className="text-4xl font-bold">{price}</span>
+        <span className={`text-4xl font-extrabold ${isPrimary ? 'gradient-text' : ''}`}>{price}</span>
         {period && <span className="text-muted-foreground"> {period}</span>}
       </div>
     </CardHeader>
@@ -41,7 +42,9 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
       <ul className="space-y-3">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
-            <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div className={`rounded-full p-0.5 ${isPrimary ? 'bg-primary/10' : 'bg-secondary/10'}`}>
+              <Check className={`h-4 w-4 ${isPrimary ? 'text-primary' : 'text-secondary'} shrink-0`} />
+            </div>
             <span className="text-sm">{feature}</span>
           </li>
         ))}
@@ -49,7 +52,7 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
     </CardContent>
     <CardFooter>
       <Button 
-        className="w-full" 
+        className={`w-full transition-all duration-300 ${isPrimary ? 'gradient-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20' : ''}`}
         variant={isPrimary ? "default" : "outline"}
         size="lg"
         onClick={onSelect}
@@ -78,6 +81,10 @@ const PricingSection = () => {
   return (
     <section className="py-20 container">
       <div className="text-center mb-14">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
+          <Sparkles className="h-4 w-4 text-accent" />
+          <span className="text-sm font-semibold text-accent">Cennik</span>
+        </div>
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Prosty, przejrzysty cennik</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
           Wybierz plan dopasowany do skali Twoich wydarzeń. Każdy plan zawiera szablony zaproszeń i QR check-in.
