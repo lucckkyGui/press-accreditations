@@ -305,19 +305,19 @@ const Events = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Wydarzenia</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">Wydarzenia</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Zarządzaj wydarzeniami i zaproś gości.
           </p>
         </div>
         
-        <Button onClick={handleOpenModal} className="animated-button bg-primary hover:bg-primary/90">
+        <Button onClick={handleOpenModal} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold">
           <Plus className="mr-2 h-4 w-4" />
           Nowe wydarzenie
         </Button>
         
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[600px] rounded-2xl border-0 shadow-xl">
             <DialogHeader>
               <DialogTitle className="text-xl">Utwórz nowe wydarzenie</DialogTitle>
               <DialogDescription>
@@ -504,7 +504,7 @@ const Events = () => {
                   control={form.control}
                   name="isPublished"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border border-border/60 p-4 bg-primary/5">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Opublikuj od razu</FormLabel>
                         <FormDescription>
@@ -521,11 +521,11 @@ const Events = () => {
                   )}
                 />
                 
-                <DialogFooter className="pt-2">
-                  <Button variant="outline" onClick={() => setOpen(false)} type="button">
+                <DialogFooter className="pt-3 border-t border-border/40">
+                  <Button variant="outline" onClick={() => setOpen(false)} type="button" className="rounded-xl">
                     Anuluj
                   </Button>
-                  <Button type="submit">Utwórz wydarzenie</Button>
+                  <Button type="submit" className="rounded-xl shadow-md shadow-primary/10">Utwórz wydarzenie</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -537,10 +537,10 @@ const Events = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex-1 w-full sm:max-w-sm">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
               <Input
                 placeholder="Wyszukaj wydarzenia..."
-                className="pl-8"
+                className="pl-10 h-11 rounded-xl border-border/60 focus:border-primary/40 bg-card transition-colors"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -550,46 +550,46 @@ const Events = () => {
           <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
+                <Button variant="outline" size="sm" className="rounded-xl border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all">
                   <Filter className="mr-2 h-4 w-4" />
                   Filtruj
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("all")}
-                  className={activeFilter === "all" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("all")}
+                    className={activeFilter === "all" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Wszystkie ({eventCounts.all})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("published")}
-                  className={activeFilter === "published" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("published")}
+                    className={activeFilter === "published" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Opublikowane ({eventCounts.published})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("draft")}
-                  className={activeFilter === "draft" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("draft")}
+                    className={activeFilter === "draft" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Szkice ({eventCounts.draft})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("upcoming")}
-                  className={activeFilter === "upcoming" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("upcoming")}
+                    className={activeFilter === "upcoming" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Nadchodzące ({eventCounts.upcoming})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("today")}
-                  className={activeFilter === "today" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("today")}
+                    className={activeFilter === "today" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Dzisiaj ({eventCounts.today})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveFilter("past")}
-                  className={activeFilter === "past" ? "bg-secondary" : ""}
-                >
+                  <DropdownMenuItem 
+                    onClick={() => setActiveFilter("past")}
+                    className={activeFilter === "past" ? "bg-primary/10 text-primary" : ""}
+                  >
                   Przeszłe ({eventCounts.past})
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -597,7 +597,7 @@ const Events = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-white dark:bg-slate-900">
+                <Button variant="outline" size="sm" className="rounded-xl border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all">
                   {sortBy === "date-desc" ? 
                     <SortDesc className="mr-2 h-4 w-4" /> : 
                     sortBy === "date-asc" ? 
@@ -610,19 +610,19 @@ const Events = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem 
                   onClick={() => setSortBy("name")}
-                  className={sortBy === "name" ? "bg-secondary" : ""}
+                  className={sortBy === "name" ? "bg-primary/10 text-primary" : ""}
                 >
                   Po nazwie
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setSortBy("date-desc")}
-                  className={sortBy === "date-desc" ? "bg-secondary" : ""}
+                  className={sortBy === "date-desc" ? "bg-primary/10 text-primary" : ""}
                 >
                   Od najnowszych
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setSortBy("date-asc")}
-                  className={sortBy === "date-asc" ? "bg-secondary" : ""}
+                  className={sortBy === "date-asc" ? "bg-primary/10 text-primary" : ""}
                 >
                   Od najstarszych
                 </DropdownMenuItem>
@@ -633,9 +633,9 @@ const Events = () => {
 
         {/* Wyświetlanie aktywnego filtra */}
         {activeFilter !== "all" && (
-          <div className="flex items-center">
-            <span className="text-sm text-muted-foreground">
-              Filtr aktywny: 
+          <div className="flex items-center bg-primary/5 rounded-xl px-4 py-2">
+            <span className="text-sm text-primary font-medium">
+              Filtr: 
               {activeFilter === "published" && " Opublikowane"}
               {activeFilter === "draft" && " Szkice"}
               {activeFilter === "upcoming" && " Nadchodzące"}
@@ -645,7 +645,7 @@ const Events = () => {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-auto p-1 ml-2" 
+              className="h-auto p-1 ml-2 text-primary hover:bg-primary/10 rounded-lg" 
               onClick={() => setActiveFilter("all")}
             >
               ×
@@ -655,17 +655,17 @@ const Events = () => {
       </div>
       
       {filteredAndSortedEvents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 dark:bg-slate-900/50 rounded-xl shadow-sm border p-8">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Calendar className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-card rounded-2xl shadow-soft border border-border/40 p-8">
+          <div className="rounded-2xl bg-primary/10 p-5 mb-5">
+            <Calendar className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold">Brak wydarzeń</h3>
-          <p className="text-muted-foreground mt-2 max-w-md">
+          <h3 className="text-lg font-bold text-foreground">Brak wydarzeń</h3>
+          <p className="text-muted-foreground mt-2 max-w-md text-sm">
             {searchTerm ? 
               "Nie znaleziono wydarzeń pasujących do twojego wyszukiwania." : 
               "Nie masz żadnych wydarzeń. Utwórz nowe wydarzenie, aby rozpocząć."}
           </p>
-          <Button className="mt-4 animated-button" onClick={handleOpenModal}>
+          <Button className="mt-5 rounded-xl bg-primary hover:bg-primary/90 shadow-md shadow-primary/15 font-semibold" onClick={handleOpenModal}>
             <Plus className="mr-2 h-4 w-4" />
             Nowe wydarzenie
           </Button>
