@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Shield, Radio, Map, Tablet, Monitor, Zap, FileBarChart, Sparkles } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Shield, Radio, Map, Tablet, Monitor, Zap, FileBarChart, Sparkles, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -38,27 +38,27 @@ const AppSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarContent className="py-2">
+      <SidebarContent className="py-3 px-2">
         {/* Logo / Brand */}
-        <div className="px-4 py-4 mb-2">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
+        <div className="px-3 py-5 mb-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-sm font-bold tracking-tight text-foreground">Akredytacje</h2>
-              <p className="text-[11px] text-muted-foreground">Panel organizatora</p>
+              <h2 className="text-sm font-extrabold tracking-tight text-foreground">Akredytacje</h2>
+              <p className="text-[11px] text-muted-foreground font-medium">Panel organizatora</p>
             </div>
           </div>
         </div>
 
         {/* Core navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/70 px-4">
+          <SidebarGroupLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 px-3 mb-1">
             Menu główne
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {coreNavigation.map((item) => {
                 const active = location.pathname === item.url;
                 return (
@@ -66,17 +66,31 @@ const AppSidebar = () => {
                     <SidebarMenuButton
                       asChild
                       isActive={active}
-                      className={`
-                        mx-2 rounded-xl transition-all duration-200
-                        ${active
-                          ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90'
-                          : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
-                        }
-                      `}
+                      className="p-0 h-auto"
                     >
-                      <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
-                        <item.icon className="h-[18px] w-[18px]" />
-                        <span className="font-medium text-sm">{item.title}</span>
+                      <Link
+                        to={item.url}
+                        className={`
+                          flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/item
+                          ${active
+                            ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                          }
+                        `}
+                      >
+                        <div className={`
+                          flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-200
+                          ${active
+                            ? 'bg-primary-foreground/15'
+                            : 'bg-muted/60 group-hover/item:bg-primary/10 group-hover/item:text-primary'
+                          }
+                        `}>
+                          <item.icon className="h-[16px] w-[16px]" />
+                        </div>
+                        <span className="font-semibold text-[13px] flex-1">{item.title}</span>
+                        {active && (
+                          <ChevronRight className="h-4 w-4 opacity-60" />
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -86,22 +100,27 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Separator */}
+        <div className="mx-4 my-3 h-px bg-border/60" />
+
         {/* Coming soon */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/70 px-4">
+          <SidebarGroupLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 px-3 mb-1">
             Wkrótce
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-0.5">
               {comingSoonNavigation.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     disabled
-                    className="mx-2 rounded-xl opacity-40 cursor-not-allowed"
+                    className="px-3 py-2 rounded-xl opacity-35 cursor-not-allowed"
                   >
-                    <item.icon className="h-[18px] w-[18px] text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{item.title}</span>
-                    <Badge variant="secondary" className="ml-auto text-[9px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0 font-semibold">
+                    <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-muted/40">
+                      <item.icon className="h-[14px] w-[14px] text-muted-foreground" />
+                    </div>
+                    <span className="text-[12px] text-muted-foreground font-medium">{item.title}</span>
+                    <Badge variant="secondary" className="ml-auto text-[8px] px-1.5 py-0 h-[18px] rounded-md bg-primary/8 text-primary/60 border-0 font-bold tracking-wider">
                       SOON
                     </Badge>
                   </SidebarMenuButton>
