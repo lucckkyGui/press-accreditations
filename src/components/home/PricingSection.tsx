@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
+import { useAuth } from "@/hooks/auth";
+import { useCheckout } from "@/hooks/useCheckout";
+import { STRIPE_TIERS } from "@/config/stripe";
+import { toast } from "sonner";
 
 interface PricingCardProps {
   title: string;
@@ -14,10 +18,11 @@ interface PricingCardProps {
   buttonText: string;
   isPrimary?: boolean;
   badge?: string;
+  isLoading?: boolean;
   onSelect: () => void;
 }
 
-const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, onSelect }: PricingCardProps) => (
+const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, isLoading, onSelect }: PricingCardProps) => (
   <Card className={`flex flex-col relative ${isPrimary ? 'border-2 border-primary shadow-xl md:scale-105' : 'border'}`}>
     {badge && (
       <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
@@ -48,8 +53,9 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
         variant={isPrimary ? "default" : "outline"}
         size="lg"
         onClick={onSelect}
+        disabled={isLoading}
       >
-        {buttonText}
+        {isLoading ? "Przetwarzanie..." : buttonText}
       </Button>
     </CardFooter>
   </Card>
@@ -57,9 +63,16 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
 
 const PricingSection = () => {
   const navigate = useNavigate();
-  
-  const handleSelectPackage = (packageName: string) => {
-    navigate("/purchase", { state: { selectedPackage: packageName } });
+  const { user } = useAuth();
+  const { startCheckout, isLoading } = useCheckout();
+
+  const handleSelectPlan = (priceId: string) => {
+    if (!user) {
+      toast.info("Zaloguj się, aby wybrać plan.");
+      navigate("/login");
+      return;
+    }
+    startCheckout(priceId);
   };
 
   return (
@@ -86,7 +99,8 @@ const PricingSection = () => {
             "Wsparcie e-mail",
           ]}
           buttonText="Wypróbuj za darmo"
-          onSelect={() => handleSelectPackage("basic")}
+          isLoading={isLoading}
+          onSelect={() => handleSelectPlan(STRIPE_TIERS.starter.price_id)}
         />
         <PricingCard
           title="Professional"
@@ -105,7 +119,8 @@ const PricingSection = () => {
           buttonText="Wypróbuj za darmo"
           isPrimary={true}
           badge="Najpopularniejszy"
-          onSelect={() => handleSelectPackage("standard")}
+          isLoading={isLoading}
+          onSelect={() => handleSelectPlan(STRIPE_TIERS.professional.price_id)}
         />
         <PricingCard
           title="Enterprise"
@@ -123,7 +138,8 @@ const PricingSection = () => {
             "Szkolenie on-site",
           ]}
           buttonText="Skontaktuj się"
-          onSelect={() => handleSelectPackage("premium")}
+          isLoading={isLoading}
+          onSelect={() => handleSelectPlan(STRIPE_TIERS.enterprise.price_id)}
         />
       </div>
       
