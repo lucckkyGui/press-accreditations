@@ -1,9 +1,17 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, getClientIP, createRateLimitResponse } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
+
+function jsonError(message: string, status: number) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,12 +23,52 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceKey);
 
   try {
+    // Rate limiting
+    const clientIP = getClientIP(req);
+    const rateLimitResult = checkRateLimit(clientIP, {
+      maxRequests: 20,
+      windowMs: 60_000,
+      keyPrefix: 'webhook-dispatch',
+    });
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    // JWT Authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return jsonError('Unauthorized', 401);
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: userData, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !userData?.user) {
+      return jsonError('Unauthorized', 401);
+    }
+
+    const userId = userData.user.id;
+
     const { event_type, event_id, payload } = await req.json();
 
     if (!event_type || !event_id) {
-      return new Response(JSON.stringify({ error: 'event_type and event_id required' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonError('event_type and event_id required', 400);
+    }
+
+    // Verify user owns the event or is admin
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('organizer_id')
+      .eq('id', event_id)
+      .single();
+
+    if (eventError || !event) {
+      return jsonError('Event not found', 404);
+    }
+
+    const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: userId });
+
+    if (event.organizer_id !== userId && !isAdmin) {
+      return jsonError('Forbidden - not event owner or admin', 403);
     }
 
     // Find active webhook subscriptions for this event
@@ -62,16 +110,13 @@ Deno.serve(async (req) => {
         });
 
         if (!response.ok) {
-          // Increment failure count
           await supabase.from('webhook_subscriptions').update({
             failure_count: sub.failure_count + 1,
             updated_at: new Date().toISOString(),
-            // Deactivate after 10 consecutive failures
             ...(sub.failure_count >= 9 ? { is_active: false } : {}),
           }).eq('id', sub.id);
           throw new Error(`Webhook ${sub.url} returned ${response.status}`);
         } else {
-          // Reset failure count on success
           await supabase.from('webhook_subscriptions').update({
             failure_count: 0,
             last_triggered_at: new Date().toISOString(),
@@ -79,7 +124,6 @@ Deno.serve(async (req) => {
           }).eq('id', sub.id);
         }
 
-        // Consume response body
         await response.text();
         return { id: sub.id, status: 'delivered' };
       })
@@ -92,7 +136,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
