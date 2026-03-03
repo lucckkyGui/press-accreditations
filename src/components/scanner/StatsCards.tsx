@@ -47,7 +47,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({
           `${scan.guest.firstName} ${scan.guest.lastName}`,
           scan.guest.email,
           scan.guest.company || "",
-          scan.guest.zone,
+          scan.guest.ticketType,
           scan.guest.status,
           scan.timestamp.toLocaleString(),
           scan.successful ? "Zatwierdzony" : "Odrzucony"

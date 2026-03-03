@@ -79,7 +79,8 @@ const EnhancedEmailRetryQueue: React.FC<EnhancedEmailRetryQueueProps> = ({
           firstName: 'Jan',
           lastName: 'Kowalski',
           email: 'jan.kowalski@invalid-domain.com',
-          zone: 'general',
+          ticketType: 'uczestnik',
+          zones: [],
           status: 'invited',
           qrCode: 'qr-1'
         },
@@ -95,7 +96,8 @@ const EnhancedEmailRetryQueue: React.FC<EnhancedEmailRetryQueueProps> = ({
           firstName: 'Anna',
           lastName: 'Nowak',
           email: 'anna.nowak@blocked-domain.com',
-          zone: 'vip',
+          ticketType: 'media',
+          zones: [],
           status: 'invited',
           qrCode: 'qr-2'
         },
@@ -111,7 +113,8 @@ const EnhancedEmailRetryQueue: React.FC<EnhancedEmailRetryQueueProps> = ({
           firstName: 'Piotr',
           lastName: 'Wiśniewski',
           email: 'piotr.wisniewski@temporary-error.com',
-          zone: 'press',
+          ticketType: 'media',
+          zones: [],
           status: 'invited',
           qrCode: 'qr-3'
         },

@@ -28,7 +28,7 @@ export const guestQueryService = {
         }
 
         if (params.zone && params.zone !== 'all') {
-          query = query.eq('zone', params.zone);
+          query = query.filter('ticket_type', 'eq', params.zone);
         }
 
         if (params.emailStatus && params.emailStatus !== 'all') {
@@ -36,7 +36,7 @@ export const guestQueryService = {
         }
 
         if (params.search) {
-          query = query.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%,pesel.ilike.%${params.search}%`);
+          query = query.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%`);
         }
 
         // Handle pagination

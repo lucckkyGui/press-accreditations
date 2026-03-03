@@ -54,7 +54,8 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
       firstName: guestData.guestName.split(' ')[0] || 'Jan',
       lastName: guestData.guestName.split(' ')[1] || 'Kowalski',
       email: guestData.guestEmail,
-      zone: 'general',
+      ticketType: 'uczestnik',
+      zones: [],
       status: 'confirmed',
       qrCode: JSON.stringify(guestData),
       company: 'Test Company',
@@ -296,7 +297,7 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
                       </div>
                       <div>
                         <span className="text-muted-foreground">Strefa: </span>
-                        <Badge variant="outline">{lastScanResult.guest.zone}</Badge>
+                        <Badge variant="outline">{lastScanResult.guest.ticketType}</Badge>
                       </div>
                     </div>
                   )}

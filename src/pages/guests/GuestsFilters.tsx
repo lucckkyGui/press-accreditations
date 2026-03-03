@@ -2,25 +2,21 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GuestStatus, GuestZone } from "@/types";
+import { GuestStatus, GuestTicketType } from "@/types";
 import { Search, Filter } from 'lucide-react';
 
 interface GuestsFiltersProps {
   search: string;
   statusFilter: GuestStatus | 'all';
-  zoneFilter: GuestZone | 'all';
+  ticketTypeFilter: GuestTicketType | 'all';
   onSearchChange: (value: string) => void;
   onStatusFilterChange: (status: GuestStatus | 'all') => void;
-  onZoneFilterChange: (zone: GuestZone | 'all') => void;
+  onTicketTypeFilterChange: (ticketType: GuestTicketType | 'all') => void;
 }
 
 const GuestsFilters: React.FC<GuestsFiltersProps> = ({
-  search,
-  statusFilter,
-  zoneFilter,
-  onSearchChange,
-  onStatusFilterChange,
-  onZoneFilterChange
+  search, statusFilter, ticketTypeFilter,
+  onSearchChange, onStatusFilterChange, onTicketTypeFilterChange
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
@@ -51,19 +47,19 @@ const GuestsFilters: React.FC<GuestsFiltersProps> = ({
         </SelectContent>
       </Select>
 
-      <Select value={zoneFilter} onValueChange={onZoneFilterChange}>
+      <Select value={ticketTypeFilter} onValueChange={onTicketTypeFilterChange}>
         <SelectTrigger className="h-11 rounded-xl border-border/60">
           <div className="flex items-center gap-2">
             <Filter className="h-3.5 w-3.5 text-muted-foreground/60" />
-            <SelectValue placeholder="Wszystkie strefy" />
+            <SelectValue placeholder="Wszystkie typy biletów" />
           </div>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Wszystkie strefy</SelectItem>
-          <SelectItem value="general">Ogólna</SelectItem>
-          <SelectItem value="vip">VIP</SelectItem>
-          <SelectItem value="press">Press</SelectItem>
-          <SelectItem value="staff">Staff</SelectItem>
+          <SelectItem value="all">Wszystkie typy biletów</SelectItem>
+          <SelectItem value="uczestnik">Uczestnik</SelectItem>
+          <SelectItem value="media">Media</SelectItem>
+          <SelectItem value="crew">Crew</SelectItem>
+          <SelectItem value="promotor">Promotor</SelectItem>
         </SelectContent>
       </Select>
     </div>

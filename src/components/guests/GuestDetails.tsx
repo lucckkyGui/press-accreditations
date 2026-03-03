@@ -16,11 +16,11 @@ interface GuestDetailsProps {
 const GuestDetails = ({ guest, open, onOpenChange }: GuestDetailsProps) => {
   if (!guest) return null;
 
-  const zoneLabels = {
-    general: { label: 'Ogólna', color: 'bg-gray-500' },
-    vip: { label: 'VIP', color: 'bg-purple-500' },
-    press: { label: 'Press', color: 'bg-blue-500' },
-    staff: { label: 'Staff', color: 'bg-green-500' }
+  const ticketTypeLabels = {
+    uczestnik: { label: 'Uczestnik', color: 'bg-gray-500' },
+    media: { label: 'Media', color: 'bg-blue-500' },
+    crew: { label: 'Crew', color: 'bg-green-500' },
+    promotor: { label: 'Promotor', color: 'bg-purple-500' }
   };
 
   const statusLabels = {
@@ -35,8 +35,8 @@ const GuestDetails = ({ guest, open, onOpenChange }: GuestDetailsProps) => {
     return format(date, "dd.MM.yyyy HH:mm");
   };
 
-  const getZoneInfo = (zone: string) => {
-    return zoneLabels[zone as keyof typeof zoneLabels] || { label: zone, color: 'bg-gray-500' };
+  const getTicketTypeInfo = (type: string) => {
+    return ticketTypeLabels[type as keyof typeof ticketTypeLabels] || { label: type, color: 'bg-gray-500' };
   };
 
   const getStatusInfo = (status: string) => {
@@ -58,8 +58,8 @@ const GuestDetails = ({ guest, open, onOpenChange }: GuestDetailsProps) => {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <Badge className={`${getZoneInfo(guest.zone).color} hover:${getZoneInfo(guest.zone).color}`}>
-                {getZoneInfo(guest.zone).label}
+              <Badge className={`${getTicketTypeInfo(guest.ticketType).color} hover:${getTicketTypeInfo(guest.ticketType).color}`}>
+                {getTicketTypeInfo(guest.ticketType).label}
               </Badge>
               <Badge className={`ml-2 ${getStatusInfo(guest.status).color} hover:${getStatusInfo(guest.status).color}`}>
                 {getStatusInfo(guest.status).label}

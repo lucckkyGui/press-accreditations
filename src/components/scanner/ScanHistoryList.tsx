@@ -54,13 +54,13 @@ const ScanHistoryList: React.FC<ScanHistoryListProps> = ({ scanHistory, onClearH
                         <Badge
                           variant="secondary"
                           className={cn(
-                            entry.guest.zone === "vip" ? "bg-amber-500 text-white" :
-                            entry.guest.zone === "press" ? "bg-blue-500 text-white" :
-                            entry.guest.zone === "staff" ? "bg-purple-500 text-white" :
+                            entry.guest.ticketType === "media" ? "bg-blue-500 text-white" :
+                            entry.guest.ticketType === "crew" ? "bg-purple-500 text-white" :
+                            entry.guest.ticketType === "promotor" ? "bg-amber-500 text-white" :
                             "bg-green-500 text-white"
                           )}
                         >
-                          {entry.guest.zone.toUpperCase()}
+                          {entry.guest.ticketType.toUpperCase()}
                         </Badge>
                       </div>
                       <div className="text-sm text-muted-foreground">

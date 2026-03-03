@@ -16,7 +16,7 @@ interface GuestsTabsProps {
   pageSize: number;
   search: string;
   statusFilter: any;
-  zoneFilter: any;
+  ticketTypeFilter: any;
   selectedGuests: any[];
   selectedEvent: any;
   isLoading: boolean;
@@ -24,13 +24,13 @@ interface GuestsTabsProps {
   setPageSize: (size: number) => void;
   setSearch: (search: string) => void;
   setStatusFilter: (status: any) => void;
-  setZoneFilter: (zone: any) => void;
+  setTicketTypeFilter: (ticketType: any) => void;
   setSelectedGuests: (guests: any[]) => void;
   handleEditGuest: (guest: any) => void;
   handleDeleteGuest: (id: string) => void;
   handleBulkEmail: () => void;
   handleBulkStatusUpdate: (status: any) => void;
-  handleBulkZoneUpdate: (zone: any) => void;
+  handleBulkTicketTypeUpdate: (ticketType: any) => void;
   handleBulkDeleteGuests: () => void;
   handleEmailSent: () => void;
 }
