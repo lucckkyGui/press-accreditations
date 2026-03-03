@@ -15,7 +15,8 @@ export interface GuestDB {
   pesel?: string;
   company?: string;
   phone?: string;
-  zone: string;
+  ticket_type: string;
+  zones: string[];
   status: string;
   email_status?: string;
   qr_code: string;

@@ -606,8 +606,9 @@ export type Database = {
           phone: string | null
           qr_code: string
           status: string
+          ticket_type: string
           updated_at: string | null
-          zone: string
+          zones: string[] | null
         }
         Insert: {
           checked_in_at?: string | null
@@ -624,8 +625,9 @@ export type Database = {
           phone?: string | null
           qr_code: string
           status: string
+          ticket_type?: string
           updated_at?: string | null
-          zone: string
+          zones?: string[] | null
         }
         Update: {
           checked_in_at?: string | null
@@ -642,8 +644,9 @@ export type Database = {
           phone?: string | null
           qr_code?: string
           status?: string
+          ticket_type?: string
           updated_at?: string | null
-          zone?: string
+          zones?: string[] | null
         }
         Relationships: [
           {

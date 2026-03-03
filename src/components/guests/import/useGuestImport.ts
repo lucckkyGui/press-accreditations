@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Guest, GuestZone, GuestStatus } from '@/types';
+import { Guest, GuestStatus, GuestTicketType, TICKET_TYPE_LABELS } from '@/types';
 import Papa from 'papaparse';
 
 type ProcessedGuest = {
@@ -9,7 +9,7 @@ type ProcessedGuest = {
   email: string;
   company?: string;
   phone?: string;
-  zone: GuestZone;
+  ticketType: GuestTicketType;
   valid: boolean;
   errors: string[];
 };
@@ -17,7 +17,7 @@ type ProcessedGuest = {
 export const useGuestImport = () => {
   const [file, setFile] = useState<File | null>(null);
   const [processedGuests, setProcessedGuests] = useState<ProcessedGuest[]>([]);
-  const [defaultZone, setDefaultZone] = useState<GuestZone>('general');
+  const [defaultTicketType, setDefaultTicketType] = useState<GuestTicketType>('uczestnik');
   const [error, setError] = useState<string | null>(null);
   
   const isValidEmail = (email: string) => {
@@ -63,14 +63,8 @@ export const useGuestImport = () => {
             const company = row.company || row['Firma'] || row['firma'] || row['company'] || '';
             const phone = row.phone || row['Telefon'] || row['telefon'] || row['phone'] || '';
             
-            let zone: GuestZone = 'general';
-            if (row.zone === 'vip' || row['Strefa'] === 'vip' || row['strefa'] === 'vip') {
-              zone = 'vip';
-            } else if (row.zone === 'press' || row['Strefa'] === 'press' || row['strefa'] === 'press') {
-              zone = 'press';
-            } else if (row.zone === 'staff' || row['Strefa'] === 'staff' || row['strefa'] === 'staff') {
-              zone = 'staff';
-            }
+            const rawType = row.ticketType || row.ticket_type || row['Typ biletu'] || row['typ_biletu'] || '';
+            const ticketType: GuestTicketType = Object.keys(TICKET_TYPE_LABELS).includes(rawType) ? rawType as GuestTicketType : 'uczestnik';
             
             return {
               firstName,
@@ -78,7 +72,7 @@ export const useGuestImport = () => {
               email,
               company,
               phone,
-              zone,
+              ticketType,
               valid: errors.length === 0,
               errors
             };
@@ -107,7 +101,7 @@ export const useGuestImport = () => {
         email: guest.email,
         company: guest.company,
         phone: guest.phone,
-        zone: guest.zone || defaultZone,
+        ticketType: guest.ticketType || defaultTicketType,
         status: 'invited' as GuestStatus,
         eventId
       }));
@@ -122,9 +116,9 @@ export const useGuestImport = () => {
   return {
     file,
     processedGuests,
-    defaultZone,
+    defaultTicketType,
     error,
-    setDefaultZone,
+    setDefaultTicketType,
     handleFileChange,
     prepareGuestsForImport,
     resetForm

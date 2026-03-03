@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from 'lucide-react';
-import { GuestZone } from '@/types';
+import { GuestTicketType, TICKET_TYPE_LABELS } from '@/types';
 
 type ProcessedGuest = {
   firstName: string;
@@ -11,7 +11,7 @@ type ProcessedGuest = {
   email: string;
   company?: string;
   phone?: string;
-  zone: GuestZone;
+  ticketType: GuestTicketType;
   valid: boolean;
   errors: string[];
 };
@@ -31,7 +31,7 @@ const GuestPreviewTable: React.FC<GuestPreviewTableProps> = ({ guests }) => {
             <TableHead>Nazwisko</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Firma</TableHead>
-            <TableHead>Strefa</TableHead>
+            <TableHead>Typ biletu</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -50,9 +50,7 @@ const GuestPreviewTable: React.FC<GuestPreviewTableProps> = ({ guests }) => {
               <TableCell>{guest.company || "-"}</TableCell>
               <TableCell>
                 <Badge variant="outline">
-                  {guest.zone === 'vip' ? 'VIP' : 
-                   guest.zone === 'press' ? 'Press' : 
-                   guest.zone === 'staff' ? 'Staff' : 'Ogólna'}
+                  {TICKET_TYPE_LABELS[guest.ticketType] || guest.ticketType}
                 </Badge>
               </TableCell>
             </TableRow>

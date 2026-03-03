@@ -28,9 +28,9 @@ const BulkGuestImport: React.FC<BulkGuestImportProps> = ({
   const {
     file,
     processedGuests,
-    defaultZone,
+    defaultTicketType,
     error,
-    setDefaultZone,
+    setDefaultTicketType,
     handleFileChange,
     prepareGuestsForImport,
     resetForm
@@ -93,8 +93,8 @@ const BulkGuestImport: React.FC<BulkGuestImportProps> = ({
               </div>
               
               <ImportSettings
-                defaultZone={defaultZone}
-                onDefaultZoneChange={setDefaultZone}
+                defaultTicketType={defaultTicketType}
+                onDefaultTicketTypeChange={setDefaultTicketType}
               />
               
               <GuestPreviewTable guests={processedGuests} />
