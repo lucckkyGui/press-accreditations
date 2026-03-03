@@ -18,9 +18,15 @@ const Scanner = () => {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
       const { data, error } = await supabase
         .from('events')
         .select('*')
+        .eq('organizer_id', currentUser.id)
         .order('start_date', { ascending: false });
 
       if (data && !error) {

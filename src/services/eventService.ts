@@ -99,13 +99,16 @@ export const eventService = {
       const dbEvent = mapEventToDbEvent(event);
       
       // Ensure required fields are present
+      // Get current user for organizer_id
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
       const insertData = {
         title: dbEvent.title || '',
         start_date: dbEvent.start_date || new Date().toISOString(),
         end_date: dbEvent.end_date || new Date().toISOString(),
         description: dbEvent.description,
         location: dbEvent.location,
-        organizer_id: dbEvent.organizer_id,
+        organizer_id: dbEvent.organizer_id || currentUser?.id,
         is_published: dbEvent.is_published,
         image_url: dbEvent.image_url,
         category: dbEvent.category,

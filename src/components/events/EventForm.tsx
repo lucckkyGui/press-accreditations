@@ -24,6 +24,7 @@ const eventFormSchema = z.object({
   location: z.string().min(2, "Lokalizacja jest wymagana"),
   startDate: z.date({ required_error: "Data wydarzenia jest wymagana" }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Podaj czas w formacie HH:MM"),
+  gateOpenTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Podaj czas w formacie HH:MM").optional().or(z.literal('')),
   endDate: z.date().optional(),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Podaj czas w formacie HH:MM").optional(),
   isPublished: z.boolean().default(false),
@@ -53,6 +54,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
       startDate: event?.startDate || new Date(),
       startTime: event?.startDate ? format(event.startDate, "HH:mm") : "10:00",
       endDate: event?.endDate,
+      gateOpenTime: "",
       endTime: event?.endDate ? format(event.endDate, "HH:mm") : undefined,
       isPublished: event?.isPublished || false,
       imageUrl: event?.imageUrl || "",
@@ -138,8 +140,11 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
                     <SelectContent>
                       <SelectItem value="konferencja">Konferencja prasowa</SelectItem>
                       <SelectItem value="premiera">Premiera</SelectItem>
-                      <SelectItem value="targi">Targi/Wystawa</SelectItem>
-                      <SelectItem value="warsztat">Warsztat/Szkolenie</SelectItem>
+                      <SelectItem value="koncert">Koncert</SelectItem>
+                      <SelectItem value="targi">Targi</SelectItem>
+                      <SelectItem value="wystawa">Wystawa</SelectItem>
+                      <SelectItem value="warsztat">Warsztat</SelectItem>
+                      <SelectItem value="szkolenie">Szkolenie</SelectItem>
                       <SelectItem value="inne">Inne</SelectItem>
                     </SelectContent>
                   </Select>
@@ -197,7 +202,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus className="p-3 pointer-events-auto" />
+                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus className="p-3 pointer-events-auto" locale={pl} weekStartsOn={1} defaultMonth={field.value || undefined} />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -212,16 +217,27 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Godzina rozpoczęcia *</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                        <Input type="time" className={`pl-10 ${inputClasses}`} {...field} />
-                      </div>
+                      <Input type="time" className={inputClasses} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="gateOpenTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Godzina otwarcia bramek</FormLabel>
+                  <FormControl>
+                    <Input type="time" className={inputClasses} {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
@@ -247,7 +263,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value || undefined} onSelect={field.onChange} initialFocus className="p-3 pointer-events-auto" />
+                        <Calendar mode="single" selected={field.value || undefined} onSelect={field.onChange} initialFocus className="p-3 pointer-events-auto" locale={pl} weekStartsOn={1} defaultMonth={field.value || undefined} />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -262,16 +278,13 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Godzina zakończenia</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                        <Input
-                          type="time"
-                          className={`pl-10 ${inputClasses}`}
-                          {...field}
-                          value={field.value || ""}
-                          onChange={(e) => field.onChange(e.target.value)}
-                        />
-                      </div>
+                      <Input
+                        type="time"
+                        className={inputClasses}
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

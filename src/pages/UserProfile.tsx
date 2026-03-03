@@ -7,6 +7,7 @@ import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEdi
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Ticket as TicketType } from "@/hooks/useTickets";
@@ -37,39 +38,7 @@ const UserProfile = () => {
     createdAt: new Date()
   });
   
-  // Mock purchased tickets data (would normally come from a database)
-  const [tickets, setTickets] = useState<TicketType[]>([
-    {
-      id: "ticket-1",
-      eventName: "Konferencja Tech 2025",
-      ticketType: "VIP Pass",
-      purchaseDate: new Date(2025, 3, 10),
-      eventDate: new Date(2025, 5, 15),
-      price: 299,
-      status: "active" as const,
-      qrCode: "CONF-2025-VIP-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-    },
-    {
-      id: "ticket-2",
-      eventName: "Festiwal Muzyczny",
-      ticketType: "Karnet 3-dniowy",
-      purchaseDate: new Date(2025, 2, 5),
-      eventDate: new Date(2025, 6, 1),
-      price: 450,
-      status: "active" as const,
-      qrCode: "FEST-3DAY-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-    },
-    {
-      id: "ticket-3",
-      eventName: "Wykład: Sztuczna Inteligencja",
-      ticketType: "Wstęp Normalny",
-      purchaseDate: new Date(2025, 1, 20),
-      eventDate: new Date(2025, 2, 15),
-      price: 75,
-      status: "used" as const,
-      qrCode: "AI-TALK-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-    }
-  ]);
+  const [tickets, setTickets] = useState<TicketType[]>([]);
   
   // Fetch user profile data
   useEffect(() => {
@@ -81,6 +50,13 @@ const UserProfile = () => {
           const lastName = profile?.lastName || "";
           const role = isOrganizer ? "organizer" : isAdmin ? "admin" : "guest";
           const createdAt = user.created_at ? new Date(user.created_at) : new Date();
+
+          // Fetch additional profile data from Supabase
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('phone, organization_name')
+            .eq('id', user.id)
+            .single();
           
           setUserData({
             email: user.email || "",
@@ -88,9 +64,9 @@ const UserProfile = () => {
             lastName,
             avatarUrl: profile?.avatarUrl || "",
             role,
-            company: "",
+            company: profileData?.organization_name || "",
             jobTitle: "",
-            phone: "",
+            phone: profileData?.phone || "",
             website: "",
             organizationType: "",
             description: "",
@@ -104,7 +80,7 @@ const UserProfile = () => {
     };
     
     fetchUserProfile();
-  }, [user]);
+  }, [user, profile, isOrganizer, isAdmin]);
 
   // Update URL when tab changes
   useEffect(() => {
