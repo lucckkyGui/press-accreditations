@@ -1,6 +1,18 @@
 
 export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
-export type GuestTicketType = "uczestnik" | "media" | "crew" | "promotor";
+export type GuestTicketType = "uczestnik" | "media" | "crew" | "promotor" | "ochrona" | "vendor" | "medyk" | "vip" | "other";
+
+export const TICKET_TYPE_LABELS: Record<GuestTicketType, string> = {
+  uczestnik: 'Uczestnik',
+  media: 'Media',
+  crew: 'Crew',
+  promotor: 'Promotor',
+  ochrona: 'Ochrona',
+  vendor: 'Vendor',
+  medyk: 'Medyk',
+  vip: 'VIP',
+  other: 'Inny',
+};
 export type GuestZone = "vip" | "press" | "staff" | "general"; // legacy compat
 export type GuestEmailStatus = "sent" | "opened" | "failed" | "pending";
 

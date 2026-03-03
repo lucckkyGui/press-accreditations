@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Guest, GuestTicketType } from "@/types";
+import { Guest, GuestTicketType, TICKET_TYPE_LABELS } from "@/types";
 import { Card } from "@/components/ui/card";
 
 interface GuestsTableProps {
@@ -22,18 +22,18 @@ interface GuestsTableProps {
   isLoading: boolean;
 }
 
-const ticketTypeLabels: Record<GuestTicketType, string> = {
-  uczestnik: 'Uczestnik',
-  media: 'Media',
-  crew: 'Crew',
-  promotor: 'Promotor'
-};
+const ticketTypeLabels = TICKET_TYPE_LABELS;
 
-const ticketTypeColors: Record<GuestTicketType, string> = {
+const ticketTypeColors: Partial<Record<GuestTicketType, string>> = {
   uczestnik: 'bg-muted text-muted-foreground border-0',
   media: 'bg-info/15 text-info border-0',
   crew: 'bg-success/15 text-success border-0',
-  promotor: 'bg-primary/15 text-primary border-0'
+  promotor: 'bg-primary/15 text-primary border-0',
+  ochrona: 'bg-warning/15 text-warning border-0',
+  vendor: 'bg-accent/15 text-accent-foreground border-0',
+  medyk: 'bg-destructive/15 text-destructive border-0',
+  vip: 'bg-primary/20 text-primary border-0',
+  other: 'bg-muted text-muted-foreground border-0',
 };
 
 export const GuestsTable = ({
