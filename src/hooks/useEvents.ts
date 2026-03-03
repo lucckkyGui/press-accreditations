@@ -10,7 +10,7 @@ export const useEvents = () => {
   const [queryParams, setQueryParams] = useState<EventsQueryParams>({
     page: 0,
     pageSize: 10,
-    status: 'upcoming'
+    status: 'all'
   });
 
   // Query for fetching events
