@@ -12,9 +12,18 @@ export const eventService = {
    */
   async getEvents(params?: EventsQueryParams): Promise<ApiResponse<Event[]>> {
     try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+      // In organizer context always scope data to owner to avoid cross-account leakage
+      const organizerId = params?.organizerId ?? currentUser?.id;
+      if (!organizerId) {
+        return { data: [] };
+      }
+
       let query = supabase
         .from('events')
         .select('*')
+        .eq('organizer_id', organizerId)
         .order('start_date', { ascending: false });
 
       // Apply filters if provided
@@ -58,8 +67,8 @@ export const eventService = {
       if (error) throw error;
 
       return {
-        data: data.map((item: any) => mapDbEventToEvent(item)),
-        pagination: count ? {
+        data: (data ?? []).map((item: any) => mapDbEventToEvent(item)),
+        pagination: typeof count === 'number' ? {
           total: count,
           page: params?.page || 0,
           pageSize: params?.pageSize || 10
