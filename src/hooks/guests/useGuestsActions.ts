@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Guest, GuestStatus, GuestZone } from "@/types";
+import { Guest, GuestStatus, GuestTicketType } from "@/types";
 import { guestService } from "@/services/guestService";
 import { toast } from "sonner";
 import { confirm } from "@/components/ui/confirm-dialog";
@@ -38,9 +38,7 @@ export const useGuestsActions = (refetchGuests: () => void) => {
       description: 'Czy na pewno chcesz usunąć tego gościa? Tej operacji nie można cofnąć.',
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     setIsLoading(true);
     try {
@@ -70,9 +68,7 @@ export const useGuestsActions = (refetchGuests: () => void) => {
       description: 'Czy na pewno chcesz usunąć wybranych gości? Tej operacji nie można cofnąć.',
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     setIsLoading(true);
     try {
@@ -116,7 +112,7 @@ export const useGuestsActions = (refetchGuests: () => void) => {
     }
   };
 
-  const handleBulkZoneUpdate = async (selectedGuests: Guest[], zone: GuestZone) => {
+  const handleBulkTicketTypeUpdate = async (selectedGuests: Guest[], ticketType: GuestTicketType) => {
     if (selectedGuests.length === 0) {
       toast.error('Nie wybrano żadnych gości do aktualizacji');
       return;
@@ -125,16 +121,16 @@ export const useGuestsActions = (refetchGuests: () => void) => {
     setIsLoading(true);
     try {
       const ids = selectedGuests.map(guest => guest.id);
-      const result = await guestService.updateGuestsZone(ids, zone);
+      const result = await guestService.updateGuestsTicketType(ids, ticketType);
       if (result.error) {
         toast.error(result.error.message);
       } else {
-        toast.success('Strefa wybranych gości została zaktualizowana');
+        toast.success('Typ biletu wybranych gości został zaktualizowany');
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error updating guests zone:', error);
-      toast.error('Wystąpił błąd podczas aktualizacji strefy gości');
+      console.error('Error updating guests ticket type:', error);
+      toast.error('Wystąpił błąd podczas aktualizacji typu biletu gości');
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +184,7 @@ export const useGuestsActions = (refetchGuests: () => void) => {
     handleDeleteGuest,
     handleBulkDeleteGuests,
     handleBulkStatusUpdate,
-    handleBulkZoneUpdate,
+    handleBulkTicketTypeUpdate,
     handleSendInvitations,
     handleBulkImport
   };

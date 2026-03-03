@@ -1,7 +1,7 @@
 
 import { useApiMutation } from '@/hooks/useApi';
 import { guestService } from '@/services/guestService';
-import { GuestStatus, GuestZone } from '@/types';
+import { GuestStatus, GuestTicketType } from '@/types';
 import { toast } from 'sonner';
 
 /**
@@ -47,22 +47,22 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
     }
   );
 
-  // Mutation for updating guests zone in bulk
+  // Mutation for updating guests ticket type in bulk
   const {
-    mutateAsync: updateGuestsZone,
-    isLoading: isUpdatingZone
+    mutateAsync: updateGuestsTicketType,
+    isLoading: isUpdatingTicketType
   } = useApiMutation(
-    ['guests', 'updateZone'],
-    ({ ids, zone }: { ids: string[]; zone: GuestZone }) => 
-      guestService.updateGuestsZone(ids, zone),
+    ['guests', 'updateTicketType'],
+    ({ ids, ticketType }: { ids: string[]; ticketType: GuestTicketType }) => 
+      guestService.updateGuestsTicketType(ids, ticketType),
     {
       onSuccess: () => {
-        toast.success('Guest zone updated successfully!');
+        toast.success('Guest ticket type updated successfully!');
         refetchGuests();
       },
       onError: (err) => {
-        toast.error('Failed to update guest zone');
-        console.error('Error updating guest zone:', err);
+        toast.error('Failed to update guest ticket type');
+        console.error('Error updating guest ticket type:', err);
       }
     }
   );
@@ -89,11 +89,11 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
   return {
     deleteGuests,
     updateGuestsStatus,
-    updateGuestsZone,
+    updateGuestsTicketType,
     sendInvitations,
     isDeletingBulk,
     isUpdatingStatus,
-    isUpdatingZone,
+    isUpdatingTicketType,
     isSendingInvitations
   };
 };

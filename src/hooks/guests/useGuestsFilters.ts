@@ -1,19 +1,19 @@
 
 import { useState } from 'react';
-import { GuestStatus, GuestZone } from "@/types";
+import { GuestStatus, GuestTicketType } from "@/types";
 
 export const useGuestsFilters = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<GuestStatus | 'all'>('all');
-  const [zoneFilter, setZoneFilter] = useState<GuestZone | 'all'>('all');
+  const [ticketTypeFilter, setTicketTypeFilter] = useState<GuestTicketType | 'all'>('all');
 
   const resetFilters = () => {
     setPage(0);
     setSearch('');
     setStatusFilter('all');
-    setZoneFilter('all');
+    setTicketTypeFilter('all');
   };
 
   return {
@@ -21,12 +21,12 @@ export const useGuestsFilters = () => {
     pageSize,
     search,
     statusFilter,
-    zoneFilter,
+    ticketTypeFilter,
     setPage,
     setPageSize,
     setSearch,
     setStatusFilter,
-    setZoneFilter,
+    setTicketTypeFilter,
     resetFilters
   };
 };

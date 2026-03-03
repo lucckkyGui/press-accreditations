@@ -74,10 +74,10 @@ const EventAnalyticsDashboard: React.FC<EventAnalyticsDashboardProps> = ({
       { hour: '14:00', count: 198 }
     ],
     byZone: [
-      { zone: 'VIP', count: guests.filter(g => g.zone === 'vip' && g.status === 'checked-in').length, color: '#8b5cf6' },
-      { zone: 'Press', count: guests.filter(g => g.zone === 'press' && g.status === 'checked-in').length, color: '#3b82f6' },
-      { zone: 'Staff', count: guests.filter(g => g.zone === 'staff' && g.status === 'checked-in').length, color: '#10b981' },
-      { zone: 'General', count: guests.filter(g => g.zone === 'general' && g.status === 'checked-in').length, color: '#6b7280' }
+      { zone: 'Uczestnik', count: guests.filter(g => g.ticketType === 'uczestnik' && g.status === 'checked-in').length, color: '#8b5cf6' },
+      { zone: 'Media', count: guests.filter(g => g.ticketType === 'media' && g.status === 'checked-in').length, color: '#3b82f6' },
+      { zone: 'Crew', count: guests.filter(g => g.ticketType === 'crew' && g.status === 'checked-in').length, color: '#10b981' },
+      { zone: 'Promotor', count: guests.filter(g => g.ticketType === 'promotor' && g.status === 'checked-in').length, color: '#6b7280' }
     ]
   };
 
@@ -273,7 +273,7 @@ const EventAnalyticsDashboard: React.FC<EventAnalyticsDashboardProps> = ({
         <TabsContent value="zones" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {checkInStats.byZone.map((zone) => {
-              const totalInZone = guests.filter(g => g.zone === zone.zone.toLowerCase()).length;
+              const totalInZone = guests.filter(g => g.ticketType === zone.zone.toLowerCase()).length;
               const rate = totalInZone > 0 ? (zone.count / totalInZone) * 100 : 0;
               
               return (

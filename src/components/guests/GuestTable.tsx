@@ -33,22 +33,21 @@ const GuestTable = ({
   showEmailStatus 
 }: GuestTableProps) => {
   // Helper functions to render badges with appropriate colors
-  const renderZoneBadge = (zone: string) => {
-    const zoneColors = {
-      general: "bg-gray-500",
-      vip: "bg-purple-500",
-      press: "bg-blue-500",
-      staff: "bg-green-500",
+  const renderTicketTypeBadge = (ticketType: string) => {
+    const colors: Record<string, string> = {
+      uczestnik: "bg-gray-500",
+      media: "bg-blue-500",
+      crew: "bg-green-500",
+      promotor: "bg-purple-500",
     };
-
-    const color = zoneColors[zone as keyof typeof zoneColors] || "bg-gray-500";
-    const label = {
-      general: "Ogólna",
-      vip: "VIP",
-      press: "Press",
-      staff: "Staff",
-    }[zone as keyof typeof zoneColors] || zone;
-
+    const labels: Record<string, string> = {
+      uczestnik: "Uczestnik",
+      media: "Media",
+      crew: "Crew",
+      promotor: "Promotor",
+    };
+    const color = colors[ticketType] || "bg-gray-500";
+    const label = labels[ticketType] || ticketType;
     return <Badge className={`${color}`}>{label}</Badge>;
   };
 
@@ -79,7 +78,7 @@ const GuestTable = ({
             <TableHead>Imię i nazwisko</TableHead>
             <TableHead className="hidden md:table-cell">Email</TableHead>
             <TableHead className="hidden lg:table-cell">Firma</TableHead>
-            <TableHead className="hidden sm:table-cell">Strefa</TableHead>
+            <TableHead className="hidden sm:table-cell">Typ biletu</TableHead>
             <TableHead className="hidden sm:table-cell">Status</TableHead>
             <TableHead className="text-right">Akcje</TableHead>
           </TableRow>
@@ -107,7 +106,7 @@ const GuestTable = ({
                   {guest.company || "-"}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  {renderZoneBadge(guest.zone)}
+                  {renderTicketTypeBadge(guest.ticketType)}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   {renderStatusBadge(guest.status)}

@@ -1,23 +1,19 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mail, CheckCheck, UserPlus, Trash2 } from 'lucide-react';
-import { Guest, GuestStatus, GuestZone } from "@/types";
+import { Mail, CheckCheck, Ticket, Trash2 } from 'lucide-react';
+import { Guest, GuestStatus, GuestTicketType } from "@/types";
 
 interface GuestsBulkActionsProps {
   selectedGuests: Guest[];
   onBulkEmail: () => void;
   onBulkStatusUpdate: (status: GuestStatus) => void;
-  onBulkZoneUpdate: (zone: GuestZone) => void;
+  onBulkTicketTypeUpdate: (ticketType: GuestTicketType) => void;
   onBulkDelete: () => void;
 }
 
 const GuestsBulkActions: React.FC<GuestsBulkActionsProps> = ({
-  selectedGuests,
-  onBulkEmail,
-  onBulkStatusUpdate,
-  onBulkZoneUpdate,
-  onBulkDelete
+  selectedGuests, onBulkEmail, onBulkStatusUpdate, onBulkTicketTypeUpdate, onBulkDelete
 }) => {
   const count = selectedGuests.length;
   if (count === 0) return null;
@@ -36,9 +32,9 @@ const GuestsBulkActions: React.FC<GuestsBulkActionsProps> = ({
         <CheckCheck className="h-3.5 w-3.5" />
         Potwierdź
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onBulkZoneUpdate('vip')} className="rounded-lg gap-1.5 h-8 text-xs">
-        <UserPlus className="h-3.5 w-3.5" />
-        VIP
+      <Button variant="outline" size="sm" onClick={() => onBulkTicketTypeUpdate('media')} className="rounded-lg gap-1.5 h-8 text-xs">
+        <Ticket className="h-3.5 w-3.5" />
+        Media
       </Button>
       <Button variant="destructive" size="sm" onClick={onBulkDelete} className="rounded-lg gap-1.5 h-8 text-xs ml-auto">
         <Trash2 className="h-3.5 w-3.5" />

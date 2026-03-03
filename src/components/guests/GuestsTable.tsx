@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Guest } from "@/types";
+import { Guest, GuestTicketType } from "@/types";
 import { Card } from "@/components/ui/card";
 
 interface GuestsTableProps {
@@ -22,18 +22,24 @@ interface GuestsTableProps {
   isLoading: boolean;
 }
 
+const ticketTypeLabels: Record<GuestTicketType, string> = {
+  uczestnik: 'Uczestnik',
+  media: 'Media',
+  crew: 'Crew',
+  promotor: 'Promotor'
+};
+
+const ticketTypeColors: Record<GuestTicketType, string> = {
+  uczestnik: 'bg-muted text-muted-foreground border-0',
+  media: 'bg-info/15 text-info border-0',
+  crew: 'bg-success/15 text-success border-0',
+  promotor: 'bg-primary/15 text-primary border-0'
+};
+
 export const GuestsTable = ({
-  guests,
-  total,
-  page,
-  pageSize,
-  onPageChange,
-  onPageSizeChange,
-  onEdit,
-  onDelete,
-  selectedGuests,
-  setSelectedGuests,
-  isLoading
+  guests, total, page, pageSize,
+  onPageChange, onPageSizeChange, onEdit, onDelete,
+  selectedGuests, setSelectedGuests, isLoading
 }: GuestsTableProps) => {
   const handleSelectAll = (checked: boolean) => {
     setSelectedGuests(checked ? guests : []);
@@ -55,26 +61,19 @@ export const GuestsTable = ({
       "checked-in": { variant: "secondary", className: "bg-secondary/15 text-secondary border-0" }
     };
     const labels: Record<string, string> = {
-      invited: "Zaproszony",
-      confirmed: "Potwierdzony",
-      declined: "Odrzucony",
-      "checked-in": "Obecny"
+      invited: "Zaproszony", confirmed: "Potwierdzony",
+      declined: "Odrzucony", "checked-in": "Obecny"
     };
     const c = config[status] || { variant: "outline" as const, className: "" };
     return <Badge variant={c.variant} className={`rounded-lg text-xs ${c.className}`}>{labels[status] || status}</Badge>;
   };
 
-  const getZoneBadge = (zone: string) => {
-    const config: Record<string, string> = {
-      vip: "bg-primary/15 text-primary border-0",
-      press: "bg-info/15 text-info border-0",
-      staff: "bg-success/15 text-success border-0",
-      general: "bg-muted text-muted-foreground border-0"
-    };
-    const labels: Record<string, string> = {
-      vip: "VIP", press: "Press", staff: "Staff", general: "Ogólna"
-    };
-    return <Badge className={`rounded-lg text-xs ${config[zone] || "bg-muted text-muted-foreground"}`}>{labels[zone] || zone}</Badge>;
+  const getTicketTypeBadge = (ticketType: GuestTicketType) => {
+    return (
+      <Badge className={`rounded-lg text-xs ${ticketTypeColors[ticketType] || "bg-muted text-muted-foreground"}`}>
+        {ticketTypeLabels[ticketType] || ticketType}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -100,10 +99,10 @@ export const GuestsTable = ({
             </TableHead>
             <TableHead className="font-semibold text-foreground">Imię i nazwisko</TableHead>
             <TableHead className="font-semibold text-foreground">Email</TableHead>
-            <TableHead className="font-semibold text-foreground">PESEL</TableHead>
             <TableHead className="font-semibold text-foreground">Firma</TableHead>
             <TableHead className="font-semibold text-foreground">Telefon</TableHead>
-            <TableHead className="font-semibold text-foreground">Strefa</TableHead>
+            <TableHead className="font-semibold text-foreground">Typ biletu</TableHead>
+            <TableHead className="font-semibold text-foreground">Strefy</TableHead>
             <TableHead className="font-semibold text-foreground">Status</TableHead>
             <TableHead className="text-right font-semibold text-foreground">Akcje</TableHead>
           </TableRow>
@@ -128,10 +127,16 @@ export const GuestsTable = ({
                   {guest.firstName} {guest.lastName}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{guest.email}</TableCell>
-                <TableCell className="text-muted-foreground">{guest.pesel || '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{guest.company || '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{guest.phone || '—'}</TableCell>
-                <TableCell>{getZoneBadge(guest.zone)}</TableCell>
+                <TableCell>{getTicketTypeBadge(guest.ticketType)}</TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {guest.zones.length > 0 ? guest.zones.map(z => (
+                      <Badge key={z} variant="outline" className="rounded-lg text-xs">{z}</Badge>
+                    )) : <span className="text-muted-foreground text-xs">—</span>}
+                  </div>
+                </TableCell>
                 <TableCell>{getStatusBadge(guest.status)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -154,26 +159,14 @@ export const GuestsTable = ({
           Pokazano {guests.length} z {total}
         </span>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(Math.max(0, page - 1))}
-            disabled={page === 0}
-            className="rounded-lg h-8 gap-1"
-          >
+          <Button variant="outline" size="sm" onClick={() => onPageChange(Math.max(0, page - 1))} disabled={page === 0} className="rounded-lg h-8 gap-1">
             <ChevronLeft className="h-4 w-4" />
             Wstecz
           </Button>
           <span className="text-sm text-muted-foreground px-2">
             {page + 1} / {Math.max(1, Math.ceil(total / pageSize))}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(page + 1)}
-            disabled={(page + 1) * pageSize >= total}
-            className="rounded-lg h-8 gap-1"
-          >
+          <Button variant="outline" size="sm" onClick={() => onPageChange(page + 1)} disabled={(page + 1) * pageSize >= total} className="rounded-lg h-8 gap-1">
             Dalej
             <ChevronRight className="h-4 w-4" />
           </Button>

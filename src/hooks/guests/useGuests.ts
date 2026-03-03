@@ -32,11 +32,11 @@ export const useGuests = (eventId?: string, initialQueryParams?: Partial<GuestsQ
   const {
     deleteGuests,
     updateGuestsStatus,
-    updateGuestsZone,
+    updateGuestsTicketType,
     sendInvitations,
     isDeletingBulk,
     isUpdatingStatus,
-    isUpdatingZone,
+    isUpdatingTicketType,
     isSendingInvitations
   } = useBulkGuestMutations(refetchGuests);
 
@@ -58,7 +58,7 @@ export const useGuests = (eventId?: string, initialQueryParams?: Partial<GuestsQ
     // Bulk guest mutations
     deleteGuests,
     updateGuestsStatus,
-    updateGuestsZone,
+    updateGuestsTicketType,
     sendInvitations,
     
     // Loading states
@@ -68,7 +68,7 @@ export const useGuests = (eventId?: string, initialQueryParams?: Partial<GuestsQ
     isDeleting,
     isDeletingBulk,
     isUpdatingStatus,
-    isUpdatingZone,
+    isUpdatingTicketType,
     isSendingInvitations
   };
 };

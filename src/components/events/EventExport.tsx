@@ -40,7 +40,7 @@ const EventExport = ({ guests, eventName }: EventExportProps) => {
           guest.lastName,
           guest.email,
           guest.company || "",
-          guest.zone,
+          guest.ticketType,
           guest.status,
           guest.emailStatus || "unknown",
           guest.invitationSentAt ? new Date(guest.invitationSentAt).toLocaleString() : "",

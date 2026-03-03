@@ -1,7 +1,17 @@
 
 export type GuestStatus = "invited" | "confirmed" | "declined" | "checked-in";
-export type GuestZone = "vip" | "press" | "staff" | "general";
+export type GuestTicketType = "uczestnik" | "media" | "crew" | "promotor";
+export type GuestZone = "vip" | "press" | "staff" | "general"; // legacy compat
 export type GuestEmailStatus = "sent" | "opened" | "failed" | "pending";
+
+export const AVAILABLE_ZONES = [
+  "Strefa główna",
+  "VIP",
+  "Backstage",
+  "Strefa medialna",
+  "Strefa techniczna",
+  "Scena",
+] as const;
 
 export interface Pagination {
   total: number;
@@ -63,10 +73,10 @@ export interface Guest {
   firstName: string;
   lastName: string;
   email: string;
-  pesel?: string;
   company?: string;
   phone?: string;
-  zone: GuestZone;
+  ticketType: GuestTicketType;
+  zones: string[];
   status: GuestStatus;
   emailStatus?: GuestEmailStatus;
   qrCode: string;
@@ -81,10 +91,10 @@ export interface ProcessedGuest {
   firstName: string;
   lastName: string;
   email: string;
-  pesel: string;
   company: string;
   phone: string;
-  zone: GuestZone;
+  ticketType: GuestTicketType;
+  zones: string[];
   valid: boolean;
   errors: string[];
   selected: boolean;

@@ -20,7 +20,8 @@ export const useEmailRetryQueue = (eventId: string, onEmailSent: () => void) => 
           firstName: 'Jan',
           lastName: 'Kowalski',
           email: 'jan.kowalski@invalid-domain.com',
-          zone: 'general',
+          ticketType: 'uczestnik',
+          zones: [],
           status: 'invited',
           qrCode: 'qr-1'
         },
@@ -36,7 +37,8 @@ export const useEmailRetryQueue = (eventId: string, onEmailSent: () => void) => 
           firstName: 'Anna',
           lastName: 'Nowak',
           email: 'anna.nowak@example.com',
-          zone: 'vip',
+          ticketType: 'media',
+          zones: [],
           status: 'invited',
           qrCode: 'qr-2'
         },

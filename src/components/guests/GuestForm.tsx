@@ -4,9 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Guest, GuestZone, GuestStatus } from '@/types';
-import { User, Mail, Building, Phone, Shield, StickyNote, Fingerprint } from 'lucide-react';
+import { Guest, GuestTicketType, AVAILABLE_ZONES } from '@/types';
+import { User, Mail, Building, Phone, Shield, StickyNote, Ticket } from 'lucide-react';
 
 export interface GuestFormProps {
   guest?: Guest | null;
@@ -23,11 +24,10 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
     firstName: '',
     lastName: '',
     email: '',
-    pesel: '',
     company: '',
     phone: '',
-    zone: 'general' as GuestZone,
-    status: 'invited' as GuestStatus,
+    ticketType: 'uczestnik' as GuestTicketType,
+    zones: [] as string[],
     notes: ''
   });
 
@@ -37,17 +37,16 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
         firstName: guest.firstName || '',
         lastName: guest.lastName || '',
         email: guest.email || '',
-        pesel: guest.pesel || '',
         company: guest.company || '',
         phone: guest.phone || '',
-        zone: guest.zone || 'general',
-        status: guest.status || 'invited',
+        ticketType: guest.ticketType || 'uczestnik',
+        zones: guest.zones || [],
         notes: guest.notes || ''
       });
     } else {
       setFormData({
-        firstName: '', lastName: '', email: '', pesel: '',
-        company: '', phone: '', zone: 'general', status: 'invited', notes: ''
+        firstName: '', lastName: '', email: '',
+        company: '', phone: '', ticketType: 'uczestnik', zones: [], notes: ''
       });
     }
   }, [guest, isOpen]);
@@ -61,7 +60,23 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleZoneToggle = (zone: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      zones: checked
+        ? [...prev.zones, zone]
+        : prev.zones.filter(z => z !== zone)
+    }));
+  };
+
   const inputClasses = "h-11 rounded-xl border-border/60 focus:border-primary/40 transition-colors";
+
+  const ticketTypeLabels: Record<GuestTicketType, string> = {
+    uczestnik: 'Uczestnik',
+    media: 'Media',
+    crew: 'Crew',
+    promotor: 'Promotor'
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -106,14 +121,6 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
                 <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} className={`pl-10 ${inputClasses}`} required />
               </div>
             </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="pesel" className="text-sm">PESEL</Label>
-              <div className="relative">
-                <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
-                <Input id="pesel" value={formData.pesel} onChange={(e) => handleInputChange('pesel', e.target.value)} placeholder="11 cyfr" maxLength={11} className={`pl-10 ${inputClasses}`} />
-              </div>
-            </div>
           </div>
 
           {/* Contact & company */}
@@ -143,43 +150,44 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
             </div>
           </div>
 
-          {/* Access settings */}
+          {/* Ticket type & zones */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="p-1 rounded-md bg-accent/10">
-                <Shield className="h-3.5 w-3.5 text-accent" />
+                <Ticket className="h-3.5 w-3.5 text-accent" />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-accent">Dostęp i status</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-accent">Typ biletu i strefy</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="zone" className="text-sm">Strefa</Label>
-                <Select value={formData.zone} onValueChange={(value: GuestZone) => handleInputChange('zone', value)}>
-                  <SelectTrigger className={inputClasses}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">Ogólna</SelectItem>
-                    <SelectItem value="vip">VIP</SelectItem>
-                    <SelectItem value="press">Press</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="status" className="text-sm">Status</Label>
-                <Select value={formData.status} onValueChange={(value: GuestStatus) => handleInputChange('status', value)}>
-                  <SelectTrigger className={inputClasses}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="invited">Zaproszony</SelectItem>
-                    <SelectItem value="confirmed">Potwierdzony</SelectItem>
-                    <SelectItem value="declined">Odrzucony</SelectItem>
-                    <SelectItem value="checked-in">Obecny</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-1.5">
+              <Label htmlFor="ticketType" className="text-sm">Typ biletu *</Label>
+              <Select value={formData.ticketType} onValueChange={(value: GuestTicketType) => handleInputChange('ticketType', value)}>
+                <SelectTrigger className={inputClasses}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ticketTypeLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Strefy dostępu</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {AVAILABLE_ZONES.map((zone) => (
+                  <div key={zone} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`zone-${zone}`}
+                      checked={formData.zones.includes(zone)}
+                      onCheckedChange={(checked) => handleZoneToggle(zone, !!checked)}
+                    />
+                    <Label htmlFor={`zone-${zone}`} className="text-sm font-normal cursor-pointer">
+                      {zone}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -27,7 +27,7 @@ export const useGuestsPage = () => {
         pageSize: filters.pageSize,
         search: filters.search,
         status: filters.statusFilter,
-        zone: filters.zoneFilter,
+        zone: filters.ticketTypeFilter as any,
         eventId: selectedEvent.id
       };
 
@@ -42,7 +42,7 @@ export const useGuestsPage = () => {
       console.error('Error fetching guests:', error);
       toast.error('Wystąpił błąd podczas pobierania gości');
     }
-  }, [filters.page, filters.pageSize, filters.search, filters.statusFilter, filters.zoneFilter, selectedEvent]);
+  }, [filters.page, filters.pageSize, filters.search, filters.statusFilter, filters.ticketTypeFilter, selectedEvent]);
 
   const actions = useGuestsActions(fetchGuests);
 
@@ -94,8 +94,8 @@ export const useGuestsPage = () => {
     selection.clearSelection();
   };
 
-  const handleBulkZoneUpdate = async (zone: any) => {
-    await actions.handleBulkZoneUpdate(selection.selectedGuests, zone);
+  const handleBulkTicketTypeUpdate = async (ticketType: any) => {
+    await actions.handleBulkTicketTypeUpdate(selection.selectedGuests, ticketType);
     selection.clearSelection();
   };
 
@@ -127,7 +127,7 @@ export const useGuestsPage = () => {
     handleSaveGuest,
     handleBulkDeleteGuests,
     handleBulkStatusUpdate,
-    handleBulkZoneUpdate,
+    handleBulkTicketTypeUpdate,
     handleSendInvitations: actions.handleSendInvitations,
     handleBulkEmail,
     handleBulkImport,

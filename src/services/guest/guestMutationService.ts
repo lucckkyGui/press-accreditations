@@ -24,14 +24,14 @@ export const guestMutationService = {
           first_name: guest.firstName,
           last_name: guest.lastName,
           email: guest.email,
-          pesel: guest.pesel,
           company: guest.company,
           phone: guest.phone,
-          zone: guest.zone || 'general',
-          status: guest.status || 'invited',
+          ticket_type: guest.ticketType || 'uczestnik',
+          zones: guest.zones || [],
+          status: 'invited',
           qr_code: qrCode,
           event_id: guest.eventId
-        }])
+        } as any])
         .select()
         .single();
 
@@ -54,10 +54,10 @@ export const guestMutationService = {
       if (guest.firstName !== undefined) updateData.first_name = guest.firstName;
       if (guest.lastName !== undefined) updateData.last_name = guest.lastName;
       if (guest.email !== undefined) updateData.email = guest.email;
-      if (guest.pesel !== undefined) updateData.pesel = guest.pesel;
       if (guest.company !== undefined) updateData.company = guest.company;
       if (guest.phone !== undefined) updateData.phone = guest.phone;
-      if (guest.zone !== undefined) updateData.zone = guest.zone;
+      if (guest.ticketType !== undefined) updateData.ticket_type = guest.ticketType;
+      if (guest.zones !== undefined) updateData.zones = guest.zones;
       if (guest.status !== undefined) updateData.status = guest.status;
       if (guest.emailStatus !== undefined) updateData.email_status = guest.emailStatus;
       

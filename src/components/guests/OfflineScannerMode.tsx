@@ -183,7 +183,8 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
           firstName: 'Jan',
           lastName: 'Kowalski',
           email: 'jan@example.com',
-          zone: 'general',
+          ticketType: 'uczestnik',
+          zones: [],
           status: 'confirmed',
           qrCode: JSON.stringify({ guestId: 'guest-1', eventId: event.id })
         },

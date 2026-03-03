@@ -80,8 +80,8 @@ const GuestRow: React.FC<{ index: number; style: any; data: RowData }> = ({
           </div>
           
           <div>
-            <Badge className={getZoneBadgeColor(guest.zone)}>
-              {guest.zone}
+            <Badge className={getZoneBadgeColor(guest.ticketType)}>
+              {guest.ticketType}
             </Badge>
           </div>
           

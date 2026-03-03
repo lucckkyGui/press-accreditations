@@ -25,13 +25,13 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
   
   // Dynamicznie ustal kolor strefy
   const zoneColorMap = {
-    vip: "bg-amber-500 border-amber-600 text-white",
-    press: "bg-blue-500 border-blue-600 text-white",
-    staff: "bg-purple-500 border-purple-600 text-white",
-    general: "bg-green-500 border-green-600 text-white",
+    uczestnik: "bg-green-500 border-green-600 text-white",
+    media: "bg-blue-500 border-blue-600 text-white",
+    crew: "bg-purple-500 border-purple-600 text-white",
+    promotor: "bg-amber-500 border-amber-600 text-white",
   };
 
-  const zoneColor = zoneColorMap[guest.zone as keyof typeof zoneColorMap] || "bg-green-500 border-green-600 text-white";
+  const zoneColor = zoneColorMap[guest.ticketType as keyof typeof zoneColorMap] || "bg-green-500 border-green-600 text-white";
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -86,7 +86,7 @@ const ScanResultDisplay: React.FC<ScanResultDisplayProps> = ({
             <p className="text-sm text-muted-foreground">{guest.email}</p>
           </div>
           <Badge className={`${zoneColor} px-3 py-1 text-sm font-medium rounded-md shadow-sm`}>
-            {guest.zone.toUpperCase()}
+            {guest.ticketType.toUpperCase()}
           </Badge>
         </div>
         
