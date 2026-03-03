@@ -61,7 +61,7 @@ const Header: React.FC = () => {
               </SheetTrigger>
               <SheetContent>
                 <div className="flex flex-col space-y-4 py-4">
-                  <h2 className="font-semibold text-lg">{t("navigation.userProfile")}</h2>
+                  <h2 className="font-semibold text-lg">{t("navigation.myProfile")}</h2>
                   <hr />
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/notifications">
@@ -102,7 +102,7 @@ const Header: React.FC = () => {
                 </SheetTrigger>
                 <SheetContent>
                   <div className="flex flex-col space-y-4 py-4">
-                    <h2 className="font-semibold text-lg">{t("navigation.userProfile")}</h2>
+                    <h2 className="font-semibold text-lg">{t("navigation.myProfile")}</h2>
                     <hr />
                     <Button variant="outline" asChild>
                       <Link to="/profile">{t("navigation.profile")}</Link>

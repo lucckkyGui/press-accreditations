@@ -45,39 +45,7 @@ type User = {
   lastLogin?: Date;
 };
 
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Jan Kowalski",
-    email: "jan.kowalski@example.com",
-    role: "admin",
-    status: "active",
-    lastLogin: new Date(2023, 4, 15, 10, 30),
-  },
-  {
-    id: "2",
-    name: "Anna Nowak",
-    email: "anna.nowak@example.com",
-    role: "editor",
-    status: "active",
-    lastLogin: new Date(2023, 4, 14, 9, 45),
-  },
-  {
-    id: "3",
-    name: "Piotr Wiśniewski",
-    email: "piotr.wisniewski@example.com",
-    role: "viewer",
-    status: "active",
-    lastLogin: new Date(2023, 4, 10, 14, 20),
-  },
-  {
-    id: "4",
-    name: "Marta Lis",
-    email: "marta.lis@example.com",
-    role: "editor",
-    status: "pending",
-  },
-];
+const mockUsers: User[] = [];
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>(mockUsers);

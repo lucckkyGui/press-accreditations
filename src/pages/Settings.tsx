@@ -79,11 +79,11 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="organization-name">Nazwa organizacji</Label>
-                    <Input id="organization-name" placeholder="Nazwa Twojej organizacji" defaultValue="Press Acreditations" />
+                    <Input id="organization-name" placeholder="Nazwa Twojej organizacji" defaultValue="" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="organization-email">Email kontaktowy</Label>
-                    <Input id="organization-email" type="email" placeholder="contact@company.com" defaultValue="kontakt@pressacreditations.com" />
+                    <Input id="organization-email" type="email" placeholder="contact@company.com" defaultValue="" />
                   </div>
                 </div>
                 
@@ -92,7 +92,7 @@ const Settings = () => {
                   <Textarea
                     id="organization-description"
                     placeholder="Krótki opis Twojej organizacji"
-                    defaultValue="Firma zajmująca się organizacją profesjonalnych wydarzeń korporacyjnych i obsługą gości."
+                    defaultValue=""
                     className="min-h-[100px]"
                   />
                 </div>
@@ -100,11 +100,11 @@ const Settings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="organization-website">Strona internetowa</Label>
-                    <Input id="organization-website" type="url" placeholder="https://company.com" defaultValue="https://pressacreditations.com" />
+                    <Input id="organization-website" type="url" placeholder="https://company.com" defaultValue="" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="organization-phone">Telefon</Label>
-                    <Input id="organization-phone" placeholder="+48 123 456 789" defaultValue="+48 123 456 789" />
+                    <Input id="organization-phone" placeholder="+48 123 456 789" defaultValue="" />
                   </div>
                 </div>
                 
@@ -119,18 +119,18 @@ const Settings = () => {
                 <div className="space-y-2">
                   <Label>Adres</Label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Input placeholder="Ulica i numer" defaultValue="ul. Przykładowa 123" />
-                    <Input placeholder="Kod pocztowy" defaultValue="00-001" />
-                    <Input placeholder="Miasto" defaultValue="Warszawa" />
+                    <Input placeholder="Ulica i numer" defaultValue="" />
+                    <Input placeholder="Kod pocztowy" defaultValue="" />
+                    <Input placeholder="Miasto" defaultValue="" />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label>Media społecznościowe</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input placeholder="Link do Facebook" defaultValue="https://facebook.com/pressacreditations" />
-                    <Input placeholder="Link do Twitter" defaultValue="https://twitter.com/pressacred" />
-                    <Input placeholder="Link do LinkedIn" defaultValue="https://linkedin.com/company/pressacreditations" />
+                    <Input placeholder="Link do Facebook" defaultValue="" />
+                    <Input placeholder="Link do Twitter" defaultValue="" />
+                    <Input placeholder="Link do LinkedIn" defaultValue="" />
                     <Input placeholder="Link do Instagram" defaultValue="" />
                   </div>
                 </div>
@@ -392,10 +392,10 @@ const Settings = () => {
                   Jest to operacja nieodwracalna.
                 </p>
               </div>
-              <Button 
+               <Button 
                 variant="outline" 
                 className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 w-full sm:w-auto shrink-0"
-                onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
+                onClick={() => toast.warning("Ta operacja wymaga potwierdzenia. Skontaktuj się z administratorem.")}
               >
                 Usuń dane
               </Button>
@@ -413,7 +413,7 @@ const Settings = () => {
               <Button 
                 variant="destructive"
                 className="w-full sm:w-auto shrink-0"
-                onClick={() => toast.error("Funkcja dostępna w pełnej wersji")}
+                onClick={() => toast.warning("Ta operacja wymaga potwierdzenia. Skontaktuj się z administratorem.")}
               >
                 Zamknij konto
               </Button>
