@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Guest, GuestTicketType, AVAILABLE_ZONES } from '@/types';
+import { Guest, GuestTicketType, AVAILABLE_ZONES, TICKET_TYPE_LABELS } from '@/types';
 import { User, Mail, Building, Phone, Shield, StickyNote, Ticket } from 'lucide-react';
 
 export interface GuestFormProps {
@@ -71,12 +71,7 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
 
   const inputClasses = "h-11 rounded-xl border-border/60 focus:border-primary/40 transition-colors";
 
-  const ticketTypeLabels: Record<GuestTicketType, string> = {
-    uczestnik: 'Uczestnik',
-    media: 'Media',
-    crew: 'Crew',
-    promotor: 'Promotor'
-  };
+  const ticketTypeLabels = TICKET_TYPE_LABELS;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

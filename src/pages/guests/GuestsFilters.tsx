@@ -2,7 +2,7 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GuestStatus, GuestTicketType } from "@/types";
+import { GuestStatus, GuestTicketType, TICKET_TYPE_LABELS } from "@/types";
 import { Search, Filter } from 'lucide-react';
 
 interface GuestsFiltersProps {
@@ -56,10 +56,9 @@ const GuestsFilters: React.FC<GuestsFiltersProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Wszystkie typy biletów</SelectItem>
-          <SelectItem value="uczestnik">Uczestnik</SelectItem>
-          <SelectItem value="media">Media</SelectItem>
-          <SelectItem value="crew">Crew</SelectItem>
-          <SelectItem value="promotor">Promotor</SelectItem>
+          {Object.entries(TICKET_TYPE_LABELS).map(([value, label]) => (
+            <SelectItem key={value} value={value}>{label}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
