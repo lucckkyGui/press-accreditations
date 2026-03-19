@@ -44,6 +44,7 @@ import LiveDashboard from "@/pages/LiveDashboard";
 import PostEventReport from "@/pages/PostEventReport";
 import PitchDeck from "@/pages/PitchDeck";
 import NotFound from "@/pages/NotFound";
+import Onboarding from "@/pages/Onboarding";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -77,6 +78,7 @@ const AppRoutes = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/pitch" element={<PitchDeck />} />
+      <Route path="/onboarding" element={<Onboarding />} />
       
       {/* Accreditation public routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
