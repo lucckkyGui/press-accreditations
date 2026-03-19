@@ -78,6 +78,7 @@ const AppRoutes = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/pitch" element={<PitchDeck />} />
+      <Route path="/onboarding" element={<Onboarding />} />
       
       {/* Accreditation public routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
