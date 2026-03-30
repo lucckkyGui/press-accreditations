@@ -27,7 +27,7 @@ export const useGuestsPage = () => {
         pageSize: filters.pageSize,
         search: filters.search,
         status: filters.statusFilter,
-        zone: filters.ticketTypeFilter as any,
+        ticketType: filters.ticketTypeFilter,
         eventId: selectedEvent.id
       };
 

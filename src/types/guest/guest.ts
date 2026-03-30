@@ -33,6 +33,7 @@ export interface GuestDB {
 export interface GuestsQueryParams extends PaginationParams, FilterParams {
   status?: GuestStatus | "all";
   zone?: GuestZone | "all";
+  ticketType?: string | "all";
   eventId?: string;
   emailStatus?: GuestEmailStatus | "all";
   ticketTypeId?: string;
