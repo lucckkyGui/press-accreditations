@@ -6,9 +6,9 @@ import { GuestsTable } from "@/components/guests/GuestsTable";
 interface GuestsListTabProps {
   guests: any[];
   total: number;
-  hasMore: boolean;
-  isLoadingMore: boolean;
-  onLoadMore: () => void;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
@@ -29,7 +29,7 @@ interface GuestsListTabProps {
 }
 
 const GuestsListTab: React.FC<GuestsListTabProps> = ({
-  guests, total, hasMore, isLoadingMore, onLoadMore,
+  guests, total, page, pageSize, onPageChange,
   search, statusFilter, ticketTypeFilter, zoneFilter,
   selectedGuests, isLoading,
   setSearch, setStatusFilter, setTicketTypeFilter, setZoneFilter,
@@ -60,9 +60,9 @@ const GuestsListTab: React.FC<GuestsListTabProps> = ({
       <GuestsTable
         guests={guests}
         total={total}
-        hasMore={hasMore}
-        isLoadingMore={isLoadingMore}
-        onLoadMore={onLoadMore}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={onPageChange}
         onEdit={handleEditGuest}
         onDelete={handleDeleteGuest}
         selectedGuests={selectedGuests}
