@@ -11,6 +11,68 @@ import { toast } from "sonner";
 import { Copy, Code, Eye, Palette, ExternalLink, Monitor, Smartphone } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 
+const PreviewForm = ({
+  primaryColor,
+  borderRadius,
+  selectedEvent,
+  showCompany,
+  showPhone,
+  className = "",
+  compact = false,
+}: {
+  primaryColor: string;
+  borderRadius: string;
+  selectedEvent: string;
+  showCompany: boolean;
+  showPhone: boolean;
+  className?: string;
+  compact?: boolean;
+}) => {
+  const fieldRadius = `${Math.min(parseInt(borderRadius), 8)}px`;
+  const fieldHeight = compact ? "h-7" : "h-9";
+  const textSize = compact ? "text-[10px]" : "text-xs";
+
+  return (
+    <div
+      className={`bg-background rounded-lg shadow-lg ${compact ? "p-3 space-y-2" : "p-6 space-y-4"} ${className}`}
+      style={{ borderRadius: `${borderRadius}px` }}
+    >
+      <div className="text-center space-y-1">
+        <div
+          className={`${compact ? "h-1.5 w-16 mb-2" : "h-2 w-24 mb-4"} rounded-full mx-auto`}
+          style={{ backgroundColor: primaryColor }}
+        />
+        <h3 className={`font-bold text-foreground ${compact ? "text-sm" : ""}`}>Rejestracja</h3>
+        <p className={`${textSize} text-muted-foreground`}>
+          {selectedEvent ? "Wypełnij formularz" : "Wybierz wydarzenie..."}
+        </p>
+      </div>
+      <div className={compact ? "space-y-1.5" : "space-y-3"}>
+        {[
+          { label: "Imię *", show: true },
+          { label: "Nazwisko *", show: true },
+          { label: "Email *", show: true },
+          { label: "Firma", show: showCompany },
+          { label: "Telefon", show: showPhone },
+        ]
+          .filter((f) => f.show)
+          .map((f) => (
+            <div key={f.label} className="space-y-0.5">
+              <div className={`${textSize} text-muted-foreground`}>{f.label}</div>
+              <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
+            </div>
+          ))}
+      </div>
+      <div
+        className={`${compact ? "h-8 text-xs" : "h-10 text-sm"} rounded-md flex items-center justify-center font-medium text-white`}
+        style={{ backgroundColor: primaryColor, borderRadius: fieldRadius }}
+      >
+        Zarejestruj się
+      </div>
+    </div>
+  );
+};
+
 const EmbedWidget = () => {
   const { events } = useEvents();
   const [selectedEvent, setSelectedEvent] = useState("");
