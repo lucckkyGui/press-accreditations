@@ -40,6 +40,7 @@ const EmbedRegisterForm = () => {
     email: "",
     company: "",
     phone: "",
+    ticket_type: "general",
   });
 
   useEffect(() => {
