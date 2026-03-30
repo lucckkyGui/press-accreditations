@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
   TrendingUp, FileText, Activity, CreditCard, Crown,
-  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3, Ticket
+  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3, Ticket, HardDrive
 } from "lucide-react";
 import { TICKET_TYPE_LABELS, GuestTicketType } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
