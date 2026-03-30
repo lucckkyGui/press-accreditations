@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Calendar, Users, QrCode, BarChart3, Mail, Shield, Smartphone, Zap, Globe
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const features = [
   {
@@ -43,14 +44,32 @@ const features = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 const FeaturesSection = () => {
   return (
     <section className="py-24 bg-muted/40 relative overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-primary/5 blob blur-[100px]" />
-      <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-secondary/5 blob blur-[100px]" />
+      <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
+      <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px]" />
       
       <div className="container relative z-10">
-        <div className="text-center mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Zap className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold text-primary">Funkcjonalności</span>
@@ -62,32 +81,43 @@ const FeaturesSection = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Kompleksowe narzędzia do zarządzania akredytacjami i gośćmi na wydarzeniach każdej skali.
           </p>
-        </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {features.map((feature, index) => (
-            <Card 
-              key={index}
-              className="group relative overflow-hidden border bg-card shadow-soft hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 rounded-2xl"
-            >
-              <CardContent className="p-8">
-                <div className={`inline-flex p-3 rounded-xl mb-6 ${feature.colorClass}`}>
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                
-                <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
-                  {feature.title}
-                </h3>
-                
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
+            <motion.div key={index} variants={cardVariants}>
+              <Card className="group relative overflow-hidden border bg-card shadow-soft hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 rounded-2xl h-full">
+                <CardContent className="p-8">
+                  <div className={`inline-flex p-3 rounded-xl mb-6 ${feature.colorClass}`}>
+                    <feature.icon className="h-6 w-6" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
         
-        <div className="mt-16 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-16 text-center"
+        >
           <div className="inline-flex items-center gap-8 flex-wrap justify-center">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Smartphone className="h-5 w-5 text-primary" />
@@ -102,7 +132,7 @@ const FeaturesSection = () => {
               <span>Real-time sync</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Mail, QrCode, Users, Zap, Clock, FileText, CheckCircle2, ArrowRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const ValuePropositionSection: React.FC = () => {
   const navigate = useNavigate();
@@ -53,10 +53,16 @@ const ValuePropositionSection: React.FC = () => {
 
   return (
     <section className="py-20 bg-background relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent/5 blob blur-[100px]" />
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px]" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-info/10 border border-info/20 mb-6">
             <Zap className="h-4 w-4 text-info" />
             <span className="text-sm font-semibold text-info">Niesamowicie proste</span>
@@ -71,52 +77,67 @@ const ValuePropositionSection: React.FC = () => {
           
           <div className="flex flex-wrap justify-center gap-3 mt-8">
             {highlights.map((highlight, index) => (
-              <div 
+              <motion.div
                 key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.1 * index }}
                 className={`inline-flex items-center gap-2 ${highlight.color} px-4 py-2 rounded-full`}
               >
                 {highlight.icon}
                 <span className="text-sm font-medium">{highlight.text}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {steps.map((item, index) => (
-            <Card 
-              key={index} 
-              className="relative group hover:shadow-card-hover transition-all duration-300 border hover:border-primary/20 rounded-2xl hover:-translate-y-1"
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.12 }}
             >
-              <CardContent className="pt-8 pb-6 px-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${item.colorClass}`}>
-                    {item.icon}
+              <Card className="relative group hover:shadow-card-hover transition-all duration-300 border hover:border-primary/20 rounded-2xl hover:-translate-y-1 h-full">
+                <CardContent className="pt-8 pb-6 px-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${item.colorClass}`}>
+                      {item.icon}
+                    </div>
+                    <span className="text-4xl font-extrabold text-muted-foreground/10">{item.step}</span>
                   </div>
-                  <span className="text-4xl font-extrabold text-muted-foreground/10">{item.step}</span>
-                </div>
+                  
+                  <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    {item.description}
+                  </p>
+                  
+                  <div className="flex items-center text-sm font-medium text-primary">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {item.time}
+                  </div>
+                </CardContent>
                 
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  {item.description}
-                </p>
-                
-                <div className="flex items-center text-sm font-medium text-primary">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {item.time}
-                </div>
-              </CardContent>
-              
-              {index < steps.length - 1 && (
-                <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10">
-                  <ArrowRight className="h-6 w-6 text-primary/30" />
-                </div>
-              )}
-            </Card>
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+                    <ArrowRight className="h-6 w-6 text-primary/30" />
+                  </div>
+                )}
+              </Card>
+            </motion.div>
           ))}
         </div>
 
-        <div className="gradient-primary rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="gradient-primary rounded-3xl p-8 md:p-12 text-center relative overflow-hidden"
+        >
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-[40px]" />
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-white/5 rounded-full blur-[60px]" />
           
@@ -147,7 +168,7 @@ const ValuePropositionSection: React.FC = () => {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Star, MessageCircle } from "lucide-react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+
+const AnimatedStat = ({ target, suffix }: { target: number; suffix: string }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (v) => {
+    if (target >= 1000) return `${Math.round(v / 1000)}K`;
+    return `${Math.round(v)}`;
+  });
+  const [display, setDisplay] = useState("0");
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (!started) return;
+    const controls = animate(count, target, { duration: 2, ease: "easeOut" });
+    const unsub = rounded.on("change", (v) => setDisplay(v));
+    return () => { controls.stop(); unsub(); };
+  }, [started, target]);
+
+  return (
+    <motion.span
+      onViewportEnter={() => setStarted(true)}
+      className="font-extrabold text-lg gradient-text"
+    >
+      {display}{suffix}
+    </motion.span>
+  );
+};
 
 interface TestimonialProps {
   quote: string;
@@ -70,7 +97,13 @@ const TestimonialsSection = () => {
   return (
     <section className="py-20 bg-muted/40">
       <div className="container">
-        <div className="text-center mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-6">
             <MessageCircle className="h-4 w-4 text-secondary" />
             <span className="text-sm font-semibold text-secondary">Opinie</span>
@@ -81,32 +114,46 @@ const TestimonialsSection = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Zobacz, dlaczego profesjonaliści wybierają Press Accreditations
           </p>
-        </div>
+        </motion.div>
         
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <Testimonial key={index} {...testimonial} />
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
+            >
+              <Testimonial {...testimonial} />
+            </motion.div>
           ))}
         </div>
         
-        <div className="text-center mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-12"
+        >
           <div className="inline-flex items-center gap-6 flex-wrap justify-center bg-card rounded-full px-8 py-4 shadow-soft border">
             <div className="text-center">
-              <span className="font-extrabold text-lg gradient-text">500+</span>
+              <AnimatedStat target={500} suffix="+" />
               <span className="text-muted-foreground text-sm ml-1">wydarzeń</span>
             </div>
             <div className="w-px h-6 bg-border" />
             <div className="text-center">
-              <span className="font-extrabold text-lg gradient-text">100K+</span>
+              <AnimatedStat target={100000} suffix="+" />
               <span className="text-muted-foreground text-sm ml-1">zaproszeń</span>
             </div>
             <div className="w-px h-6 bg-border" />
             <div className="text-center">
-              <span className="font-extrabold text-lg gradient-text">50K+</span>
+              <AnimatedStat target={50000} suffix="+" />
               <span className="text-muted-foreground text-sm ml-1">check-inów</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,20 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Play, ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+
+const Counter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (v) => Math.round(v));
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const controls = animate(count, target, { duration: 2, ease: "easeOut" });
+    const unsub = rounded.on("change", (v) => setDisplay(v));
+    return () => { controls.stop(); unsub(); };
+  }, [target]);
+
+  return <span>{display}{suffix}</span>;
+};
 
 const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
     <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-background">
-      {/* Colorful blobs */}
+      {/* Animated blobs */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-primary/15 blob blur-[80px] animate-pulse-slow" />
-        <div className="absolute top-1/3 -right-24 w-[400px] h-[400px] bg-secondary/15 blob blur-[80px] animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute -bottom-20 left-1/3 w-[350px] h-[350px] bg-accent/15 blob blur-[80px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
-        
-        {/* Subtle dot pattern */}
+        <motion.div
+          className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[80px]"
+          animate={{ scale: [1, 1.15, 1], x: [0, 30, 0], y: [0, -20, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute top-1/3 -right-24 w-[400px] h-[400px] bg-secondary/15 rounded-full blur-[80px]"
+          animate={{ scale: [1, 1.2, 1], x: [0, -40, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        <motion.div
+          className="absolute -bottom-20 left-1/3 w-[350px] h-[350px] bg-accent/15 rounded-full blur-[80px]"
+          animate={{ scale: [1, 1.1, 1], y: [0, -30, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
         <div 
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -28,24 +53,49 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
+            >
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Platforma akredytacyjna nowej generacji</span>
-            </div>
+            </motion.div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight"
+            >
               <span className="block text-foreground">Akredytacje</span>
-              <span className="block gradient-text-hero">
+              <motion.span
+                className="block gradient-text-hero"
+                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                style={{ backgroundSize: "200% auto" }}
+              >
                 bez chaosu.
-              </span>
-            </h1>
+              </motion.span>
+            </motion.h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-lg mb-10 leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-muted-foreground max-w-lg mb-10 leading-relaxed"
+            >
               Zaproszenia z QR, automatyczny mailing, check-in w&nbsp;2&nbsp;sekundy — 
               nawet offline. Jedno narzędzie do obsługi gości na&nbsp;każdym wydarzeniu.
-            </p>
+            </motion.p>
             
-            <div className="flex flex-wrap gap-4 mb-14 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-wrap gap-4 mb-14"
+            >
               <Button 
                 size="lg" 
                 className="gradient-primary text-primary-foreground hover:opacity-90 gap-2 px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
@@ -63,28 +113,36 @@ const HeroSection = () => {
                 <Play className="h-4 w-4 text-primary" />
                 Zobacz demo
               </Button>
-            </div>
+            </motion.div>
             
             {/* Trust indicators */}
-            <div className="flex flex-wrap gap-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <Shield className="h-4 w-4 text-secondary" />
-                <span>Zgodne z RODO</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <Zap className="h-4 w-4 text-accent" />
-                <span>Setup w 5 minut</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Działa offline</span>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-wrap gap-6"
+            >
+              {[
+                { icon: Shield, label: "Zgodne z RODO", color: "text-secondary" },
+                { icon: Zap, label: "Setup w 5 minut", color: "text-accent" },
+                { icon: CheckCircle2, label: "Działa offline", color: "text-success" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <item.icon className={`h-4 w-4 ${item.color}`} />
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </motion.div>
           </div>
           
           {/* Right side - Dashboard preview */}
-          <div className="hidden lg:block relative animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="relative">
+          <div className="hidden lg:block relative">
+            <motion.div
+              initial={{ opacity: 0, x: 60, rotateY: -5 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="relative"
+            >
               {/* Main card */}
               <div className="relative bg-card rounded-2xl border border-border p-6 shadow-2xl shadow-primary/5">
                 <div className="flex items-center gap-3 mb-6">
@@ -94,34 +152,44 @@ const HeroSection = () => {
                   <span className="text-muted-foreground text-sm ml-4 font-mono">dashboard</span>
                 </div>
                 
-                {/* Mock dashboard content */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-                      <div className="text-2xl font-bold text-foreground">247</div>
-                      <div className="text-muted-foreground text-xs">Zarejestrowani</div>
-                    </div>
-                    <div className="bg-secondary/5 rounded-xl p-4 border border-secondary/10">
-                      <div className="text-2xl font-bold text-secondary">189</div>
-                      <div className="text-muted-foreground text-xs">Check-in</div>
-                    </div>
-                    <div className="bg-info/5 rounded-xl p-4 border border-info/10">
-                      <div className="text-2xl font-bold text-info">76%</div>
-                      <div className="text-muted-foreground text-xs">Frekwencja</div>
-                    </div>
+                    {[
+                      { label: "Zarejestrowani", value: 247, color: "primary" },
+                      { label: "Check-in", value: 189, color: "secondary" },
+                      { label: "Frekwencja", value: 76, color: "info", suffix: "%" },
+                    ].map((stat) => (
+                      <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
+                        className={`bg-${stat.color}/5 rounded-xl p-4 border border-${stat.color}/10`}
+                      >
+                        <div className={`text-2xl font-bold text-${stat.color === "primary" ? "foreground" : stat.color}`}>
+                          <Counter target={stat.value} suffix={stat.suffix} />
+                        </div>
+                        <div className="text-muted-foreground text-xs">{stat.label}</div>
+                      </motion.div>
+                    ))}
                   </div>
                   
                   {/* Activity bars */}
                   <div className="space-y-2.5">
                     {[
-                      { label: 'VIP', pct: '85%', color: 'bg-primary' },
-                      { label: 'Media', pct: '72%', color: 'bg-info' },
-                      { label: 'Standard', pct: '91%', color: 'bg-secondary' },
-                    ].map((bar) => (
+                      { label: 'VIP', pct: 85, color: 'bg-primary' },
+                      { label: 'Media', pct: 72, color: 'bg-info' },
+                      { label: 'Standard', pct: 91, color: 'bg-secondary' },
+                    ].map((bar, i) => (
                       <div key={bar.label} className="flex items-center gap-3">
                         <div className="w-16 text-muted-foreground text-xs font-mono">{bar.label}</div>
                         <div className="flex-1 bg-muted rounded-full h-2">
-                          <div className={`${bar.color} h-2 rounded-full transition-all duration-1000`} style={{ width: bar.pct }} />
+                          <motion.div
+                            className={`${bar.color} h-2 rounded-full`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${bar.pct}%` }}
+                            transition={{ duration: 1.2, delay: 0.8 + i * 0.15, ease: "easeOut" }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -130,7 +198,12 @@ const HeroSection = () => {
               </div>
               
               {/* Floating notification */}
-              <div className="absolute -bottom-4 -left-6 bg-success rounded-xl p-3.5 shadow-lg shadow-success/25 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20, x: -20 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                transition={{ duration: 0.5, delay: 1.2 }}
+                className="absolute -bottom-4 -left-6 bg-success rounded-xl p-3.5 shadow-lg shadow-success/25"
+              >
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="h-5 w-5 text-success-foreground" />
                   <div>
@@ -138,13 +211,18 @@ const HeroSection = () => {
                     <div className="text-success-foreground/70 text-xs">Anna K. • VIP</div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
               {/* Floating badge top right */}
-              <div className="absolute -top-3 -right-3 gradient-warm rounded-xl px-4 py-2 shadow-lg animate-fade-in" style={{ animationDelay: '1s' }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 1.4, type: "spring", stiffness: 200 }}
+                className="absolute -top-3 -right-3 gradient-warm rounded-xl px-4 py-2 shadow-lg"
+              >
                 <div className="text-accent-foreground font-bold text-sm">+12 dziś</div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>
