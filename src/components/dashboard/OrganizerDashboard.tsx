@@ -28,6 +28,7 @@ const OrganizerDashboard = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "schema">("overview");
+  const [statsEventFilter, setStatsEventFilter] = useState<string>("all");
   const { isOnline, wasOffline } = useOnlineStatus();
   const { subscribed, tier, subscriptionEnd, isLoading: subLoading } = useSubscription();
   const { openCustomerPortal, isLoading: portalLoading } = useCheckout();
