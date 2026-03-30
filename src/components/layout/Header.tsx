@@ -16,6 +16,13 @@ const Header: React.FC = () => {
   const { t } = useI18n();
   const { setOpenMobile } = useSidebar();
   const { isMobile } = useWindowSize();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   const toggleMobileSidebar = () => {
     // Fix: passing a boolean instead of a function
