@@ -186,7 +186,7 @@ const GuestDashboard = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Current/Active accreditations */}
           {activeAccreditations.length > 0 && (
-            <Card className="border-green-200 bg-green-50/30">
+            <Card className="border-success/20 bg-success/5">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
