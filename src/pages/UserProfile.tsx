@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
 import PurchasedTickets from "@/components/profile/PurchasedTickets";
 import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEditForm";
+import SubscriptionManagement from "@/components/profile/SubscriptionManagement";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -127,9 +128,10 @@ const UserProfile = () => {
       <main className="flex-1 container py-8 max-w-4xl">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="tickets">My Tickets ({tickets.length})</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="profile">Profil</TabsTrigger>
+            <TabsTrigger value="subscription">Subskrypcja</TabsTrigger>
+            <TabsTrigger value="tickets">Bilety ({tickets.length})</TabsTrigger>
+            <TabsTrigger value="notifications">Powiadomienia</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
@@ -144,6 +146,10 @@ const UserProfile = () => {
               onClose={() => setIsEditFormOpen(false)}
               onSave={handleSaveProfile}
             />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <SubscriptionManagement />
           </TabsContent>
           
           <TabsContent value="tickets">
