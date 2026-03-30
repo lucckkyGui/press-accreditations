@@ -60,6 +60,22 @@ const Header: React.FC = () => {
           {/* Language Switcher */}
           <LanguageSwitcher variant={isMobile ? "icon" : "full"} />
           <ThemeToggle />
+
+          {/* Search shortcut button - desktop only */}
+          {!isMobile && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden md:flex items-center gap-2 text-muted-foreground"
+              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-xs">Szukaj...</span>
+              <kbd className="pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                ⌘K
+              </kbd>
+            </Button>
+          )}
           
           {/* On mobile, only show user menu button */}
           {isMobile ? (
