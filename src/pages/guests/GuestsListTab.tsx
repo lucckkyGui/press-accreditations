@@ -6,16 +6,15 @@ import { GuestsTable } from "@/components/guests/GuestsTable";
 interface GuestsListTabProps {
   guests: any[];
   total: number;
-  page: number;
-  pageSize: number;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
   zoneFilter: string;
   selectedGuests: any[];
   isLoading: boolean;
-  setPage: (page: number) => void;
-  setPageSize: (size: number) => void;
   setSearch: (search: string) => void;
   setStatusFilter: (status: any) => void;
   setTicketTypeFilter: (ticketType: any) => void;
@@ -30,9 +29,10 @@ interface GuestsListTabProps {
 }
 
 const GuestsListTab: React.FC<GuestsListTabProps> = ({
-  guests, total, page, pageSize, search, statusFilter, ticketTypeFilter, zoneFilter,
+  guests, total, hasMore, isLoadingMore, onLoadMore,
+  search, statusFilter, ticketTypeFilter, zoneFilter,
   selectedGuests, isLoading,
-  setPage, setPageSize, setSearch, setStatusFilter, setTicketTypeFilter, setZoneFilter,
+  setSearch, setStatusFilter, setTicketTypeFilter, setZoneFilter,
   setSelectedGuests, handleEditGuest, handleDeleteGuest,
   handleBulkEmail, handleBulkStatusUpdate, handleBulkTicketTypeUpdate, handleBulkDeleteGuests
 }) => {
@@ -43,10 +43,10 @@ const GuestsListTab: React.FC<GuestsListTabProps> = ({
         statusFilter={statusFilter}
         ticketTypeFilter={ticketTypeFilter}
         zoneFilter={zoneFilter}
-        onSearchChange={(v) => { setSearch(v); setPage(0); }}
-        onStatusFilterChange={(s) => { setStatusFilter(s); setPage(0); }}
-        onTicketTypeFilterChange={(t) => { setTicketTypeFilter(t); setPage(0); }}
-        onZoneFilterChange={(z) => { setZoneFilter(z); setPage(0); }}
+        onSearchChange={setSearch}
+        onStatusFilterChange={setStatusFilter}
+        onTicketTypeFilterChange={setTicketTypeFilter}
+        onZoneFilterChange={setZoneFilter}
       />
 
       <GuestsBulkActions
@@ -60,10 +60,9 @@ const GuestsListTab: React.FC<GuestsListTabProps> = ({
       <GuestsTable
         guests={guests}
         total={total}
-        page={page}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        onPageSizeChange={(s) => { setPageSize(s); setPage(0); }}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={onLoadMore}
         onEdit={handleEditGuest}
         onDelete={handleDeleteGuest}
         selectedGuests={selectedGuests}
