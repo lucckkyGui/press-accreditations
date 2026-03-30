@@ -17,7 +17,7 @@ const Header: React.FC = () => {
   const { t } = useI18n();
   const { setOpenMobile } = useSidebar();
   const { isMobile } = useWindowSize();
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
