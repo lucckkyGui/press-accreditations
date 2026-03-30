@@ -10,6 +10,7 @@ import { TICKET_TYPE_LABELS, GuestTicketType } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/StatCard";
 import DatabaseSchema from "@/components/database/DatabaseSchema";
@@ -28,6 +29,7 @@ const OrganizerDashboard = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "events" | "schema">("overview");
+  const [statsEventFilter, setStatsEventFilter] = useState<string>("all");
   const { isOnline, wasOffline } = useOnlineStatus();
   const { subscribed, tier, subscriptionEnd, isLoading: subLoading } = useSubscription();
   const { openCustomerPortal, isLoading: portalLoading } = useCheckout();
@@ -49,10 +51,12 @@ const OrganizerDashboard = () => {
   });
 
   const { data: guestsStats } = useQuery({
-    queryKey: ['organizerGuestsStats', user?.id],
+    queryKey: ['organizerGuestsStats', user?.id, statsEventFilter],
     queryFn: async () => {
       if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
-      const eventIds = eventsData.map(e => e.id);
+      const eventIds = statsEventFilter === 'all'
+        ? eventsData.map(e => e.id)
+        : [statsEventFilter];
       const { data, error } = await supabase
         .from('guests')
         .select('id, status, checked_in_at, ticket_type')
@@ -178,7 +182,21 @@ const OrganizerDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Stats grid */}
+      {/* Event filter + Stats grid */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Statystyki</h2>
+        <Select value={statsEventFilter} onValueChange={setStatsEventFilter}>
+          <SelectTrigger className="w-full sm:w-64 h-10 rounded-xl border-border/60 bg-card">
+            <SelectValue placeholder="Wszystkie wydarzenia" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Wszystkie wydarzenia</SelectItem>
+            {(eventsData || []).map((e: any) => (
+              <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Wszystkie wydarzenia"
