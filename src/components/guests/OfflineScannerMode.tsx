@@ -52,17 +52,31 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
     loadCachedData();
   }, [event.id]);
 
+  const CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
   const loadCachedData = () => {
     try {
       const cached = localStorage.getItem(`guests_${event.id}`);
       const scans = localStorage.getItem(`offline_scans_${event.id}`);
       
       if (cached) {
-        setCachedGuests(JSON.parse(cached));
+        const parsed = JSON.parse(cached);
+        // Check expiry
+        if (parsed.expiresAt && parsed.expiresAt > Date.now()) {
+          setCachedGuests(parsed.data);
+        } else {
+          // Expired — clear it
+          localStorage.removeItem(`guests_${event.id}`);
+        }
       }
       
       if (scans) {
-        setOfflineScans(JSON.parse(scans));
+        const parsed = JSON.parse(scans);
+        if (parsed.expiresAt && parsed.expiresAt > Date.now()) {
+          setOfflineScans(parsed.data);
+        } else {
+          localStorage.removeItem(`offline_scans_${event.id}`);
+        }
       }
     } catch (error) {
       console.error('Error loading cached data:', error);
@@ -71,7 +85,12 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
 
   const saveCachedData = (guests: Guest[]) => {
     try {
-      localStorage.setItem(`guests_${event.id}`, JSON.stringify(guests));
+      const cache = {
+        data: guests,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + CACHE_EXPIRY_MS,
+      };
+      localStorage.setItem(`guests_${event.id}`, JSON.stringify(cache));
       setCachedGuests(guests);
     } catch (error) {
       console.error('Error saving cached data:', error);
