@@ -84,6 +84,7 @@ const EmbedRegisterForm = () => {
             email: form.email,
             company: form.company || undefined,
             phone: form.phone || undefined,
+            ticketType: form.ticket_type,
           }),
         }
       );
