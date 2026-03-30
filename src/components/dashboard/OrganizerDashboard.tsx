@@ -182,7 +182,21 @@ const OrganizerDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Stats grid */}
+      {/* Event filter + Stats grid */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Statystyki</h2>
+        <Select value={statsEventFilter} onValueChange={setStatsEventFilter}>
+          <SelectTrigger className="w-full sm:w-64 h-10 rounded-xl border-border/60 bg-card">
+            <SelectValue placeholder="Wszystkie wydarzenia" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Wszystkie wydarzenia</SelectItem>
+            {(eventsData || []).map((e: any) => (
+              <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Wszystkie wydarzenia"
