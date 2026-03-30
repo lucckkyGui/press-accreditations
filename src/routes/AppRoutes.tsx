@@ -44,6 +44,7 @@ import LiveDashboard from "@/pages/LiveDashboard";
 import PostEventReport from "@/pages/PostEventReport";
 import PitchDeck from "@/pages/PitchDeck";
 import NotFound from "@/pages/NotFound";
+import AccessDenied from "@/pages/AccessDenied";
 import Onboarding from "@/pages/Onboarding";
 import EmbedWidget from "@/pages/EmbedWidget";
 import EmbedRegisterForm from "@/pages/EmbedRegisterForm";
@@ -52,6 +53,11 @@ import AIChatSupport from "@/pages/AIChatSupport";
 import SponsorReport from "@/pages/SponsorReport";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+
+// Role groups for cleaner route definitions
+const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
+const STAFF_ROLES = ['admin', 'organizer', 'staff'] as const;
+const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
 
 const AppRoutes = () => {
   return (
@@ -64,20 +70,13 @@ const AppRoutes = () => {
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/register" element={<Register />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      {/* Redirect old /login to new path */}
       <Route path="/login" element={<Navigate to="/auth/login" replace />} />
       
-      {/* Products routes */}
+      {/* Public product/info pages */}
       <Route path="/products" element={<Products />} />
       <Route path="/products/:productId" element={<ProductDetails />} />
-      
-      {/* Shopping routes */}
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
-      <Route path="/orders" element={<Orders />} />
-      <Route path="/orders/:id" element={<OrderDetails />} />
-      
-      {/* Info pages */}
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/terms" element={<Terms />} />
@@ -85,14 +84,19 @@ const AppRoutes = () => {
       <Route path="/pitch" element={<PitchDeck />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
+      <Route path="/access-denied" element={<AccessDenied />} />
       
-      {/* Accreditation public routes */}
+      {/* Public accreditation routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
       <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
-      {/* All app routes with MainLayout — protected */}
-      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+      {/* === ORGANIZER & ADMIN routes === */}
+      <Route element={
+        <ProtectedRoute allowedRoles={[...ORGANIZER_ROLES]}>
+          <MainLayout />
+        </ProtectedRoute>
+      }>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
@@ -100,29 +104,47 @@ const AppRoutes = () => {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:eventId" element={<EventDetails />} />
         <Route path="/scanner" element={<Scanner />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/settings/profile" element={<ProfileSettings />} />
-        <Route path="/settings/account" element={<AccountSettings />} />
-        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/invitation-editor" element={<InvitationEditor />} />
         <Route path="/ticketing" element={<Ticketing />} />
         <Route path="/press-releases" element={<PressReleasePage />} />
         <Route path="/media-portal" element={<MediaPortalPage />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/invitation-editor" element={<InvitationEditor />} />
-        <Route path="/purchase" element={<Purchase />} />
         <Route path="/rfid-scanner" element={<RfidScanner />} />
         <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
         <Route path="/post-event-report" element={<PostEventReport />} />
         <Route path="/embed-widget" element={<EmbedWidget />} />
         <Route path="/waitlist" element={<Waitlist />} />
-        <Route path="/ai-support" element={<AIChatSupport />} />
         <Route path="/sponsor-report" element={<SponsorReport />} />
       </Route>
 
-      {/* Full-screen protected routes */}
-      <Route path="/kiosk" element={<ProtectedRoute><SelfCheckInKiosk /></ProtectedRoute>} />
-      <Route path="/live-dashboard" element={<ProtectedRoute><LiveDashboard /></ProtectedRoute>} />
+      {/* === ALL AUTHENTICATED users routes === */}
+      <Route element={
+        <ProtectedRoute allowedRoles={[...ALL_AUTHENTICATED]}>
+          <MainLayout />
+        </ProtectedRoute>
+      }>
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings/profile" element={<ProfileSettings />} />
+        <Route path="/settings/account" element={<AccountSettings />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:id" element={<OrderDetails />} />
+        <Route path="/purchase" element={<Purchase />} />
+        <Route path="/ai-support" element={<AIChatSupport />} />
+      </Route>
+
+      {/* Full-screen protected routes — organizer/admin/staff */}
+      <Route path="/kiosk" element={
+        <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
+          <SelfCheckInKiosk />
+        </ProtectedRoute>
+      } />
+      <Route path="/live-dashboard" element={
+        <ProtectedRoute allowedRoles={[...ORGANIZER_ROLES]}>
+          <LiveDashboard />
+        </ProtectedRoute>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
