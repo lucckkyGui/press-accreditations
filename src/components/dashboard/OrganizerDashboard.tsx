@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/StatCard";
 import DatabaseSchema from "@/components/database/DatabaseSchema";
+import CheckInActivityChart from "@/components/dashboard/CheckInActivityChart";
 import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -51,29 +52,34 @@ const OrganizerDashboard = () => {
     enabled: !!user?.id,
   });
 
-  const { data: guestsStats } = useQuery({
-    queryKey: ['organizerGuestsStats', user?.id, statsEventFilter],
+  const { data: guestsData } = useQuery({
+    queryKey: ['organizerGuestsData', user?.id, statsEventFilter],
     queryFn: async () => {
-      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
+      if (!user?.id || !eventsData?.length) return [];
       const eventIds = statsEventFilter === 'all'
         ? eventsData.map(e => e.id)
         : [statsEventFilter];
       const { data, error } = await supabase
         .from('guests')
-        .select('id, status, checked_in_at, ticket_type')
+        .select('id, status, checked_in_at, ticket_type, created_at')
         .in('event_id', eventIds);
       if (error) throw error;
-      const total = data?.length || 0;
-      const checkedIn = data?.filter(g => g.checked_in_at)?.length || 0;
-      const byTicketType: Record<string, number> = {};
-      data?.forEach(g => {
-        const tt = g.ticket_type || 'uczestnik';
-        byTicketType[tt] = (byTicketType[tt] || 0) + 1;
-      });
-      return { total, checkedIn, byTicketType };
+      return data || [];
     },
     enabled: !!eventsData?.length,
   });
+
+  const guestsStats = useMemo(() => {
+    if (!guestsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
+    const total = guestsData.length;
+    const checkedIn = guestsData.filter(g => g.checked_in_at)?.length || 0;
+    const byTicketType: Record<string, number> = {};
+    guestsData.forEach(g => {
+      const tt = g.ticket_type || 'uczestnik';
+      byTicketType[tt] = (byTicketType[tt] || 0) + 1;
+    });
+    return { total, checkedIn, byTicketType };
+  }, [guestsData]);
 
   const { data: accreditationRequests } = useQuery({
     queryKey: ['pendingAccreditations', user?.id],
@@ -320,20 +326,8 @@ const OrganizerDashboard = () => {
             </Card>
           </div>
 
-          {/* Activity placeholder */}
-          <Card className="rounded-2xl border-border">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-foreground">Aktywność check-in</CardTitle>
-              <CardDescription>Statystyki zameldowań w czasie</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground rounded-xl bg-primary/5 border border-dashed border-primary/20">
-                <Activity className="h-10 w-10 mb-3 text-primary/30" />
-                <span className="font-medium text-foreground/60">Wykres aktywności</span>
-                <span className="text-xs mt-1">Dane pojawią się po pierwszych zameldowaniach</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Check-in activity chart */}
+          <CheckInActivityChart guests={guestsData || []} />
 
           {/* Ticket type stats */}
           <Card className="rounded-2xl border-border">
@@ -347,7 +341,7 @@ const OrganizerDashboard = () => {
             <CardContent>
               {(() => {
                 const byType = guestsStats?.byTicketType || {};
-                const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+                const entries = Object.entries(byType).sort((a, b) => (b[1] as number) - (a[1] as number));
                 const total = guestsStats?.total || 0;
 
                 if (entries.length === 0) {
@@ -368,13 +362,14 @@ const OrganizerDashboard = () => {
                 return (
                   <div className="space-y-3">
                     {entries.map(([type, count], i) => {
-                      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                      const numCount = count as number;
+                      const pct = total > 0 ? Math.round((numCount / total) * 100) : 0;
                       const label = TICKET_TYPE_LABELS[type as GuestTicketType] || type;
                       return (
                         <div key={type} className="space-y-1.5">
                           <div className="flex items-center justify-between text-sm">
                             <span className="font-medium text-foreground">{label}</span>
-                            <span className="text-muted-foreground tabular-nums">{count} <span className="text-xs">({pct}%)</span></span>
+                            <span className="text-muted-foreground tabular-nums">{numCount} <span className="text-xs">({pct}%)</span></span>
                           </div>
                           <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                             <div

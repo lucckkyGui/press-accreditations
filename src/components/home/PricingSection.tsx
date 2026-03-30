@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/auth";
 import { useCheckout } from "@/hooks/useCheckout";
 import { STRIPE_TIERS } from "@/config/stripe";
@@ -68,6 +68,7 @@ const PricingSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { startCheckout, isLoading } = useCheckout();
+  const [showComparison, setShowComparison] = useState(false);
 
   const handleSelectPlan = (priceId: string) => {
     if (!user) {
@@ -79,7 +80,7 @@ const PricingSection = () => {
   };
 
   return (
-    <section className="py-20 container">
+    <section id="pricing" className="py-20 container">
       <div className="text-center mb-14">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
           <Sparkles className="h-4 w-4 text-accent" />
@@ -90,6 +91,17 @@ const PricingSection = () => {
           Wybierz plan dopasowany do skali Twoich wydarzeń. Każdy plan zawiera szablony zaproszeń i QR check-in.
         </p>
       </div>
+
+      {/* Feature comparison toggle */}
+      <div className="flex justify-center mb-8">
+        <button
+          onClick={() => setShowComparison(!showComparison)}
+          className="text-sm text-primary hover:underline font-medium flex items-center gap-1"
+        >
+          {showComparison ? 'Ukryj porównanie' : 'Pokaż pełne porównanie funkcji'}
+          <ArrowRight className={`h-3.5 w-3.5 transition-transform ${showComparison ? 'rotate-90' : ''}`} />
+        </button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto items-start px-4 md:px-0">
         <PricingCard
@@ -98,14 +110,14 @@ const PricingSection = () => {
           period="/ miesiąc"
           description="Idealny na małe eventy"
           features={[
-            "Do 100 gości na wydarzenie",
-            "Profesjonalne szablony e-mail",
+            "Do 500 gości łącznie",
+            "5 wydarzeń",
             "QR code check-in",
-            "Analityka w czasie rzeczywistym",
             "Import/export CSV",
+            "Bulk email",
             "Wsparcie e-mail",
           ]}
-          buttonText="Wypróbuj za darmo"
+          buttonText="Wypróbuj 14 dni za darmo"
           isLoading={isLoading}
           onSelect={() => handleSelectPlan(STRIPE_TIERS.starter.price_id)}
         />
@@ -115,15 +127,15 @@ const PricingSection = () => {
           period="/ miesiąc"
           description="Dla rosnących organizacji"
           features={[
-            "Do 500 gości na wydarzenie",
-            "Szablony z własnym brandingiem",
-            "Masowy mailing",
-            "Dostęp dla zespołu (3 osoby)",
+            "Do 5 000 gości łącznie",
+            "20 wydarzeń",
+            "Mass mailing",
+            "Zaawansowana analityka",
+            "Własny branding",
             "Priorytetowe wsparcie",
-            "Zaawansowane raporty",
             "Tryb offline skanera",
           ]}
-          buttonText="Wypróbuj za darmo"
+          buttonText="Wypróbuj 14 dni za darmo"
           isPrimary={true}
           badge="Najpopularniejszy"
           isLoading={isLoading}
@@ -135,10 +147,10 @@ const PricingSection = () => {
           period="/ miesiąc"
           description="Dla dużych wydarzeń"
           features={[
-            "Nieograniczona liczba gości",
+            "Nielimitowani goście",
+            "Nielimitowane wydarzenia",
+            "Dostęp do API i webhooków",
             "White-label (własna marka)",
-            "Dostęp do API",
-            "Nielimitowani członkowie zespołu",
             "Dedykowany opiekun konta",
             "Integracje na zamówienie",
             "Gwarancja SLA",
@@ -149,6 +161,44 @@ const PricingSection = () => {
           onSelect={() => handleSelectPlan(STRIPE_TIERS.enterprise.price_id)}
         />
       </div>
+
+      {/* Feature comparison table */}
+      {showComparison && (
+        <div className="max-w-5xl mx-auto mt-12 overflow-x-auto">
+          <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left p-4 font-semibold text-foreground">Funkcja</th>
+                <th className="text-center p-4 font-semibold text-foreground">Starter</th>
+                <th className="text-center p-4 font-semibold text-primary bg-primary/5">Professional</th>
+                <th className="text-center p-4 font-semibold text-foreground">Enterprise</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Maks. gości', '500', '5 000', '∞'],
+                ['Maks. wydarzeń', '5', '20', '∞'],
+                ['QR check-in', '✓', '✓', '✓'],
+                ['Bulk email', '✓', '✓', '✓'],
+                ['Mass mailing', '—', '✓', '✓'],
+                ['Analityka', '—', '✓', '✓'],
+                ['Własny branding', '—', '✓', '✓'],
+                ['Dostęp API', '—', '—', '✓'],
+                ['Webhooky', '—', '—', '✓'],
+                ['Tryb offline', '—', '✓', '✓'],
+                ['SLA', '—', '—', '✓'],
+              ].map(([feature, s, p, e], i) => (
+                <tr key={i} className="border-t border-border hover:bg-muted/30 transition-colors">
+                  <td className="p-3 font-medium text-foreground">{feature}</td>
+                  <td className="p-3 text-center text-muted-foreground">{s}</td>
+                  <td className="p-3 text-center bg-primary/5 font-medium">{p}</td>
+                  <td className="p-3 text-center text-muted-foreground">{e}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       
       <div className="text-center mt-12">
         <p className="text-muted-foreground">

@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Bell, Edit, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Users, Bell, Edit, ArrowRight, Copy } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow, format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -13,6 +13,7 @@ interface EventCardProps {
   guestCount?: number;
   onView: (event: Event) => void;
   onEdit: (event: Event) => void;
+  onDuplicate?: (event: Event) => void;
   onViewDetails?: (eventId: string) => void;
   onGoToNotifications?: (eventId: string) => void;
 }
@@ -22,6 +23,7 @@ const EventCard = ({
   guestCount = 0, 
   onView, 
   onEdit,
+  onDuplicate,
   onViewDetails,
   onGoToNotifications
 }: EventCardProps) => {
@@ -104,6 +106,16 @@ const EventCard = ({
           >
             <Edit className="h-3.5 w-3.5 mr-1" /> Edytuj
           </Button>
+          {onDuplicate && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onDuplicate(event)} 
+              className="rounded-xl text-muted-foreground hover:text-secondary hover:bg-secondary/5 transition-colors h-8 px-3 text-xs"
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" /> Duplikuj
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="sm" 

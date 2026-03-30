@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Filter, Plus, Search, SortAsc, SortDesc, CalendarDays } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,6 +38,23 @@ const Events = () => {
     const response = await createEvent(data);
     if (!response.error) {
       setOpen(false);
+    }
+  };
+
+  const handleDuplicateEvent = async (event: Event) => {
+    const duplicatedData: Partial<Event> = {
+      name: `${event.name} (kopia)`,
+      description: event.description,
+      location: event.location,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      maxGuests: event.maxGuests,
+      category: event.category,
+      isPublished: false,
+    };
+    const response = await createEvent(duplicatedData);
+    if (!response.error) {
+      toast({ title: "Wydarzenie zduplikowane", description: `"${event.name}" zostało skopiowane jako szkic.` });
     }
   };
 
@@ -245,6 +263,7 @@ const Events = () => {
               event={event}
               onView={handleViewEvent}
               onEdit={handleEditEvent}
+              onDuplicate={handleDuplicateEvent}
               onViewDetails={(eventId) => navigate(`/events/${eventId}`)}
               onGoToNotifications={handleGoToNotifications}
             />

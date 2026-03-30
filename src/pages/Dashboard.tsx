@@ -5,6 +5,7 @@ import OrganizerDashboard from "@/components/dashboard/OrganizerDashboard";
 import GuestDashboard from "@/components/dashboard/GuestDashboard";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
+import TrialBanner from "@/components/common/TrialBanner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Zap, Smartphone } from "lucide-react";
 import RealTimeDashboard from "@/components/dashboard/RealTimeDashboard";
@@ -26,6 +27,7 @@ const Dashboard = () => {
   if (isOrganizer || isAdmin) {
     return (
       <>
+        <TrialBanner />
         <OnboardingWizard />
         <Tabs value={enhancedTab} onValueChange={setEnhancedTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
