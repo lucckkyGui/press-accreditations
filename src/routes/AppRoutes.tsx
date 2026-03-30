@@ -91,8 +91,8 @@ const AppRoutes = () => {
       <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
-      {/* All app routes with MainLayout — public access */}
-      <Route element={<MainLayout />}>
+      {/* All app routes with MainLayout — protected */}
+      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
