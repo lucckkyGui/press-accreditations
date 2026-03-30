@@ -4,11 +4,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AppBreadcrumbs from "@/components/common/AppBreadcrumbs";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import PageTransition from "@/components/common/PageTransition";
 
 const MainLayout: React.FC = () => {
   const { isMobile } = useWindowSize();
@@ -28,7 +29,9 @@ const MainLayout: React.FC = () => {
                   <LoadingSpinner />
                 </div>
               }>
-                <Outlet />
+                <PageTransition>
+                  <Outlet />
+                </PageTransition>
               </Suspense>
             </div>
           </main>

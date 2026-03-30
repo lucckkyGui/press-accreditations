@@ -2,7 +2,7 @@
 import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, Settings, UserCircle } from "lucide-react";
+import { Menu, Bell, Settings, UserCircle, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/hooks/useI18n";
@@ -11,12 +11,13 @@ import ThemeToggle from "@/components/common/ThemeToggle";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header: React.FC = () => {
   const { t } = useI18n();
   const { setOpenMobile } = useSidebar();
   const { isMobile } = useWindowSize();
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -59,13 +60,32 @@ const Header: React.FC = () => {
           {/* Language Switcher */}
           <LanguageSwitcher variant={isMobile ? "icon" : "full"} />
           <ThemeToggle />
+
+          {/* Search shortcut button - desktop only */}
+          {!isMobile && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden md:flex items-center gap-2 text-muted-foreground"
+              onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-xs">Szukaj...</span>
+              <kbd className="pointer-events-none ml-2 inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                ⌘K
+              </kbd>
+            </Button>
+          )}
           
           {/* On mobile, only show user menu button */}
           {isMobile ? (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <UserCircle className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="relative rounded-full">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={profile?.avatarUrl || undefined} />
+                    <AvatarFallback className="text-xs">{profile?.firstName?.[0] || 'U'}</AvatarFallback>
+                  </Avatar>
                   <span className="sr-only">{t("navigation.userMenu")}</span>
                 </Button>
               </SheetTrigger>
@@ -105,8 +125,11 @@ const Header: React.FC = () => {
               
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <UserCircle className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="relative rounded-full">
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage src={profile?.avatarUrl || undefined} />
+                      <AvatarFallback className="text-xs">{profile?.firstName?.[0] || 'U'}</AvatarFallback>
+                    </Avatar>
                     <span className="sr-only">{t("navigation.userMenu")}</span>
                   </Button>
                 </SheetTrigger>

@@ -13,6 +13,7 @@ import ScrollToTop from "./components/common/ScrollToTop";
 import SkipToContent from "./components/common/SkipToContent";
 import FloatingScrollTop from "./components/common/FloatingScrollTop";
 import OnlineStatusToast from "./components/common/OnlineStatusToast";
+import CommandPalette from "./components/common/CommandPalette";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ const App = () => {
                 <CookieConsent />
                 <FloatingScrollTop />
                 <OnlineStatusToast />
+                <CommandPalette />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>
