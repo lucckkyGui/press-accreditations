@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
   TrendingUp, FileText, Activity, CreditCard, Crown,
-  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3
+  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3, Ticket
 } from "lucide-react";
+import { TICKET_TYPE_LABELS, GuestTicketType } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,16 +51,21 @@ const OrganizerDashboard = () => {
   const { data: guestsStats } = useQuery({
     queryKey: ['organizerGuestsStats', user?.id],
     queryFn: async () => {
-      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0 };
+      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
       const eventIds = eventsData.map(e => e.id);
       const { data, error } = await supabase
         .from('guests')
-        .select('id, status, checked_in_at')
+        .select('id, status, checked_in_at, ticket_type')
         .in('event_id', eventIds);
       if (error) throw error;
       const total = data?.length || 0;
       const checkedIn = data?.filter(g => g.checked_in_at)?.length || 0;
-      return { total, checkedIn };
+      const byTicketType: Record<string, number> = {};
+      data?.forEach(g => {
+        const tt = g.ticket_type || 'uczestnik';
+        byTicketType[tt] = (byTicketType[tt] || 0) + 1;
+      });
+      return { total, checkedIn, byTicketType };
     },
     enabled: !!eventsData?.length,
   });
@@ -303,6 +309,66 @@ const OrganizerDashboard = () => {
                 <span className="font-medium text-foreground/60">Wykres aktywności</span>
                 <span className="text-xs mt-1">Dane pojawią się po pierwszych zameldowaniach</span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Ticket type stats */}
+          <Card className="rounded-2xl border-border">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Ticket className="h-5 w-5 text-primary" />
+                Rejestracje wg typu biletu
+              </CardTitle>
+              <CardDescription>Rozkład gości według kategorii akredytacji</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const byType = guestsStats?.byTicketType || {};
+                const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+                const total = guestsStats?.total || 0;
+
+                if (entries.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+                      <Ticket className="h-10 w-10 mb-3 text-primary/30" />
+                      <span className="font-medium text-foreground/60">Brak danych</span>
+                      <span className="text-xs mt-1">Dodaj gości, aby zobaczyć statystyki</span>
+                    </div>
+                  );
+                }
+
+                const colors = [
+                  'bg-primary', 'bg-info', 'bg-success', 'bg-warning',
+                  'bg-destructive', 'bg-accent', 'bg-secondary', 'bg-muted-foreground', 'bg-primary/60'
+                ];
+
+                return (
+                  <div className="space-y-3">
+                    {entries.map(([type, count], i) => {
+                      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                      const label = TICKET_TYPE_LABELS[type as GuestTicketType] || type;
+                      return (
+                        <div key={type} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-foreground">{label}</span>
+                            <span className="text-muted-foreground tabular-nums">{count} <span className="text-xs">({pct}%)</span></span>
+                          </div>
+                          <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${colors[i % colors.length]} transition-all duration-500`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-2 border-t border-border flex justify-between text-sm">
+                      <span className="text-muted-foreground">Łącznie</span>
+                      <span className="font-semibold text-foreground tabular-nums">{total}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
