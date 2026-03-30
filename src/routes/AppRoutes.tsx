@@ -87,6 +87,8 @@ const AppRoutes = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
       <Route path="/access-denied" element={<AccessDenied />} />
+      {/* Public accreditation landing page - must be before catch-all */}
+      <Route path="/:slug" element={<PublicAccreditationPage />} />
       
       {/* Public accreditation */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
