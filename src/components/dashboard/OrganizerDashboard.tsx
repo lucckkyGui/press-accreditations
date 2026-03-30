@@ -381,7 +381,7 @@ const OrganizerDashboard = () => {
                         <div key={type} className="space-y-1.5">
                           <div className="flex items-center justify-between text-sm">
                             <span className="font-medium text-foreground">{label}</span>
-                            <span className="text-muted-foreground tabular-nums">{count} <span className="text-xs">({pct}%)</span></span>
+                            <span className="text-muted-foreground tabular-nums">{numCount} <span className="text-xs">({pct}%)</span></span>
                           </div>
                           <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                             <div
