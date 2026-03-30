@@ -210,6 +210,7 @@ const GuestDashboard = () => {
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline">{accreditation.accreditation_types?.name}</Badge>
+                            {accreditation.is_checked_in && (
                               <Badge className="bg-success/15 text-success border-0">
                                 <CheckCircle className="h-3 w-3 mr-1" />
                                 Zameldowany
