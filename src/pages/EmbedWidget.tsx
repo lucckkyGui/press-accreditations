@@ -96,6 +96,7 @@ const EmbedWidget = () => {
   const [borderRadius, setBorderRadius] = useState("12");
   const [showCompany, setShowCompany] = useState(true);
   const [showPhone, setShowPhone] = useState(false);
+  const [showTicketType, setShowTicketType] = useState(true);
   const [language, setLanguage] = useState("pl");
 
   const embedUrl = `${window.location.origin}/embed/register/${selectedEvent}`;
