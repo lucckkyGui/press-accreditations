@@ -497,6 +497,10 @@ const OrganizerDashboard = () => {
         <TabsContent value="schema">
           <DatabaseSchema />
         </TabsContent>
+
+        <TabsContent value="resources">
+          <ResourceMonitor />
+        </TabsContent>
       </Tabs>
     </div>
   );
