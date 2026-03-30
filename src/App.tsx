@@ -9,13 +9,25 @@ import { AuthProvider } from "./hooks/auth/AuthProvider";
 import { I18nProvider } from "./hooks/useI18n";
 import CookieConsent from "./components/common/CookieConsent";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import ScrollToTop from "./components/common/ScrollToTop";
+import SkipToContent from "./components/common/SkipToContent";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <SkipToContent />
+        <ScrollToTop />
         <I18nProvider>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
