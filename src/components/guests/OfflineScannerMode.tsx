@@ -180,7 +180,8 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
 
       // Clear synced scans from localStorage
       const unsyncedScans = offlineScans.filter(scan => !scan.synced);
-      localStorage.setItem(`offline_scans_${event.id}`, JSON.stringify(unsyncedScans));
+      const cache = { data: unsyncedScans, timestamp: Date.now(), expiresAt: Date.now() + CACHE_EXPIRY_MS };
+      localStorage.setItem(`offline_scans_${event.id}`, JSON.stringify(cache));
       setOfflineScans(unsyncedScans);
 
       toast.success(`Zsynchronizowano ${offlineScans.length} skanów offline`);
