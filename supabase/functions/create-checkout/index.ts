@@ -18,6 +18,13 @@ serve(async (req) => {
   );
 
   try {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    
+    // Warn in logs if using test key in production
+    if (stripeKey.startsWith("sk_test_")) {
+      console.warn("[CREATE-CHECKOUT] ⚠️ Using Stripe TEST key. Switch to sk_live_ for production.");
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
     const token = authHeader.replace("Bearer ", "");
