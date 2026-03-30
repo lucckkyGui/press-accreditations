@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,7 @@ const categories = [
 ];
 
 const HelpCenter = () => {
+  usePageTitle("Centrum Pomocy");
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 

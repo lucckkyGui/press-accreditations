@@ -3,7 +3,8 @@ import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, Bell, Settings, UserCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/hooks/useI18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import ThemeToggle from "@/components/common/ThemeToggle";
@@ -15,6 +16,13 @@ const Header: React.FC = () => {
   const { t } = useI18n();
   const { setOpenMobile } = useSidebar();
   const { isMobile } = useWindowSize();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   const toggleMobileSidebar = () => {
     // Fix: passing a boolean instead of a function
@@ -80,7 +88,7 @@ const Header: React.FC = () => {
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/profile">{t("navigation.profile")}</Link>
                   </Button>
-                  <Button variant="outline" size="sm">{t("navigation.logOut")}</Button>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>{t("navigation.logOut")}</Button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -109,7 +117,7 @@ const Header: React.FC = () => {
                     <Button variant="outline" asChild>
                       <Link to="/profile">{t("navigation.profile")}</Link>
                     </Button>
-                    <Button variant="outline">{t("navigation.logOut")}</Button>
+                    <Button variant="outline" onClick={handleLogout}>{t("navigation.logOut")}</Button>
                   </div>
                 </SheetContent>
               </Sheet>

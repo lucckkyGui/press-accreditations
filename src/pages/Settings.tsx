@@ -1,5 +1,6 @@
 
 import React from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import ExportSettings from "@/components/settings/ExportSettings";
 import ApiKeyManagement from "@/components/settings/ApiKeyManagement";
 
 const Settings = () => {
+  usePageTitle("Ustawienia");
   const handleSaveOrganizationSettings = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Ustawienia organizacji zostały zapisane");
