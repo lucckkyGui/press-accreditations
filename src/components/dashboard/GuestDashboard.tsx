@@ -137,7 +137,7 @@ const GuestDashboard = () => {
       </div>
 
       {/* Quick stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -152,11 +152,11 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+        <Card className="bg-gradient-to-br from-info/10 to-info/5 border-info/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/20 rounded-full">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-info/20 rounded-full">
+                <Calendar className="h-6 w-6 text-info" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{upcomingAccreditations.length}</p>
@@ -166,11 +166,11 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-amber-500/20 rounded-full">
-                <Clock className="h-6 w-6 text-amber-600" />
+              <div className="p-3 bg-warning/20 rounded-full">
+                <Clock className="h-6 w-6 text-warning" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{pendingRequests.length}</p>
