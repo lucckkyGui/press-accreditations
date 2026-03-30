@@ -293,6 +293,7 @@ const EmbedWidget = () => {
                     selectedEvent={selectedEvent}
                     showCompany={showCompany}
                     showPhone={showPhone}
+                    showTicketType={showTicketType}
                     className="max-w-sm mx-auto"
                   />
                 </div>
