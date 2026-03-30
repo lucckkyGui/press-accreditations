@@ -147,6 +147,10 @@ const UserProfile = () => {
               onSave={handleSaveProfile}
             />
           </TabsContent>
+
+          <TabsContent value="subscription">
+            <SubscriptionManagement />
+          </TabsContent>
           
           <TabsContent value="tickets">
             <PurchasedTickets tickets={tickets} />
