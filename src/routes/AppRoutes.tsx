@@ -117,6 +117,7 @@ const AppRoutes = () => {
         <Route path="/embed-widget" element={<EmbedWidget />} />
         <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/sponsor-report" element={<SponsorReport />} />
+        <Route path="/landing-page/:eventId" element={<LandingPageBuilder />} />
       </Route>
 
       {/* All authenticated users */}
