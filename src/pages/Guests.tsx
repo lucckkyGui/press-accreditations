@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useGuestsPage } from "./guests";
 import GuestsPageHeader from "./guests/GuestsPageHeader";
 import GuestsTabs from "./guests/GuestsTabs";

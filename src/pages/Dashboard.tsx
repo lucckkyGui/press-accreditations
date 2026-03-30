@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/auth";
 import OrganizerDashboard from "@/components/dashboard/OrganizerDashboard";
 import GuestDashboard from "@/components/dashboard/GuestDashboard";

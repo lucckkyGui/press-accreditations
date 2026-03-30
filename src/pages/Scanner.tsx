@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import PageContent from '@/components/layout/PageContent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EnhancedQRScanner from '@/components/scanner/EnhancedQRScanner';

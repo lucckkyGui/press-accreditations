@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import { Filter, Plus, Search, SortAsc, SortDesc, CalendarDays } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
