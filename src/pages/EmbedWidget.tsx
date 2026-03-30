@@ -102,7 +102,7 @@ const EmbedWidget = () => {
   const embedUrl = `${window.location.origin}/embed/register/${selectedEvent}`;
 
   const iframeCode = `<iframe
-  src="${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}"
+  src="${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}&ticket=${showTicketType}"
   width="100%"
   height="600"
   frameborder="0"
