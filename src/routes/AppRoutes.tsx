@@ -120,9 +120,9 @@ const AppRoutes = () => {
         <Route path="/sponsor-report" element={<SponsorReport />} />
       </Route>
 
-      {/* Full-screen routes */}
-      <Route path="/kiosk" element={<SelfCheckInKiosk />} />
-      <Route path="/live-dashboard" element={<LiveDashboard />} />
+      {/* Full-screen protected routes */}
+      <Route path="/kiosk" element={<ProtectedRoute><SelfCheckInKiosk /></ProtectedRoute>} />
+      <Route path="/live-dashboard" element={<ProtectedRoute><LiveDashboard /></ProtectedRoute>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
