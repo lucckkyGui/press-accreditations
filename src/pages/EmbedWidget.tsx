@@ -208,6 +208,10 @@ const EmbedWidget = () => {
                   <Label>Pole "Telefon"</Label>
                   <Switch checked={showPhone} onCheckedChange={setShowPhone} />
                 </div>
+                <div className="flex items-center justify-between">
+                  <Label>Wybór typu biletu</Label>
+                  <Switch checked={showTicketType} onCheckedChange={setShowTicketType} />
+                </div>
               </div>
             </CardContent>
           </Card>
