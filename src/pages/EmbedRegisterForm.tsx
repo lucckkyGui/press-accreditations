@@ -230,6 +230,22 @@ const EmbedRegisterForm = () => {
               />
             </div>
           )}
+          {showTicketType && availableTicketTypes.length > 1 && (
+            <div>
+              <Label className="text-xs text-gray-600">Typ biletu *</Label>
+              <select
+                required
+                value={form.ticket_type}
+                onChange={(e) => setForm((f) => ({ ...f, ticket_type: e.target.value }))}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                style={{ borderRadius: r }}
+              >
+                {availableTicketTypes.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <Button
