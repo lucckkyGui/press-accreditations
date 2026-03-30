@@ -134,7 +134,7 @@ const PublicAccreditationPage = () => {
   }
 
   if (error === "not_found" || !page) {
-    return null; // Let React Router fall through to NotFound
+    return <NotFound />;
   }
 
   const config = page.form_config;
