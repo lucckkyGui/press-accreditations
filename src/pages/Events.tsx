@@ -40,6 +40,23 @@ const Events = () => {
     }
   };
 
+  const handleDuplicateEvent = async (event: Event) => {
+    const duplicatedData: Partial<Event> = {
+      name: `${event.name} (kopia)`,
+      description: event.description,
+      location: event.location,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      maxGuests: event.maxGuests,
+      category: event.category,
+      isPublished: false,
+    };
+    const response = await createEvent(duplicatedData);
+    if (!response.error) {
+      toast({ title: "Wydarzenie zduplikowane", description: `"${event.name}" zostało skopiowane jako szkic.` });
+    }
+  };
+
   const handleViewEvent = (event: Event) => {
     navigate(`/events/${event.id}`);
   };
