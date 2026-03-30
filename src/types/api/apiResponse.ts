@@ -15,6 +15,7 @@ export interface ApiResponse<T = any> {
     total: number;
     page: number;
     pageSize: number;
+    totalPages?: number;
   };
   meta?: {
     count?: number;
