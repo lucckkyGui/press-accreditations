@@ -50,6 +50,7 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-1 md:gap-2">
           {/* Language Switcher */}
           <LanguageSwitcher variant={isMobile ? "icon" : "full"} />
+          <ThemeToggle />
           
           {/* On mobile, only show user menu button */}
           {isMobile ? (
