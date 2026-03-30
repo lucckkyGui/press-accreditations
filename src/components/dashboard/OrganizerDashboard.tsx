@@ -326,20 +326,8 @@ const OrganizerDashboard = () => {
             </Card>
           </div>
 
-          {/* Activity placeholder */}
-          <Card className="rounded-2xl border-border">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-foreground">Aktywność check-in</CardTitle>
-              <CardDescription>Statystyki zameldowań w czasie</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground rounded-xl bg-primary/5 border border-dashed border-primary/20">
-                <Activity className="h-10 w-10 mb-3 text-primary/30" />
-                <span className="font-medium text-foreground/60">Wykres aktywności</span>
-                <span className="text-xs mt-1">Dane pojawią się po pierwszych zameldowaniach</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Check-in activity chart */}
+          <CheckInActivityChart guests={guestsData || []} />
 
           {/* Ticket type stats */}
           <Card className="rounded-2xl border-border">
