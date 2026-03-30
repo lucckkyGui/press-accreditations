@@ -51,17 +51,40 @@ export const guestQueryService = {
         }
       }
 
-      const { data, error, count } = await query.order('created_at', { ascending: false });
+      // Use head:true count for efficient total without fetching all rows
+      let countQuery = supabase
+        .from('guests')
+        .select('*', { count: 'exact', head: true });
+
+      if (params) {
+        if (params.eventId) countQuery = countQuery.eq('event_id', params.eventId);
+        if (params.status && params.status !== 'all') countQuery = countQuery.eq('status', params.status);
+        if (params.ticketType && params.ticketType !== 'all') countQuery = countQuery.eq('ticket_type', params.ticketType);
+        if (params.zone && params.zone !== 'all') countQuery = countQuery.contains('zones', [params.zone]);
+        if (params.emailStatus && params.emailStatus !== 'all') countQuery = countQuery.eq('email_status', params.emailStatus);
+        if (params.search) {
+          countQuery = countQuery.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%`);
+        }
+      }
+
+      const [{ count: totalCount }, { data, error }] = await Promise.all([
+        countQuery,
+        query.order('created_at', { ascending: false })
+      ]);
 
       if (error) throw error;
 
+      const page = params?.page || 0;
+      const pageSize = params?.pageSize || 50;
+
       return {
         data: data.map((item: any) => mapDbGuestToGuest(item)),
-        pagination: count ? {
-          total: count,
-          page: params?.page || 0,
-          pageSize: params?.pageSize || 10
-        } : undefined
+        pagination: {
+          total: totalCount || 0,
+          page,
+          pageSize,
+          totalPages: Math.ceil((totalCount || 0) / pageSize)
+        }
       };
     } catch (error: any) {
       console.error('Error fetching guests:', error);

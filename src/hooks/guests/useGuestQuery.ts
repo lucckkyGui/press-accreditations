@@ -12,7 +12,7 @@ import { useState } from 'react';
 export const useGuestQuery = (eventId?: string, initialQueryParams?: Partial<GuestsQueryParams>) => {
   const [queryParams, setQueryParams] = useState<GuestsQueryParams>({
     page: 0,
-    pageSize: 10,
+    pageSize: 50,
     status: 'all',
     zone: 'all',
     eventId,
