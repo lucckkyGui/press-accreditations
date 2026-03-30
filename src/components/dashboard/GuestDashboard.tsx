@@ -196,7 +196,7 @@ const GuestDashboard = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {activeAccreditations.map((accreditation: any) => (
-                  <div key={accreditation.id} className="p-4 rounded-lg bg-white border shadow-sm">
+                  <div key={accreditation.id} className="p-4 rounded-lg bg-card border shadow-sm">
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4">
                         <div className="p-3 bg-green-100 rounded-lg">
