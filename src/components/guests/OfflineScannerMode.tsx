@@ -100,7 +100,8 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
   const saveOfflineScan = (scan: ScanEntry) => {
     try {
       const updatedScans = [...offlineScans, scan];
-      localStorage.setItem(`offline_scans_${event.id}`, JSON.stringify(updatedScans));
+      const cache = { data: updatedScans, timestamp: Date.now(), expiresAt: Date.now() + CACHE_EXPIRY_MS };
+      localStorage.setItem(`offline_scans_${event.id}`, JSON.stringify(cache));
       setOfflineScans(updatedScans);
     } catch (error) {
       console.error('Error saving offline scan:', error);
