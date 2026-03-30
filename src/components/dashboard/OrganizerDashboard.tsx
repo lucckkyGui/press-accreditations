@@ -242,7 +242,10 @@ const OrganizerDashboard = () => {
             <Database className="h-4 w-4" />
             Baza danych
           </TabsTrigger>
-        </TabsList>
+          <TabsTrigger value="resources" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <HardDrive className="h-4 w-4" />
+            Zasoby
+          </TabsTrigger>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
