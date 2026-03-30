@@ -36,6 +36,8 @@ const App = () => {
               <TooltipProvider delayDuration={0}>
                 <AppRoutes />
                 <CookieConsent />
+                <FloatingScrollTop />
+                <OnlineStatusToast />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>
