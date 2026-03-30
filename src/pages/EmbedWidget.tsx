@@ -8,8 +8,70 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Copy, Code, Eye, Palette, ExternalLink } from "lucide-react";
+import { Copy, Code, Eye, Palette, ExternalLink, Monitor, Smartphone } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
+
+const PreviewForm = ({
+  primaryColor,
+  borderRadius,
+  selectedEvent,
+  showCompany,
+  showPhone,
+  className = "",
+  compact = false,
+}: {
+  primaryColor: string;
+  borderRadius: string;
+  selectedEvent: string;
+  showCompany: boolean;
+  showPhone: boolean;
+  className?: string;
+  compact?: boolean;
+}) => {
+  const fieldRadius = `${Math.min(parseInt(borderRadius), 8)}px`;
+  const fieldHeight = compact ? "h-7" : "h-9";
+  const textSize = compact ? "text-[10px]" : "text-xs";
+
+  return (
+    <div
+      className={`bg-background rounded-lg shadow-lg ${compact ? "p-3 space-y-2" : "p-6 space-y-4"} ${className}`}
+      style={{ borderRadius: `${borderRadius}px` }}
+    >
+      <div className="text-center space-y-1">
+        <div
+          className={`${compact ? "h-1.5 w-16 mb-2" : "h-2 w-24 mb-4"} rounded-full mx-auto`}
+          style={{ backgroundColor: primaryColor }}
+        />
+        <h3 className={`font-bold text-foreground ${compact ? "text-sm" : ""}`}>Rejestracja</h3>
+        <p className={`${textSize} text-muted-foreground`}>
+          {selectedEvent ? "Wypełnij formularz" : "Wybierz wydarzenie..."}
+        </p>
+      </div>
+      <div className={compact ? "space-y-1.5" : "space-y-3"}>
+        {[
+          { label: "Imię *", show: true },
+          { label: "Nazwisko *", show: true },
+          { label: "Email *", show: true },
+          { label: "Firma", show: showCompany },
+          { label: "Telefon", show: showPhone },
+        ]
+          .filter((f) => f.show)
+          .map((f) => (
+            <div key={f.label} className="space-y-0.5">
+              <div className={`${textSize} text-muted-foreground`}>{f.label}</div>
+              <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
+            </div>
+          ))}
+      </div>
+      <div
+        className={`${compact ? "h-8 text-xs" : "h-10 text-sm"} rounded-md flex items-center justify-center font-medium text-white`}
+        style={{ backgroundColor: primaryColor, borderRadius: fieldRadius }}
+      >
+        Zarejestruj się
+      </div>
+    </div>
+  );
+};
 
 const EmbedWidget = () => {
   const { events } = useEvents();
@@ -191,67 +253,65 @@ const EmbedWidget = () => {
             </CardTitle>
             <CardDescription>Tak będzie wyglądał formularz na Twojej stronie</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div
-              className="border-2 border-dashed border-border rounded-lg p-6 bg-muted/30"
-              style={{ borderRadius: `${borderRadius}px` }}
-            >
-              <div
-                className="bg-background rounded-lg shadow-lg p-6 space-y-4 max-w-sm mx-auto"
-                style={{ borderRadius: `${borderRadius}px` }}
-              >
-                <div className="text-center space-y-1">
-                  <div
-                    className="h-2 rounded-full mx-auto w-24 mb-4"
-                    style={{ backgroundColor: primaryColor }}
-                  />
-                  <h3 className="font-bold text-foreground">Rejestracja</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedEvent ? "Wypełnij formularz" : "Wybierz wydarzenie..."}
-                  </p>
+          <CardContent className="space-y-6">
+            {/* Desktop + Mobile previews */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {/* Desktop preview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Monitor className="h-4 w-4" />
+                  Desktop
                 </div>
-
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-muted-foreground">Imię *</div>
-                    <div className="h-9 bg-muted rounded-md" style={{ borderRadius: `${Math.min(parseInt(borderRadius), 8)}px` }} />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-muted-foreground">Nazwisko *</div>
-                    <div className="h-9 bg-muted rounded-md" style={{ borderRadius: `${Math.min(parseInt(borderRadius), 8)}px` }} />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-muted-foreground">Email *</div>
-                    <div className="h-9 bg-muted rounded-md" style={{ borderRadius: `${Math.min(parseInt(borderRadius), 8)}px` }} />
-                  </div>
-                  {showCompany && (
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground">Firma</div>
-                      <div className="h-9 bg-muted rounded-md" style={{ borderRadius: `${Math.min(parseInt(borderRadius), 8)}px` }} />
-                    </div>
-                  )}
-                  {showPhone && (
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground">Telefon</div>
-                      <div className="h-9 bg-muted rounded-md" style={{ borderRadius: `${Math.min(parseInt(borderRadius), 8)}px` }} />
-                    </div>
-                  )}
-                </div>
-
                 <div
-                  className="h-10 rounded-md flex items-center justify-center text-sm font-medium text-white"
-                  style={{
-                    backgroundColor: primaryColor,
-                    borderRadius: `${Math.min(parseInt(borderRadius), 8)}px`
-                  }}
+                  className="border-2 border-dashed border-border rounded-lg p-6 bg-muted/30"
+                  style={{ borderRadius: `${borderRadius}px` }}
                 >
-                  Zarejestruj się
+                  <PreviewForm
+                    primaryColor={primaryColor}
+                    borderRadius={borderRadius}
+                    selectedEvent={selectedEvent}
+                    showCompany={showCompany}
+                    showPhone={showPhone}
+                    className="max-w-sm mx-auto"
+                  />
+                </div>
+              </div>
+
+              {/* Mobile preview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Smartphone className="h-4 w-4" />
+                  Mobile
+                </div>
+                <div className="flex justify-center">
+                  <div
+                    className="relative border-[3px] border-foreground/20 rounded-[2rem] p-2 bg-muted/30"
+                    style={{ width: 260 }}
+                  >
+                    {/* Phone notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-foreground/20 rounded-b-xl" />
+                    <div
+                      className="bg-background rounded-[1.5rem] pt-6 pb-4 px-3 overflow-hidden"
+                    >
+                      <PreviewForm
+                        primaryColor={primaryColor}
+                        borderRadius={borderRadius}
+                        selectedEvent={selectedEvent}
+                        showCompany={showCompany}
+                        showPhone={showPhone}
+                        className="w-full"
+                        compact
+                      />
+                    </div>
+                    {/* Home indicator */}
+                    <div className="mt-2 mx-auto w-24 h-1 bg-foreground/20 rounded-full" />
+                  </div>
                 </div>
               </div>
             </div>
 
             {selectedEvent && (
-              <div className="mt-4 flex justify-center">
+              <div className="flex justify-center">
                 <Button variant="outline" size="sm" asChild>
                   <a href={embedUrl} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-3 w-3 mr-1" />
