@@ -6,6 +6,7 @@ import { Menu, Bell, Settings, UserCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/hooks/useI18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
@@ -49,6 +50,7 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-1 md:gap-2">
           {/* Language Switcher */}
           <LanguageSwitcher variant={isMobile ? "icon" : "full"} />
+          <ThemeToggle />
           
           {/* On mobile, only show user menu button */}
           {isMobile ? (

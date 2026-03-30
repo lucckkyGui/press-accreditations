@@ -7,9 +7,12 @@ import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import AppBreadcrumbs from "@/components/common/AppBreadcrumbs";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const MainLayout: React.FC = () => {
   const { isMobile } = useWindowSize();
+  useKeyboardShortcuts();
 
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
@@ -19,6 +22,7 @@ const MainLayout: React.FC = () => {
           <Header />
           <main id="main-content" className="flex-1 p-3 md:p-6 lg:p-8 overflow-auto" role="main">
             <div className="max-w-7xl mx-auto w-full animate-fade-in">
+              <AppBreadcrumbs />
               <Suspense fallback={
                 <div className="h-64 flex items-center justify-center">
                   <LoadingSpinner />
