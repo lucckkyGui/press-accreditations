@@ -8,12 +8,14 @@ export const useGuestsFilters = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<GuestStatus | 'all'>('all');
   const [ticketTypeFilter, setTicketTypeFilter] = useState<GuestTicketType | 'all'>('all');
+  const [zoneFilter, setZoneFilter] = useState<string>('all');
 
   const resetFilters = () => {
     setPage(0);
     setSearch('');
     setStatusFilter('all');
     setTicketTypeFilter('all');
+    setZoneFilter('all');
   };
 
   return {
@@ -22,11 +24,13 @@ export const useGuestsFilters = () => {
     search,
     statusFilter,
     ticketTypeFilter,
+    zoneFilter,
     setPage,
     setPageSize,
     setSearch,
     setStatusFilter,
     setTicketTypeFilter,
+    setZoneFilter,
     resetFilters
   };
 };

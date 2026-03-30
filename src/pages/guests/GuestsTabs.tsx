@@ -17,6 +17,7 @@ interface GuestsTabsProps {
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
+  zoneFilter: string;
   selectedGuests: any[];
   selectedEvent: any;
   isLoading: boolean;
@@ -25,6 +26,7 @@ interface GuestsTabsProps {
   setSearch: (search: string) => void;
   setStatusFilter: (status: any) => void;
   setTicketTypeFilter: (ticketType: any) => void;
+  setZoneFilter: (zone: string) => void;
   setSelectedGuests: (guests: any[]) => void;
   handleEditGuest: (guest: any) => void;
   handleDeleteGuest: (id: string) => void;

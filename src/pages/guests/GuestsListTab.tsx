@@ -11,6 +11,7 @@ interface GuestsListTabProps {
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
+  zoneFilter: string;
   selectedGuests: any[];
   isLoading: boolean;
   setPage: (page: number) => void;
@@ -18,6 +19,7 @@ interface GuestsListTabProps {
   setSearch: (search: string) => void;
   setStatusFilter: (status: any) => void;
   setTicketTypeFilter: (ticketType: any) => void;
+  setZoneFilter: (zone: string) => void;
   setSelectedGuests: (guests: any[]) => void;
   handleEditGuest: (guest: any) => void;
   handleDeleteGuest: (id: string) => void;
@@ -28,9 +30,9 @@ interface GuestsListTabProps {
 }
 
 const GuestsListTab: React.FC<GuestsListTabProps> = ({
-  guests, total, page, pageSize, search, statusFilter, ticketTypeFilter,
+  guests, total, page, pageSize, search, statusFilter, ticketTypeFilter, zoneFilter,
   selectedGuests, isLoading,
-  setPage, setPageSize, setSearch, setStatusFilter, setTicketTypeFilter,
+  setPage, setPageSize, setSearch, setStatusFilter, setTicketTypeFilter, setZoneFilter,
   setSelectedGuests, handleEditGuest, handleDeleteGuest,
   handleBulkEmail, handleBulkStatusUpdate, handleBulkTicketTypeUpdate, handleBulkDeleteGuests
 }) => {
@@ -40,9 +42,11 @@ const GuestsListTab: React.FC<GuestsListTabProps> = ({
         search={search}
         statusFilter={statusFilter}
         ticketTypeFilter={ticketTypeFilter}
+        zoneFilter={zoneFilter}
         onSearchChange={(v) => { setSearch(v); setPage(0); }}
         onStatusFilterChange={(s) => { setStatusFilter(s); setPage(0); }}
         onTicketTypeFilterChange={(t) => { setTicketTypeFilter(t); setPage(0); }}
+        onZoneFilterChange={(z) => { setZoneFilter(z); setPage(0); }}
       />
 
       <GuestsBulkActions

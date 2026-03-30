@@ -28,6 +28,7 @@ export const useGuestsPage = () => {
         search: filters.search,
         status: filters.statusFilter,
         ticketType: filters.ticketTypeFilter,
+        zone: filters.zoneFilter as any,
         eventId: selectedEvent.id
       };
 
@@ -42,7 +43,7 @@ export const useGuestsPage = () => {
       console.error('Error fetching guests:', error);
       toast.error('Wystąpił błąd podczas pobierania gości');
     }
-  }, [filters.page, filters.pageSize, filters.search, filters.statusFilter, filters.ticketTypeFilter, selectedEvent]);
+  }, [filters.page, filters.pageSize, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);
 
   const actions = useGuestsActions(fetchGuests);
 
