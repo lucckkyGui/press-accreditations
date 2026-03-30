@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Shield, Radio, Map, Tablet, Monitor, Zap, FileBarChart, Sparkles, ChevronRight, Code, Clock, Bot, FileText } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Radio, Map, Tablet, Monitor, FileBarChart, Sparkles, ChevronRight, Code, Clock, Bot, FileText } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -12,29 +12,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Badge } from "@/components/ui/badge";
 
 const coreNavigation = [
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Wydarzenia", url: "/events", icon: Calendar },
   { title: "Goście", url: "/guests", icon: Users },
   { title: "Skaner QR", url: "/scanner", icon: QrCode },
+  { title: "Skaner RFID", url: "/rfid-scanner", icon: Radio },
+  { title: "Opaski RFID", url: "/wristbands", icon: Radio },
+  { title: "Heatmapa stref", url: "/zone-heatmap", icon: Map },
+  { title: "Kiosk Check-In", url: "/kiosk", icon: Tablet },
+  { title: "Dashboard TV", url: "/live-dashboard", icon: Monitor },
+  { title: "Raport końcowy", url: "/post-event-report", icon: FileBarChart },
   { title: "Widget embed", url: "/embed-widget", icon: Code },
   { title: "Waitlista", url: "/waitlist", icon: Clock },
   { title: "AI Support", url: "/ai-support", icon: Bot },
   { title: "Raport sponsorski", url: "/sponsor-report", icon: FileText },
   { title: "Ustawienia", url: "/settings", icon: Settings },
-];
-
-const comingSoonNavigation = [
-  { title: "Zaawansowani goście", icon: Shield },
-  { title: "Skaner RFID", icon: Radio },
-  { title: "Opaski RFID", icon: Radio },
-  { title: "Heatmapa stref", icon: Map },
-  { title: "Kiosk Check-In", icon: Tablet },
-  { title: "Dashboard TV", icon: Monitor },
-  { title: "Dashboard+", icon: Zap },
-  { title: "Raport końcowy", icon: FileBarChart },
 ];
 
 const AppSidebar = () => {
@@ -100,36 +94,6 @@ const AppSidebar = () => {
                   </SidebarMenuItem>
                 );
               })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separator */}
-        <div className="mx-4 my-3 h-px bg-border/60" />
-
-        {/* Coming soon */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 px-3 mb-1">
-            Wkrótce
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
-              {comingSoonNavigation.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    disabled
-                    className="px-3 py-2 rounded-xl opacity-35 cursor-not-allowed"
-                  >
-                    <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-muted/40">
-                      <item.icon className="h-[14px] w-[14px] text-muted-foreground" />
-                    </div>
-                    <span className="text-[12px] text-muted-foreground font-medium">{item.title}</span>
-                    <Badge variant="secondary" className="ml-auto text-[8px] px-1.5 py-0 h-[18px] rounded-md bg-primary/8 text-primary/60 border-0 font-bold tracking-wider">
-                      SOON
-                    </Badge>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

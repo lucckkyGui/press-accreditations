@@ -2,14 +2,11 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "@/pages/Index";
-import HomePage from "@/pages/HomePage";
 import Login from "@/pages/Login";
 import Register from "@/pages/auth/Register";
 import AuthCallback from "@/pages/AuthCallback";
 import Dashboard from "@/pages/Dashboard";
-import EnhancedDashboard from "@/pages/EnhancedDashboard";
 import Guests from "@/pages/Guests";
-import AdvancedGuests from "@/pages/AdvancedGuests";
 import Events from "@/pages/Events";
 import EventDetails from "@/pages/EventDetails";
 import Scanner from "@/pages/Scanner";
@@ -54,7 +51,6 @@ import SponsorReport from "@/pages/SponsorReport";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-// Role groups for cleaner route definitions
 const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
 const STAFF_ROLES = ['admin', 'organizer', 'staff'] as const;
 const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
@@ -62,17 +58,21 @@ const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', '
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Landing page — shows HomePage or redirects to dashboard */}
       <Route path="/" element={<Index />} />
-      <Route path="/home" element={<HomePage />} />
       
       {/* Auth routes */}
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/register" element={<Register />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/login" element={<Navigate to="/auth/login" replace />} />
       
-      {/* Public product/info pages */}
+      {/* Legacy redirects */}
+      <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+      <Route path="/home" element={<Navigate to="/" replace />} />
+      <Route path="/enhanced-dashboard" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/advanced-guests" element={<Navigate to="/guests" replace />} />
+      
+      {/* Public pages */}
       <Route path="/products" element={<Products />} />
       <Route path="/products/:productId" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
@@ -86,21 +86,19 @@ const AppRoutes = () => {
       <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
       <Route path="/access-denied" element={<AccessDenied />} />
       
-      {/* Public accreditation routes */}
+      {/* Public accreditation */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
       <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
       <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
 
-      {/* === ORGANIZER & ADMIN routes === */}
+      {/* Organizer & Admin routes */}
       <Route element={
         <ProtectedRoute allowedRoles={[...ORGANIZER_ROLES]}>
           <MainLayout />
         </ProtectedRoute>
       }>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/enhanced-dashboard" element={<EnhancedDashboard />} />
         <Route path="/guests" element={<Guests />} />
-        <Route path="/advanced-guests" element={<AdvancedGuests />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:eventId" element={<EventDetails />} />
         <Route path="/scanner" element={<Scanner />} />
@@ -117,7 +115,7 @@ const AppRoutes = () => {
         <Route path="/sponsor-report" element={<SponsorReport />} />
       </Route>
 
-      {/* === ALL AUTHENTICATED users routes === */}
+      {/* All authenticated users */}
       <Route element={
         <ProtectedRoute allowedRoles={[...ALL_AUTHENTICATED]}>
           <MainLayout />
@@ -134,7 +132,7 @@ const AppRoutes = () => {
         <Route path="/ai-support" element={<AIChatSupport />} />
       </Route>
 
-      {/* Full-screen protected routes — organizer/admin/staff */}
+      {/* Full-screen protected */}
       <Route path="/kiosk" element={
         <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
           <SelfCheckInKiosk />
