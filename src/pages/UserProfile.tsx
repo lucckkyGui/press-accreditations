@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
 import PurchasedTickets from "@/components/profile/PurchasedTickets";
 import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEditForm";
+import SubscriptionManagement from "@/components/profile/SubscriptionManagement";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
