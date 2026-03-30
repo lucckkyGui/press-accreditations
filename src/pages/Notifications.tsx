@@ -10,6 +10,7 @@ import { Guest, Event } from "@/types";
 import { toast } from "sonner";
 
 const Notifications = () => {
+  usePageTitle("Powiadomienia");
   const { eventId } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);

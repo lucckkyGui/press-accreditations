@@ -15,6 +15,7 @@ import ExportSettings from "@/components/settings/ExportSettings";
 import ApiKeyManagement from "@/components/settings/ApiKeyManagement";
 
 const Settings = () => {
+  usePageTitle("Ustawienia");
   const handleSaveOrganizationSettings = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Ustawienia organizacji zostały zapisane");

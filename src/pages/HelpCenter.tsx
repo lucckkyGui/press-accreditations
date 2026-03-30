@@ -63,6 +63,7 @@ const categories = [
 ];
 
 const HelpCenter = () => {
+  usePageTitle("Centrum Pomocy");
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 

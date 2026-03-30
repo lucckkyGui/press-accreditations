@@ -17,6 +17,7 @@ import { NotificationPermission } from "@/components/notifications/NotificationP
 import { InstallPWA } from "@/components/common/InstallPWA";
 
 const UserProfile = () => {
+  usePageTitle("Profil");
   const { user, profile, isOrganizer, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
