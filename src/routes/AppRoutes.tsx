@@ -84,6 +84,7 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/pitch" element={<PitchDeck />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
       
       {/* Accreditation public routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
