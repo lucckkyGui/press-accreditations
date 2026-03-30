@@ -27,6 +27,7 @@ const Dashboard = () => {
   if (isOrganizer || isAdmin) {
     return (
       <>
+        <TrialBanner />
         <OnboardingWizard />
         <Tabs value={enhancedTab} onValueChange={setEnhancedTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
