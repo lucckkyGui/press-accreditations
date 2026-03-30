@@ -106,6 +106,16 @@ const EventCard = ({
           >
             <Edit className="h-3.5 w-3.5 mr-1" /> Edytuj
           </Button>
+          {onDuplicate && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onDuplicate(event)} 
+              className="rounded-xl text-muted-foreground hover:text-secondary hover:bg-secondary/5 transition-colors h-8 px-3 text-xs"
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" /> Duplikuj
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="sm" 
