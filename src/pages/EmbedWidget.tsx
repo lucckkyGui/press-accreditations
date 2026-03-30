@@ -72,6 +72,12 @@ const PreviewForm = ({
               <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
             </div>
           ))}
+        {showTicketType && (
+          <div className="space-y-0.5">
+            <div className={`${textSize} text-muted-foreground`}>Typ biletu *</div>
+            <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
+          </div>
+        )}
       </div>
       <div
         className={`${compact ? "h-8 text-xs" : "h-10 text-sm"} rounded-md flex items-center justify-center font-medium text-white`}
