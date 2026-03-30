@@ -68,6 +68,7 @@ const PricingSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { startCheckout, isLoading } = useCheckout();
+  const [showComparison, setShowComparison] = useState(false);
 
   const handleSelectPlan = (priceId: string) => {
     if (!user) {
