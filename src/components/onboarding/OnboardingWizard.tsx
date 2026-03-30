@@ -105,9 +105,14 @@ const OnboardingWizard = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden [&>button]:hidden">
+      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden [&>button]:hidden rounded-2xl border-0 shadow-2xl">
         {/* Progress bar */}
-        <Progress value={progress} className="h-1 rounded-none" />
+        <div className="relative">
+          <Progress value={progress} className="h-1.5 rounded-none" />
+          <span className="absolute right-3 top-3 text-xs text-muted-foreground font-medium">
+            {currentStep + 1}/{steps.length}
+          </span>
+        </div>
 
         <div className="p-8">
           {/* Close button */}
