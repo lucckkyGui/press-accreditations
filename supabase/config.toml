@@ -29,3 +29,9 @@ verify_jwt = false
 
 [functions.waitlist-manage]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.check-resource-alerts]
+verify_jwt = false
