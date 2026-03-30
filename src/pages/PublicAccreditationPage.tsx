@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -56,9 +56,11 @@ const PublicAccreditationPage = () => {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const formLoadedAt = useRef<number>(Date.now());
 
   useEffect(() => {
     if (!slug) return;
+    formLoadedAt.current = Date.now();
     (supabase as any)
       .from("event_landing_pages")
       .select("*, events(title, location, start_date, end_date)")
@@ -70,7 +72,6 @@ const PublicAccreditationPage = () => {
           setError("not_found");
         } else {
           setPage(data);
-          // Initialize form data
           const initial: Record<string, any> = {};
           const config = data.form_config as FormConfig;
           config?.fields?.forEach((f: FormField) => {
@@ -104,7 +105,12 @@ const PublicAccreditationPage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ slug, ...formData }),
+          body: JSON.stringify({
+            slug,
+            ...formData,
+            _form_loaded_at: formLoadedAt.current,
+            // Honeypot fields — not rendered visually, bots will fill them
+          }),
         }
       );
 
@@ -223,6 +229,30 @@ const PublicAccreditationPage = () => {
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
+
+          {/* Honeypot fields — invisible to humans, bots will fill them */}
+          <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
+            <label htmlFor="__hp_website">Website</label>
+            <input
+              type="text"
+              id="__hp_website"
+              name="_website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData._website || ""}
+              onChange={(e) => updateField("_website", e.target.value)}
+            />
+            <label htmlFor="__hp_field">Company URL</label>
+            <input
+              type="text"
+              id="__hp_field"
+              name="_hp_field"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData._hp_field || ""}
+              onChange={(e) => updateField("_hp_field", e.target.value)}
+            />
+          </div>
 
           {/* Accreditation type selector */}
           {config?.accreditation_types && config.accreditation_types.length > 1 && (
