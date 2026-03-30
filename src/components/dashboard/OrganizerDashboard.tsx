@@ -353,7 +353,7 @@ const OrganizerDashboard = () => {
             <CardContent>
               {(() => {
                 const byType = guestsStats?.byTicketType || {};
-                const entries = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+                const entries = Object.entries(byType).sort((a, b) => (b[1] as number) - (a[1] as number));
                 const total = guestsStats?.total || 0;
 
                 if (entries.length === 0) {
