@@ -297,7 +297,7 @@ const OrganizerDashboard = () => {
                 <CardDescription className="mt-1">Najczęściej używane funkcje</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { icon: Plus, label: "Dodaj wydarzenie", path: "/events" },
                     { icon: UserPlus, label: "Dodaj gości", path: "/guests" },
