@@ -45,6 +45,11 @@ import PostEventReport from "@/pages/PostEventReport";
 import PitchDeck from "@/pages/PitchDeck";
 import NotFound from "@/pages/NotFound";
 import Onboarding from "@/pages/Onboarding";
+import EmbedWidget from "@/pages/EmbedWidget";
+import EmbedRegisterForm from "@/pages/EmbedRegisterForm";
+import Waitlist from "@/pages/Waitlist";
+import AIChatSupport from "@/pages/AIChatSupport";
+import SponsorReport from "@/pages/SponsorReport";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -79,6 +84,7 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/pitch" element={<PitchDeck />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
       
       {/* Accreditation public routes */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
@@ -108,6 +114,10 @@ const AppRoutes = () => {
         <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
         <Route path="/post-event-report" element={<PostEventReport />} />
+        <Route path="/embed-widget" element={<EmbedWidget />} />
+        <Route path="/waitlist" element={<Waitlist />} />
+        <Route path="/ai-support" element={<AIChatSupport />} />
+        <Route path="/sponsor-report" element={<SponsorReport />} />
       </Route>
 
       {/* Full-screen routes */}
