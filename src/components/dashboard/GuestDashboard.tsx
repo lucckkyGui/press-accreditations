@@ -199,8 +199,8 @@ const GuestDashboard = () => {
                   <div key={accreditation.id} className="p-4 rounded-lg bg-card border shadow-sm">
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4">
-                        <div className="p-3 bg-green-100 rounded-lg">
-                          <QrCode className="h-8 w-8 text-green-600" />
+                        <div className="p-3 bg-success/15 rounded-lg">
+                          <QrCode className="h-8 w-8 text-success" />
                         </div>
                         <div>
                           <h4 className="font-semibold">{accreditation.events?.title}</h4>
