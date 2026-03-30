@@ -50,10 +50,12 @@ const OrganizerDashboard = () => {
   });
 
   const { data: guestsStats } = useQuery({
-    queryKey: ['organizerGuestsStats', user?.id],
+    queryKey: ['organizerGuestsStats', user?.id, statsEventFilter],
     queryFn: async () => {
       if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
-      const eventIds = eventsData.map(e => e.id);
+      const eventIds = statsEventFilter === 'all'
+        ? eventsData.map(e => e.id)
+        : [statsEventFilter];
       const { data, error } = await supabase
         .from('guests')
         .select('id, status, checked_in_at, ticket_type')
