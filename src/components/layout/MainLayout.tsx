@@ -29,7 +29,9 @@ const MainLayout: React.FC = () => {
                   <LoadingSpinner />
                 </div>
               }>
-                <Outlet />
+                <PageTransition>
+                  <Outlet />
+                </PageTransition>
               </Suspense>
             </div>
           </main>
