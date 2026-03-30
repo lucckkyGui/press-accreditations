@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Guest, Event } from "@/types";
 import { GuestsQueryParams } from "@/types/guest/guest";
 import { guestService } from "@/services/guestService";
@@ -9,22 +9,28 @@ import { useGuestsDialogs } from "@/hooks/guests/useGuestsDialogs";
 import { useGuestsActions } from "@/hooks/guests/useGuestsActions";
 import { useGuestsSelection } from "@/hooks/guests/useGuestsSelection";
 
+const PAGE_SIZE = 50;
+
 export const useGuestsPage = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const filters = useGuestsFilters();
   const dialogs = useGuestsDialogs();
   const selection = useGuestsSelection();
 
-  const fetchGuests = useCallback(async () => {
+  // Reset and fetch first page when filters or event change
+  const fetchFirstPage = useCallback(async () => {
     if (!selectedEvent) return;
 
     try {
       const params: GuestsQueryParams = {
-        page: filters.page,
-        pageSize: filters.pageSize,
+        page: 0,
+        pageSize: PAGE_SIZE,
         search: filters.search,
         status: filters.statusFilter,
         ticketType: filters.ticketTypeFilter,
@@ -35,7 +41,9 @@ export const useGuestsPage = () => {
       const result = await guestService.getGuests(params);
       if (result.data) {
         setGuests(result.data);
-        setTotal(result.pagination?.total || 0);
+        setTotal(result.pagination?.total || result.data.length);
+        setPage(0);
+        setHasMore(result.data.length >= PAGE_SIZE);
       } else if (result.error) {
         toast.error(result.error.message);
       }
@@ -43,15 +51,47 @@ export const useGuestsPage = () => {
       console.error('Error fetching guests:', error);
       toast.error('Wystąpił błąd podczas pobierania gości');
     }
-  }, [filters.page, filters.pageSize, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);
+  }, [filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);
 
-  const actions = useGuestsActions(fetchGuests);
+  const actions = useGuestsActions(fetchFirstPage);
 
   useEffect(() => {
     if (selectedEvent) {
-      fetchGuests();
+      fetchFirstPage();
     }
-  }, [fetchGuests, selectedEvent]);
+  }, [fetchFirstPage, selectedEvent]);
+
+  // Load next page (called by infinite scroll sentinel)
+  const loadMore = useCallback(async () => {
+    if (!selectedEvent || isLoadingMore || !hasMore) return;
+
+    const nextPage = page + 1;
+    setIsLoadingMore(true);
+
+    try {
+      const params: GuestsQueryParams = {
+        page: nextPage,
+        pageSize: PAGE_SIZE,
+        search: filters.search,
+        status: filters.statusFilter,
+        ticketType: filters.ticketTypeFilter,
+        zone: filters.zoneFilter as any,
+        eventId: selectedEvent.id
+      };
+
+      const result = await guestService.getGuests(params);
+      if (result.data) {
+        setGuests(prev => [...prev, ...result.data!]);
+        setTotal(result.pagination?.total || 0);
+        setPage(nextPage);
+        setHasMore(result.data.length >= PAGE_SIZE);
+      }
+    } catch (error) {
+      console.error('Error loading more guests:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [selectedEvent, isLoadingMore, hasMore, page, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter]);
 
   const handleCreateGuest = () => {
     dialogs.openFormDialog();
@@ -72,7 +112,7 @@ export const useGuestsPage = () => {
   const handleEmailSent = () => {
     dialogs.closeEmailDialog();
     selection.clearSelection();
-    fetchGuests();
+    fetchFirstPage();
   };
 
   const handleSaveGuest = async (guest: Partial<Guest> & { eventId: string }) => {
@@ -104,6 +144,8 @@ export const useGuestsPage = () => {
     // State
     guests,
     total,
+    hasMore,
+    isLoadingMore,
     selectedEvent,
     
     // Filters
@@ -122,6 +164,7 @@ export const useGuestsPage = () => {
     setSelectedEvent,
     
     // Handlers
+    loadMore,
     handleCreateGuest,
     handleEditGuest,
     handleDeleteGuest: actions.handleDeleteGuest,
