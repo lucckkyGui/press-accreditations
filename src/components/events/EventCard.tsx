@@ -23,6 +23,7 @@ const EventCard = ({
   guestCount = 0, 
   onView, 
   onEdit,
+  onDuplicate,
   onViewDetails,
   onGoToNotifications
 }: EventCardProps) => {
