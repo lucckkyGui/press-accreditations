@@ -321,6 +321,7 @@ const EmbedWidget = () => {
                         selectedEvent={selectedEvent}
                         showCompany={showCompany}
                         showPhone={showPhone}
+                        showTicketType={showTicketType}
                         className="w-full"
                         compact
                       />
