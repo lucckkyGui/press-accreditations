@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   Calendar, CheckCircle, QrCode, Users, Database, AlertTriangle,
   TrendingUp, FileText, Activity, CreditCard, Crown,
-  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3, Ticket
+  Plus, Eye, Settings, UserPlus, ArrowRight, Sparkles, BarChart3, Ticket, HardDrive
 } from "lucide-react";
 import { TICKET_TYPE_LABELS, GuestTicketType } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/StatCard";
 import DatabaseSchema from "@/components/database/DatabaseSchema";
+import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +29,7 @@ import { STRIPE_TIERS } from "@/config/stripe";
 const OrganizerDashboard = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "events" | "schema">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "events" | "resources" | "schema">("overview");
   const [statsEventFilter, setStatsEventFilter] = useState<string>("all");
   const { isOnline, wasOffline } = useOnlineStatus();
   const { subscribed, tier, subscriptionEnd, isLoading: subLoading } = useSubscription();
@@ -240,6 +241,10 @@ const OrganizerDashboard = () => {
           <TabsTrigger value="schema" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
             <Database className="h-4 w-4" />
             Baza danych
+          </TabsTrigger>
+          <TabsTrigger value="resources" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <HardDrive className="h-4 w-4" />
+            Zasoby
           </TabsTrigger>
         </TabsList>
 
@@ -491,6 +496,10 @@ const OrganizerDashboard = () => {
 
         <TabsContent value="schema">
           <DatabaseSchema />
+        </TabsContent>
+
+        <TabsContent value="resources">
+          <ResourceMonitor />
         </TabsContent>
       </Tabs>
     </div>
