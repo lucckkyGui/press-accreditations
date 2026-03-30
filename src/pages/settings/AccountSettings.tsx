@@ -61,7 +61,7 @@ const AccountSettings = () => {
       // TODO: Implement account deletion with Supabase
       toast.success("Konto zostało usunięte");
       signOut();
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       toast.error("Błąd podczas usuwania konta");
     }

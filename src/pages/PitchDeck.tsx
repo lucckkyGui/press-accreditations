@@ -65,7 +65,7 @@ const modules = [
     title: 'AI & Bezpieczeństwo',
     desc: 'Rozpoznawanie twarzy, detekcja oszustw, weryfikacja biometryczna',
     icon: Brain,
-    demoUrl: '/advanced-guests',
+    demoUrl: '/guests',
   },
 ];
 
