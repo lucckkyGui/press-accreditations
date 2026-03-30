@@ -13,12 +13,21 @@ interface Message {
   content: string;
 }
 
-const SUGGESTED_QUESTIONS = [
+const ORGANIZER_QUESTIONS = [
   "Jak dodać gości do wydarzenia?",
   "Jak działa skaner QR kodów?",
   "Jak wysłać zaproszenia e-mail?",
   "Jak skonfigurować strefy dostępu?",
   "Jak wygenerować raport po wydarzeniu?",
+  "Jak działa waitlista?",
+];
+
+const GUEST_QUESTIONS = [
+  "Jak sprawdzić status mojego zaproszenia?",
+  "Mój kod QR nie działa — co robić?",
+  "Jak zarejestrować się na wydarzenie?",
+  "Gdzie znajdę informacje o wydarzeniu?",
+  "Jestem na liście oczekujących — co dalej?",
 ];
 
 const AIChatSupport = () => {
