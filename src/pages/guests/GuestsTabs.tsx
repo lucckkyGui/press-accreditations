@@ -12,9 +12,9 @@ import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 interface GuestsTabsProps {
   guests: any[];
   total: number;
-  hasMore: boolean;
-  isLoadingMore: boolean;
-  onLoadMore: () => void;
+  page: number;
+  pageSize: number;
+  handlePageChange: (page: number) => void;
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
@@ -66,9 +66,9 @@ const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {
         <GuestsListTab
           guests={props.guests}
           total={props.total}
-          hasMore={props.hasMore}
-          isLoadingMore={props.isLoadingMore}
-          onLoadMore={props.onLoadMore}
+          page={props.page}
+          pageSize={props.pageSize}
+          onPageChange={props.handlePageChange}
           search={props.search}
           statusFilter={props.statusFilter}
           ticketTypeFilter={props.ticketTypeFilter}

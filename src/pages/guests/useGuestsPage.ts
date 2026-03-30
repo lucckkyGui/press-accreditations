@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Guest, Event } from "@/types";
 import { GuestsQueryParams } from "@/types/guest/guest";
 import { guestService } from "@/services/guestService";
@@ -15,21 +15,20 @@ export const useGuestsPage = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const filters = useGuestsFilters();
   const dialogs = useGuestsDialogs();
   const selection = useGuestsSelection();
 
-  // Reset and fetch first page when filters or event change
-  const fetchFirstPage = useCallback(async () => {
+  const fetchGuests = useCallback(async (targetPage?: number) => {
     if (!selectedEvent) return;
+
+    const p = targetPage ?? page;
 
     try {
       const params: GuestsQueryParams = {
-        page: 0,
+        page: p,
         pageSize: PAGE_SIZE,
         search: filters.search,
         status: filters.statusFilter,
@@ -42,8 +41,6 @@ export const useGuestsPage = () => {
       if (result.data) {
         setGuests(result.data);
         setTotal(result.pagination?.total || result.data.length);
-        setPage(0);
-        setHasMore(result.data.length >= PAGE_SIZE);
       } else if (result.error) {
         toast.error(result.error.message);
       }
@@ -51,47 +48,24 @@ export const useGuestsPage = () => {
       console.error('Error fetching guests:', error);
       toast.error('Wystąpił błąd podczas pobierania gości');
     }
-  }, [filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);
+  }, [page, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);
 
-  const actions = useGuestsActions(fetchFirstPage);
+  const actions = useGuestsActions(fetchGuests);
 
   useEffect(() => {
     if (selectedEvent) {
-      fetchFirstPage();
+      fetchGuests();
     }
-  }, [fetchFirstPage, selectedEvent]);
+  }, [fetchGuests, selectedEvent]);
 
-  // Load next page (called by infinite scroll sentinel)
-  const loadMore = useCallback(async () => {
-    if (!selectedEvent || isLoadingMore || !hasMore) return;
+  // Reset to page 0 when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter]);
 
-    const nextPage = page + 1;
-    setIsLoadingMore(true);
-
-    try {
-      const params: GuestsQueryParams = {
-        page: nextPage,
-        pageSize: PAGE_SIZE,
-        search: filters.search,
-        status: filters.statusFilter,
-        ticketType: filters.ticketTypeFilter,
-        zone: filters.zoneFilter as any,
-        eventId: selectedEvent.id
-      };
-
-      const result = await guestService.getGuests(params);
-      if (result.data) {
-        setGuests(prev => [...prev, ...result.data!]);
-        setTotal(result.pagination?.total || 0);
-        setPage(nextPage);
-        setHasMore(result.data.length >= PAGE_SIZE);
-      }
-    } catch (error) {
-      console.error('Error loading more guests:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [selectedEvent, isLoadingMore, hasMore, page, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter]);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const handleCreateGuest = () => {
     dialogs.openFormDialog();
@@ -112,7 +86,7 @@ export const useGuestsPage = () => {
   const handleEmailSent = () => {
     dialogs.closeEmailDialog();
     selection.clearSelection();
-    fetchFirstPage();
+    fetchGuests();
   };
 
   const handleSaveGuest = async (guest: Partial<Guest> & { eventId: string }) => {
@@ -141,30 +115,20 @@ export const useGuestsPage = () => {
   };
 
   return {
-    // State
     guests,
     total,
-    hasMore,
-    isLoadingMore,
+    page,
+    pageSize: PAGE_SIZE,
     selectedEvent,
-    
-    // Filters
+
     ...filters,
-    
-    // Dialogs
     ...dialogs,
-    
-    // Selection
     ...selection,
-    
-    // Loading
+
     isLoading: actions.isLoading,
-    
-    // Setters
+
     setSelectedEvent,
-    
-    // Handlers
-    loadMore,
+    handlePageChange,
     handleCreateGuest,
     handleEditGuest,
     handleDeleteGuest: actions.handleDeleteGuest,

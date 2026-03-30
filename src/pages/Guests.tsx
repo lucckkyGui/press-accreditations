@@ -111,7 +111,7 @@ const Guests = () => {
             guestCount={guestsPageProps.total}
             guests={guestsPageProps.guests}
           />
-          <GuestsTabs {...guestsPageProps} onLoadMore={guestsPageProps.loadMore} />
+          <GuestsTabs {...guestsPageProps} />
           <GuestsDialogs {...guestsPageProps} />
         </>
       )}
