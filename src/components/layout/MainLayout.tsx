@@ -17,7 +17,7 @@ const MainLayout: React.FC = () => {
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 p-3 md:p-6 lg:p-8 overflow-auto" role="main">
+          <main id="main-content" className="flex-1 p-3 md:p-6 lg:p-8 overflow-auto" role="main">
             <div className="max-w-7xl mx-auto w-full animate-fade-in">
               <Suspense fallback={
                 <div className="h-64 flex items-center justify-center">

@@ -6,7 +6,7 @@ const Footer = () => {
   const { t } = useI18n();
   
   return (
-    <footer className="py-3 px-6 text-center text-sm text-muted-foreground border-t">
+    <footer role="contentinfo" className="py-3 px-6 text-center text-sm text-muted-foreground border-t">
       <p>&copy; {new Date().getFullYear()} PressAccreditations. {t('components.footer.rightsReserved')}</p>
     </footer>
   );
