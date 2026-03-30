@@ -48,6 +48,8 @@ import EmbedRegisterForm from "@/pages/EmbedRegisterForm";
 import Waitlist from "@/pages/Waitlist";
 import AIChatSupport from "@/pages/AIChatSupport";
 import SponsorReport from "@/pages/SponsorReport";
+import LandingPageBuilder from "@/pages/LandingPageBuilder";
+import PublicAccreditationPage from "@/pages/PublicAccreditationPage";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -85,6 +87,8 @@ const AppRoutes = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
       <Route path="/access-denied" element={<AccessDenied />} />
+      {/* Public accreditation landing page - must be before catch-all */}
+      <Route path="/:slug" element={<PublicAccreditationPage />} />
       
       {/* Public accreditation */}
       <Route path="/accreditation-categories" element={<AccreditationCategories />} />
@@ -113,6 +117,7 @@ const AppRoutes = () => {
         <Route path="/embed-widget" element={<EmbedWidget />} />
         <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/sponsor-report" element={<SponsorReport />} />
+        <Route path="/landing-page/:eventId" element={<LandingPageBuilder />} />
       </Route>
 
       {/* All authenticated users */}

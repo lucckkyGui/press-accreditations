@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, MapPin, Users, Bell } from "lucide-react";
+import { Calendar, MapPin, Users, Bell, Globe } from "lucide-react";
 import { Event, Guest } from "@/types";
 import GuestTable from "@/components/guests/GuestTable";
 import { Badge } from "@/components/ui/badge";
@@ -172,6 +172,10 @@ const EventDetails = () => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => navigate(`/landing-page/${eventId}`)}>
+            <Globe className="mr-2 h-4 w-4" />
+            Strona akredytacji
+          </Button>
           <Button variant="outline" onClick={() => navigate('/invitation-editor')}>
             Edytuj zaproszenia
           </Button>
