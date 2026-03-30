@@ -1,6 +1,6 @@
 import { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = 'admin' | 'organizer' | 'moderator' | 'user' | 'guest';
+export type AppRole = 'admin' | 'organizer' | 'moderator' | 'staff' | 'user' | 'guest';
 
 export interface AuthData {
   first_name?: string;
