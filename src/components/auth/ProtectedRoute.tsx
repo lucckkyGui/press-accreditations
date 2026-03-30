@@ -1,31 +1,38 @@
-
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/auth";
+import { AppRole } from "@/hooks/auth/types";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
+  allowedRoles?: AppRole[];
 }
 
-const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }: ProtectedRouteProps) => {
   const location = useLocation();
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, roles } = useAuth();
 
-  // If page is still loading, show spinner
   if (isLoading) {
-    return <div className="h-screen w-full flex items-center justify-center">
-      <LoadingSpinner />
-    </div>;
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  // If authentication is required and user is not logged in, redirect to login
   if (requireAuth && !isAuthenticated) {
-    // Pass the current location to redirect back after login
     return <Navigate to="/auth/login" state={{ from: location.pathname }} />;
   }
 
-  // Otherwise, render the content
+  // If allowedRoles specified, check user has at least one
+  if (allowedRoles && allowedRoles.length > 0) {
+    const hasAccess = roles.some(role => allowedRoles.includes(role));
+    if (!hasAccess) {
+      return <Navigate to="/access-denied" replace />;
+    }
+  }
+
   return <>{children}</>;
 };
 
