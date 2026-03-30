@@ -263,6 +263,7 @@ const Events = () => {
               event={event}
               onView={handleViewEvent}
               onEdit={handleEditEvent}
+              onDuplicate={handleDuplicateEvent}
               onViewDetails={(eventId) => navigate(`/events/${eventId}`)}
               onGoToNotifications={handleGoToNotifications}
             />
