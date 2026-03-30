@@ -52,29 +52,34 @@ const OrganizerDashboard = () => {
     enabled: !!user?.id,
   });
 
-  const { data: guestsStats } = useQuery({
-    queryKey: ['organizerGuestsStats', user?.id, statsEventFilter],
+  const { data: guestsData } = useQuery({
+    queryKey: ['organizerGuestsData', user?.id, statsEventFilter],
     queryFn: async () => {
-      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
+      if (!user?.id || !eventsData?.length) return [];
       const eventIds = statsEventFilter === 'all'
         ? eventsData.map(e => e.id)
         : [statsEventFilter];
       const { data, error } = await supabase
         .from('guests')
-        .select('id, status, checked_in_at, ticket_type')
+        .select('id, status, checked_in_at, ticket_type, created_at')
         .in('event_id', eventIds);
       if (error) throw error;
-      const total = data?.length || 0;
-      const checkedIn = data?.filter(g => g.checked_in_at)?.length || 0;
-      const byTicketType: Record<string, number> = {};
-      data?.forEach(g => {
-        const tt = g.ticket_type || 'uczestnik';
-        byTicketType[tt] = (byTicketType[tt] || 0) + 1;
-      });
-      return { total, checkedIn, byTicketType };
+      return data || [];
     },
     enabled: !!eventsData?.length,
   });
+
+  const guestsStats = useMemo(() => {
+    if (!guestsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
+    const total = guestsData.length;
+    const checkedIn = guestsData.filter(g => g.checked_in_at)?.length || 0;
+    const byTicketType: Record<string, number> = {};
+    guestsData.forEach(g => {
+      const tt = g.ticket_type || 'uczestnik';
+      byTicketType[tt] = (byTicketType[tt] || 0) + 1;
+    });
+    return { total, checkedIn, byTicketType };
+  }, [guestsData]);
 
   const { data: accreditationRequests } = useQuery({
     queryKey: ['pendingAccreditations', user?.id],
