@@ -128,9 +128,10 @@ const UserProfile = () => {
       <main className="flex-1 container py-8 max-w-4xl">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="tickets">My Tickets ({tickets.length})</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="profile">Profil</TabsTrigger>
+            <TabsTrigger value="subscription">Subskrypcja</TabsTrigger>
+            <TabsTrigger value="tickets">Bilety ({tickets.length})</TabsTrigger>
+            <TabsTrigger value="notifications">Powiadomienia</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
