@@ -13,6 +13,7 @@ interface EventCardProps {
   guestCount?: number;
   onView: (event: Event) => void;
   onEdit: (event: Event) => void;
+  onDuplicate?: (event: Event) => void;
   onViewDetails?: (eventId: string) => void;
   onGoToNotifications?: (eventId: string) => void;
 }
