@@ -114,6 +114,10 @@ const AppRoutes = () => {
         <Route path="/wristbands" element={<WristbandManagement />} />
         <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
         <Route path="/post-event-report" element={<PostEventReport />} />
+        <Route path="/embed-widget" element={<EmbedWidget />} />
+        <Route path="/waitlist" element={<Waitlist />} />
+        <Route path="/ai-support" element={<AIChatSupport />} />
+        <Route path="/sponsor-report" element={<SponsorReport />} />
       </Route>
 
       {/* Full-screen routes */}
