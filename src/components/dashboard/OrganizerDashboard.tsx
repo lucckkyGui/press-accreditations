@@ -374,7 +374,8 @@ const OrganizerDashboard = () => {
                 return (
                   <div className="space-y-3">
                     {entries.map(([type, count], i) => {
-                      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                      const numCount = count as number;
+                      const pct = total > 0 ? Math.round((numCount / total) * 100) : 0;
                       const label = TICKET_TYPE_LABELS[type as GuestTicketType] || type;
                       return (
                         <div key={type} className="space-y-1.5">
