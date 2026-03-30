@@ -19,6 +19,10 @@ const coreNavigation = [
   { title: "Wydarzenia", url: "/events", icon: Calendar },
   { title: "Goście", url: "/guests", icon: Users },
   { title: "Skaner QR", url: "/scanner", icon: QrCode },
+  { title: "Widget embed", url: "/embed-widget", icon: Code },
+  { title: "Waitlista", url: "/waitlist", icon: Clock },
+  { title: "AI Support", url: "/ai-support", icon: Bot },
+  { title: "Raport sponsorski", url: "/sponsor-report", icon: FileText },
   { title: "Ustawienia", url: "/settings", icon: Settings },
 ];
 
