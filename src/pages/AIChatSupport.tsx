@@ -13,12 +13,21 @@ interface Message {
   content: string;
 }
 
-const SUGGESTED_QUESTIONS = [
+const ORGANIZER_QUESTIONS = [
   "Jak dodać gości do wydarzenia?",
   "Jak działa skaner QR kodów?",
   "Jak wysłać zaproszenia e-mail?",
   "Jak skonfigurować strefy dostępu?",
   "Jak wygenerować raport po wydarzeniu?",
+  "Jak działa waitlista?",
+];
+
+const GUEST_QUESTIONS = [
+  "Jak sprawdzić status mojego zaproszenia?",
+  "Mój kod QR nie działa — co robić?",
+  "Jak zarejestrować się na wydarzenie?",
+  "Gdzie znajdę informacje o wydarzeniu?",
+  "Jestem na liście oczekujących — co dalej?",
 ];
 
 const AIChatSupport = () => {
@@ -116,6 +125,9 @@ const AIChatSupport = () => {
     }
   };
 
+  const [activeTab, setActiveTab] = useState<"organizer" | "guest">("organizer");
+  const suggestedQuestions = activeTab === "organizer" ? ORGANIZER_QUESTIONS : GUEST_QUESTIONS;
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,12 +136,28 @@ const AIChatSupport = () => {
           AI Support Chat
         </h1>
         <p className="text-muted-foreground mt-1">
-          Asystent AI odpowie na pytania dotyczące platformy akredytacyjnej
+          Asystent AI dla organizatorów i gości — powered by Lovable AI
         </p>
       </div>
 
       <Card className="max-w-3xl">
         <CardContent className="p-0">
+          {/* Role tabs */}
+          <div className="flex border-b">
+            <button
+              onClick={() => setActiveTab("organizer")}
+              className={`flex-1 py-2.5 text-sm font-medium transition-colors ${activeTab === "organizer" ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              🎯 Organizator
+            </button>
+            <button
+              onClick={() => setActiveTab("guest")}
+              className={`flex-1 py-2.5 text-sm font-medium transition-colors ${activeTab === "guest" ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              👤 Gość
+            </button>
+          </div>
+
           {/* Messages */}
           <ScrollArea className="h-[500px] p-4" ref={scrollRef}>
             {messages.length === 0 ? (
@@ -140,11 +168,13 @@ const AIChatSupport = () => {
                 <div className="text-center space-y-2">
                   <h3 className="font-semibold text-foreground">Jak mogę Ci pomóc?</h3>
                   <p className="text-sm text-muted-foreground max-w-sm">
-                    Zadaj pytanie o zarządzanie wydarzeniami, gośćmi, skanowanie QR i więcej.
+                    {activeTab === "organizer"
+                      ? "Zadaj pytanie o zarządzanie wydarzeniami, gośćmi, skanowanie QR i więcej."
+                      : "Zapytaj o swoje zaproszenie, bilet, rejestrację lub status akredytacji."}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center max-w-md">
-                  {SUGGESTED_QUESTIONS.map((q) => (
+                  {suggestedQuestions.map((q) => (
                     <Badge
                       key={q}
                       variant="outline"
