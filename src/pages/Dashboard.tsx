@@ -28,22 +28,24 @@ const Dashboard = () => {
       <>
         <OnboardingWizard />
         <Tabs value={enhancedTab} onValueChange={setEnhancedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Przegląd
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
+            <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <BarChart3 className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Przegląd</span>
+              <span className="sm:hidden">Panel</span>
             </TabsTrigger>
-            <TabsTrigger value="realtime" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Na żywo
+            <TabsTrigger value="realtime" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <BarChart3 className="h-4 w-4 shrink-0" />
+              <span>Na żywo</span>
             </TabsTrigger>
-            <TabsTrigger value="invitations" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Zaproszenia
+            <TabsTrigger value="invitations" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <Zap className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Zaproszenia</span>
+              <span className="sm:hidden">Zapr.</span>
             </TabsTrigger>
-            <TabsTrigger value="offline" className="flex items-center gap-2">
-              <Smartphone className="h-4 w-4" />
-              Offline
+            <TabsTrigger value="offline" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <Smartphone className="h-4 w-4 shrink-0" />
+              <span>Offline</span>
             </TabsTrigger>
           </TabsList>
 

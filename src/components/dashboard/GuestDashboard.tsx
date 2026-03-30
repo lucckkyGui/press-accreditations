@@ -94,9 +94,9 @@ const GuestDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Oczekująca</Badge>;
+        return <Badge variant="secondary" className="bg-warning/15 text-warning border-0">Oczekująca</Badge>;
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Zaakceptowana</Badge>;
+        return <Badge variant="default" className="bg-success/15 text-success border-0">Zaakceptowana</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Odrzucona</Badge>;
       default:
@@ -137,7 +137,7 @@ const GuestDashboard = () => {
       </div>
 
       {/* Quick stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -152,11 +152,11 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
+        <Card className="bg-gradient-to-br from-info/10 to-info/5 border-info/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/20 rounded-full">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-info/20 rounded-full">
+                <Calendar className="h-6 w-6 text-info" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{upcomingAccreditations.length}</p>
@@ -166,11 +166,11 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 border-amber-500/20">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-amber-500/20 rounded-full">
-                <Clock className="h-6 w-6 text-amber-600" />
+              <div className="p-3 bg-warning/20 rounded-full">
+                <Clock className="h-6 w-6 text-warning" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{pendingRequests.length}</p>
@@ -186,21 +186,21 @@ const GuestDashboard = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Current/Active accreditations */}
           {activeAccreditations.length > 0 && (
-            <Card className="border-green-200 bg-green-50/30">
+            <Card className="border-success/20 bg-success/5">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-                  <CardTitle className="text-lg text-green-800">Aktywne akredytacje</CardTitle>
+                  <div className="h-3 w-3 rounded-full bg-success animate-pulse" />
+                  <CardTitle className="text-lg text-success">Aktywne akredytacje</CardTitle>
                 </div>
                 <CardDescription>Twoje obecnie aktywne przepustki</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {activeAccreditations.map((accreditation: any) => (
-                  <div key={accreditation.id} className="p-4 rounded-lg bg-white border shadow-sm">
+                  <div key={accreditation.id} className="p-4 rounded-lg bg-card border shadow-sm">
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4">
-                        <div className="p-3 bg-green-100 rounded-lg">
-                          <QrCode className="h-8 w-8 text-green-600" />
+                        <div className="p-3 bg-success/15 rounded-lg">
+                          <QrCode className="h-8 w-8 text-success" />
                         </div>
                         <div>
                           <h4 className="font-semibold">{accreditation.events?.title}</h4>
@@ -211,7 +211,7 @@ const GuestDashboard = () => {
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline">{accreditation.accreditation_types?.name}</Badge>
                             {accreditation.is_checked_in && (
-                              <Badge className="bg-green-100 text-green-800">
+                              <Badge className="bg-success/15 text-success border-0">
                                 <CheckCircle className="h-3 w-3 mr-1" />
                                 Zameldowany
                               </Badge>

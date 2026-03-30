@@ -229,22 +229,22 @@ const OrganizerDashboard = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-        <TabsList className="mb-6 bg-primary/5 p-1 rounded-xl border border-border">
-          <TabsTrigger value="overview" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
-            <BarChart3 className="h-4 w-4" />
-            Przegląd
+        <TabsList className="mb-6 bg-primary/5 p-1 rounded-xl border border-border grid grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="overview" className="gap-1.5 rounded-lg text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <BarChart3 className="h-4 w-4 shrink-0" />
+            <span className="truncate">Przegląd</span>
           </TabsTrigger>
-          <TabsTrigger value="events" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
-            <Calendar className="h-4 w-4" />
-            Wydarzenia
+          <TabsTrigger value="events" className="gap-1.5 rounded-lg text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <Calendar className="h-4 w-4 shrink-0" />
+            <span className="truncate">Wydarzenia</span>
           </TabsTrigger>
-          <TabsTrigger value="schema" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
-            <Database className="h-4 w-4" />
-            Baza danych
+          <TabsTrigger value="schema" className="gap-1.5 rounded-lg text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <Database className="h-4 w-4 shrink-0" />
+            <span className="truncate">Baza</span>
           </TabsTrigger>
-          <TabsTrigger value="resources" className="gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
-            <HardDrive className="h-4 w-4" />
-            Zasoby
+          <TabsTrigger value="resources" className="gap-1.5 rounded-lg text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
+            <HardDrive className="h-4 w-4 shrink-0" />
+            <span className="truncate">Zasoby</span>
           </TabsTrigger>
         </TabsList>
 
@@ -297,7 +297,7 @@ const OrganizerDashboard = () => {
                 <CardDescription className="mt-1">Najczęściej używane funkcje</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { icon: Plus, label: "Dodaj wydarzenie", path: "/events" },
                     { icon: UserPlus, label: "Dodaj gości", path: "/guests" },
