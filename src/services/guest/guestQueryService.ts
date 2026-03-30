@@ -27,8 +27,12 @@ export const guestQueryService = {
           query = query.eq('status', params.status);
         }
 
+        if (params.ticketType && params.ticketType !== 'all') {
+          query = query.eq('ticket_type', params.ticketType);
+        }
+
         if (params.zone && params.zone !== 'all') {
-          query = query.filter('ticket_type', 'eq', params.zone);
+          query = query.contains('zones', [params.zone]);
         }
 
         if (params.emailStatus && params.emailStatus !== 'all') {
