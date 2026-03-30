@@ -39,6 +39,7 @@ const App = () => {
                 <CookieConsent />
                 <FloatingScrollTop />
                 <OnlineStatusToast />
+                <CommandPalette />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>

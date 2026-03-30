@@ -11,6 +11,7 @@ import ThemeToggle from "@/components/common/ThemeToggle";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header: React.FC = () => {
   const { t } = useI18n();
