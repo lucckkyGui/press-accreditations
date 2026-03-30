@@ -11,12 +11,21 @@ import { toast } from "sonner";
 import { Copy, Code, Eye, Palette, ExternalLink, Monitor, Smartphone } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 
+const TICKET_TYPE_OPTIONS = [
+  { value: "general", label: "Wstęp ogólny" },
+  { value: "vip", label: "VIP" },
+  { value: "press", label: "Prasa / Media" },
+  { value: "speaker", label: "Prelegent" },
+  { value: "exhibitor", label: "Wystawca" },
+];
+
 const PreviewForm = ({
   primaryColor,
   borderRadius,
   selectedEvent,
   showCompany,
   showPhone,
+  showTicketType,
   className = "",
   compact = false,
 }: {
@@ -25,6 +34,7 @@ const PreviewForm = ({
   selectedEvent: string;
   showCompany: boolean;
   showPhone: boolean;
+  showTicketType: boolean;
   className?: string;
   compact?: boolean;
 }) => {
