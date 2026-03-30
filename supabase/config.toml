@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.embed-register]
 verify_jwt = false
+
+[functions.waitlist-manage]
+verify_jwt = false
