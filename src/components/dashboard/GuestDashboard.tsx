@@ -94,9 +94,9 @@ const GuestDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Oczekująca</Badge>;
+        return <Badge variant="secondary" className="bg-warning/15 text-warning border-0">Oczekująca</Badge>;
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Zaakceptowana</Badge>;
+        return <Badge variant="default" className="bg-success/15 text-success border-0">Zaakceptowana</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Odrzucona</Badge>;
       default:
