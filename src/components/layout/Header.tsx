@@ -88,7 +88,7 @@ const Header: React.FC = () => {
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/profile">{t("navigation.profile")}</Link>
                   </Button>
-                  <Button variant="outline" size="sm">{t("navigation.logOut")}</Button>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>{t("navigation.logOut")}</Button>
                 </div>
               </SheetContent>
             </Sheet>
