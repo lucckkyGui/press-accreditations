@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Copy, Code, Eye, Palette, ExternalLink } from "lucide-react";
+import { Copy, Code, Eye, Palette, ExternalLink, Monitor, Smartphone } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 
 const EmbedWidget = () => {
