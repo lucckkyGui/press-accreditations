@@ -83,8 +83,8 @@ const Header: React.FC = () => {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative rounded-full">
                   <Avatar className="h-7 w-7">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="text-xs">{profile?.first_name?.[0] || 'U'}</AvatarFallback>
+                    <AvatarImage src={profile?.avatarUrl || undefined} />
+                    <AvatarFallback className="text-xs">{profile?.firstName?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <span className="sr-only">{t("navigation.userMenu")}</span>
                 </Button>
