@@ -11,12 +11,21 @@ import { toast } from "sonner";
 import { Copy, Code, Eye, Palette, ExternalLink, Monitor, Smartphone } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 
+const TICKET_TYPE_OPTIONS = [
+  { value: "general", label: "Wstęp ogólny" },
+  { value: "vip", label: "VIP" },
+  { value: "press", label: "Prasa / Media" },
+  { value: "speaker", label: "Prelegent" },
+  { value: "exhibitor", label: "Wystawca" },
+];
+
 const PreviewForm = ({
   primaryColor,
   borderRadius,
   selectedEvent,
   showCompany,
   showPhone,
+  showTicketType,
   className = "",
   compact = false,
 }: {
@@ -25,6 +34,7 @@ const PreviewForm = ({
   selectedEvent: string;
   showCompany: boolean;
   showPhone: boolean;
+  showTicketType: boolean;
   className?: string;
   compact?: boolean;
 }) => {
@@ -62,6 +72,12 @@ const PreviewForm = ({
               <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
             </div>
           ))}
+        {showTicketType && (
+          <div className="space-y-0.5">
+            <div className={`${textSize} text-muted-foreground`}>Typ biletu *</div>
+            <div className={`${fieldHeight} bg-muted rounded-md`} style={{ borderRadius: fieldRadius }} />
+          </div>
+        )}
       </div>
       <div
         className={`${compact ? "h-8 text-xs" : "h-10 text-sm"} rounded-md flex items-center justify-center font-medium text-white`}
@@ -80,12 +96,13 @@ const EmbedWidget = () => {
   const [borderRadius, setBorderRadius] = useState("12");
   const [showCompany, setShowCompany] = useState(true);
   const [showPhone, setShowPhone] = useState(false);
+  const [showTicketType, setShowTicketType] = useState(true);
   const [language, setLanguage] = useState("pl");
 
   const embedUrl = `${window.location.origin}/embed/register/${selectedEvent}`;
 
   const iframeCode = `<iframe
-  src="${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}"
+  src="${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}&ticket=${showTicketType}"
   width="100%"
   height="600"
   frameborder="0"
@@ -97,8 +114,8 @@ const EmbedWidget = () => {
 <script>
 (function() {
   var iframe = document.createElement('iframe');
-  iframe.src = '${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}';
-  iframe.style.cssText = 'width:100%;height:600px;border:none;border-radius:${borderRadius}px;max-width:480px;';
+  iframe.src = '${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}&ticket=${showTicketType}';
+  iframe.style.cssText = 'width:100%;height:650px;border:none;border-radius:${borderRadius}px;max-width:480px;';
   iframe.title = 'Rejestracja na wydarzenie';
   document.getElementById('event-register-widget').appendChild(iframe);
 })();
@@ -191,6 +208,10 @@ const EmbedWidget = () => {
                   <Label>Pole "Telefon"</Label>
                   <Switch checked={showPhone} onCheckedChange={setShowPhone} />
                 </div>
+                <div className="flex items-center justify-between">
+                  <Label>Wybór typu biletu</Label>
+                  <Switch checked={showTicketType} onCheckedChange={setShowTicketType} />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -272,6 +293,7 @@ const EmbedWidget = () => {
                     selectedEvent={selectedEvent}
                     showCompany={showCompany}
                     showPhone={showPhone}
+                    showTicketType={showTicketType}
                     className="max-w-sm mx-auto"
                   />
                 </div>
@@ -299,6 +321,7 @@ const EmbedWidget = () => {
                         selectedEvent={selectedEvent}
                         showCompany={showCompany}
                         showPhone={showPhone}
+                        showTicketType={showTicketType}
                         className="w-full"
                         compact
                       />

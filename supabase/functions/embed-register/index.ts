@@ -143,7 +143,9 @@ serve(async (req) => {
   }
 
   try {
-    const { eventId, firstName, lastName, email, company, phone } = await req.json();
+    const { eventId, firstName, lastName, email, company, phone, ticketType } = await req.json();
+    const VALID_TICKET_TYPES = ["general", "vip", "press", "speaker", "exhibitor"];
+    const safeTicketType = VALID_TICKET_TYPES.includes(ticketType) ? ticketType : "general";
 
     // Validate required fields
     if (!eventId || !firstName || !lastName || !email) {
@@ -236,7 +238,7 @@ serve(async (req) => {
         company: company?.trim().slice(0, 100) || null,
         phone: phone?.trim().slice(0, 20) || null,
         status: isWaitlisted ? "waitlisted" : "confirmed",
-        ticket_type: "general",
+        ticket_type: safeTicketType,
         qr_code: qrCode,
       })
       .select()
