@@ -12,8 +12,9 @@ import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 interface GuestsTabsProps {
   guests: any[];
   total: number;
-  page: number;
-  pageSize: number;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
   search: string;
   statusFilter: any;
   ticketTypeFilter: any;
@@ -21,8 +22,6 @@ interface GuestsTabsProps {
   selectedGuests: any[];
   selectedEvent: any;
   isLoading: boolean;
-  setPage: (page: number) => void;
-  setPageSize: (size: number) => void;
   setSearch: (search: string) => void;
   setStatusFilter: (status: any) => void;
   setTicketTypeFilter: (ticketType: any) => void;
@@ -49,7 +48,7 @@ const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {
           <Users className="h-4 w-4" />
           <span className="hidden sm:inline">Lista gości</span>
           <Badge variant="secondary" className="rounded-md text-[10px] h-5 bg-primary/10 text-primary border-0 data-[state=active]:bg-primary-foreground/20 data-[state=active]:text-primary-foreground">
-            {props.guests.length}
+            {props.total}
           </Badge>
         </TabsTrigger>
         <TabsTrigger value="invitations" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm">
@@ -64,7 +63,30 @@ const GuestsTabs: React.FC<GuestsTabsProps> = (props) => {
       </TabsList>
 
       <TabsContent value="guests">
-        <GuestsListTab {...props} />
+        <GuestsListTab
+          guests={props.guests}
+          total={props.total}
+          hasMore={props.hasMore}
+          isLoadingMore={props.isLoadingMore}
+          onLoadMore={props.onLoadMore}
+          search={props.search}
+          statusFilter={props.statusFilter}
+          ticketTypeFilter={props.ticketTypeFilter}
+          zoneFilter={props.zoneFilter}
+          selectedGuests={props.selectedGuests}
+          isLoading={props.isLoading}
+          setSearch={props.setSearch}
+          setStatusFilter={props.setStatusFilter}
+          setTicketTypeFilter={props.setTicketTypeFilter}
+          setZoneFilter={props.setZoneFilter}
+          setSelectedGuests={props.setSelectedGuests}
+          handleEditGuest={props.handleEditGuest}
+          handleDeleteGuest={props.handleDeleteGuest}
+          handleBulkEmail={props.handleBulkEmail}
+          handleBulkStatusUpdate={props.handleBulkStatusUpdate}
+          handleBulkTicketTypeUpdate={props.handleBulkTicketTypeUpdate}
+          handleBulkDeleteGuests={props.handleBulkDeleteGuests}
+        />
       </TabsContent>
 
       <TabsContent value="invitations">
