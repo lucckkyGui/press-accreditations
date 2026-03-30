@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Shield, Radio, Map, Tablet, Monitor, Zap, FileBarChart, Sparkles, ChevronRight } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Shield, Radio, Map, Tablet, Monitor, Zap, FileBarChart, Sparkles, ChevronRight, Code, Clock, Bot, FileText } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
