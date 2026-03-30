@@ -51,16 +51,21 @@ const OrganizerDashboard = () => {
   const { data: guestsStats } = useQuery({
     queryKey: ['organizerGuestsStats', user?.id],
     queryFn: async () => {
-      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0 };
+      if (!user?.id || !eventsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
       const eventIds = eventsData.map(e => e.id);
       const { data, error } = await supabase
         .from('guests')
-        .select('id, status, checked_in_at')
+        .select('id, status, checked_in_at, ticket_type')
         .in('event_id', eventIds);
       if (error) throw error;
       const total = data?.length || 0;
       const checkedIn = data?.filter(g => g.checked_in_at)?.length || 0;
-      return { total, checkedIn };
+      const byTicketType: Record<string, number> = {};
+      data?.forEach(g => {
+        const tt = g.ticket_type || 'uczestnik';
+        byTicketType[tt] = (byTicketType[tt] || 0) + 1;
+      });
+      return { total, checkedIn, byTicketType };
     },
     enabled: !!eventsData?.length,
   });
