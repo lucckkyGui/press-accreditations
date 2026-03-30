@@ -1,20 +1,19 @@
 
-import React from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash2, Loader2 } from 'lucide-react';
 import { Guest, GuestTicketType, TICKET_TYPE_LABELS } from "@/types";
 import { Card } from "@/components/ui/card";
 
 interface GuestsTableProps {
   guests: Guest[];
   total: number;
-  page: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  hasMore: boolean;
+  onLoadMore: () => void;
+  isLoadingMore: boolean;
   onEdit: (guest: Guest) => void;
   onDelete: (id: string) => void;
   selectedGuests: Guest[];
@@ -37,10 +36,32 @@ const ticketTypeColors: Partial<Record<GuestTicketType, string>> = {
 };
 
 export const GuestsTable = ({
-  guests, total, page, pageSize,
-  onPageChange, onPageSizeChange, onEdit, onDelete,
-  selectedGuests, setSelectedGuests, isLoading
+  guests, total, hasMore, onLoadMore, isLoadingMore,
+  onEdit, onDelete, selectedGuests, setSelectedGuests, isLoading
 }: GuestsTableProps) => {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!hasMore || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onLoadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    const sentinel = sentinelRef.current;
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+    };
+  }, [hasMore, isLoadingMore, onLoadMore]);
+
   const handleSelectAll = (checked: boolean) => {
     setSelectedGuests(checked ? guests : []);
   };
@@ -154,24 +175,24 @@ export const GuestsTable = ({
         </TableBody>
       </Table>
 
+      {/* Footer with count + infinite scroll sentinel */}
       <div className="flex items-center justify-between px-5 py-3.5 border-t border-border bg-muted/20">
         <span className="text-sm text-muted-foreground">
           Pokazano {guests.length} z {total}
         </span>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => onPageChange(Math.max(0, page - 1))} disabled={page === 0} className="rounded-lg h-8 gap-1">
-            <ChevronLeft className="h-4 w-4" />
-            Wstecz
-          </Button>
-          <span className="text-sm text-muted-foreground px-2">
-            {page + 1} / {Math.max(1, Math.ceil(total / pageSize))}
-          </span>
-          <Button variant="outline" size="sm" onClick={() => onPageChange(page + 1)} disabled={(page + 1) * pageSize >= total} className="rounded-lg h-8 gap-1">
-            Dalej
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {isLoadingMore && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Ładowanie...
+          </div>
+        )}
+        {!hasMore && guests.length > 0 && (
+          <span className="text-sm text-muted-foreground">Wszystkie załadowane</span>
+        )}
       </div>
+
+      {/* Invisible sentinel for IntersectionObserver */}
+      <div ref={sentinelRef} className="h-1" />
     </Card>
   );
 };
