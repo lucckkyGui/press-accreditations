@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Bell, Edit, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Users, Bell, Edit, ArrowRight, Copy } from "lucide-react";
 import { Event } from "@/types";
 import { formatDistanceToNow, format } from "date-fns";
 import { pl } from "date-fns/locale";
