@@ -35,6 +35,7 @@ const reportsNavigation = [
 
 const systemNavigation = [
   { title: "AI Support", url: "/ai-support", icon: Bot },
+  { title: "Pomoc", url: "/help", icon: FileText },
   { title: "Ustawienia", url: "/settings", icon: Settings },
 ];
 
