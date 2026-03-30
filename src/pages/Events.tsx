@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate } from "react-router-dom";
 import { Filter, Plus, Search, SortAsc, SortDesc, CalendarDays } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ type SortOption = "name" | "date-asc" | "date-desc";
 
 const Events = () => {
   const navigate = useNavigate();
+  usePageTitle("Wydarzenia");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<EventFilter>("all");

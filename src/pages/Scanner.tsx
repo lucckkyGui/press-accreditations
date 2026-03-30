@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import PageContent from '@/components/layout/PageContent';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EnhancedQRScanner from '@/components/scanner/EnhancedQRScanner';
@@ -13,6 +14,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Scanner = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  usePageTitle("Skaner");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
 

@@ -11,6 +11,8 @@ import CookieConsent from "./components/common/CookieConsent";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import ScrollToTop from "./components/common/ScrollToTop";
 import SkipToContent from "./components/common/SkipToContent";
+import FloatingScrollTop from "./components/common/FloatingScrollTop";
+import OnlineStatusToast from "./components/common/OnlineStatusToast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +36,8 @@ const App = () => {
               <TooltipProvider delayDuration={0}>
                 <AppRoutes />
                 <CookieConsent />
+                <FloatingScrollTop />
+                <OnlineStatusToast />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>

@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/auth";
 import OrganizerDashboard from "@/components/dashboard/OrganizerDashboard";
 import GuestDashboard from "@/components/dashboard/GuestDashboard";
@@ -15,6 +16,7 @@ import OfflineCheckinSystem from "@/components/scanner/OfflineCheckinSystem";
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading } = useAuth();
   const [enhancedTab, setEnhancedTab] = useState("overview");
+  usePageTitle("Dashboard");
 
   if (isLoading) {
     return (

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useGuestsPage } from "./guests";
 import GuestsPageHeader from "./guests/GuestsPageHeader";
 import GuestsTabs from "./guests/GuestsTabs";
@@ -23,6 +24,7 @@ import BlockchainCredentials from '@/components/guests/advanced/BlockchainCreden
 
 const Guests = () => {
   const guestsPageProps = useGuestsPage();
+  usePageTitle("Goście");
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [mainTab, setMainTab] = useState('guests');
