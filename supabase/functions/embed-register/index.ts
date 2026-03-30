@@ -238,7 +238,7 @@ serve(async (req) => {
         company: company?.trim().slice(0, 100) || null,
         phone: phone?.trim().slice(0, 20) || null,
         status: isWaitlisted ? "waitlisted" : "confirmed",
-        ticket_type: "general",
+        ticket_type: safeTicketType,
         qr_code: qrCode,
       })
       .select()
