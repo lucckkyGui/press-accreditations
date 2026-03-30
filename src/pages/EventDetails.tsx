@@ -172,6 +172,10 @@ const EventDetails = () => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => navigate(`/landing-page/${eventId}`)}>
+            <Globe className="mr-2 h-4 w-4" />
+            Strona akredytacji
+          </Button>
           <Button variant="outline" onClick={() => navigate('/invitation-editor')}>
             Edytuj zaproszenia
           </Button>
