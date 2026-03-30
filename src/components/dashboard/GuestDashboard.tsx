@@ -189,8 +189,8 @@ const GuestDashboard = () => {
             <Card className="border-success/20 bg-success/5">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-                  <CardTitle className="text-lg text-green-800">Aktywne akredytacje</CardTitle>
+                  <div className="h-3 w-3 rounded-full bg-success animate-pulse" />
+                  <CardTitle className="text-lg text-success">Aktywne akredytacje</CardTitle>
                 </div>
                 <CardDescription>Twoje obecnie aktywne przepustki</CardDescription>
               </CardHeader>
