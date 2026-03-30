@@ -16,7 +16,7 @@ export const guestQueryService = {
     try {
       let query = supabase
         .from('guests')
-        .select('*');
+        .select('*', { count: 'exact' });
 
       if (params) {
         if (params.eventId) {
