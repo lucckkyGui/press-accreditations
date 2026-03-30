@@ -66,7 +66,7 @@ const Login = () => {
         <Button 
           variant="ghost" 
           className="mb-4 flex items-center gap-2 rounded-xl text-muted-foreground hover:text-foreground"
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/")}
         >
           <ArrowLeft className="h-4 w-4" />
           {t('common.backToHome')}
