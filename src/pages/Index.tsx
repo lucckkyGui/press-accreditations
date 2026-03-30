@@ -1,33 +1,29 @@
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { Navigate } from 'react-router-dom';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import HomePage from '@/pages/HomePage';
 
 const Index = () => {
-  const navigate = useNavigate();
   const { isLoading, isAuthenticated } = useAuth();
-  
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        // If user is logged in, redirect to dashboard
-        navigate('/dashboard');
-      } else {
-        // If user is not logged in, redirect to home page
-        navigate('/home');
-      }
-    }
-  }, [navigate, isAuthenticated, isLoading]);
-  
-  return (
-    <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-50">
-      <div className="text-center">
-        <LoadingSpinner size={12} />
-        <p className="mt-4 text-muted-foreground">Ładowanie aplikacji...</p>
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-50">
+        <div className="text-center">
+          <LoadingSpinner size={12} />
+          <p className="mt-4 text-muted-foreground">Ładowanie aplikacji...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <HomePage />;
 };
 
 export default Index;
