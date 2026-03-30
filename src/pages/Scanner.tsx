@@ -14,6 +14,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Scanner = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  usePageTitle("Skaner");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
 

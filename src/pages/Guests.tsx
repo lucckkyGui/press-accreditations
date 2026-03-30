@@ -24,6 +24,7 @@ import BlockchainCredentials from '@/components/guests/advanced/BlockchainCreden
 
 const Guests = () => {
   const guestsPageProps = useGuestsPage();
+  usePageTitle("Goście");
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [mainTab, setMainTab] = useState('guests');

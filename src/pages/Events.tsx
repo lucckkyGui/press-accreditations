@@ -28,6 +28,7 @@ type SortOption = "name" | "date-asc" | "date-desc";
 
 const Events = () => {
   const navigate = useNavigate();
+  usePageTitle("Wydarzenia");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<EventFilter>("all");

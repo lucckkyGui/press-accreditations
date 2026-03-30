@@ -16,6 +16,7 @@ import OfflineCheckinSystem from "@/components/scanner/OfflineCheckinSystem";
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading } = useAuth();
   const [enhancedTab, setEnhancedTab] = useState("overview");
+  usePageTitle("Dashboard");
 
   if (isLoading) {
     return (
