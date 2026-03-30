@@ -114,8 +114,8 @@ const EmbedWidget = () => {
 <script>
 (function() {
   var iframe = document.createElement('iframe');
-  iframe.src = '${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}';
-  iframe.style.cssText = 'width:100%;height:600px;border:none;border-radius:${borderRadius}px;max-width:480px;';
+  iframe.src = '${embedUrl}?color=${encodeURIComponent(primaryColor)}&radius=${borderRadius}&lang=${language}&company=${showCompany}&phone=${showPhone}&ticket=${showTicketType}';
+  iframe.style.cssText = 'width:100%;height:650px;border:none;border-radius:${borderRadius}px;max-width:480px;';
   iframe.title = 'Rejestracja na wydarzenie';
   document.getElementById('event-register-widget').appendChild(iframe);
 })();
