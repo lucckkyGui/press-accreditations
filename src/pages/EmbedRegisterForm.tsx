@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { CheckCircle, Loader2 } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
+import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
 
 const EmbedRegisterForm = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -21,6 +19,7 @@ const EmbedRegisterForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [waitlisted, setWaitlisted] = useState(false);
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     first_name: "",
@@ -32,13 +31,19 @@ const EmbedRegisterForm = () => {
 
   useEffect(() => {
     if (!eventId) return;
+    // Fetch event info (published events are publicly visible via RLS)
     supabase
       .from("events")
       .select("id, title, max_guests, start_date, end_date, location")
       .eq("id", eventId)
+      .eq("is_published", true)
       .single()
-      .then(({ data }) => {
-        setEvent(data);
+      .then(({ data, error: err }) => {
+        if (err || !data) {
+          setError("Wydarzenie nie zostało znalezione lub rejestracja jest zamknięta.");
+        } else {
+          setEvent(data);
+        }
         setLoading(false);
       });
   }, [eventId]);
@@ -47,51 +52,40 @@ const EmbedRegisterForm = () => {
     e.preventDefault();
     if (!eventId) return;
     setSubmitting(true);
+    setError("");
 
     try {
-      // Check capacity
-      if (event?.max_guests) {
-        const { count } = await supabase
-          .from("guests")
-          .select("id", { count: "exact", head: true })
-          .eq("event_id", eventId);
-
-        if (count && count >= event.max_guests) {
-          // Add to waitlist
-          const { error } = await supabase.from("guests").insert({
-            event_id: eventId,
-            first_name: form.first_name,
-            last_name: form.last_name,
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            eventId,
+            firstName: form.first_name,
+            lastName: form.last_name,
             email: form.email,
-            company: form.company || null,
-            phone: form.phone || null,
-            status: "waitlisted",
-            ticket_type: "general",
-            qr_code: uuidv4(),
-          });
-          if (error) throw error;
-          setWaitlisted(true);
-          setSubmitted(true);
-          setSubmitting(false);
-          return;
+            company: form.company || undefined,
+            phone: form.phone || undefined,
+          }),
         }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Wystąpił błąd");
+        setSubmitting(false);
+        return;
       }
 
-      const { error } = await supabase.from("guests").insert({
-        event_id: eventId,
-        first_name: form.first_name,
-        last_name: form.last_name,
-        email: form.email,
-        company: form.company || null,
-        phone: form.phone || null,
-        status: "confirmed",
-        ticket_type: "general",
-        qr_code: uuidv4(),
-      });
-      if (error) throw error;
+      setWaitlisted(result.waitlisted);
       setSubmitted(true);
     } catch (err: any) {
-      toast.error(err.message || "Wystąpił błąd");
+      setError("Błąd połączenia. Spróbuj ponownie.");
     } finally {
       setSubmitting(false);
     }
@@ -99,18 +93,29 @@ const EmbedRegisterForm = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <Loader2 className="h-8 w-8 animate-spin" style={{ color }} />
+      </div>
+    );
+  }
+
+  if (!event && error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
+        <div className="text-center space-y-3 max-w-sm">
+          <AlertCircle className="h-12 w-12 mx-auto text-gray-400" />
+          <p className="text-sm text-gray-500">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-6">
+      <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
         <div className="text-center space-y-4 max-w-sm">
           <CheckCircle className="h-16 w-16 mx-auto" style={{ color }} />
-          <h2 className="text-xl font-bold">
+          <h2 className="text-xl font-bold text-gray-900">
             {waitlisted ? "Dodano na listę oczekujących!" : "Rejestracja potwierdzona!"}
           </h2>
           <p className="text-sm text-gray-500">
@@ -134,43 +139,64 @@ const EmbedRegisterForm = () => {
       >
         <div className="text-center space-y-1">
           <div className="h-1.5 rounded-full mx-auto w-16 mb-3" style={{ backgroundColor: color }} />
-          <h2 className="text-lg font-bold">{event?.title || "Rejestracja"}</h2>
+          <h2 className="text-lg font-bold text-gray-900">{event?.title || "Rejestracja"}</h2>
           {event?.location && <p className="text-xs text-gray-500">{event.location}</p>}
+          {event?.start_date && (
+            <p className="text-xs text-gray-400">
+              {new Date(event.start_date).toLocaleDateString("pl-PL", {
+                day: "numeric", month: "long", year: "numeric"
+              })}
+            </p>
+          )}
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
         <div className="space-y-3">
           <div>
-            <Label className="text-xs">Imię *</Label>
+            <Label className="text-xs text-gray-600">Imię *</Label>
             <Input
               required
+              maxLength={100}
               value={form.first_name}
               onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))}
               style={{ borderRadius: r }}
+              placeholder="Jan"
             />
           </div>
           <div>
-            <Label className="text-xs">Nazwisko *</Label>
+            <Label className="text-xs text-gray-600">Nazwisko *</Label>
             <Input
               required
+              maxLength={100}
               value={form.last_name}
               onChange={(e) => setForm((f) => ({ ...f, last_name: e.target.value }))}
               style={{ borderRadius: r }}
+              placeholder="Kowalski"
             />
           </div>
           <div>
-            <Label className="text-xs">Email *</Label>
+            <Label className="text-xs text-gray-600">Email *</Label>
             <Input
               type="email"
               required
+              maxLength={255}
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               style={{ borderRadius: r }}
+              placeholder="jan@example.com"
             />
           </div>
           {showCompany && (
             <div>
-              <Label className="text-xs">Firma</Label>
+              <Label className="text-xs text-gray-600">Firma</Label>
               <Input
+                maxLength={100}
                 value={form.company}
                 onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
                 style={{ borderRadius: r }}
@@ -179,9 +205,10 @@ const EmbedRegisterForm = () => {
           )}
           {showPhone && (
             <div>
-              <Label className="text-xs">Telefon</Label>
+              <Label className="text-xs text-gray-600">Telefon</Label>
               <Input
                 type="tel"
+                maxLength={20}
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 style={{ borderRadius: r }}
