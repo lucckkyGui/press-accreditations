@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
 
+const TICKET_TYPES = [
+  { value: "general", label: "Wstęp ogólny" },
+  { value: "vip", label: "VIP" },
+  { value: "press", label: "Prasa / Media" },
+  { value: "speaker", label: "Prelegent" },
+  { value: "exhibitor", label: "Wystawca" },
+];
+
 const EmbedRegisterForm = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const [searchParams] = useSearchParams();
@@ -13,6 +21,11 @@ const EmbedRegisterForm = () => {
   const radius = searchParams.get("radius") || "12";
   const showCompany = searchParams.get("company") !== "false";
   const showPhone = searchParams.get("phone") === "true";
+  const showTicketType = searchParams.get("ticket") !== "false";
+  const ticketTypesParam = searchParams.get("ticketTypes");
+  const availableTicketTypes = ticketTypesParam
+    ? TICKET_TYPES.filter((t) => ticketTypesParam.split(",").includes(t.value))
+    : TICKET_TYPES;
 
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
