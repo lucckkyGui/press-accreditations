@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/StatCard";
 import DatabaseSchema from "@/components/database/DatabaseSchema";
+import CheckInActivityChart from "@/components/dashboard/CheckInActivityChart";
 import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
