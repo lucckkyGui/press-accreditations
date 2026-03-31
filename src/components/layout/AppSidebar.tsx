@@ -69,6 +69,11 @@ const NavItem = ({ item, active }: { item: typeof mainNavigation[0]; active: boo
           <item.icon className="h-[16px] w-[16px]" />
         </div>
         <span className="font-semibold text-[13px] flex-1">{item.title}</span>
+        {item.shortcut && !active && (
+          <kbd className="hidden lg:inline-flex h-5 select-none items-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-0 group-hover/item:opacity-100 transition-opacity">
+            {item.shortcut}
+          </kbd>
+        )}
         {active && <ChevronRight className="h-4 w-4 opacity-60" />}
       </Link>
     </SidebarMenuButton>
