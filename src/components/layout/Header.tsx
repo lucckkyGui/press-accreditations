@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header: React.FC = () => {
   const { t } = useI18n();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, toggleSidebar, state: sidebarState } = useSidebar();
   const { isMobile } = useWindowSize();
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
