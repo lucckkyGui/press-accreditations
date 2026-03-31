@@ -100,12 +100,12 @@ const MediaGroupList: React.FC = () => {
   
   const handleEdit = (id: string) => {
     // Tu powinna być implementacja edycji grupy
-    console.log("Edit group", id);
+    toast.info("Edycja grupy w przygotowaniu");
   };
   
   const handleViewContacts = (id: string) => {
     // Tu powinna być implementacja podglądu kontaktów w grupie
-    console.log("View contacts in group", id);
+    toast.info("Widok kontaktów w przygotowaniu");
   };
   
   const filteredGroups = mediaGroups?.filter(group => {
