@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainNavigation = [
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Wydarzenia", url: "/events", icon: Calendar },
-  { title: "Goście", url: "/guests", icon: Users },
-  { title: "Skaner QR", url: "/scanner", icon: QrCode },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3, shortcut: "⌘K" },
+  { title: "Wydarzenia", url: "/events", icon: Calendar, shortcut: "⌘E" },
+  { title: "Goście", url: "/guests", icon: Users, shortcut: "⌘G" },
+  { title: "Skaner QR", url: "/scanner", icon: QrCode, shortcut: "⌘S" },
   { title: "Bilety", url: "/ticketing", icon: Ticket },
 ];
 
