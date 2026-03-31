@@ -2,7 +2,7 @@
 import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Settings, Search, LogOut, Bell } from "lucide-react";
+import { Menu, Settings, Search, Bell, PanelLeftClose, PanelLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/hooks/useI18n";
@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header: React.FC = () => {
   const { t } = useI18n();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, toggleSidebar, state: sidebarState } = useSidebar();
   const { isMobile } = useWindowSize();
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
@@ -37,7 +37,12 @@ const Header: React.FC = () => {
   return (
     <header role="banner" className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center px-2 md:px-4">
-        <div className="mr-4 hidden md:flex">
+        {/* Desktop sidebar toggle + logo */}
+        <div className="mr-4 hidden md:flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="shrink-0">
+            {sidebarState === "collapsed" ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
           <Link to="/dashboard" className="flex items-center space-x-2 font-semibold">
             <span className="hidden font-bold sm:inline-block">EventManager</span>
           </Link>
