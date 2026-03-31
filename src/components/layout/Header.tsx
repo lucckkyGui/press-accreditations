@@ -2,7 +2,7 @@
 import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, Settings, UserCircle, Search } from "lucide-react";
+import { Menu, Settings, Search, LogOut, Bell } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/hooks/useI18n";
@@ -21,8 +21,12 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
   
   const toggleMobileSidebar = () => {

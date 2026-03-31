@@ -12,6 +12,7 @@ import { BarChart3, Zap, Smartphone } from "lucide-react";
 import RealTimeDashboard from "@/components/dashboard/RealTimeDashboard";
 import SmartInvitationSystem from "@/components/invitations/SmartInvitationSystem";
 import OfflineCheckinSystem from "@/components/scanner/OfflineCheckinSystem";
+import DashboardGreeting from "@/components/dashboard/DashboardGreeting";
 
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading } = useAuth();
@@ -31,6 +32,7 @@ const Dashboard = () => {
       <>
         <TrialBanner />
         <OnboardingWizard />
+        <DashboardGreeting />
         <Tabs value={enhancedTab} onValueChange={setEnhancedTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs sm:text-sm">
