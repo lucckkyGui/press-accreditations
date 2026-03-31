@@ -53,8 +53,18 @@ const ProfileSettings = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Implement profile update with Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone,
+          organization_name: formData.company,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user!.id);
+
+      if (error) throw error;
       toast.success("Profil został zaktualizowany");
     } catch (error) {
       toast.error("Błąd podczas aktualizacji profilu");
