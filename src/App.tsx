@@ -43,6 +43,7 @@ const App = () => {
                 <FloatingScrollTop />
                 <OnlineStatusToast />
                 <CommandPalette />
+                <KeyboardShortcutsDialog />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>
