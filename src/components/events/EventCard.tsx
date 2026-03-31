@@ -91,7 +91,20 @@ const EventCard = ({
             <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-accent/10 mr-2.5 shrink-0">
               <Users className="h-3.5 w-3.5 text-accent" />
             </div>
-            <span><span className="font-semibold text-foreground">{guestCount}</span> gości</span>
+            <div className="flex-1">
+              <span><span className="font-semibold text-foreground">{guestCount}</span>{event.maxGuests ? ` / ${event.maxGuests}` : ''} gości</span>
+              {event.maxGuests && event.maxGuests > 0 && (
+                <div className="mt-1.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      guestCount / event.maxGuests > 0.9 ? 'bg-destructive' : 
+                      guestCount / event.maxGuests > 0.7 ? 'bg-warning' : 'bg-success'
+                    }`}
+                    style={{ width: `${Math.min(100, (guestCount / event.maxGuests) * 100)}%` }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
