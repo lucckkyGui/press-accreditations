@@ -17,6 +17,7 @@ import DatabaseSchema from "@/components/database/DatabaseSchema";
 import CheckInActivityChart from "@/components/dashboard/CheckInActivityChart";
 import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
+import RecentScansWidget from "@/components/dashboard/RecentScansWidget";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
