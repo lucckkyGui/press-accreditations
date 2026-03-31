@@ -21,8 +21,12 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
   
   const toggleMobileSidebar = () => {
