@@ -32,6 +32,7 @@ const App = () => {
       <BrowserRouter>
         <SkipToContent />
         <ScrollToTop />
+        <TopProgressBar />
         <I18nProvider>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
