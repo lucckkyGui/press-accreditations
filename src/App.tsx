@@ -14,6 +14,7 @@ import SkipToContent from "./components/common/SkipToContent";
 import FloatingScrollTop from "./components/common/FloatingScrollTop";
 import OnlineStatusToast from "./components/common/OnlineStatusToast";
 import CommandPalette from "./components/common/CommandPalette";
+import TopProgressBar from "./components/common/TopProgressBar";
 
 const queryClient = new QueryClient({
   defaultOptions: {
