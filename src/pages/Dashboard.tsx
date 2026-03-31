@@ -32,6 +32,7 @@ const Dashboard = () => {
       <>
         <TrialBanner />
         <OnboardingWizard />
+        <DashboardGreeting />
         <Tabs value={enhancedTab} onValueChange={setEnhancedTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs sm:text-sm">
