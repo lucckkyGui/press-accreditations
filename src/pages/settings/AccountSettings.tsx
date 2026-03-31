@@ -46,12 +46,14 @@ const AccountSettings = () => {
     setIsChangingPassword(true);
     
     try {
-      // TODO: Implement password change with Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      });
+      if (error) throw error;
       toast.success("Hasło zostało zmienione");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error) {
-      toast.error("Błąd podczas zmiany hasła");
+    } catch (error: any) {
+      toast.error(error?.message || "Błąd podczas zmiany hasła");
     } finally {
       setIsChangingPassword(false);
     }
