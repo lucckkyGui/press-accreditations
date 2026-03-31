@@ -34,8 +34,8 @@ const ProfileSettings = () => {
         firstName: profile.firstName || "",
         lastName: profile.lastName || "",
         email: user.email || "",
-        phone: "",
-        company: "",
+        phone: profile.phone || "",
+        company: profile.organizationName || "",
         jobTitle: "",
         bio: "",
         website: ""
