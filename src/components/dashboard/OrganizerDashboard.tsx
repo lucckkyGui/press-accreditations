@@ -327,8 +327,11 @@ const OrganizerDashboard = () => {
             </Card>
           </div>
 
-          {/* Check-in activity chart */}
-          <CheckInActivityChart guests={guestsData || []} />
+          {/* Recent scans + Check-in activity */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <RecentScansWidget />
+            <CheckInActivityChart guests={guestsData || []} />
+          </div>
 
           {/* Ticket type stats */}
           <Card className="rounded-2xl border-border">
