@@ -2,6 +2,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import AnimatedCounter from "@/components/common/AnimatedCounter";
 
 interface StatCardProps {
   title: string;
@@ -20,6 +21,8 @@ const StatCard = ({
   className,
   trend,
 }: StatCardProps) => {
+  const isNumeric = typeof value === 'number';
+
   return (
     <Card className={cn(
       "overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border-border rounded-2xl",
@@ -29,7 +32,9 @@ const StatCard = ({
         <div className="flex justify-between items-start">
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground tracking-wide">{title}</p>
-            <h3 className="text-3xl font-bold tracking-tight text-foreground">{value}</h3>
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">
+              {isNumeric ? <AnimatedCounter value={value} /> : value}
+            </h3>
             {description && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 {trend === "up" && <span className="text-success">↑</span>}

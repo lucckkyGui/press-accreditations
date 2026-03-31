@@ -17,6 +17,7 @@ import DatabaseSchema from "@/components/database/DatabaseSchema";
 import CheckInActivityChart from "@/components/dashboard/CheckInActivityChart";
 import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
+import RecentScansWidget from "@/components/dashboard/RecentScansWidget";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -326,8 +327,11 @@ const OrganizerDashboard = () => {
             </Card>
           </div>
 
-          {/* Check-in activity chart */}
-          <CheckInActivityChart guests={guestsData || []} />
+          {/* Recent scans + Check-in activity */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <RecentScansWidget />
+            <CheckInActivityChart guests={guestsData || []} />
+          </div>
 
           {/* Ticket type stats */}
           <Card className="rounded-2xl border-border">
