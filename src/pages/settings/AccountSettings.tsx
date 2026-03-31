@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const AccountSettings = () => {
   const navigate = useNavigate();
@@ -45,12 +46,14 @@ const AccountSettings = () => {
     setIsChangingPassword(true);
     
     try {
-      // TODO: Implement password change with Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      });
+      if (error) throw error;
       toast.success("Hasło zostało zmienione");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error) {
-      toast.error("Błąd podczas zmiany hasła");
+    } catch (error: any) {
+      toast.error(error?.message || "Błąd podczas zmiany hasła");
     } finally {
       setIsChangingPassword(false);
     }
@@ -58,12 +61,11 @@ const AccountSettings = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      // TODO: Implement account deletion with Supabase
-      toast.success("Konto zostało usunięte");
-      signOut();
+      await signOut();
+      toast.success("Zostałeś wylogowany. Aby usunąć konto, skontaktuj się z supportem.");
       navigate("/");
     } catch (error) {
-      toast.error("Błąd podczas usuwania konta");
+      toast.error("Błąd podczas operacji");
     }
   };
 

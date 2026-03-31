@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 
 import React, { useState } from 'react';
 import { useMediaContacts } from '@/hooks/press';
@@ -36,7 +37,7 @@ const MediaContactList: React.FC = () => {
   
   const handleEdit = (id: string) => {
     // Tu powinna być implementacja edycji kontaktu
-    console.log("Edit contact", id);
+    toast.info("Edycja kontaktu w przygotowaniu");
   };
   
   const filteredContacts = mediaContacts?.filter(contact => {

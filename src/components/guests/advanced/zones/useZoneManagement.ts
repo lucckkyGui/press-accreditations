@@ -82,8 +82,12 @@ export const useZoneManagement = () => {
   };
 
   const handleEditZone = (zoneId: string) => {
-    // TODO: Implement edit functionality
-    console.log('Edit zone:', zoneId);
+    const zone = zones.find(z => z.id === zoneId);
+    if (zone) {
+      setNewZone({ ...zone });
+      setShowAddZone(true);
+      setZones(zones.filter(z => z.id !== zoneId));
+    }
   };
 
   return {

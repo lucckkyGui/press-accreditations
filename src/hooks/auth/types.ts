@@ -16,6 +16,8 @@ export interface UserProfile {
   lastName: string;
   email: string;
   avatarUrl?: string;
+  phone?: string;
+  organizationName?: string;
 }
 
 export interface AuthContextType {

@@ -15,7 +15,7 @@ export const useAuthState = () => {
     // Fetch profile
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('id, first_name, last_name, avatar_url')
+      .select('id, first_name, last_name, avatar_url, phone, organization_name')
       .eq('id', userId)
       .single();
 
@@ -26,6 +26,8 @@ export const useAuthState = () => {
         lastName: profileData.last_name || '',
         email: userEmail,
         avatarUrl: profileData.avatar_url || undefined,
+        phone: profileData.phone || undefined,
+        organizationName: profileData.organization_name || undefined,
       });
     }
 

@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import React, { useState } from 'react';
 import { useMediaGroups } from '@/hooks/press';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,12 +101,12 @@ const MediaGroupList: React.FC = () => {
   
   const handleEdit = (id: string) => {
     // Tu powinna być implementacja edycji grupy
-    console.log("Edit group", id);
+    toast.info("Edycja grupy w przygotowaniu");
   };
   
   const handleViewContacts = (id: string) => {
     // Tu powinna być implementacja podglądu kontaktów w grupie
-    console.log("View contacts in group", id);
+    toast.info("Widok kontaktów w przygotowaniu");
   };
   
   const filteredGroups = mediaGroups?.filter(group => {

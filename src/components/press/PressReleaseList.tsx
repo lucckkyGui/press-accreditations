@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import React, { useState } from 'react';
 import { PressRelease, PressReleaseStatus, PressReleaseType } from '@/types/pressRelease';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -223,22 +224,22 @@ const PressReleaseList: React.FC = () => {
   
   const handleSchedule = (id: string) => {
     // Tu powinna być implementacja planowania komunikatu prasowego
-    console.log("Schedule press release", id);
+    toast.info("Planowanie w przygotowaniu");
   };
   
   const handleDuplicate = (id: string) => {
     // Tu powinna być implementacja duplikowania komunikatu prasowego
-    console.log("Duplicate press release", id);
+    toast.info("Duplikowanie w przygotowaniu");
   };
   
   const handleEdit = (id: string) => {
     // Tu powinna być implementacja edycji komunikatu prasowego
-    console.log("Edit press release", id);
+    toast.info("Edycja w przygotowaniu");
   };
   
   const handleView = (id: string) => {
     // Tu powinna być implementacja podglądu komunikatu prasowego
-    console.log("View press release", id);
+    toast.info("Podgląd w przygotowaniu");
   };
   
   const filteredPressReleases = pressReleases?.filter(pr => {

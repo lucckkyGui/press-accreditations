@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -52,12 +53,12 @@ export default function MediaPortalPage() {
   
   const handleEditRegistration = () => {
     // Implement edit functionality
-    console.log("Edit registration");
+    toast.info("Edycja rejestracji w przygotowaniu");
   };
   
   const handleCancelRegistration = () => {
     // Implement cancel functionality
-    console.log("Cancel registration");
+    toast.info("Anulowanie rejestracji w przygotowaniu");
   };
   
   if (!eventId) {
