@@ -61,12 +61,11 @@ const AccountSettings = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      // TODO: Implement account deletion with Supabase
-      toast.success("Konto zostało usunięte");
-      signOut();
+      await signOut();
+      toast.success("Zostałeś wylogowany. Aby usunąć konto, skontaktuj się z supportem.");
       navigate("/");
     } catch (error) {
-      toast.error("Błąd podczas usuwania konta");
+      toast.error("Błąd podczas operacji");
     }
   };
 

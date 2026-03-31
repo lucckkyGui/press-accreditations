@@ -26,6 +26,8 @@ export const useAuthState = () => {
         lastName: profileData.last_name || '',
         email: userEmail,
         avatarUrl: profileData.avatar_url || undefined,
+        phone: profileData.phone || undefined,
+        organizationName: profileData.organization_name || undefined,
       });
     }
 
