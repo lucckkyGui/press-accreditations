@@ -12,6 +12,7 @@ import { BarChart3, Zap, Smartphone } from "lucide-react";
 import RealTimeDashboard from "@/components/dashboard/RealTimeDashboard";
 import SmartInvitationSystem from "@/components/invitations/SmartInvitationSystem";
 import OfflineCheckinSystem from "@/components/scanner/OfflineCheckinSystem";
+import DashboardGreeting from "@/components/dashboard/DashboardGreeting";
 
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading } = useAuth();
