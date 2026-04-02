@@ -35,6 +35,3 @@ verify_jwt = false
 
 [functions.check-resource-alerts]
 verify_jwt = false
-
-[functions.apply-security-fixes]
-verify_jwt = true
