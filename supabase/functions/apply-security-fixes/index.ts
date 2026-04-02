@@ -102,6 +102,7 @@ Deno.serve(async (req) => {
 
   // Only allow calls with the service role key
   if (!xSecretKey || xSecretKey !== serviceRoleKey) {
+    console.log("Auth check", { hasKey: !!xSecretKey, keyLen: xSecretKey?.length, srkLen: serviceRoleKey.length });
     return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
