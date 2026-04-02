@@ -94,15 +94,14 @@ Deno.serve(async (req) => {
 
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const authHeader = req.headers.get("Authorization")?.replace("Bearer ", "");
+  const xSecretKey = req.headers.get("x-service-key");
 
   if (!dbUrl || !serviceRoleKey) {
     return new Response(JSON.stringify({ error: "Missing config" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   // Only allow calls with the service role key
-  if (authHeader !== serviceRoleKey) {
-    console.log("Auth mismatch", { hasAuth: !!authHeader, authLen: authHeader?.length, srkLen: serviceRoleKey.length });
+  if (!xSecretKey || xSecretKey !== serviceRoleKey) {
     return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
