@@ -1,4 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import postgres from "npm:postgres@3.4.7";
 
 const corsHeaders = {
@@ -88,44 +87,22 @@ WITH CHECK (
 );
 `;
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
-  const authHeader = req.headers.get("Authorization");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const authHeader = req.headers.get("Authorization")?.replace("Bearer ", "");
 
-  if (!supabaseUrl || !anonKey || !dbUrl || !authHeader) {
-    return json({ error: "Missing required configuration" }, 500);
+  if (!dbUrl || !serviceRoleKey) {
+    return new Response(JSON.stringify({ error: "Missing config" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
-  const supabase = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-    auth: { persistSession: false },
-  });
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return json({ error: "Unauthorized" }, 401);
-  }
-
-  const { data: isAdmin, error: roleError } = await supabase.rpc("is_admin", { _user_id: user.id });
-  if (roleError || !isAdmin) {
-    return json({ error: "Forbidden" }, 403);
+  // Only allow calls with the service role key
+  if (authHeader !== serviceRoleKey) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   const sql = postgres(dbUrl, {
@@ -137,10 +114,10 @@ Deno.serve(async (req) => {
 
   try {
     await sql.unsafe(POLICY_SQL);
-    return json({ ok: true });
+    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to apply security fixes";
-    return json({ error: message }, 500);
+    return new Response(JSON.stringify({ error: message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } finally {
     await sql.end({ timeout: 5 });
   }
