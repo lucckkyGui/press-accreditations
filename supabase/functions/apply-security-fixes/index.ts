@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
   const oneTimeToken = "sec-fix-2026-04-02-xK9mP3";
   const reqToken = req.headers.get("x-fix-token");
 
-  if (!dbUrl || !serviceRoleKey) {
+  if (!dbUrl) {
     return new Response(JSON.stringify({ error: "Missing config" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
