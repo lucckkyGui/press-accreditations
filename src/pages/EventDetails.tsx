@@ -68,7 +68,6 @@ const EventDetails = () => {
           .eq('event_id', eventId);
 
         if (guestsError) {
-          console.error('Error fetching guests:', guestsError);
         }
 
         if (guestsData) {
@@ -92,7 +91,6 @@ const EventDetails = () => {
           );
         }
       } catch (error: any) {
-        console.error("Error fetching event details:", error);
         toast.error("Nie udało się załadować szczegółów wydarzenia");
       } finally {
         setLoading(false);

@@ -118,7 +118,6 @@ const AIChatSupport = () => {
         }
       }
     } catch (err) {
-      console.error("Chat error:", err);
       setMessages((prev) => [...prev, { role: "assistant", content: "Przepraszam, wystąpił błąd. Spróbuj ponownie." }]);
     } finally {
       setIsLoading(false);

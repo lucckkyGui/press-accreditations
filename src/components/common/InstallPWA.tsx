@@ -56,7 +56,6 @@ export function InstallPWA({
         toast.success(t('notifications.appInstalled'));
       }
     } catch (error) {
-      console.error('Błąd podczas instalacji PWA:', error);
       toast.error('Nie udało się zainstalować aplikacji');
     } finally {
       setIsInstalling(false);

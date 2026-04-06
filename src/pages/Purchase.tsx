@@ -160,7 +160,6 @@ const Purchase = () => {
   }, [currentStep]);
 
   const handleSubmitUserData = (data) => {
-    console.log("Form data:", data);
     toast.success("Dane zostały zapisane");
     setCurrentStep("ticket");
   };

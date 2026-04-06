@@ -65,7 +65,6 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         });
       }
     } catch (error) {
-      console.error('Błąd podczas sprawdzania subskrypcji:', error);
     }
   };
 
@@ -108,14 +107,11 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       };
       
       // Tutaj powinna być funkcja wysyłająca subskrypcję na serwer
-      console.log('Wysyłanie subskrypcji na serwer:', newSubscription);
-      
       setIsSubscribed(true);
       setSubscription(newSubscription);
       
       toast.success(t('notifications.subscribed'));
     } catch (error) {
-      console.error('Błąd podczas subskrypcji:', error);
       toast.error(t('notifications.subscriptionFailed'));
     }
   };
@@ -132,8 +128,6 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         
         if (result) {
           // Tutaj powinna być funkcja usuwająca subskrypcję z serwera
-          console.log('Usuwanie subskrypcji z serwera');
-          
           setIsSubscribed(false);
           setSubscription(null);
           toast.success(t('notifications.unsubscribed'));
@@ -142,7 +136,6 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         }
       }
     } catch (error) {
-      console.error('Błąd podczas anulowania subskrypcji:', error);
       toast.error(t('notifications.unsubscriptionFailed'));
     }
   };

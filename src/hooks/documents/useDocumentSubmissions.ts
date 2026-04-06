@@ -80,7 +80,6 @@ export function useDocumentSubmissions(eventId?: string) {
 
       setSubmissions(mapped);
     } catch (error) {
-      console.error('Error fetching document submissions:', error);
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +122,6 @@ export function useDocumentSubmissions(eventId?: string) {
       await fetchSubmissions();
       return data;
     } catch (error) {
-      console.error('Error creating submission:', error);
       toast.error('Nie udało się przesłać dokumentu');
       return null;
     }
@@ -153,7 +151,6 @@ export function useDocumentSubmissions(eventId?: string) {
       await fetchSubmissions();
       return true;
     } catch (error) {
-      console.error('Error updating submission status:', error);
       toast.error('Nie udało się zmienić statusu');
       return false;
     }
@@ -177,7 +174,6 @@ export function useDocumentSubmissions(eventId?: string) {
         createdAt: c.created_at
       })) as DocumentComment[];
     } catch (error) {
-      console.error('Error fetching comments:', error);
       return [];
     }
   };
@@ -198,7 +194,6 @@ export function useDocumentSubmissions(eventId?: string) {
       toast.success('Dodano komentarz');
       return true;
     } catch (error) {
-      console.error('Error adding comment:', error);
       toast.error('Nie udało się dodać komentarza');
       return false;
     }

@@ -81,7 +81,6 @@ export const MediaRegistrationService = {
       
       return { data: registrations };
     } catch (error: any) {
-      console.error('Error fetching media registrations:', error);
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -129,7 +128,6 @@ export const MediaRegistrationService = {
       
       return { data: registration };
     } catch (error: any) {
-      console.error('Error fetching media registration:', error);
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -181,7 +179,6 @@ export const MediaRegistrationService = {
       
       return { data: registration };
     } catch (error: any) {
-      console.error('Error creating media registration:', error);
       return { error: { message: error.message, code: 'CREATE_ERROR' } };
     }
   },
@@ -254,7 +251,6 @@ export const MediaRegistrationService = {
       
       return { data: registration };
     } catch (error: any) {
-      console.error('Error updating media registration:', error);
       return { error: { message: error.message, code: 'UPDATE_ERROR' } };
     }
   },
@@ -272,7 +268,6 @@ export const MediaRegistrationService = {
       
       return { data: undefined };
     } catch (error: any) {
-      console.error('Error deleting media registration:', error);
       return { error: { message: error.message, code: 'DELETE_ERROR' } };
     }
   },
@@ -315,7 +310,6 @@ export const MediaRegistrationService = {
       
       return { data: documents };
     } catch (error: any) {
-      console.error('Error fetching media documents:', error);
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -392,7 +386,6 @@ export const MediaRegistrationService = {
       
       return { data: document };
     } catch (error: any) {
-      console.error('Error uploading media document:', error);
       return { error: { message: error.message, code: 'UPLOAD_ERROR' } };
     }
   },
@@ -436,7 +429,6 @@ export const MediaRegistrationService = {
       
       return { data: document };
     } catch (error: any) {
-      console.error('Error updating media document:', error);
       return { error: { message: error.message, code: 'UPDATE_ERROR' } };
     }
   },
@@ -476,7 +468,6 @@ export const MediaRegistrationService = {
       
       return { data: undefined };
     } catch (error: any) {
-      console.error('Error deleting media document:', error);
       return { error: { message: error.message, code: 'DELETE_ERROR' } };
     }
   },
@@ -488,7 +479,6 @@ export const MediaRegistrationService = {
       .createSignedUrl(filePath, 3600); // 1 hour expiry
     
     if (error || !data?.signedUrl) {
-      console.error('Error creating signed URL:', error);
       throw new Error('Failed to generate document URL');
     }
     

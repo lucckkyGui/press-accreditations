@@ -23,7 +23,6 @@ export const signUp = async (data: AuthData) => {
     toast.success('Verification link sent to your email');
     return { error: null };
   } catch (error: any) {
-    console.error('Error signing up:', error);
     toast.error(error.message);
     return { error };
   }
@@ -41,7 +40,6 @@ export const signIn = async (email: string, password: string) => {
     toast.success('Signed in successfully');
     return { error: null };
   } catch (error: any) {
-    console.error('Error signing in:', error);
     toast.error(error.message);
     return { error };
   }
@@ -53,7 +51,6 @@ export const signOut = async () => {
     if (error) throw error;
     toast.success('Signed out successfully');
   } catch (error: any) {
-    console.error('Error signing out:', error);
     toast.error(error.message);
   }
 };
@@ -69,7 +66,6 @@ export const resetPassword = async (email: string) => {
     toast.success('Password reset link sent to your email');
     return { error: null };
   } catch (error: any) {
-    console.error('Error resetting password:', error);
     toast.error(error.message);
     return { error };
   }

@@ -48,7 +48,6 @@ const BulkGuestImport: React.FC<BulkGuestImportProps> = ({
       resetForm();
       onOpenChange(false);
     } catch (err) {
-      console.error('Error importing guests:', err);
     }
   };
   

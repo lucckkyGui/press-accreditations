@@ -58,7 +58,6 @@ const OfflineCheckinSystem: React.FC = () => {
         setOfflineEntries(entries);
       }
     } catch (error) {
-      console.error('Error loading offline entries:', error);
     }
   };
 
@@ -66,7 +65,6 @@ const OfflineCheckinSystem: React.FC = () => {
     try {
       localStorage.setItem('offline-checkin-entries', JSON.stringify(entries));
     } catch (error) {
-      console.error('Error saving offline entries:', error);
     }
   };
 

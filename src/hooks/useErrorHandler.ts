@@ -68,9 +68,6 @@ export const useErrorHandler = (defaultRetryConfig?: Partial<RetryConfig>) => {
         const delay = finalConfig.backoff 
           ? finalConfig.delay * Math.pow(2, attempt)
           : finalConfig.delay;
-
-        console.warn(`${operationName} failed (attempt ${attempt + 1}), retrying in ${delay}ms:`, lastError.message);
-        
         toast.warning(`${operationName} failed, retrying... (${attempt + 1}/${finalConfig.maxRetries})`);
 
         // Wait before retry
@@ -89,7 +86,6 @@ export const useErrorHandler = (defaultRetryConfig?: Partial<RetryConfig>) => {
   }, []);
 
   const handleError = useCallback((error: Error, context: string = 'Unknown') => {
-    console.error(`Error in ${context}:`, error);
     setErrorState(prev => ({ ...prev, error }));
     toast.error(`Error in ${context}: ${error.message}`);
   }, []);

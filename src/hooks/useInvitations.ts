@@ -18,7 +18,6 @@ export const useInvitations = (eventId?: string) => {
       enabled: !!eventId,
       onError: (err) => {
         toast.error('Failed to load invitations');
-        console.error('Error loading invitations:', err);
       }
     }
   );
@@ -37,7 +36,6 @@ export const useInvitations = (eventId?: string) => {
       },
       onError: (err) => {
         toast.error('Failed to create invitation');
-        console.error('Error creating invitation:', err);
       }
     }
   );
@@ -57,7 +55,6 @@ export const useInvitations = (eventId?: string) => {
       },
       onError: (err) => {
         toast.error('Failed to create bulk invitations');
-        console.error('Error creating bulk invitations:', err);
       }
     }
   );
@@ -76,7 +73,6 @@ export const useInvitations = (eventId?: string) => {
       },
       onError: (err) => {
         toast.error('Failed to check in guest');
-        console.error('Error using invitation:', err);
       }
     }
   );
@@ -94,7 +90,6 @@ export const useInvitations = (eventId?: string) => {
       },
       onError: (err) => {
         toast.error('Failed to create campaign');
-        console.error('Error creating campaign:', err);
       }
     }
   );
@@ -123,7 +118,6 @@ export const useInvitationByQR = (qrCodeData?: string) => {
       enabled: !!qrCodeData,
       onError: (err) => {
         toast.error('Invalid QR code');
-        console.error('Error getting invitation by QR:', err);
       }
     }
   );

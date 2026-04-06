@@ -60,7 +60,6 @@ const Scanner = () => {
   }, []);
 
   const handleGuestCheckedIn = (guest: any) => {
-    console.log('Guest checked in:', guest);
   };
 
   if (loading) {

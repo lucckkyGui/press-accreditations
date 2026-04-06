@@ -54,7 +54,6 @@ export function useChatConversations(eventId?: string) {
 
       setConversations(mapped);
     } catch (error) {
-      console.error('Error fetching conversations:', error);
       toast.error('Nie udało się pobrać konwersacji');
     } finally {
       setIsLoading(false);
@@ -90,7 +89,6 @@ export function useChatConversations(eventId?: string) {
       toast.success('Utworzono nową konwersację');
       return newConversation;
     } catch (error) {
-      console.error('Error creating conversation:', error);
       toast.error('Nie udało się utworzyć konwersacji');
       return null;
     }

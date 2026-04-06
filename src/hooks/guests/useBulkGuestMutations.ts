@@ -22,7 +22,6 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to delete guests');
-        console.error('Error bulk deleting guests:', err);
       }
     }
   );
@@ -42,7 +41,6 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to update guest status');
-        console.error('Error updating guest status:', err);
       }
     }
   );
@@ -62,7 +60,6 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to update guest ticket type');
-        console.error('Error updating guest ticket type:', err);
       }
     }
   );
@@ -81,7 +78,6 @@ export const useBulkGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to send invitations');
-        console.error('Error sending invitations:', err);
       }
     }
   );

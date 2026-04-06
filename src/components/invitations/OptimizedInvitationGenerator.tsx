@@ -91,7 +91,6 @@ const OptimizedInvitationGenerator: React.FC<OptimizedInvitationGeneratorProps> 
         errorCorrectionLevel: 'M' // Optymalizacja dla szybkości
       });
     } catch (error) {
-      console.error('Error generating QR code:', error);
       throw error;
     }
   };
@@ -178,7 +177,6 @@ const OptimizedInvitationGenerator: React.FC<OptimizedInvitationGeneratorProps> 
           try {
             return await generateInvitation(guest);
           } catch (error) {
-            console.error(`Błąd generowania zaproszenia dla ${guest.email}:`, error);
             totalFailed++;
             return null;
           }
@@ -221,7 +219,6 @@ const OptimizedInvitationGenerator: React.FC<OptimizedInvitationGeneratorProps> 
       }
 
     } catch (error) {
-      console.error('Error generating invitations:', error);
       toast.error('Wystąpił błąd podczas generowania zaproszeń');
     } finally {
       setIsGenerating(false);

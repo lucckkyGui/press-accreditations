@@ -75,7 +75,6 @@ export const eventService = {
         } : undefined
       };
     } catch (error: any) {
-      console.error('Error fetching events:', error);
       return { error: { message: error.message, code: 'FETCH_EVENTS_ERROR' } };
     }
   },
@@ -95,7 +94,6 @@ export const eventService = {
 
       return { data: mapDbEventToEvent(data) };
     } catch (error: any) {
-      console.error(`Error fetching event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'FETCH_EVENT_ERROR' } };
     }
   },
@@ -134,7 +132,6 @@ export const eventService = {
 
       return { data: mapDbEventToEvent(data) };
     } catch (error: any) {
-      console.error('Error creating event:', error);
       return { error: { message: error.message, code: 'CREATE_EVENT_ERROR' } };
     }
   },
@@ -157,7 +154,6 @@ export const eventService = {
 
       return { data: mapDbEventToEvent(data) };
     } catch (error) {
-      console.error(`Error updating event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'UPDATE_EVENT_ERROR' } };
     }
   },
@@ -176,7 +172,6 @@ export const eventService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error deleting event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'DELETE_EVENT_ERROR' } };
     }
   },
@@ -197,7 +192,6 @@ export const eventService = {
 
       return { data: mapDbEventToEvent(data) };
     } catch (error) {
-      console.error(`Error updating publish state for event with ID ${id}:`, error);
       return { error: { message: error.message, code: 'TOGGLE_PUBLISH_ERROR' } };
     }
   }

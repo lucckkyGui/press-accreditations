@@ -22,7 +22,6 @@ export const useGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to add guest');
-        console.error('Error creating guest:', err);
       }
     }
   );
@@ -46,7 +45,6 @@ export const useGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to bulk add guests');
-        console.error('Error bulk creating guests:', err);
       }
     }
   );
@@ -65,7 +63,6 @@ export const useGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to update guest');
-        console.error('Error updating guest:', err);
       }
     }
   );
@@ -84,7 +81,6 @@ export const useGuestMutations = (refetchGuests: () => void) => {
       },
       onError: (err) => {
         toast.error('Failed to delete guest');
-        console.error('Error deleting guest:', err);
       }
     }
   );

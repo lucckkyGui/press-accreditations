@@ -70,7 +70,6 @@ const StatsCards: React.FC<StatsCardsProps> = ({
       
       toast.success("Plik CSV został wygenerowany");
     } catch (error) {
-      console.error("Błąd podczas eksportu do CSV:", error);
       toast.error("Nie udało się wygenerować pliku CSV");
     }
   };

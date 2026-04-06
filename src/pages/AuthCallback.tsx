@@ -24,14 +24,12 @@ const AuthCallback = () => {
             refresh_token: refreshToken,
           });
           if (setError) {
-            console.error("Error setting session from hash:", setError);
           }
         }
         
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
-          console.error("OAuth callback error:", error);
           toast({
             title: "Błąd logowania",
             description: error.message || "Wystąpił błąd podczas logowania przez OAuth.",
@@ -56,7 +54,6 @@ const AuthCallback = () => {
           navigate("/auth/login", { replace: true });
         }
       } catch (err) {
-        console.error("Unexpected error during OAuth callback:", err);
         toast({
           title: "Błąd",
           description: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",

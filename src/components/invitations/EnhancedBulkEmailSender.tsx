@@ -87,12 +87,6 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
   const sendEmailBatch = async (batch: EmailBatch): Promise<boolean> => {
     try {
       // Symulacja wysyłki email (tu byłaby integracja z rzeczywistym serwisem email)
-      console.log(`Wysyłanie batch ${batch.batchNumber}:`, {
-        recipientsCount: batch.guests.length,
-        subject,
-        customMessage
-      });
-
       // W rzeczywistej implementacji tutaj byłby call do API email
       // np. do Resend, SendGrid, itp.
       const emailPromises = batch.guests.map(async (guest) => {
@@ -119,7 +113,6 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
       await Promise.all(emailPromises);
       return true;
     } catch (error) {
-      console.error(`Błąd wysyłki batch ${batch.batchNumber}:`, error);
       return false;
     }
   };
@@ -189,7 +182,6 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
       onEmailSent();
 
     } catch (error) {
-      console.error('Błąd podczas wysyłania emaili:', error);
       toast.error('Wystąpił błąd podczas wysyłania zaproszeń');
     } finally {
       setIsSending(false);

@@ -168,7 +168,6 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
       }
 
     } catch (error) {
-      console.error('Error processing QR code:', error);
       setLastScanResult({
         guest: null,
         status: 'invalid',

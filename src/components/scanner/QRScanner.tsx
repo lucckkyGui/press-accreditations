@@ -45,8 +45,6 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
     
     if (settings.playSound && isAudioSupported()) {
       playSound(success ? "success" : "error").catch(err => 
-        console.warn("Could not play sound", err)
-      );
     }
   };
 
@@ -54,7 +52,7 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
     setScanning(true);
     setCameraActive(true);
     if (settings.playSound && isAudioSupported()) {
-      playSound("scan").catch(err => console.warn("Could not play sound", err));
+      playSound("scan").catch(() => {});
     }
   };
 
@@ -63,8 +61,6 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
     
     setIsProcessing(true);
     setErrorMessage(null);
-    console.log("QR code detected:", qrCode);
-    
     try {
       // Use the real scanner service to verify and check in
       const result: ScanResult = await guestScannerService.verifyAndCheckIn(qrCode, eventId);
@@ -98,7 +94,6 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
         }, 3000);
       }
     } catch (error) {
-      console.error("Error processing QR code:", error);
       setScanResult("error");
       setErrorMessage("Błąd podczas przetwarzania kodu QR");
       performFeedback(false);
@@ -138,7 +133,6 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
           ...JSON.parse(savedSettings)
         }));
       } catch (e) {
-        console.error('Błąd przy ładowaniu ustawień skanera:', e);
       }
     }
     

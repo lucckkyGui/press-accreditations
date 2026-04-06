@@ -68,7 +68,6 @@ export const guestQueryService = {
         }
       };
     } catch (error: any) {
-      console.error('Error fetching guests:', error);
       return { error: { message: error.message, code: 'FETCH_GUESTS_ERROR' } };
     }
   },
@@ -88,7 +87,6 @@ export const guestQueryService = {
 
       return { data: mapDbGuestToGuest(data) };
     } catch (error) {
-      console.error(`Error fetching guest with ID ${id}:`, error);
       return { error: { message: error.message, code: 'FETCH_GUEST_ERROR' } };
     }
   }

@@ -62,7 +62,6 @@ export const AccreditationService = {
         data: data.map(fromAccreditationDb) 
       };
     } catch (error: any) {
-      console.error("Error fetching accreditations:", error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -89,7 +88,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error fetching accreditation ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -116,7 +114,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error fetching accreditation by QR code:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -159,7 +156,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error("Error creating accreditation:", error);
       return { 
         error: {
           message: error.message || "Nie udało się utworzyć akredytacji",
@@ -193,7 +189,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error checking in accreditation:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się zarejestrować check-in",
@@ -224,7 +219,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error revoking accreditation ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się unieważnić akredytacji",
@@ -279,7 +273,6 @@ export const AccreditationService = {
       
       return { data: stats };
     } catch (error: any) {
-      console.error("Error fetching accreditation stats:", error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać statystyk akredytacji",
@@ -294,8 +287,6 @@ export const AccreditationService = {
    */
   async recordAreaAccess(entry: AccessAreaEntry): Promise<ApiResponse<void>> {
     try {
-      console.log("Area access entry:", entry);
-      
       // Instead of using the non-existent table, just update the accreditation's updated_at
       const { error } = await supabase
         .from('accreditations')
@@ -308,7 +299,6 @@ export const AccreditationService = {
       
       return { data: undefined };
     } catch (error: any) {
-      console.error("Error recording area access:", error);
       return { 
         error: {
           message: error.message || "Nie udało się zarejestrować wejścia do strefy",
@@ -365,7 +355,6 @@ export const AccreditationService = {
       
       return { data: badgeData };
     } catch (error: any) {
-      console.error("Error generating badge data:", error);
       return { 
         error: {
           message: error.message || "Nie udało się wygenerować danych identyfikatora",
@@ -401,7 +390,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error updating accreditation status ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się zaktualizować statusu akredytacji",
@@ -441,7 +429,6 @@ export const AccreditationService = {
         data: fromAccreditationDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error marking badge as printed ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się oznaczyć identyfikatora jako wydrukowany",

@@ -70,7 +70,6 @@ export function SyncStatus({ onSyncClick }: SyncStatusProps) {
           setShowProgress(false);
         }, 1000);
       } catch (error) {
-        console.error("Sync failed:", error);
       } finally {
         clearInterval(progressInterval);
         setIsSyncing(false);

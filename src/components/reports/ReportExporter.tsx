@@ -113,8 +113,6 @@ const ReportExporter: React.FC = () => {
       toast.success(`Raport wyeksportowany: ${fileName}`);
       
       // W rzeczywistej aplikacji tutaj byłoby pobieranie pliku
-      console.log('Eksport konfiguracji:', reportConfig);
-      
     } catch (error) {
       toast.error('Błąd podczas eksportu raportu');
     } finally {

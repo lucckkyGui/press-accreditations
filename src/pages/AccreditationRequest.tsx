@@ -49,8 +49,6 @@ const AccreditationRequest = () => {
     // Symulacja wysyłania formularza
     try {
       // W rzeczywistej aplikacji tutaj wysyłamy dane do API
-      console.log("Submitting accreditation form:", formData);
-      
       // Symuluj opóźnienie wysyłania
       await new Promise(resolve => setTimeout(resolve, 1500));
       
@@ -60,7 +58,6 @@ const AccreditationRequest = () => {
       // Wyświetl powiadomienie o sukcesie
       toast.success(t('accreditation.requestSubmitted'));
     } catch (error) {
-      console.error("Error submitting accreditation form:", error);
       toast.error(t('accreditation.requestError'));
     } finally {
       setIsLoading(false);

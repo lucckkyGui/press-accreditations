@@ -72,7 +72,6 @@ const EnhancedBulkGuestImport: React.FC<EnhancedBulkGuestImportProps> = ({
       resetForm();
       onOpenChange(false);
     } catch (err) {
-      console.error('Error importing guests:', err);
     }
   };
   

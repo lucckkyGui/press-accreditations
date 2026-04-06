@@ -32,7 +32,6 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: Partial<Gue
       enabled: !!eventId,
       onError: (err) => {
         toast.error('Failed to load guests');
-        console.error('Error loading guests:', err);
       }
     }
   );

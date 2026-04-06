@@ -39,7 +39,6 @@ export const guestMutationService = {
 
       return { data: mapDbGuestToGuest(data as GuestDB) };
     } catch (error) {
-      console.error('Error creating guest:', error);
       return { error: { message: error.message, code: 'CREATE_GUEST_ERROR' } };
     }
   },
@@ -72,7 +71,6 @@ export const guestMutationService = {
 
       return { data: mapDbGuestToGuest(data) };
     } catch (error) {
-      console.error(`Error updating guest with ID ${id}:`, error);
       return { error: { message: error.message, code: 'UPDATE_GUEST_ERROR' } };
     }
   },
@@ -91,7 +89,6 @@ export const guestMutationService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error deleting guest with ID ${id}:`, error);
       return { error: { message: error.message, code: 'DELETE_GUEST_ERROR' } };
     }
   }

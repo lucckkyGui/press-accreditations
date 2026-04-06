@@ -70,8 +70,6 @@ const NotificationScheduler = ({ eventId, eventName, eventDate, guests }: Notifi
       status: "scheduled",
       scheduledFor: notification.scheduledFor || new Date(),
     };
-    
-    console.log("Zaplanowano powiadomienie:", newNotification);
     toast.success(`Powiadomienie zaplanowane dla ${recipientsCount} gości na ${format(notification.scheduledFor!, 'dd.MM.yyyy HH:mm')}`);
     
     // Reset form

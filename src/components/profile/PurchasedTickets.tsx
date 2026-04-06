@@ -51,7 +51,6 @@ const PurchasedTickets: React.FC<PurchasedTicketsProps> = ({ tickets: propTicket
         text: `Sprawdź mój bilet na ${ticket.eventName} w dniu ${formatDate(ticket.eventDate)}!`,
         url: window.location.href,
       }).catch(err => {
-        console.error('Wystąpił błąd podczas udostępniania:', err);
         toast.error("Nie udało się udostępnić biletu");
       });
     } else {
