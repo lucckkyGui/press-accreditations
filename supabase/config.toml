@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.check-resource-alerts]
 verify_jwt = false
+
+[functions.gdpr-export]
+verify_jwt = false
+
+[functions.landing-page-register]
+verify_jwt = false

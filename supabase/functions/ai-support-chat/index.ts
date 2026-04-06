@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { checkRateLimit, getClientIP, createRateLimitResponse } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,10 +34,15 @@ const SYSTEM_PROMPT = `Jesteś asystentem AI platformy akredytacyjnej do zarząd
 - Jeśli nie znasz odpowiedzi, zasugeruj kontakt z organizatorem
 - Bądź uprzejmy i profesjonalny`;
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Rate limiting — 20 requests per minute per IP
+  const clientIP = getClientIP(req);
+  const rl = checkRateLimit(clientIP, { maxRequests: 20, windowMs: 60_000, keyPrefix: "ai-chat" });
+  if (!rl.allowed) return createRateLimitResponse(rl, corsHeaders);
 
   try {
     const { messages } = await req.json();
