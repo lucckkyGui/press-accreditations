@@ -86,12 +86,12 @@ const Login = () => {
             <Card className="rounded-2xl border-border/50 shadow-xl shadow-primary/5 backdrop-blur-sm bg-card/95">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl">
-                  {organizerMode === "login" ? t('auth.organizerLogin') : "Utwórz konto organizatora"}
+                  {organizerMode === "login" ? t('auth.organizerLogin') : t('auth.createOrganizerAccount')}
                 </CardTitle>
                 <CardDescription className="text-sm">
                   {organizerMode === "login" 
                     ? t('auth.organizerLoginDescription')
-                    : "Zarejestruj swoją organizację, aby zarządzać wydarzeniami i akredytacjami"}
+                    : t('auth.createOrganizerAccountDescription')}
                 </CardDescription>
               </CardHeader>
               
@@ -111,14 +111,15 @@ const Login = () => {
               {organizerMode === "login" && (
                 <div className="px-6 pb-6">
                   <div className="text-center text-sm text-muted-foreground">
-                    Nie masz jeszcze konta?{" "}
+                    {t('auth.noAccountYet')}{" "}
                     <Button 
                       variant="link" 
                       size="sm" 
                       className="p-0 h-auto text-primary font-medium"
                       onClick={() => setOrganizerMode("signup")}
                     >
-                      Utwórz konto organizatora
+                      {t('auth.createOrganizerAccount')}
+                    </Button>
                     </Button>
                   </div>
                 </div>
