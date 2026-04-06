@@ -11,10 +11,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/hooks/useI18n";
+import { useAuditLog } from "@/hooks/useAuditLog";
+import { z } from "zod";
+
+const profileSchema = z.object({
+  firstName: z.string().min(1, "Imię jest wymagane"),
+  lastName: z.string().min(1, "Nazwisko jest wymagane"),
+  email: z.string().email("Nieprawidłowy email"),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+  jobTitle: z.string().optional(),
+  bio: z.string().max(500, "Bio max 500 znaków").optional(),
+  website: z.string().url("Nieprawidłowy URL").or(z.literal("")).optional(),
+});
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { t } = useI18n();
+  const { logSettingsChange } = useAuditLog();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -50,6 +67,18 @@ const ProfileSettings = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    const result = profileSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) fieldErrors[String(err.path[0])] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -65,9 +94,10 @@ const ProfileSettings = () => {
         .eq('id', user!.id);
 
       if (error) throw error;
-      toast.success("Profil został zaktualizowany");
+      toast.success(t('common.success'));
+      logSettingsChange("profile");
     } catch (error) {
-      toast.error("Błąd podczas aktualizacji profilu");
+      toast.error(t('auth.profileUpdateError'));
     } finally {
       setIsLoading(false);
     }
