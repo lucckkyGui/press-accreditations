@@ -37,7 +37,7 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 
 interface EventFormProps {
   event?: Event;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: Error) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }

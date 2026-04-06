@@ -34,7 +34,7 @@ export function useMediaDocuments(params: MediaDocumentQueryParams = {}, options
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to upload document.',
@@ -56,7 +56,7 @@ export function useMediaDocuments(params: MediaDocumentQueryParams = {}, options
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to update document.',
@@ -77,7 +77,7 @@ export function useMediaDocuments(params: MediaDocumentQueryParams = {}, options
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to delete document.',

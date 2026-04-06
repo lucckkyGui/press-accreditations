@@ -80,7 +80,7 @@ export const MediaRegistrationService = {
       }));
       
       return { data: registrations };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -127,7 +127,7 @@ export const MediaRegistrationService = {
       };
       
       return { data: registration };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -178,7 +178,7 @@ export const MediaRegistrationService = {
       };
       
       return { data: registration };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'CREATE_ERROR' } };
     }
   },
@@ -250,7 +250,7 @@ export const MediaRegistrationService = {
       };
       
       return { data: registration };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'UPDATE_ERROR' } };
     }
   },
@@ -267,7 +267,7 @@ export const MediaRegistrationService = {
       }
       
       return { data: undefined };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'DELETE_ERROR' } };
     }
   },
@@ -309,7 +309,7 @@ export const MediaRegistrationService = {
       }));
       
       return { data: documents };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_ERROR' } };
     }
   },
@@ -385,7 +385,7 @@ export const MediaRegistrationService = {
       };
       
       return { data: document };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'UPLOAD_ERROR' } };
     }
   },
@@ -428,7 +428,7 @@ export const MediaRegistrationService = {
       };
       
       return { data: document };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'UPDATE_ERROR' } };
     }
   },
@@ -467,7 +467,7 @@ export const MediaRegistrationService = {
       }
       
       return { data: undefined };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'DELETE_ERROR' } };
     }
   },

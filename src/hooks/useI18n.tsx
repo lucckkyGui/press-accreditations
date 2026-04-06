@@ -27,7 +27,7 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 // Helper function to get nested values from an object using dot notation
-const getNestedValue = (obj: any, path: string): string => {
+const getNestedValue = (obj: Record<string, unknown>, path: string): string => {
   const keys = path.split('.');
   return keys.reduce((acc, key) => {
     if (acc && typeof acc === 'object' && key in acc) {

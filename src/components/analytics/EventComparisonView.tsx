@@ -26,7 +26,7 @@ function DiffBadge({ a, b, suffix = '' }: { a: number; b: number; suffix?: strin
 }
 
 function KpiRow({ label, icon: Icon, leftVal, rightVal, leftSub, rightSub, suffix }: {
-  label: string; icon: any; leftVal: number; rightVal: number;
+  label: string; icon: React.ElementType; leftVal: number; rightVal: number;
   leftSub?: string; rightSub?: string; suffix?: string;
 }) {
   return (

@@ -195,7 +195,7 @@ const GuestDashboard = () => {
                 <CardDescription>Twoje obecnie aktywne przepustki</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {activeAccreditations.map((accreditation: any) => (
+                {activeAccreditations.map((accreditation: Error) => (
                   <div key={accreditation.id} className="p-4 rounded-lg bg-card border shadow-sm">
                     <div className="flex items-start justify-between">
                       <div className="flex gap-4">
@@ -253,7 +253,7 @@ const GuestDashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {upcomingAccreditations.map((accreditation: any) => (
+                  {upcomingAccreditations.map((accreditation: Error) => (
                     <div key={accreditation.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="text-center p-2 bg-primary/10 rounded-lg min-w-[60px]">
@@ -302,7 +302,7 @@ const GuestDashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {accreditationRequests?.slice(0, 5).map((request: any) => (
+                  {accreditationRequests?.slice(0, 5).map((request: Error) => (
                     <div key={request.id} className="flex items-center justify-between p-3 rounded-lg border">
                       <div>
                         <p className="font-medium">{request.events?.title || request.media_name}</p>
@@ -336,7 +336,7 @@ const GuestDashboard = () => {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {notifications?.map((notification: any) => (
+                  {notifications?.map((notification: Error) => (
                     <div key={notification.id} className="p-3 rounded-lg bg-muted/50">
                       <p className="font-medium text-sm">{notification.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>

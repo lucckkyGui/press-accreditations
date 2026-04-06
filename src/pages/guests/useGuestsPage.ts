@@ -103,12 +103,12 @@ export const useGuestsPage = () => {
     selection.clearSelection();
   };
 
-  const handleBulkStatusUpdate = async (status: any) => {
+  const handleBulkStatusUpdate = async (status: Error) => {
     await actions.handleBulkStatusUpdate(selection.selectedGuests, status);
     selection.clearSelection();
   };
 
-  const handleBulkTicketTypeUpdate = async (ticketType: any) => {
+  const handleBulkTicketTypeUpdate = async (ticketType: Error) => {
     await actions.handleBulkTicketTypeUpdate(selection.selectedGuests, ticketType);
     selection.clearSelection();
   };

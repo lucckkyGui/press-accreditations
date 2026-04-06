@@ -55,7 +55,7 @@ const RecentScansWidget: React.FC = () => {
 
       if (error || !logs) return [];
 
-      return logs.map((log: any) => {
+      return logs.map((log: Error) => {
         const guest = log.wristbands?.guests;
         const guestName = guest
           ? `${guest.first_name} ${guest.last_name}`

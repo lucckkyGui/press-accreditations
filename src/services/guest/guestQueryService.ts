@@ -59,7 +59,7 @@ export const guestQueryService = {
       const pageSize = params?.pageSize || 50;
 
       return {
-        data: data.map((item: any) => mapDbGuestToGuest(item)),
+        data: data.map((item: Error) => mapDbGuestToGuest(item)),
         pagination: {
           total: totalCount || data.length,
           page,
@@ -67,7 +67,7 @@ export const guestQueryService = {
           totalPages: Math.ceil((totalCount || data.length) / pageSize)
         }
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_GUESTS_ERROR' } };
     }
   },

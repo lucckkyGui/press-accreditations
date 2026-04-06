@@ -25,7 +25,7 @@ interface RowData {
   onDelete: (id: string) => void;
 }
 
-const GuestRow: React.FC<{ index: number; style: any; data: RowData }> = ({
+const GuestRow: React.FC<{ index: number; style: React.CSSProperties; data: RowData }> = ({
   index,
   style,
   data

@@ -107,7 +107,7 @@ export default function ApiKeyManagement() {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
       toast.success('Klucz API utworzony');
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteKeyMutation = useMutation({
@@ -144,7 +144,7 @@ export default function ApiKeyManagement() {
       setWebhookUrl('');
       setWebhookEvents(['guest.checked_in']);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteWebhookMutation = useMutation({
@@ -248,7 +248,7 @@ export default function ApiKeyManagement() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {(apiKeys || []).map((key: any) => (
+            {(apiKeys || []).map((key: Error) => (
               <Card key={key.id}>
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="space-y-1">
@@ -343,7 +343,7 @@ export default function ApiKeyManagement() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {(webhooks || []).map((wh: any) => (
+            {(webhooks || []).map((wh: Error) => (
               <Card key={wh.id}>
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="space-y-1">

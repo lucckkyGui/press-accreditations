@@ -69,11 +69,11 @@ const LiveDashboard = () => {
       ]);
 
       const stats: Record<string, number> = {};
-      (presenceRes.data || []).forEach((p: any) => {
+      (presenceRes.data || []).forEach((p: Error) => {
         stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
       });
 
-      const scans = (logsRes.data || []).map((l: any) => ({
+      const scans = (logsRes.data || []).map((l: Error) => ({
         id: l.id,
         action: l.action,
         zone_name: l.zone_name,
@@ -97,7 +97,7 @@ const LiveDashboard = () => {
         setZoneStats(stats);
         setRecentScans(scans);
         setGuestCount(guests.length);
-        setCheckedInCount(guests.filter((g: any) => g.checked_in_at).length);
+        setCheckedInCount(guests.filter((g: Error) => g.checked_in_at).length);
       }
     };
 

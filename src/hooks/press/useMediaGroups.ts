@@ -29,7 +29,7 @@ export function useMediaGroups(params: MediaGroupsQueryParams = {}, options = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się utworzyć grupy mediów.',
@@ -51,7 +51,7 @@ export function useMediaGroups(params: MediaGroupsQueryParams = {}, options = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zaktualizować grupy mediów.',
@@ -72,7 +72,7 @@ export function useMediaGroups(params: MediaGroupsQueryParams = {}, options = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się usunąć grupy mediów.',

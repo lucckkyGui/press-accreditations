@@ -43,7 +43,7 @@ const AccreditationRequest = () => {
     }
   }, [eventId]);
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Error) => {
     setIsLoading(true);
     
     // Symulacja wysyłania formularza

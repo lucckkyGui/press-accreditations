@@ -90,7 +90,7 @@ const EventDetails = () => {
             }))
           );
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error("Nie udało się załadować szczegółów wydarzenia");
       } finally {
         setLoading(false);

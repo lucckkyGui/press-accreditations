@@ -51,7 +51,7 @@ const OfflineCheckinSystem: React.FC = () => {
     try {
       const saved = localStorage.getItem('offline-checkin-entries');
       if (saved) {
-        const entries = JSON.parse(saved).map((entry: any) => ({
+        const entries = JSON.parse(saved).map((entry: Error) => ({
           ...entry,
           timestamp: new Date(entry.timestamp)
         }));

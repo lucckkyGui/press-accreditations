@@ -33,7 +33,7 @@ export function useAccreditationTypes(params: AccreditationTypesQueryParams = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się utworzyć typu akredytacji.',
@@ -55,7 +55,7 @@ export function useAccreditationTypes(params: AccreditationTypesQueryParams = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zaktualizować typu akredytacji.',
@@ -76,7 +76,7 @@ export function useAccreditationTypes(params: AccreditationTypesQueryParams = {}
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się usunąć typu akredytacji.',

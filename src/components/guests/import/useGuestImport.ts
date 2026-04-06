@@ -42,7 +42,7 @@ export const useGuestImport = () => {
             return;
           }
           
-          const processed = results.data.map((row: any) => {
+          const processed = results.data.map((row: Error) => {
             const errors: string[] = [];
             
             if (!row.firstName && !row['Imię'] && !row['imie'] && !row['first_name']) {

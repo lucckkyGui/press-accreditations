@@ -143,7 +143,7 @@ const RfidScanner = () => {
       setZonePresence(presence);
       const maxCapacity: Record<string, number> = { VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20 };
       rfidService.checkZoneCapacityAlerts(selectedEvent, stats, maxCapacity).catch(() => {});
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Błąd skanowania', { description: err.message });
     }
   };
@@ -294,7 +294,7 @@ const RfidScanner = () => {
                   {recentScans.length === 0 && (
                     <p className="text-muted-foreground text-center py-8">Brak skanów. Uruchom czytnik i zeskanuj opaskę.</p>
                   )}
-                  {recentScans.map((scan: any) => (
+                  {recentScans.map((scan: Error) => (
                     <div key={scan.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50">
                       <div className="flex items-center gap-3">
                         {getActionIcon(scan.action)}
@@ -322,7 +322,7 @@ const RfidScanner = () => {
               <CardHeader><CardTitle>Osoby aktualnie w strefach</CardTitle></CardHeader>
               <CardContent>
                 {ZONES.map(zone => {
-                  const inZone = zonePresence.filter((p: any) => p.zone_name === zone);
+                  const inZone = zonePresence.filter((p: Error) => p.zone_name === zone);
                   if (inZone.length === 0) return null;
                   return (
                     <div key={zone} className="mb-4">
@@ -331,7 +331,7 @@ const RfidScanner = () => {
                         <Badge variant="secondary">{inZone.length}</Badge>
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {inZone.map((p: any) => (
+                        {inZone.map((p: Error) => (
                           <div key={p.id} className="px-3 py-2 bg-muted/50 rounded-md text-sm">
                             <p className="font-medium">{p.guest_name}</p>
                             <p className="text-xs text-muted-foreground">

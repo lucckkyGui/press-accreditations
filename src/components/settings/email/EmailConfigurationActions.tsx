@@ -24,7 +24,7 @@ const EmailConfigurationActions = ({ emailConfig, onSave, isSaving }: EmailConfi
       } else {
         toast.success('Test połączenia zakończony powodzeniem');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(`Błąd podczas testu połączenia: ${error?.message || 'Nieznany błąd'}`);
     } finally {
       setIsTesting(false);

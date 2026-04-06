@@ -206,7 +206,7 @@ const OrganizerDashboard = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Wszystkie wydarzenia</SelectItem>
-            {(eventsData || []).map((e: any) => (
+            {(eventsData || []).map((e: Error) => (
               <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
             ))}
           </SelectContent>

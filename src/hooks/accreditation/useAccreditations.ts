@@ -36,7 +36,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się utworzyć akredytacji.',
@@ -57,7 +57,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zarejestrować check-in.',
@@ -79,7 +79,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się unieważnić akredytacji.',
@@ -102,7 +102,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zaktualizować statusu akredytacji.',
@@ -124,7 +124,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
         });
         refetch();
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się oznaczyć identyfikatora jako wydrukowany.',
@@ -144,7 +144,7 @@ export function useAccreditations(params: AccreditationsQueryParams = {}, option
           description: 'Wejście do strefy zostało zarejestrowane.',
         });
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zarejestrować wejścia do strefy.',

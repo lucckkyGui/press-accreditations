@@ -99,7 +99,7 @@ const EmbedRegisterForm = () => {
 
       setWaitlisted(result.waitlisted);
       setSubmitted(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Błąd połączenia. Spróbuj ponownie.");
     } finally {
       setSubmitting(false);

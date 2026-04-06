@@ -23,15 +23,15 @@ interface GuestsTabsProps {
   selectedEvent: any;
   isLoading: boolean;
   setSearch: (search: string) => void;
-  setStatusFilter: (status: any) => void;
-  setTicketTypeFilter: (ticketType: any) => void;
+  setStatusFilter: (status: Error) => void;
+  setTicketTypeFilter: (ticketType: Error) => void;
   setZoneFilter: (zone: string) => void;
   setSelectedGuests: (guests: any[]) => void;
-  handleEditGuest: (guest: any) => void;
+  handleEditGuest: (guest: Error) => void;
   handleDeleteGuest: (id: string) => void;
   handleBulkEmail: () => void;
-  handleBulkStatusUpdate: (status: any) => void;
-  handleBulkTicketTypeUpdate: (ticketType: any) => void;
+  handleBulkStatusUpdate: (status: Error) => void;
+  handleBulkTicketTypeUpdate: (ticketType: Error) => void;
   handleBulkDeleteGuests: () => void;
   handleEmailSent: () => void;
 }

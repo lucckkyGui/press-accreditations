@@ -67,14 +67,14 @@ export const eventService = {
       if (error) throw error;
 
       return {
-        data: (data ?? []).map((item: any) => mapDbEventToEvent(item)),
+        data: (data ?? []).map((item: Error) => mapDbEventToEvent(item)),
         pagination: typeof count === 'number' ? {
           total: count,
           page: params?.page || 0,
           pageSize: params?.pageSize || 10
         } : undefined
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_EVENTS_ERROR' } };
     }
   },
@@ -93,7 +93,7 @@ export const eventService = {
       if (error) throw error;
 
       return { data: mapDbEventToEvent(data) };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'FETCH_EVENT_ERROR' } };
     }
   },
@@ -131,7 +131,7 @@ export const eventService = {
       if (error) throw error;
 
       return { data: mapDbEventToEvent(data) };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { error: { message: error.message, code: 'CREATE_EVENT_ERROR' } };
     }
   },
@@ -200,7 +200,7 @@ export const eventService = {
 /**
  * Map database event to our frontend Event type
  */
-function mapDbEventToEvent(dbEvent: any): Event {
+function mapDbEventToEvent(dbEvent: Record<string, unknown>): Event {
   return {
     id: dbEvent.id,
     name: dbEvent.title,

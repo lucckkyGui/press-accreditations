@@ -10,7 +10,7 @@ import { MigrationService } from '@/services/migration/migrationService';
  */
 interface UseApiOptions<TData = any, TParams = any> {
   onSuccess?: (data: TData) => void;
-  onError?: (error: any) => void;
+  onError?: (error: Error) => void;
   enabled?: boolean;
   offlineSupport?: boolean;  // Nowa opcja do obsługi trybu offline
 }

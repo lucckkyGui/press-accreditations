@@ -41,7 +41,7 @@ export const useEmailIntegration = () => {
       toast.success('Konfiguracja email została zaktualizowana');
       refetchConfig();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Błąd podczas aktualizacji konfiguracji: ${error?.message || 'Nieznany błąd'}`);
     }
   });

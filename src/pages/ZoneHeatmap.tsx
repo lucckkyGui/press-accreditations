@@ -58,7 +58,7 @@ const ZoneHeatmap = () => {
         .eq('event_id', selectedEvent)
         .eq('is_inside', true);
       const stats: Record<string, number> = {};
-      (data || []).forEach((p: any) => {
+      (data || []).forEach((p: Error) => {
         stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
       });
 
