@@ -74,7 +74,7 @@ export const eventService = {
           pageSize: params?.pageSize || 10
         } : undefined
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { error: { message: error.message, code: 'FETCH_EVENTS_ERROR' } };
     }
   },
@@ -93,7 +93,7 @@ export const eventService = {
       if (error) throw error;
 
       return { data: mapDbEventToEvent(data) };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { error: { message: error.message, code: 'FETCH_EVENT_ERROR' } };
     }
   },
@@ -131,7 +131,7 @@ export const eventService = {
       if (error) throw error;
 
       return { data: mapDbEventToEvent(data) };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { error: { message: error.message, code: 'CREATE_EVENT_ERROR' } };
     }
   },

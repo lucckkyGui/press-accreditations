@@ -107,7 +107,7 @@ const WristbandManagement = () => {
       setNewRfid('');
       setNewGuestId('');
       await loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast.error('Błąd', { description: err.message });
     }
   };
@@ -118,7 +118,7 @@ const WristbandManagement = () => {
       await rfidService.deactivateWristband(id, 'Dezaktywacja manualna');
       toast.success('Opaska dezaktywowana');
       await loadData();
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast.error('Błąd', { description: err.message });
     }
   };
@@ -173,7 +173,7 @@ const WristbandManagement = () => {
         if (!guest) { result.failed++; result.errors.push(`${row.rfid_code}: nie znaleziono gościa (${row.guest_email || `${row.guest_first_name} ${row.guest_last_name}`})`); continue; }
         await rfidService.assignWristband(selectedEvent, guest.id, row.rfid_code);
         result.success++;
-      } catch (err: unknown) { result.failed++; result.errors.push(`${row.rfid_code}: ${err.message}`); }
+      } catch (err: any) { result.failed++; result.errors.push(`${row.rfid_code}: ${err.message}`); }
     }
     setImportResult(result);
     setIsImporting(false);

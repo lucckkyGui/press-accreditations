@@ -143,7 +143,7 @@ const ResourceMonitor = () => {
           description: "Wszystkie zasoby mieszczą się w limitach.",
         });
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast({
         title: "Błąd",
         description: err.message || "Nie udało się sprawdzić zasobów",

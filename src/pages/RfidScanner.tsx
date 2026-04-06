@@ -143,7 +143,7 @@ const RfidScanner = () => {
       setZonePresence(presence);
       const maxCapacity: Record<string, number> = { VIP: 50, Backstage: 30, Press: 40, General: 500, 'Artist Lounge': 20 };
       rfidService.checkZoneCapacityAlerts(selectedEvent, stats, maxCapacity).catch(() => {});
-    } catch (err: unknown) {
+    } catch (err: any) {
       toast.error('Błąd skanowania', { description: err.message });
     }
   };

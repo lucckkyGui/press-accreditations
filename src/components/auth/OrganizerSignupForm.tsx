@@ -73,7 +73,7 @@ export const OrganizerSignupForm = ({ onSwitchToLogin }: { onSwitchToLogin: () =
       });
       if (result && result.error) throw result.error;
       toast.success("Rejestracja zakończona! Sprawdź swój email w celu weryfikacji.");
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || "Rejestracja nie powiodła się");
     } finally {
       setIsLoading(false);

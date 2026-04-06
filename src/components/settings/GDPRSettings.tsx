@@ -37,7 +37,7 @@ const GDPRSettings: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Dane wyeksportowane pomyślnie");
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast.error("Błąd eksportu: " + (e.message || "Nieznany błąd"));
     } finally {
       setExporting(false);
@@ -54,7 +54,7 @@ const GDPRSettings: React.FC = () => {
       toast.success("Konto i dane osobowe zostały usunięte");
       // Redirect after deletion
       window.location.href = "/";
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast.error("Błąd usuwania: " + (e.message || "Nieznany błąd"));
     } finally {
       setDeleting(false);

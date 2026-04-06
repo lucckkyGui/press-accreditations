@@ -56,7 +56,7 @@ const AdminMonitoring = () => {
         latency: data.total_latency_ms,
         status: data.status,
       }]);
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast.error("Błąd sprawdzania stanu: " + (e.message || ""));
     } finally {
       setLoading(false);

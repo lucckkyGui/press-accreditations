@@ -61,7 +61,7 @@ export const AccreditationService = {
       return { 
         data: data.map(fromAccreditationDb) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -87,7 +87,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -113,7 +113,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać akredytacji",
@@ -155,7 +155,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się utworzyć akredytacji",
@@ -188,7 +188,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się zarejestrować check-in",
@@ -218,7 +218,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się unieważnić akredytacji",
@@ -272,7 +272,7 @@ export const AccreditationService = {
       stats.byType = Object.values(typeGroups);
       
       return { data: stats };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać statystyk akredytacji",
@@ -298,7 +298,7 @@ export const AccreditationService = {
       if (error) throw error;
       
       return { data: undefined };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się zarejestrować wejścia do strefy",
@@ -354,7 +354,7 @@ export const AccreditationService = {
       };
       
       return { data: badgeData };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się wygenerować danych identyfikatora",
@@ -389,7 +389,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się zaktualizować statusu akredytacji",
@@ -428,7 +428,7 @@ export const AccreditationService = {
       return { 
         data: fromAccreditationDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       return { 
         error: {
           message: error.message || "Nie udało się oznaczyć identyfikatora jako wydrukowany",

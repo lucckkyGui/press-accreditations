@@ -65,7 +65,7 @@ export const GuestLoginForm = ({
       playSoundEffect("notification");
       toast.success(t('auth.verificationCodeSent'));
       setGuestStep("verify");
-    } catch (error: unknown) {
+    } catch (error: any) {
       playSoundEffect("error", 0.4);
       
       if (testModeEnabled) {
