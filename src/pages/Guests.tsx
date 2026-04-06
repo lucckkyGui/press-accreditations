@@ -8,7 +8,7 @@ import GuestsDialogs from "./guests/GuestsDialogs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { GuestsSkeleton } from '@/components/common/PageSkeleton';
 import { CalendarDays, Shield, FileDown, Brain, Fingerprint, BarChart3, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,11 +66,7 @@ const Guests = () => {
   }, []);
 
   if (loadingEvents) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingSpinner />
-      </div>
-    );
+    return <GuestsSkeleton />;
   }
 
   if (events.length === 0) {

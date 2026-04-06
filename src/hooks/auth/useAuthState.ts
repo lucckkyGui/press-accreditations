@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import { AppRole, UserProfile } from './types';
+
+const SESSION_REFRESH_MARGIN_MS = 5 * 60 * 1000; // Refresh 5 min before expiry
 
 export const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -10,9 +13,27 @@ export const useAuthState = () => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const refreshTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const scheduleRefresh = useCallback((sess: Session | null) => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    if (!sess?.expires_at) return;
+
+    const expiresAt = sess.expires_at * 1000;
+    const refreshIn = expiresAt - Date.now() - SESSION_REFRESH_MARGIN_MS;
+
+    if (refreshIn <= 0) {
+      // Already close to expiry, refresh now
+      supabase.auth.refreshSession();
+      return;
+    }
+
+    refreshTimer.current = setTimeout(() => {
+      supabase.auth.refreshSession();
+    }, refreshIn);
+  }, []);
 
   const fetchUserData = useCallback(async (userId: string, userEmail: string) => {
-    // Fetch profile
     const { data: profileData } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, avatar_url, phone, organization_name')
@@ -31,7 +52,6 @@ export const useAuthState = () => {
       });
     }
 
-    // Fetch roles from user_roles table
     const { data: rolesData } = await supabase
       .from('user_roles')
       .select('role')
@@ -45,14 +65,13 @@ export const useAuthState = () => {
   }, []);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setIsAuthenticated(!!newSession);
+        scheduleRefresh(newSession);
 
-        // Defer profile/roles fetch to avoid deadlock
         if (newSession?.user) {
           setTimeout(() => {
             fetchUserData(newSession.user.id, newSession.user.email || '');
@@ -64,11 +83,11 @@ export const useAuthState = () => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
       setIsAuthenticated(!!existingSession);
+      scheduleRefresh(existingSession);
 
       if (existingSession?.user) {
         fetchUserData(existingSession.user.id, existingSession.user.email || '')
@@ -78,8 +97,11 @@ export const useAuthState = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [fetchUserData]);
+    return () => {
+      subscription.unsubscribe();
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    };
+  }, [fetchUserData, scheduleRefresh]);
 
   const hasRole = useCallback((role: AppRole) => roles.includes(role), [roles]);
   const isOrganizer = roles.includes('organizer') || roles.includes('admin');

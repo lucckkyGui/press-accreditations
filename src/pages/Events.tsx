@@ -22,6 +22,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/types";
 import EventCard from "@/components/events/EventCard";
 import EventForm from "@/components/events/EventForm";
+import { EventsSkeleton } from "@/components/common/PageSkeleton";
 
 type EventFilter = "all" | "published" | "draft" | "upcoming" | "past" | "today";
 type SortOption = "name" | "date-asc" | "date-desc";
@@ -157,6 +158,7 @@ const Events = () => {
 
         <Button
           onClick={() => setOpen(true)}
+          data-new-event-btn
           className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -239,10 +241,8 @@ const Events = () => {
         )}
       </div>
 
-      {isEventsLoading ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-card rounded-2xl shadow-soft border border-border/40 p-8">
-          <p className="text-muted-foreground text-sm">Ładowanie wydarzeń...</p>
-        </div>
+  {isEventsLoading ? (
+        <EventsSkeleton />
       ) : filteredAndSortedEvents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center bg-card rounded-2xl shadow-soft border border-border/40 p-8">
           <div className="rounded-2xl bg-primary/10 p-5 mb-5">
