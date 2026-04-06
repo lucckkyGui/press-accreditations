@@ -1,7 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ApiResponse } from "@/types/api/apiResponse";
-import QRCode from 'qrcode';
+
+const getQRCode = () => import('qrcode').then(m => m.default);
 
 export interface InvitationData {
   id: string;
