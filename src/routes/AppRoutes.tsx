@@ -57,6 +57,16 @@ const LandingPageBuilder = lazy(() => import("@/pages/LandingPageBuilder"));
 const PublicAccreditationPage = lazy(() => import("@/pages/PublicAccreditationPage"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 
+// New pages — phases 6-35
+const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
+const AIDashboard = lazy(() => import("@/pages/AIDashboard"));
+const AffiliateDashboard = lazy(() => import("@/pages/AffiliateDashboard"));
+const WhiteLabelSettings = lazy(() => import("@/pages/WhiteLabelSettings"));
+const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
+const ReportBuilder = lazy(() => import("@/pages/ReportBuilder"));
+const EventMarketplace = lazy(() => import("@/pages/EventMarketplace"));
+const AuditTrail = lazy(() => import("@/pages/AuditTrail"));
+
 const LazyFallback = () => (
   <div className="h-64 flex items-center justify-center">
     <LoadingSpinner />
@@ -98,6 +108,7 @@ const AppRoutes = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
         <Route path="/access-denied" element={<AccessDenied />} />
+        <Route path="/marketplace" element={<EventMarketplace />} />
         {/* Public accreditation landing page - must be before catch-all */}
         <Route path="/:slug" element={<PublicAccreditationPage />} />
         
@@ -129,6 +140,14 @@ const AppRoutes = () => {
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/sponsor-report" element={<SponsorReport />} />
           <Route path="/landing-page/:eventId" element={<LandingPageBuilder />} />
+          {/* New pages — phases 6-35 */}
+          <Route path="/admin/monitoring" element={<AdminMonitoring />} />
+          <Route path="/ai-dashboard" element={<AIDashboard />} />
+          <Route path="/affiliate" element={<AffiliateDashboard />} />
+          <Route path="/white-label" element={<WhiteLabelSettings />} />
+          <Route path="/integrations" element={<IntegrationsHub />} />
+          <Route path="/report-builder" element={<ReportBuilder />} />
+          <Route path="/audit-trail" element={<AuditTrail />} />
         </Route>
 
         {/* All authenticated users */}
