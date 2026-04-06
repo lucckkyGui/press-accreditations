@@ -10,6 +10,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AppBreadcrumbs from "@/components/common/AppBreadcrumbs";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import PageTransition from "@/components/common/PageTransition";
+import SkipToContent from "@/components/common/SkipToContent";
 
 const MainLayout: React.FC = () => {
   const { isMobile } = useWindowSize();
@@ -17,6 +18,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
+      <SkipToContent />
       <SidebarProvider>
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">

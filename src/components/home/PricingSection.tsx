@@ -8,10 +8,13 @@ import { useAuth } from "@/hooks/auth";
 import { useCheckout } from "@/hooks/useCheckout";
 import { STRIPE_TIERS } from "@/config/stripe";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface PricingCardProps {
   title: string;
   price: string;
+  originalPrice?: string;
   period: string;
   description: string;
   features: string[];
@@ -22,7 +25,7 @@ interface PricingCardProps {
   onSelect: () => void;
 }
 
-const PricingCard = ({ title, price, period, description, features, buttonText, isPrimary = false, badge, isLoading, onSelect }: PricingCardProps) => (
+const PricingCard = ({ title, price, originalPrice, period, description, features, buttonText, isPrimary = false, badge, isLoading, onSelect }: PricingCardProps) => (
   <Card className={`flex flex-col relative rounded-2xl transition-all duration-300 hover:-translate-y-1 ${isPrimary ? 'border-2 border-primary shadow-xl shadow-primary/10 md:scale-105 bg-card' : 'border bg-card shadow-soft hover:shadow-card-hover'}`}>
     {badge && (
       <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground border-0 px-4 py-1">
@@ -34,9 +37,17 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
       <CardTitle className="text-xl">{title}</CardTitle>
       <CardDescription>{description}</CardDescription>
       <div className="mt-4">
+        {originalPrice && (
+          <span className="text-lg text-muted-foreground line-through mr-2">{originalPrice}</span>
+        )}
         <span className={`text-4xl font-extrabold ${isPrimary ? 'gradient-text' : ''}`}>{price}</span>
         {period && <span className="text-muted-foreground"> {period}</span>}
       </div>
+      {originalPrice && (
+        <Badge variant="secondary" className="mt-2 text-xs bg-success/10 text-success border-success/20">
+          Oszczędzasz 20%
+        </Badge>
+      )}
     </CardHeader>
     <CardContent className="flex-grow">
       <ul className="space-y-3">
@@ -64,11 +75,19 @@ const PricingCard = ({ title, price, period, description, features, buttonText, 
   </Card>
 );
 
+const monthlyPrices = { starter: "119 zł", professional: "319 zł", enterprise: "799 zł" };
+const annualPrices = { starter: "95 zł", professional: "255 zł", enterprise: "639 zł" };
+const annualOriginal = { starter: "119 zł", professional: "319 zł", enterprise: "799 zł" };
+
 const PricingSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { startCheckout, isLoading } = useCheckout();
   const [showComparison, setShowComparison] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  const prices = isAnnual ? annualPrices : monthlyPrices;
+  const period = isAnnual ? "/ mies. (rocznie)" : "/ miesiąc";
 
   const handleSelectPlan = (priceId: string) => {
     if (!user) {
@@ -80,16 +99,37 @@ const PricingSection = () => {
   };
 
   return (
-    <section id="pricing" className="py-20 container">
+    <section id="pricing" className="py-20 container" aria-labelledby="pricing-heading">
       <div className="text-center mb-14">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
-          <Sparkles className="h-4 w-4 text-accent" />
+          <Sparkles className="h-4 w-4 text-accent" aria-hidden="true" />
           <span className="text-sm font-semibold text-accent">Cennik</span>
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">Prosty, przejrzysty cennik</h2>
+        <h2 id="pricing-heading" className="text-3xl md:text-4xl font-bold mb-4">Prosty, przejrzysty cennik</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
           Wybierz plan dopasowany do skali Twoich wydarzeń. Każdy plan zawiera szablony zaproszeń i QR check-in.
         </p>
+      </div>
+
+      {/* Annual / Monthly toggle */}
+      <div className="flex items-center justify-center gap-3 mb-8">
+        <Label htmlFor="billing-toggle" className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+          Miesięcznie
+        </Label>
+        <Switch
+          id="billing-toggle"
+          checked={isAnnual}
+          onCheckedChange={setIsAnnual}
+          aria-label="Przełącz między planem miesięcznym a rocznym"
+        />
+        <Label htmlFor="billing-toggle" className={`text-sm font-medium transition-colors ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+          Rocznie
+        </Label>
+        {isAnnual && (
+          <Badge variant="secondary" className="ml-1 bg-success/10 text-success border-success/20 text-xs">
+            -20%
+          </Badge>
+        )}
       </div>
 
       {/* Feature comparison toggle */}
@@ -97,17 +137,19 @@ const PricingSection = () => {
         <button
           onClick={() => setShowComparison(!showComparison)}
           className="text-sm text-primary hover:underline font-medium flex items-center gap-1"
+          aria-expanded={showComparison}
         >
           {showComparison ? 'Ukryj porównanie' : 'Pokaż pełne porównanie funkcji'}
-          <ArrowRight className={`h-3.5 w-3.5 transition-transform ${showComparison ? 'rotate-90' : ''}`} />
+          <ArrowRight className={`h-3.5 w-3.5 transition-transform ${showComparison ? 'rotate-90' : ''}`} aria-hidden="true" />
         </button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto items-start px-4 md:px-0">
         <PricingCard
           title="Starter"
-          price="119 zł"
-          period="/ miesiąc"
+          price={prices.starter}
+          originalPrice={isAnnual ? annualOriginal.starter : undefined}
+          period={period}
           description="Idealny na małe eventy"
           features={[
             "Do 500 gości łącznie",
@@ -123,8 +165,9 @@ const PricingSection = () => {
         />
         <PricingCard
           title="Professional"
-          price="319 zł"
-          period="/ miesiąc"
+          price={prices.professional}
+          originalPrice={isAnnual ? annualOriginal.professional : undefined}
+          period={period}
           description="Dla rosnących organizacji"
           features={[
             "Do 5 000 gości łącznie",
@@ -143,8 +186,9 @@ const PricingSection = () => {
         />
         <PricingCard
           title="Enterprise"
-          price="799 zł"
-          period="/ miesiąc"
+          price={prices.enterprise}
+          originalPrice={isAnnual ? annualOriginal.enterprise : undefined}
+          period={period}
           description="Dla dużych wydarzeń"
           features={[
             "Nielimitowani goście",
@@ -164,14 +208,14 @@ const PricingSection = () => {
 
       {/* Feature comparison table */}
       {showComparison && (
-        <div className="max-w-5xl mx-auto mt-12 overflow-x-auto">
+        <div className="max-w-5xl mx-auto mt-12 overflow-x-auto" role="region" aria-label="Porównanie planów">
           <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
             <thead>
               <tr className="bg-muted/50">
-                <th className="text-left p-4 font-semibold text-foreground">Funkcja</th>
-                <th className="text-center p-4 font-semibold text-foreground">Starter</th>
-                <th className="text-center p-4 font-semibold text-primary bg-primary/5">Professional</th>
-                <th className="text-center p-4 font-semibold text-foreground">Enterprise</th>
+                <th className="text-left p-4 font-semibold text-foreground" scope="col">Funkcja</th>
+                <th className="text-center p-4 font-semibold text-foreground" scope="col">Starter</th>
+                <th className="text-center p-4 font-semibold text-primary bg-primary/5" scope="col">Professional</th>
+                <th className="text-center p-4 font-semibold text-foreground" scope="col">Enterprise</th>
               </tr>
             </thead>
             <tbody>

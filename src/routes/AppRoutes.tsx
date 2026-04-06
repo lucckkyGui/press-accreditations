@@ -66,6 +66,7 @@ const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
 const ReportBuilder = lazy(() => import("@/pages/ReportBuilder"));
 const EventMarketplace = lazy(() => import("@/pages/EventMarketplace"));
 const AuditTrail = lazy(() => import("@/pages/AuditTrail"));
+const DigitalPassPage = lazy(() => import("@/pages/DigitalPassPage"));
 
 const LazyFallback = () => (
   <div className="h-64 flex items-center justify-center">
@@ -148,6 +149,7 @@ const AppRoutes = () => {
           <Route path="/integrations" element={<IntegrationsHub />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
           <Route path="/audit-trail" element={<AuditTrail />} />
+          <Route path="/digital-pass" element={<DigitalPassPage />} />
         </Route>
 
         {/* All authenticated users */}

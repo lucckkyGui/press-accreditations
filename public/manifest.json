@@ -1,7 +1,7 @@
-
 {
-  "short_name": "PressAccreditations",
-  "name": "PressAccreditations - System akredytacji prasowych",
+  "short_name": "PressAccred",
+  "name": "Press Accreditations — System akredytacji prasowych",
+  "description": "Profesjonalna platforma do zarządzania akredytacjami prasowymi, check-in QR i zarządzania wydarzeniami.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -11,16 +11,44 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#6366f1",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#7c6dc8",
+  "background_color": "#fafafc",
+  "categories": ["business", "productivity"],
+  "lang": "pl",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard",
+      "icons": []
+    },
+    {
+      "name": "Skaner QR",
+      "short_name": "Skaner",
+      "url": "/scanner",
+      "icons": []
+    },
+    {
+      "name": "Wydarzenia",
+      "short_name": "Events",
+      "url": "/events",
+      "icons": []
+    }
+  ]
 }

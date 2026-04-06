@@ -1,71 +1,48 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline - Event Manager</title>
+  <title>Offline — Press Accreditations</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-      background-color: #f9fafb;
-    }
-    .container {
-      max-width: 500px;
-      padding: 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      margin-top: 0;
-      color: #2563eb;
-    }
-    p {
-      margin-bottom: 2rem;
-    }
-    button {
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.25rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    button:hover {
-      background-color: #1d4ed8;
-    }
-    .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      color: #2563eb;
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fafafc 0%,#f0eef8 100%);color:#1e1a2e;padding:1.5rem}
+    .card{max-width:440px;width:100%;background:#fff;border-radius:1.25rem;padding:3rem 2.5rem;box-shadow:0 20px 60px rgba(124,109,200,.12);text-align:center}
+    .icon-wrap{width:80px;height:80px;margin:0 auto 1.5rem;border-radius:50%;background:linear-gradient(135deg,#7c6dc8,#a78bda);display:flex;align-items:center;justify-content:center;animation:pulse 2.5s infinite}
+    .icon-wrap svg{width:36px;height:36px;color:#fff;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    h1{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+    p{color:#6b6586;line-height:1.6;margin-bottom:2rem;font-size:.95rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#7c6dc8,#a78bda);color:#fff;border:none;padding:.85rem 2rem;border-radius:.75rem;font-weight:600;font-size:.95rem;cursor:pointer;transition:transform .15s,box-shadow .15s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,109,200,.3)}
+    .btn:active{transform:scale(.97)}
+    .status{margin-top:1.5rem;font-size:.8rem;color:#9992ab;display:flex;align-items:center;justify-content:center;gap:.4rem}
+    .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;animation:blink 1.5s infinite}
+    .online .dot{background:#22c55e;animation:none}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(124,109,200,.3)}50%{box-shadow:0 0 0 16px rgba(124,109,200,0)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="icon">📶</div>
-    <h1>Brak połączenia z internetem</h1>
-    <p>Wygląda na to, że nie masz połączenia z internetem. Część funkcji może nie być dostępna w trybie offline.</p>
-    <button onclick="window.location.reload()">Spróbuj ponownie</button>
+  <div class="card">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+    </div>
+    <h1>Brak połączenia</h1>
+    <p>Nie możemy połączyć się z internetem. Sprawdź połączenie sieciowe i spróbuj ponownie. Dane zsynchronizowane offline są bezpieczne.</p>
+    <button class="btn" onclick="window.location.reload()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Spróbuj ponownie
+    </button>
+    <div class="status" id="status">
+      <span class="dot"></span>
+      <span>Offline</span>
+    </div>
   </div>
-  
   <script>
-    // Sprawdź czy połączenie zostało ponownie nawiązane
-    window.addEventListener('online', () => {
-      window.location.reload();
+    window.addEventListener('online',()=>{
+      document.getElementById('status').classList.add('online');
+      document.getElementById('status').querySelector('span:last-child').textContent='Online — przeładowuję…';
+      setTimeout(()=>window.location.reload(),800);
     });
   </script>
 </body>
