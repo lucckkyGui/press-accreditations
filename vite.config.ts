@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
+      external: ['html2canvas'],
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
