@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Guest, Event } from '@/types';
 import { Download, FileImage, Mail, AlertTriangle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import QRCode from 'qrcode';
+import { qrToDataURL } from '@/utils/qrDataUrl';
 
 interface OptimizedInvitationGeneratorProps {
   guests: Guest[];
@@ -80,19 +80,7 @@ const OptimizedInvitationGenerator: React.FC<OptimizedInvitationGeneratorProps> 
   };
 
   const generateQRCode = async (data: string): Promise<string> => {
-    try {
-      return await QRCode.toDataURL(data, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        },
-        errorCorrectionLevel: 'M' // Optymalizacja dla szybkości
-      });
-    } catch (error) {
-      throw error;
-    }
+    return qrToDataURL(data, 200);
   };
 
   const generateInvitation = async (guest: Guest): Promise<GeneratedInvitation> => {
