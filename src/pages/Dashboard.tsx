@@ -13,6 +13,7 @@ import RealTimeDashboard from "@/components/dashboard/RealTimeDashboard";
 import SmartInvitationSystem from "@/components/invitations/SmartInvitationSystem";
 import OfflineCheckinSystem from "@/components/scanner/OfflineCheckinSystem";
 import DashboardGreeting from "@/components/dashboard/DashboardGreeting";
+import SectionErrorBoundary from "@/components/common/SectionErrorBoundary";
 
 const Dashboard = () => {
   const { isOrganizer, isAdmin, isLoading } = useAuth();
@@ -56,16 +57,24 @@ const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <OrganizerDashboard />
+            <SectionErrorBoundary fallbackTitle="Błąd ładowania przeglądu">
+              <OrganizerDashboard />
+            </SectionErrorBoundary>
           </TabsContent>
           <TabsContent value="realtime">
-            <RealTimeDashboard />
+            <SectionErrorBoundary fallbackTitle="Błąd dashboardu na żywo">
+              <RealTimeDashboard />
+            </SectionErrorBoundary>
           </TabsContent>
           <TabsContent value="invitations">
-            <SmartInvitationSystem />
+            <SectionErrorBoundary fallbackTitle="Błąd systemu zaproszeń">
+              <SmartInvitationSystem />
+            </SectionErrorBoundary>
           </TabsContent>
           <TabsContent value="offline">
-            <OfflineCheckinSystem />
+            <SectionErrorBoundary fallbackTitle="Błąd systemu offline">
+              <OfflineCheckinSystem />
+            </SectionErrorBoundary>
           </TabsContent>
         </Tabs>
       </>
