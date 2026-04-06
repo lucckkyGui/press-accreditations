@@ -9,10 +9,11 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Download, Globe, Lock, Settings2, User2, Users } from "lucide-react";
+import { Building2, Download, Globe, Lock, Settings2, Shield, User2, Users } from "lucide-react";
 import UserManagement from "@/components/settings/UserManagement";
 import ExportSettings from "@/components/settings/ExportSettings";
 import ApiKeyManagement from "@/components/settings/ApiKeyManagement";
+import GDPRSettings from "@/components/settings/GDPRSettings";
 
 const Settings = () => {
   usePageTitle("Ustawienia");
@@ -65,6 +66,10 @@ const Settings = () => {
           <TabsTrigger value="api" className="gap-2 whitespace-nowrap">
             <Globe className="h-4 w-4" /> 
             <span className="hidden sm:inline">API</span>
+          </TabsTrigger>
+          <TabsTrigger value="gdpr" className="gap-2 whitespace-nowrap">
+            <Shield className="h-4 w-4" /> 
+            <span className="hidden sm:inline">RODO</span>
           </TabsTrigger>
         </TabsList>
         
