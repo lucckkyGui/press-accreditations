@@ -37,6 +37,7 @@ export const invitationService = {
     };
     
     try {
+      const QRCode = await getQRCode();
       const qrCodeString = await QRCode.toDataURL(JSON.stringify(qrData), {
         width: 300,
         margin: 2,

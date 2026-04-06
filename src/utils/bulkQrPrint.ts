@@ -1,5 +1,3 @@
-import jsPDF from 'jspdf';
-import QRCode from 'qrcode';
 import { toast } from 'sonner';
 
 interface GuestQRData {
@@ -21,13 +19,18 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
     return;
   }
 
+  const [{ default: jsPDF }, { default: QRCode }] = await Promise.all([
+    import('jspdf'),
+    import('qrcode'),
+  ]);
+
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageW = 210;
   const pageH = 297;
   const cols = 2;
   const rows = 4;
   const perPage = cols * rows;
-  const cellW = (pageW - 20) / cols; // 10mm margin each side
+  const cellW = (pageW - 20) / cols;
   const cellH = (pageH - 20) / rows;
   const qrSize = Math.min(cellW - 10, cellH - 20);
 
@@ -42,7 +45,6 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
     const x = 10 + col * cellW;
     const y = 10 + row * cellH;
 
-    // QR code
     try {
       const qrDataUrl = await QRCode.toDataURL(guests[i].qrCode, {
         width: 300,
@@ -56,13 +58,11 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
       doc.text('QR Error', x + cellW / 2, y + qrSize / 2, { align: 'center' });
     }
 
-    // Guest name
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     const name = `${guests[i].firstName} ${guests[i].lastName}`;
     doc.text(name, x + cellW / 2, y + qrSize + 6, { align: 'center', maxWidth: cellW - 4 });
 
-    // Company / ticket type
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     const subtitle = [guests[i].company, guests[i].ticketType].filter(Boolean).join(' · ');
@@ -70,13 +70,11 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
       doc.text(subtitle, x + cellW / 2, y + qrSize + 11, { align: 'center', maxWidth: cellW - 4 });
     }
 
-    // Cell border (dashed)
     doc.setDrawColor(200);
     doc.setLineDashPattern([2, 2], 0);
     doc.rect(x, y, cellW, cellH);
   }
 
-  // Header on first page
   doc.setPage(1);
   doc.setFontSize(6);
   doc.setTextColor(150);

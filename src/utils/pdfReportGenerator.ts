@@ -1,7 +1,11 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import type { EventAnalyticsData } from '@/hooks/analytics/useEventAnalytics';
 import { drawPieChart, drawBarChart, drawAreaChart } from './pdfChartDrawer';
+
+export async function generateEventPdfReport(data: EventAnalyticsData) {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ]);
 
 export function generateEventPdfReport(data: EventAnalyticsData) {
   const doc = new jsPDF();
