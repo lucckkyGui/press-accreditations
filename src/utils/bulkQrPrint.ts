@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { qrToDataURL } from '@/utils/qrDataUrl';
 
 interface GuestQRData {
   id: string;
@@ -19,10 +20,7 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
     return;
   }
 
-  const [{ default: jsPDF }, { default: QRCode }] = await Promise.all([
-    import('jspdf'),
-    import('qrcode'),
-  ]);
+  const { default: jsPDF } = await import('jspdf');
 
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageW = 210;
@@ -46,11 +44,7 @@ export async function generateBulkQRPdf(guests: GuestQRData[], eventTitle: strin
     const y = 10 + row * cellH;
 
     try {
-      const qrDataUrl = await QRCode.toDataURL(guests[i].qrCode, {
-        width: 300,
-        margin: 1,
-        errorCorrectionLevel: 'M',
-      });
+      const qrDataUrl = qrToDataURL(guests[i].qrCode, 300);
       const qrX = x + (cellW - qrSize) / 2;
       doc.addImage(qrDataUrl, 'PNG', qrX, y + 2, qrSize, qrSize);
     } catch {
