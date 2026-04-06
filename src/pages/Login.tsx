@@ -120,7 +120,6 @@ const Login = () => {
                     >
                       {t('auth.createOrganizerAccount')}
                     </Button>
-                    </Button>
                   </div>
                 </div>
               )}

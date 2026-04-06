@@ -353,7 +353,7 @@ Zespół organizacyjny
                         <Label htmlFor="template-type">Typ szablonu</Label>
                         <Select
                           value={selectedTemplate.type}
-                          onValueChange=(value: any) => setSelectedTemplate({
+                          onValueChange={(value: any) => setSelectedTemplate({
                             ...selectedTemplate,
                             type: value
                           })}
