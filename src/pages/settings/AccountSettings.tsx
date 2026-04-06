@@ -47,13 +47,9 @@ const AccountSettings = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("Hasła nie są takie same");
-      return;
-    }
-    
-    if (passwordForm.newPassword.length < 8) {
-      toast.error("Hasło musi mieć co najmniej 8 znaków");
+    const validation = passwordSchema.safeParse(passwordForm);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0]?.message || t('common.error'));
       return;
     }
     
@@ -64,10 +60,11 @@ const AccountSettings = () => {
         password: passwordForm.newPassword,
       });
       if (error) throw error;
-      toast.success("Hasło zostało zmienione");
+      toast.success(t('common.success'));
+      logSettingsChange("password");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error: any) {
-      toast.error(error?.message || "Błąd podczas zmiany hasła");
+      toast.error(error?.message || t('auth.passwordChangeError'));
     } finally {
       setIsChangingPassword(false);
     }
