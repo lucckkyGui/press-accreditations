@@ -2,11 +2,12 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Upload, Users, Download, FileDown } from 'lucide-react';
+import { Plus, Upload, Users, Download, FileDown, FileSpreadsheet } from 'lucide-react';
 import { Event, Guest } from "@/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { STRIPE_TIERS } from "@/config/stripe";
+import { exportToExcel, guestExcelColumns } from "@/utils/excelExport";
 
 interface GuestsPageHeaderProps {
   selectedEvent: Event | null;
@@ -82,7 +83,11 @@ const GuestsPageHeader: React.FC<GuestsPageHeaderProps> = ({
           </Button>
           <Button variant="outline" onClick={handleExportCSV} disabled={guests.length === 0} className="rounded-xl gap-2" size="sm">
             <Download className="h-4 w-4" />
-            Eksportuj CSV
+            CSV
+          </Button>
+          <Button variant="outline" onClick={() => exportToExcel(guests, guestExcelColumns, `goscie_${selectedEvent?.name || 'export'}`)} disabled={guests.length === 0} className="rounded-xl gap-2" size="sm">
+            <FileSpreadsheet className="h-4 w-4" />
+            Excel
           </Button>
           <Button variant="outline" onClick={onImportClick} disabled={!selectedEvent || atLimit} className="rounded-xl gap-2">
             <Upload className="h-4 w-4" />
