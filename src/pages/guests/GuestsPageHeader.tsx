@@ -85,7 +85,7 @@ const GuestsPageHeader: React.FC<GuestsPageHeaderProps> = ({
             <Download className="h-4 w-4" />
             CSV
           </Button>
-          <Button variant="outline" onClick={() => exportToExcel(guests, guestExcelColumns, `goscie_${selectedEvent?.title || 'export'}`)} disabled={guests.length === 0} className="rounded-xl gap-2" size="sm">
+          <Button variant="outline" onClick={() => exportToExcel(guests, guestExcelColumns, `goscie_${selectedEvent?.name || 'export'}`)} disabled={guests.length === 0} className="rounded-xl gap-2" size="sm">
             <FileSpreadsheet className="h-4 w-4" />
             Excel
           </Button>
