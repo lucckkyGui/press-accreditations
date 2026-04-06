@@ -4,9 +4,11 @@ import { Guest, GuestStatus, GuestTicketType } from "@/types";
 import { guestService } from "@/services/guestService";
 import { toast } from "sonner";
 import { confirm } from "@/components/ui/confirm-dialog";
+import { useUndoToast } from "@/hooks/useUndoToast";
 
 export const useGuestsActions = (refetchGuests: () => void) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { showUndoToast } = useUndoToast();
 
   const handleSaveGuest = async (guest: Partial<Guest> & { eventId: string }) => {
     setIsLoading(true);
@@ -34,25 +36,34 @@ export const useGuestsActions = (refetchGuests: () => void) => {
   const handleDeleteGuest = async (id: string) => {
     const confirmed = await confirm({
       title: 'Usuń gościa',
-      description: 'Czy na pewno chcesz usunąć tego gościa? Tej operacji nie można cofnąć.',
+      description: 'Czy na pewno chcesz usunąć tego gościa?',
     });
 
     if (!confirmed) return;
 
-    setIsLoading(true);
-    try {
-      const result = await guestService.deleteGuest(id);
-      if (result.error) {
-        toast.error(result.error.message);
-      } else {
-        toast.success('Gość został usunięty');
-        refetchGuests();
-      }
-    } catch (error) {
-      toast.error('Wystąpił błąd podczas usuwania gościa');
-    } finally {
-      setIsLoading(false);
-    }
+    // Use undo toast - delay actual delete
+    showUndoToast({
+      message: 'Gość został usunięty',
+      duration: 5000,
+      onUndo: () => {
+        // No-op: deletion hasn't happened yet
+      },
+      onConfirm: async () => {
+        setIsLoading(true);
+        try {
+          const result = await guestService.deleteGuest(id);
+          if (result.error) {
+            toast.error(result.error.message);
+          } else {
+            refetchGuests();
+          }
+        } catch (error) {
+          toast.error('Wystąpił błąd podczas usuwania gościa');
+        } finally {
+          setIsLoading(false);
+        }
+      },
+    });
   };
 
   const handleBulkDeleteGuests = async (selectedGuests: Guest[]) => {
