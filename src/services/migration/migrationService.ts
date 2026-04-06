@@ -34,10 +34,7 @@ export class MigrationService {
       
       existingOperations.push(newOperation);
       localStorage.setItem(SYNC_OPERATIONS_KEY, JSON.stringify(existingOperations));
-      
-      console.log(`Operation queued for sync: ${operation.type} - ${operation.entity}`);
     } catch (error) {
-      console.error("Error saving operation:", error);
     }
   }
 
@@ -47,7 +44,6 @@ export class MigrationService {
       const operations = localStorage.getItem(SYNC_OPERATIONS_KEY);
       return operations ? JSON.parse(operations) : [];
     } catch (error) {
-      console.error("Error retrieving operations:", error);
       return [];
     }
   }
@@ -62,7 +58,6 @@ export class MigrationService {
       
       localStorage.setItem(SYNC_OPERATIONS_KEY, JSON.stringify(updatedOperations));
     } catch (error) {
-      console.error("Error updating operation status:", error);
     }
   }
 
@@ -104,7 +99,6 @@ export class MigrationService {
       
       return { successful: 0, failed: 0 };
     } catch (error) {
-      console.error("Error syncing operations:", error);
       toast({
         title: "Błąd synchronizacji",
         description: "Nie udało się zsynchronizować danych. Spróbuj ponownie później.",
@@ -130,7 +124,6 @@ export class MigrationService {
       
       localStorage.setItem(SYNC_OPERATIONS_KEY, JSON.stringify(filteredOperations));
     } catch (error) {
-      console.error("Error cleaning up synced operations:", error);
     }
   }
 
@@ -170,7 +163,6 @@ export class MigrationService {
           const result = await migrationFn(batches[i], entity);
           
           if (result.error) {
-            console.error(`Error migrating ${entity}:`, result.error);
             failed += batches[i].length;
           } else if (result.data) {
             successful += result.data.successful;
@@ -188,7 +180,6 @@ export class MigrationService {
         results[entity] = { successful, failed };
         
       } catch (error) {
-        console.error(`Error migrating ${entity}:`, error);
         results[entity] = { 
           successful: 0, 
           failed: getLocalDataFn(entity)?.length || 0 

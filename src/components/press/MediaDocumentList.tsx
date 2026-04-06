@@ -74,7 +74,6 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
       const url = await getDocumentUrl(document.filePath);
       window.open(url, '_blank');
     } catch (error) {
-      console.error('Failed to get document URL:', error);
     }
   };
   

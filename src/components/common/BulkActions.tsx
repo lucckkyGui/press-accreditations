@@ -40,7 +40,6 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
       setIsActioning(true);
       await action.onClick(selectedIds);
     } catch (error) {
-      console.error("Error performing bulk action:", error);
       toast.error("Wystąpił błąd podczas wykonywania operacji");
     } finally {
       setIsActioning(false);

@@ -60,7 +60,6 @@ export function useApiQuery<TData = any, TParams = any>(
           const cacheKey = `cache_${queryKeyArray.join('_')}_${JSON.stringify({})}`;
           const cachedData = localStorage.getItem(cacheKey);
           if (cachedData) {
-            console.log(`Returning cached data for ${queryKeyArray.join('_')}`);
             return JSON.parse(cachedData);
           }
         }
@@ -136,8 +135,6 @@ export function useApiMutation<TData = any, TParams = any>(
         });
         
         // Zwróć symulowaną odpowiedź, aby aplikacja mogła działać dalej
-        console.log(`Offline operation queued: ${operationType} - ${entity}`);
-        
         // Zwraca dane wejściowe jako wynik - konieczne jest rzutowanie typów
         return params as unknown as TData;
       }

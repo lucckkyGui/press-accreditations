@@ -110,7 +110,6 @@ export const useEnhancedGuestImport = () => {
         }
       });
     } catch (err) {
-      console.error('Error parsing file:', err);
       setError('Wystąpił błąd podczas przetwarzania pliku');
       setIsProcessing(false);
     }

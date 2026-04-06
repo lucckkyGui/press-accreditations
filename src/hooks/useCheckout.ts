@@ -18,7 +18,6 @@ export const useCheckout = () => {
         throw new Error("No checkout URL returned");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
       toast.error("Nie udało się rozpocząć procesu płatności. Spróbuj ponownie.");
     } finally {
       setIsLoading(false);
@@ -36,7 +35,6 @@ export const useCheckout = () => {
         throw new Error("No portal URL returned");
       }
     } catch (err) {
-      console.error("Portal error:", err);
       toast.error("Nie udało się otworzyć portalu zarządzania subskrypcją.");
     } finally {
       setIsLoading(false);

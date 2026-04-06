@@ -12,8 +12,22 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/hooks/useI18n";
+import { useAuditLog } from "@/hooks/useAuditLog";
+import { z } from "zod";
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Aktualne hasło jest wymagane"),
+  newPassword: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Hasła nie są takie same",
+  path: ["confirmPassword"],
+});
 
 const AccountSettings = () => {
+  const { t } = useI18n();
+  const { logSettingsChange, logLogout } = useAuditLog();
   const navigate = useNavigate();
   const { signOut } = useAuth();
   
@@ -33,13 +47,9 @@ const AccountSettings = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("Hasła nie są takie same");
-      return;
-    }
-    
-    if (passwordForm.newPassword.length < 8) {
-      toast.error("Hasło musi mieć co najmniej 8 znaków");
+    const validation = passwordSchema.safeParse(passwordForm);
+    if (!validation.success) {
+      toast.error(validation.error.errors[0]?.message || t('common.error'));
       return;
     }
     
@@ -50,10 +60,11 @@ const AccountSettings = () => {
         password: passwordForm.newPassword,
       });
       if (error) throw error;
-      toast.success("Hasło zostało zmienione");
+      toast.success(t('common.success'));
+      logSettingsChange("password");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error: any) {
-      toast.error(error?.message || "Błąd podczas zmiany hasła");
+      toast.error(error?.message || t('auth.passwordChangeError'));
     } finally {
       setIsChangingPassword(false);
     }

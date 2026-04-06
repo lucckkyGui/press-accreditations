@@ -45,7 +45,6 @@ export const useGuestsPage = () => {
         toast.error(result.error.message);
       }
     } catch (error) {
-      console.error('Error fetching guests:', error);
       toast.error('Wystąpił błąd podczas pobierania gości');
     }
   }, [page, filters.search, filters.statusFilter, filters.ticketTypeFilter, filters.zoneFilter, selectedEvent]);

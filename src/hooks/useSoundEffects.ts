@@ -7,7 +7,6 @@ export const useSoundEffects = () => {
     // Check if audio is supported in the current browser
     if (isAudioSupported()) {
       return playSound(soundType, volume).catch(error => {
-        console.warn("Failed to play sound:", error);
       });
     }
     return Promise.resolve();

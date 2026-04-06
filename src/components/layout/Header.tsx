@@ -25,7 +25,6 @@ const Header: React.FC = () => {
       await signOut();
       navigate('/');
     } catch (err) {
-      console.error('Logout error:', err);
     }
   };
   

@@ -110,7 +110,6 @@ export function DocumentWorkflow({ eventId, className }: DocumentWorkflowProps) 
       setIsUploadOpen(false);
       toast.success('Dokument został przesłany');
     } catch (error) {
-      console.error('Upload error:', error);
       toast.error('Nie udało się przesłać dokumentu');
     } finally {
       setIsUploading(false);

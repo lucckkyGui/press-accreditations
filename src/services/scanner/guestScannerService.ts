@@ -28,7 +28,6 @@ export const guestScannerService = {
       const { data: guests, error } = await query;
 
       if (error) {
-        console.error('Error finding guest:', error);
         return {
           success: false,
           message: 'Błąd podczas weryfikacji kodu QR',
@@ -82,7 +81,6 @@ export const guestScannerService = {
         .eq('id', guestData.id);
 
       if (updateError) {
-        console.error('Error checking in guest:', updateError);
         return {
           success: false,
           message: 'Błąd podczas rejestracji gościa',
@@ -113,7 +111,6 @@ export const guestScannerService = {
         checkInTime: now,
       };
     } catch (error) {
-      console.error('Scanner error:', error);
       return {
         success: false,
         message: 'Wystąpił nieoczekiwany błąd',

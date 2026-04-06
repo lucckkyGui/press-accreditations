@@ -68,7 +68,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailCampaignData };
     } catch (error) {
-      console.error('Error creating campaign:', error);
       return { 
         error: { 
           message: error.message || 'Failed to create campaign', 
@@ -102,7 +101,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailQueueData[] };
     } catch (error) {
-      console.error('Error adding to email queue:', error);
       return { 
         error: { 
           message: error.message || 'Failed to add to email queue', 
@@ -146,7 +144,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailCampaignData };
     } catch (error) {
-      console.error('Error updating campaign status:', error);
       return { 
         error: { 
           message: error.message || 'Failed to update campaign', 
@@ -174,7 +171,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailQueueData[] };
     } catch (error) {
-      console.error('Error getting pending emails:', error);
       return { 
         error: { 
           message: error.message || 'Failed to get pending emails', 
@@ -224,7 +220,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailQueueData };
     } catch (error) {
-      console.error('Error updating email status:', error);
       return { 
         error: { 
           message: error.message || 'Failed to update email status', 
@@ -249,7 +244,6 @@ export const emailCampaignService = {
 
       return { data: data as EmailCampaignData };
     } catch (error) {
-      console.error('Error getting campaign stats:', error);
       return { 
         error: { 
           message: error.message || 'Failed to get campaign stats', 

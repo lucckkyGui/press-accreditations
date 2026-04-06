@@ -13,7 +13,6 @@ class LocalStorageServiceImpl implements LocalStorageService {
       const serializedValue = JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
     } catch (error) {
-      console.error(`Error saving data for key ${key}:`, error);
     }
   }
 
@@ -26,7 +25,6 @@ class LocalStorageServiceImpl implements LocalStorageService {
       if (serializedValue === null) return null;
       return JSON.parse(serializedValue) as T;
     } catch (error) {
-      console.error(`Error retrieving data for key ${key}:`, error);
       return null;
     }
   }
@@ -38,7 +36,6 @@ class LocalStorageServiceImpl implements LocalStorageService {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error(`Error removing data for key ${key}:`, error);
     }
   }
 
@@ -49,7 +46,6 @@ class LocalStorageServiceImpl implements LocalStorageService {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error("Error clearing localStorage:", error);
     }
   }
 

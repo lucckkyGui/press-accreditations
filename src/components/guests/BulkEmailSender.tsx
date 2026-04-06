@@ -71,8 +71,6 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
         
         const progress = ((batch + 1) / totalBatches) * 100;
         setSendingProgress(progress);
-        
-        console.log(`Wysłano batch ${batch + 1}/${totalBatches}`);
       }
 
       // Symulacja statystyk dostawy
@@ -90,7 +88,6 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
       onEmailSent();
 
     } catch (error) {
-      console.error('Błąd podczas wysyłania emaili:', error);
       toast.error('Wystąpił błąd podczas wysyłania zaproszeń');
     } finally {
       setIsSending(false);

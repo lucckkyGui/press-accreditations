@@ -25,7 +25,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error saving guest:', error);
       toast.error('Wystąpił błąd podczas zapisywania gościa');
     } finally {
       setIsLoading(false);
@@ -50,7 +49,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error deleting guest:', error);
       toast.error('Wystąpił błąd podczas usuwania gościa');
     } finally {
       setIsLoading(false);
@@ -81,7 +79,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error deleting guests:', error);
       toast.error('Wystąpił błąd podczas usuwania gości');
     } finally {
       setIsLoading(false);
@@ -105,7 +102,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error updating guests status:', error);
       toast.error('Wystąpił błąd podczas aktualizacji statusu gości');
     } finally {
       setIsLoading(false);
@@ -129,7 +125,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error updating guests ticket type:', error);
       toast.error('Wystąpił błąd podczas aktualizacji typu biletu gości');
     } finally {
       setIsLoading(false);
@@ -153,7 +148,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error sending invitations:', error);
       toast.error('Wystąpił błąd podczas wysyłania zaproszeń');
     } finally {
       setIsLoading(false);
@@ -171,7 +165,6 @@ export const useGuestsActions = (refetchGuests: () => void) => {
         refetchGuests();
       }
     } catch (error) {
-      console.error('Error importing guests:', error);
       toast.error('Wystąpił błąd podczas importowania gości');
     } finally {
       setIsLoading(false);

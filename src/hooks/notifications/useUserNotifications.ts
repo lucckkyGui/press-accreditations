@@ -57,7 +57,6 @@ export function useUserNotifications() {
       setNotifications(mapped);
       setUnreadCount(mapped.filter(n => !n.isRead).length);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +124,6 @@ export function useUserNotifications() {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
     }
   };
 
@@ -145,7 +143,6 @@ export function useUserNotifications() {
       setUnreadCount(0);
       toast.success('Wszystkie powiadomienia oznaczono jako przeczytane');
     } catch (error) {
-      console.error('Error marking all as read:', error);
       toast.error('Nie udało się oznaczyć powiadomień');
     }
   };
@@ -165,7 +162,6 @@ export function useUserNotifications() {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
       toast.error('Nie udało się usunąć powiadomienia');
     }
   };
@@ -193,7 +189,6 @@ export function useUserNotifications() {
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error('Error creating notification:', error);
       return false;
     }
   };

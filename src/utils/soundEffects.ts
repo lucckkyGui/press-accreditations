@@ -44,12 +44,10 @@ export const playSound = (soundType: SoundType, volume: number = 0.5): Promise<v
             // Playback started successfully
           })
           .catch(error => {
-            console.warn("Cannot play sound:", error);
             reject(error);
           });
       }
     } catch (error) {
-      console.error("Error playing sound:", error);
       reject(error);
     }
   });

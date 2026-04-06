@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useI18n } from "@/hooks/useI18n";
+import { useAuditLog } from "@/hooks/useAuditLog";
 
 export const OrganizerLoginForm = ({ 
   onResetClick,
@@ -31,6 +32,7 @@ export const OrganizerLoginForm = ({
   const location = useLocation();
   const { playSoundEffect } = useSoundEffects();
   const { t } = useI18n();
+  const { logLogin } = useAuditLog();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +47,7 @@ export const OrganizerLoginForm = ({
       
       playSoundEffect("success", 0.5);
       toast.success(t('auth.loginSuccessful'));
-      
+      logLogin(email);
       const from = location.state?.from || "/dashboard";
       navigate(from, { replace: true });
     } catch (error: any) {

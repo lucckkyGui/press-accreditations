@@ -37,7 +37,6 @@ export const guestBulkService = {
 
       return { data: data.map(item => mapDbGuestToGuest(item as GuestDB)) };
     } catch (error) {
-      console.error('Error bulk creating guests:', error);
       return { error: { message: error.message, code: 'BULK_CREATE_GUESTS_ERROR' } };
     }
   },
@@ -56,7 +55,6 @@ export const guestBulkService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error bulk deleting guests:`, error);
       return { error: { message: error.message, code: 'BULK_DELETE_GUESTS_ERROR' } };
     }
   },
@@ -75,7 +73,6 @@ export const guestBulkService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error updating status for multiple guests:`, error);
       return { error: { message: error.message, code: 'UPDATE_GUESTS_STATUS_ERROR' } };
     }
   },
@@ -94,7 +91,6 @@ export const guestBulkService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error updating ticket type for multiple guests:`, error);
       return { error: { message: error.message, code: 'UPDATE_GUESTS_TICKET_TYPE_ERROR' } };
     }
   }

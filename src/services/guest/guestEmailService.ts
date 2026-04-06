@@ -25,7 +25,6 @@ export const guestEmailService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error(`Error sending invitations:`, error);
       return { error: { message: error.message, code: 'SEND_INVITATIONS_ERROR' } };
     }
   },
@@ -35,8 +34,6 @@ export const guestEmailService = {
    */
   async sendBulkInvitations(request: BulkEmailRequest): Promise<ApiResponse<void>> {
     try {
-      console.log('Sending bulk invitations:', request);
-      
       // Tutaj będzie integracja z rzeczywistym dostawcą email
       // Na razie symulujemy wysyłkę
       const now = new Date().toISOString();
@@ -52,7 +49,6 @@ export const guestEmailService = {
 
       return { data: undefined };
     } catch (error) {
-      console.error('Error sending bulk invitations:', error);
       return { error: { message: error.message, code: 'SEND_BULK_INVITATIONS_ERROR' } };
     }
   }

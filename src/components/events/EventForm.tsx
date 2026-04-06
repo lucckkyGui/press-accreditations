@@ -88,7 +88,6 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSubmit, onCancel, isSubm
         maxGuests: values.maxGuests,
       });
     } catch (error) {
-      console.error('Error in event form submission:', error);
       toast.error('Wystąpił błąd podczas zapisywania wydarzenia. Spróbuj ponownie.');
     }
   };

@@ -153,7 +153,7 @@ export default function MediaPortalPage() {
           {!isOrganizer && userRegistration && (
             <DocumentUploader 
               registrationId={userRegistration.id}
-              onUploadComplete={(files) => console.log('Uploaded:', files)}
+              onUploadComplete={(files) => {}}
             />
           )}
           

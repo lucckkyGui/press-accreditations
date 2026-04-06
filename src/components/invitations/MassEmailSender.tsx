@@ -116,12 +116,6 @@ const MassEmailSender: React.FC<MassEmailSenderProps> = ({
 
   const sendEmailBatch = async (batch: EmailBatch): Promise<{ sent: number; failed: number }> => {
     try {
-      console.log(`Wysyłanie batch ${batch.batchNumber}:`, {
-        recipientsCount: batch.guests.length,
-        subject,
-        customMessage
-      });
-
       let sent = 0;
       let failed = 0;
 
@@ -154,7 +148,6 @@ const MassEmailSender: React.FC<MassEmailSenderProps> = ({
       
       return { sent: batch.guests.length - failed, failed };
     } catch (error) {
-      console.error(`Błąd wysyłki batch ${batch.batchNumber}:`, error);
       return { sent: 0, failed: batch.guests.length };
     }
   };
@@ -259,7 +252,6 @@ const MassEmailSender: React.FC<MassEmailSenderProps> = ({
       onEmailSent();
 
     } catch (error) {
-      console.error('Błąd podczas wysyłania emaili:', error);
       toast.error('Wystąpił błąd podczas wysyłania zaproszeń');
     } finally {
       setIsSending(false);

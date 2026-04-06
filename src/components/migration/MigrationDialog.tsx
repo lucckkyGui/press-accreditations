@@ -74,7 +74,6 @@ export function MigrationDialog({
         });
       }
     } catch (error) {
-      console.error("Migration error:", error);
       toast({
         title: "Błąd migracji",
         description: "Wystąpił nieoczekiwany błąd podczas migracji danych.",

@@ -25,7 +25,6 @@ export const useEvents = () => {
     {
       onError: (err) => {
         toast.error('Failed to load events');
-        console.error('Error loading events:', err);
       }
     }
   );
@@ -44,7 +43,6 @@ export const useEvents = () => {
       },
       onError: (err) => {
         toast.error('Failed to create event');
-        console.error('Error creating event:', err);
       }
     }
   );
@@ -63,7 +61,6 @@ export const useEvents = () => {
       },
       onError: (err) => {
         toast.error('Failed to update event');
-        console.error('Error updating event:', err);
       }
     }
   );
@@ -82,7 +79,6 @@ export const useEvents = () => {
       },
       onError: (err) => {
         toast.error('Failed to delete event');
-        console.error('Error deleting event:', err);
       }
     }
   );
@@ -105,7 +101,6 @@ export const useEvents = () => {
       },
       onError: (err) => {
         toast.error('Failed to update event publish state');
-        console.error('Error updating event publish state:', err);
       }
     }
   );

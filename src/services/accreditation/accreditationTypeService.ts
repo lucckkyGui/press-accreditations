@@ -40,7 +40,6 @@ export const AccreditationTypeService = {
         data: data.map(fromAccreditationTypeDb) 
       };
     } catch (error: any) {
-      console.error("Error fetching accreditation types:", error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać typów akredytacji",
@@ -67,7 +66,6 @@ export const AccreditationTypeService = {
         data: fromAccreditationTypeDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error fetching accreditation type ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się pobrać typu akredytacji",
@@ -106,7 +104,6 @@ export const AccreditationTypeService = {
         data: fromAccreditationTypeDb(data) 
       };
     } catch (error: any) {
-      console.error("Error creating accreditation type:", error);
       return { 
         error: {
           message: error.message || "Nie udało się utworzyć typu akredytacji",
@@ -137,7 +134,6 @@ export const AccreditationTypeService = {
         data: fromAccreditationTypeDb(data) 
       };
     } catch (error: any) {
-      console.error(`Error updating accreditation type ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się zaktualizować typu akredytacji",
@@ -161,7 +157,6 @@ export const AccreditationTypeService = {
       
       return { data: undefined };
     } catch (error: any) {
-      console.error(`Error deleting accreditation type ${id}:`, error);
       return { 
         error: {
           message: error.message || "Nie udało się usunąć typu akredytacji",

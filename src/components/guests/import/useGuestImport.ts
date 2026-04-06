@@ -82,7 +82,6 @@ export const useGuestImport = () => {
         }
       });
     } catch (err) {
-      console.error('Error parsing CSV file:', err);
       setError('Wystąpił błąd podczas przetwarzania pliku');
     }
   };

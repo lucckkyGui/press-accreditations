@@ -46,7 +46,6 @@ export function useChatMessages(conversationId: string | null) {
 
       setMessages(mapped);
     } catch (error) {
-      console.error('Error fetching messages:', error);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +103,6 @@ export function useChatMessages(conversationId: string | null) {
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error('Error sending message:', error);
       toast.error('Nie udało się wysłać wiadomości');
       return false;
     }
@@ -120,7 +118,6 @@ export function useChatMessages(conversationId: string | null) {
         .in('id', messageIds)
         .neq('sender_id', user.id);
     } catch (error) {
-      console.error('Error marking messages as read:', error);
     }
   };
 

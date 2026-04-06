@@ -37,7 +37,6 @@ export const useSubscription = () => {
         isLoading: false,
       });
     } catch (err) {
-      console.error("Error checking subscription:", err);
       setState(prev => ({ ...prev, isLoading: false }));
     }
   }, [user]);

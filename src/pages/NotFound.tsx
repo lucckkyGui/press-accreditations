@@ -9,7 +9,6 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.error("404 Error:", location.pathname);
   }, [location.pathname]);
 
   return (

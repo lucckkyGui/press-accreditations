@@ -30,7 +30,6 @@ const SubscriptionManagement = () => {
         window.open(data.url, "_blank");
       }
     } catch (err) {
-      console.error("Error opening customer portal:", err);
       toast.error("Nie udało się otworzyć portalu zarządzania subskrypcją");
     } finally {
       setPortalLoading(false);

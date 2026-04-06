@@ -79,7 +79,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
         }
       }
     } catch (error) {
-      console.error('Error loading cached data:', error);
     }
   };
 
@@ -93,7 +92,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
       localStorage.setItem(`guests_${event.id}`, JSON.stringify(cache));
       setCachedGuests(guests);
     } catch (error) {
-      console.error('Error saving cached data:', error);
     }
   };
 
@@ -104,7 +102,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
       localStorage.setItem(`offline_scans_${event.id}`, JSON.stringify(cache));
       setOfflineScans(updatedScans);
     } catch (error) {
-      console.error('Error saving offline scan:', error);
     }
   };
 
@@ -143,7 +140,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
       toast.success(`Offline scan: ${guest.firstName} ${guest.lastName}`);
 
     } catch (error) {
-      console.error('Error processing offline scan:', error);
       toast.error('Błąd podczas skanowania offline');
     }
   };
@@ -187,7 +183,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
       toast.success(`Zsynchronizowano ${offlineScans.length} skanów offline`);
 
     } catch (error) {
-      console.error('Error syncing offline scans:', error);
       toast.error('Błąd podczas synchronizacji');
     } finally {
       setIsSyncing(false);
@@ -216,7 +211,6 @@ const OfflineScannerMode: React.FC<OfflineScannerModeProps> = ({
       toast.success(`Pobrano ${mockGuests.length} gości do cache offline`);
       
     } catch (error) {
-      console.error('Error downloading guests:', error);
       toast.error('Błąd podczas pobierania gości');
     }
   };

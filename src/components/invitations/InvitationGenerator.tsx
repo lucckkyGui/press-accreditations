@@ -65,7 +65,6 @@ const InvitationGenerator: React.FC<InvitationGeneratorProps> = ({
         }
       });
     } catch (error) {
-      console.error('Error generating QR code:', error);
       throw error;
     }
   };
@@ -144,7 +143,6 @@ const InvitationGenerator: React.FC<InvitationGeneratorProps> = ({
       toast.success(`Wygenerowano ${generatedInvitations.length} zaproszeń!`);
 
     } catch (error) {
-      console.error('Error generating invitations:', error);
       toast.error('Wystąpił błąd podczas generowania zaproszeń');
     } finally {
       setIsGenerating(false);

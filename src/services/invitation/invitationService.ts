@@ -46,7 +46,6 @@ export const invitationService = {
       });
       return qrCodeString;
     } catch (error) {
-      console.error('Error generating QR code:', error);
       throw new Error('Failed to generate QR code');
     }
   },
@@ -75,7 +74,6 @@ export const invitationService = {
 
       return { data: data as InvitationData };
     } catch (error) {
-      console.error('Error creating invitation:', error);
       return { 
         error: { 
           message: error.message || 'Failed to create invitation', 
@@ -107,7 +105,6 @@ export const invitationService = {
 
       return { data: data as InvitationData[] };
     } catch (error) {
-      console.error('Error creating bulk invitations:', error);
       return { 
         error: { 
           message: error.message || 'Failed to create bulk invitations', 
@@ -136,7 +133,6 @@ export const invitationService = {
 
       return { data: data as InvitationData };
     } catch (error) {
-      console.error('Error getting invitation by QR:', error);
       return { 
         error: { 
           message: error.message || 'Invitation not found', 
@@ -165,7 +161,6 @@ export const invitationService = {
 
       return { data: data as InvitationData };
     } catch (error) {
-      console.error('Error using invitation:', error);
       return { 
         error: { 
           message: error.message || 'Failed to use invitation', 
@@ -193,7 +188,6 @@ export const invitationService = {
 
       return { data: data as InvitationData[] };
     } catch (error) {
-      console.error('Error getting event invitations:', error);
       return { 
         error: { 
           message: error.message || 'Failed to get invitations', 

@@ -76,7 +76,6 @@ const UserProfile = () => {
             createdAt
           });
         } catch (error) {
-          console.error("Error fetching user profile:", error);
           toast.error("Failed to load profile data");
         }
       }
@@ -104,7 +103,6 @@ const UserProfile = () => {
       toast.success("Profile updated successfully");
       setIsEditFormOpen(false);
     } catch (error) {
-      console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
     }
   };

@@ -24,7 +24,6 @@ export const SocialLoginButtons = () => {
         throw error;
       }
     } catch (error: any) {
-      console.error(`Error signing in with ${provider}:`, error);
       toast.error(`Nie udało się zalogować przez ${getProviderName(provider)}. ${error.message || ''}`);
       setLoadingProvider(null);
     }

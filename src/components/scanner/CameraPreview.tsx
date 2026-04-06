@@ -43,7 +43,6 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         { facingMode: "environment" },
         config,
         (decodedText) => {
-          console.log("QR kod wykryty:", decodedText);
           if (onQrCodeDetected) {
             onQrCodeDetected(decodedText);
             qrScanner.stop().catch(() => {});
@@ -57,7 +56,6 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         setIsCameraReady(true);
       })
       .catch((err) => {
-        console.error("Błąd przy inicjalizacji skanera QR:", err);
         setCameraError("Nie udało się uruchomić kamery. Sprawdź uprawnienia.");
       });
     }
