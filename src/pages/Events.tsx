@@ -158,6 +158,7 @@ const Events = () => {
 
         <Button
           onClick={() => setOpen(true)}
+          data-new-event-btn
           className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/25 transition-all font-semibold"
         >
           <Plus className="mr-2 h-4 w-4" />

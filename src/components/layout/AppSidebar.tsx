@@ -76,6 +76,18 @@ const NavItem = ({ item, active, collapsed }: { item: NavItemDef; active: boolea
       <SidebarMenuButton asChild isActive={active} className="p-0 h-auto">
         <Link
           to={item.url}
+          onMouseEnter={() => {
+            // Prefetch route module on hover
+            const routeMap: Record<string, () => Promise<unknown>> = {
+              '/dashboard': () => import('@/pages/Dashboard'),
+              '/events': () => import('@/pages/Events'),
+              '/guests': () => import('@/pages/Guests'),
+              '/scanner': () => import('@/pages/Scanner'),
+              '/settings': () => import('@/pages/Settings'),
+              '/notifications': () => import('@/pages/Notifications'),
+            };
+            routeMap[item.url]?.();
+          }}
           className={`
             flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/item
             ${active
