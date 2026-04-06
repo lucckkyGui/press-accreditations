@@ -4,7 +4,7 @@ import { Guest, GuestStatus, GuestTicketType } from "@/types";
 /**
  * Map database guest to our frontend Guest type
  */
-export function mapDbGuestToGuest(dbGuest: Record<string, unknown>): Guest {
+export function mapDbGuestToGuest(dbGuest: any): Guest {
   return {
     id: dbGuest.id,
     firstName: dbGuest.first_name,

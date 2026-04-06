@@ -107,7 +107,7 @@ export default function ApiKeyManagement() {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
       toast.success('Klucz API utworzony');
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.message),
   });
 
   const deleteKeyMutation = useMutation({
@@ -144,7 +144,7 @@ export default function ApiKeyManagement() {
       setWebhookUrl('');
       setWebhookEvents(['guest.checked_in']);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.message),
   });
 
   const deleteWebhookMutation = useMutation({

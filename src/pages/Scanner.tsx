@@ -59,7 +59,7 @@ const Scanner = () => {
     fetchEvents();
   }, []);
 
-  const handleGuestCheckedIn = (guest: Error) => {
+  const handleGuestCheckedIn = (guest: any) => {
   };
 
   if (loading) {

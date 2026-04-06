@@ -50,12 +50,12 @@ function escapeCSV(value: string): string {
  * Pre-configured guest export columns
  */
 export const guestExportColumns = [
-  { header: 'Imię', accessor: (g: Error) => g.firstName || g.first_name },
-  { header: 'Nazwisko', accessor: (g: Error) => g.lastName || g.last_name },
-  { header: 'Email', accessor: (g: Error) => g.email },
-  { header: 'Telefon', accessor: (g: Error) => g.phone },
-  { header: 'Firma', accessor: (g: Error) => g.company },
-  { header: 'Status', accessor: (g: Error) => g.status },
-  { header: 'Typ biletu', accessor: (g: Error) => g.ticketType || g.ticket_type },
-  { header: 'Zameldowany', accessor: (g: Error) => g.checkedInAt || g.checked_in_at ? 'Tak' : 'Nie' },
+  { header: 'Imię', accessor: (g: any) => g.firstName || g.first_name },
+  { header: 'Nazwisko', accessor: (g: any) => g.lastName || g.last_name },
+  { header: 'Email', accessor: (g: any) => g.email },
+  { header: 'Telefon', accessor: (g: any) => g.phone },
+  { header: 'Firma', accessor: (g: any) => g.company },
+  { header: 'Status', accessor: (g: any) => g.status },
+  { header: 'Typ biletu', accessor: (g: any) => g.ticketType || g.ticket_type },
+  { header: 'Zameldowany', accessor: (g: any) => g.checkedInAt || g.checked_in_at ? 'Tak' : 'Nie' },
 ];

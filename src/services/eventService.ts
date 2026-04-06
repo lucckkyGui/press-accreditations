@@ -200,7 +200,7 @@ export const eventService = {
 /**
  * Map database event to our frontend Event type
  */
-function mapDbEventToEvent(dbEvent: Record<string, unknown>): Event {
+function mapDbEventToEvent(dbEvent: any): Event {
   return {
     id: dbEvent.id,
     name: dbEvent.title,

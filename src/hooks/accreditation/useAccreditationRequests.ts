@@ -33,7 +33,7 @@ export function useAccreditationRequests(params: AccreditationRequestsQueryParam
         });
         refetch();
       },
-      onError: (error: Error) => {
+      onError: (error: any) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się wysłać wniosku o akredytację.',
@@ -56,7 +56,7 @@ export function useAccreditationRequests(params: AccreditationRequestsQueryParam
         });
         refetch();
       },
-      onError: (error: Error) => {
+      onError: (error: any) => {
         toast({
           title: 'Błąd',
           description: error.message || 'Nie udało się zaktualizować statusu wniosku.',

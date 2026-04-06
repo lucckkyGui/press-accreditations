@@ -34,7 +34,7 @@ export function useMediaRegistrations(params: MediaRegistrationQueryParams = {},
         });
         refetch();
       },
-      onError: (error: Error) => {
+      onError: (error: any) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to submit registration.',
@@ -56,7 +56,7 @@ export function useMediaRegistrations(params: MediaRegistrationQueryParams = {},
         });
         refetch();
       },
-      onError: (error: Error) => {
+      onError: (error: any) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to update registration.',
@@ -77,7 +77,7 @@ export function useMediaRegistrations(params: MediaRegistrationQueryParams = {},
         });
         refetch();
       },
-      onError: (error: Error) => {
+      onError: (error: any) => {
         toast({
           title: 'Error',
           description: error.message || 'Failed to delete registration.',
