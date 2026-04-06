@@ -51,7 +51,8 @@ export const eventService = {
         }
 
         if (params.search) {
-          query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%`);
+          const sanitized = params.search.replace(/[%_\\]/g, '\\$&').slice(0, 100);
+          query = query.or(`title.ilike.%${sanitized}%,description.ilike.%${sanitized}%`);
         }
 
         // Handle pagination
