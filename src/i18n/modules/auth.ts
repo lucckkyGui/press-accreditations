@@ -47,7 +47,21 @@ export const auth = {
     testCodeHint: "In test mode, you can use code: 123456",
     testModeInfo: "In test mode, we skip actual verification",
     testDataFilled: "Test data filled. Click login to continue.",
-    loginAs: "Login as"
+    loginAs: "Login as",
+    createOrganizerAccount: "Create organizer account",
+    createOrganizerAccountDescription: "Register your organization to manage events and accreditations",
+    noAccountYet: "Don't have an account yet?",
+    resetPasswordSave: "Save new password",
+    saving: "Saving...",
+    saveChanges: "Save changes",
+    connectionError: "Connection error. Try again.",
+    registrationError: "Error during registration",
+    passwordChangeError: "Error during password change",
+    logoutError: "Error during logout",
+    profileUpdateError: "Error updating profile",
+    loginError: "Login error",
+    loginErrorDescription: "Failed to log in. Try again.",
+    errorGeneric: "Error"
   },
   pl: {
     email: "Email",
@@ -96,6 +110,20 @@ export const auth = {
     testCodeHint: "W trybie testowym możesz użyć kodu: 123456",
     testModeInfo: "W trybie testowym pomijamy faktyczną weryfikację",
     testDataFilled: "Dane testowe wypełnione. Kliknij zaloguj, aby kontynuować.",
-    loginAs: "Zaloguj się jako"
+    loginAs: "Zaloguj się jako",
+    createOrganizerAccount: "Utwórz konto organizatora",
+    createOrganizerAccountDescription: "Zarejestruj swoją organizację, aby zarządzać wydarzeniami i akredytacjami",
+    noAccountYet: "Nie masz jeszcze konta?",
+    resetPasswordSave: "Zapisz nowe hasło",
+    saving: "Zapisywanie...",
+    saveChanges: "Zapisz zmiany",
+    connectionError: "Błąd połączenia. Spróbuj ponownie.",
+    registrationError: "Błąd podczas rejestracji",
+    passwordChangeError: "Błąd podczas zmiany hasła",
+    logoutError: "Błąd podczas wylogowywania",
+    profileUpdateError: "Błąd podczas aktualizacji profilu",
+    loginError: "Błąd logowania",
+    loginErrorDescription: "Nie udało się zalogować. Spróbuj ponownie.",
+    errorGeneric: "Błąd"
   }
 };
