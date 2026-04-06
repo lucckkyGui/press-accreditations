@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/hooks/auth";
 import OrganizerDashboard from "@/components/dashboard/OrganizerDashboard";
 import GuestDashboard from "@/components/dashboard/GuestDashboard";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { DashboardSkeleton } from "@/components/common/PageSkeleton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import TrialBanner from "@/components/common/TrialBanner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,11 +21,7 @@ const Dashboard = () => {
   usePageTitle("Dashboard");
 
   if (isLoading) {
-    return (
-      <div className="h-96 w-full flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (isOrganizer || isAdmin) {
