@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
+import MobileTabBar from "./MobileTabBar";
 import { Outlet, useLocation } from "react-router-dom";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -23,7 +24,7 @@ const MainLayout: React.FC = () => {
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main id="main-content" className="flex-1 p-3 md:p-6 lg:p-8 overflow-auto" role="main">
+          <main id="main-content" className="flex-1 p-3 md:p-6 lg:p-8 pb-20 md:pb-6 overflow-auto" role="main">
             <div className="max-w-7xl mx-auto w-full animate-fade-in">
               <AppBreadcrumbs />
               <Suspense fallback={
@@ -40,6 +41,7 @@ const MainLayout: React.FC = () => {
           <Footer />
         </div>
       </SidebarProvider>
+      <MobileTabBar />
     </div>
   );
 };

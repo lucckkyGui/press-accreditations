@@ -389,6 +389,10 @@ const Settings = () => {
         <TabsContent value="gdpr">
           <GDPRSettings />
         </TabsContent>
+
+        <TabsContent value="webhooks">
+          <WebhookTestingPanel />
+        </TabsContent>
       </Tabs>
       
       <Card className="bg-red-50 border-red-100">
