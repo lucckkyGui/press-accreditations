@@ -10,6 +10,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AppBreadcrumbs from "@/components/common/AppBreadcrumbs";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import PageTransition from "@/components/common/PageTransition";
+import SkipToContent from "@/components/common/SkipToContent";
 
 const MainLayout: React.FC = () => {
   const { isMobile } = useWindowSize();
