@@ -1,8 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ApiResponse } from "@/types/api/apiResponse";
+import { qrToDataURL } from '@/utils/qrDataUrl';
 
-const getQRCode = () => import('qrcode').then(m => m.default);
 
 export interface InvitationData {
   id: string;
@@ -37,15 +37,7 @@ export const invitationService = {
     };
     
     try {
-      const QRCode = await getQRCode();
-      const qrCodeString = await QRCode.toDataURL(JSON.stringify(qrData), {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
-        }
-      });
+      const qrCodeString = qrToDataURL(JSON.stringify(qrData), 300);
       return qrCodeString;
     } catch (error) {
       throw new Error('Failed to generate QR code');

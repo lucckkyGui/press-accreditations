@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Guest, Event } from '@/types';
 import { FileImage } from 'lucide-react';
 import { toast } from 'sonner';
-import QRCode from 'qrcode';
+import { qrToDataURL } from '@/utils/qrDataUrl';
 import DOMPurify from 'dompurify';
 
 interface InvitationGeneratorProps {
@@ -55,18 +55,7 @@ const InvitationGenerator: React.FC<InvitationGeneratorProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generateQRCode = async (data: string): Promise<string> => {
-    try {
-      return await QRCode.toDataURL(data, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-    } catch (error) {
-      throw error;
-    }
+    return qrToDataURL(data, 200);
   };
 
   const generateInvitation = async (guest: Guest): Promise<GeneratedInvitation> => {
