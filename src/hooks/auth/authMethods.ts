@@ -22,7 +22,7 @@ export const signUp = async (data: AuthData) => {
 
     toast.success('Verification link sent to your email');
     return { error: null };
-  } catch (error: Error | unknown) {
+  } catch (error: unknown) {
     toast.error(error.message);
     return { error };
   }
@@ -39,7 +39,7 @@ export const signIn = async (email: string, password: string) => {
 
     toast.success('Signed in successfully');
     return { error: null };
-  } catch (error: Error | unknown) {
+  } catch (error: unknown) {
     toast.error(error.message);
     return { error };
   }
@@ -50,7 +50,7 @@ export const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     toast.success('Signed out successfully');
-  } catch (error: Error | unknown) {
+  } catch (error: unknown) {
     toast.error(error.message);
   }
 };
@@ -65,7 +65,7 @@ export const resetPassword = async (email: string) => {
 
     toast.success('Password reset link sent to your email');
     return { error: null };
-  } catch (error: Error | unknown) {
+  } catch (error: unknown) {
     toast.error(error.message);
     return { error };
   }

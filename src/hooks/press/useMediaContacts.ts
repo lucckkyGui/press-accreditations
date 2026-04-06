@@ -24,7 +24,7 @@ export const useMediaContacts = (params?: MediaContactsQueryParams) => {
       } else if (response.data) {
         setMediaContacts(response.data);
       }
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       setError(err.message || 'Błąd podczas pobierania kontaktów medialnych');
     } finally {
       setIsLoading(false);
@@ -46,7 +46,7 @@ export const useMediaContacts = (params?: MediaContactsQueryParams) => {
         fetchMediaContacts();
         return response.data;
       }
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       setError(err.message || 'Błąd podczas tworzenia kontaktu medialnego');
       return null;
     }
@@ -65,7 +65,7 @@ export const useMediaContacts = (params?: MediaContactsQueryParams) => {
         );
         return response.data;
       }
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       setError(err.message || 'Błąd podczas aktualizacji kontaktu medialnego');
       return null;
     }
@@ -82,7 +82,7 @@ export const useMediaContacts = (params?: MediaContactsQueryParams) => {
         setMediaContacts(prev => prev.filter(contact => contact.id !== id));
         return true;
       }
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       setError(err.message || 'Błąd podczas usuwania kontaktu medialnego');
       return false;
     }

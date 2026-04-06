@@ -154,7 +154,7 @@ const EmbedWidget = () => {
                     <SelectValue placeholder="Wybierz wydarzenie..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {(events || []).map((e: Error) => (
+                    {(events || []).map((e: any) => (
                       <SelectItem key={e.id} value={e.id}>{e.title || e.name}</SelectItem>
                     ))}
                   </SelectContent>

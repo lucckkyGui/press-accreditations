@@ -66,7 +66,7 @@ export const rfidService = {
       .eq('event_id', eventId)
       .order('assigned_at', { ascending: false });
     if (error) throw error;
-    return (data || []).map((w: Error) => ({
+    return (data || []).map((w: any) => ({
       id: w.id,
       event_id: w.event_id,
       guest_id: w.guest_id,
@@ -93,7 +93,7 @@ export const rfidService = {
       .eq('event_id', eventId)
       .eq('is_inside', true);
     if (error) throw error;
-    return (data || []).map((p: Error) => ({
+    return (data || []).map((p: any) => ({
       id: p.id,
       wristband_id: p.wristband_id,
       zone_name: p.zone_name,
@@ -113,7 +113,7 @@ export const rfidService = {
       .order('created_at', { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return (data || []).map((l: Error) => ({
+    return (data || []).map((l: any) => ({
       id: l.id,
       zone_name: l.zone_name,
       action: l.action,
@@ -135,7 +135,7 @@ export const rfidService = {
     if (error) throw error;
     
     const stats: Record<string, number> = {};
-    (data || []).forEach((p: Error) => {
+    (data || []).forEach((p: any) => {
       stats[p.zone_name] = (stats[p.zone_name] || 0) + 1;
     });
     return stats;

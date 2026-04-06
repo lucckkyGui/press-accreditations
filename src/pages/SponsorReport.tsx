@@ -60,7 +60,7 @@ const SponsorReport = () => {
     const byZone: Record<string, number> = {};
     let confirmed = 0, checkedIn = 0, waitlisted = 0;
 
-    guests.forEach((g: Error) => {
+    guests.forEach((g: any) => {
       if (g.status === "confirmed") confirmed++;
       if (g.status === "checked-in") checkedIn++;
       if (g.status === "waitlisted") waitlisted++;

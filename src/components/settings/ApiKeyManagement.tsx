@@ -248,7 +248,7 @@ export default function ApiKeyManagement() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {(apiKeys || []).map((key: Error) => (
+            {(apiKeys || []).map((key: any) => (
               <Card key={key.id}>
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="space-y-1">
@@ -343,7 +343,7 @@ export default function ApiKeyManagement() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {(webhooks || []).map((wh: Error) => (
+            {(webhooks || []).map((wh: any) => (
               <Card key={wh.id}>
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="space-y-1">

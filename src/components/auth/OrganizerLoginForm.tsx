@@ -48,7 +48,7 @@ export const OrganizerLoginForm = ({
       
       const from = location.state?.from || "/dashboard";
       navigate(from, { replace: true });
-    } catch (error: Error | unknown) {
+    } catch (error: unknown) {
       toast.error(error.message || t('auth.loginFailed'));
     } finally {
       setIsLoading(false);

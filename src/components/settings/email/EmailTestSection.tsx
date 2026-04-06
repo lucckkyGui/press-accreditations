@@ -30,7 +30,7 @@ const EmailTestSection = ({ emailConfig }: EmailTestSectionProps) => {
       } else {
         toast.success(`Wiadomość testowa została wysłana na adres ${testEmailAddress}`);
       }
-    } catch (error: Error | unknown) {
+    } catch (error: unknown) {
       toast.error(`Błąd podczas wysyłania wiadomości testowej: ${error?.message || 'Nieznany błąd'}`);
     } finally {
       setIsSendingTest(false);
