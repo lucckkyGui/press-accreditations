@@ -18,6 +18,7 @@ import CheckInActivityChart from "@/components/dashboard/CheckInActivityChart";
 import ResourceMonitor from "@/components/dashboard/ResourceMonitor";
 import { SyncStatus } from "@/components/offline/SyncStatus";
 import RecentScansWidget from "@/components/dashboard/RecentScansWidget";
+import UsageTracker from "@/components/dashboard/UsageTracker";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -189,6 +190,12 @@ const OrganizerDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Usage Tracker */}
+      <UsageTracker
+        guestCount={guestsStats.total}
+        eventCount={eventsData?.length || 0}
+      />
 
       {/* Event filter + Stats grid */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
