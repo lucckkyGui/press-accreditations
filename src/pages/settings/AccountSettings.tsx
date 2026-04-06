@@ -12,8 +12,22 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/hooks/useI18n";
+import { useAuditLog } from "@/hooks/useAuditLog";
+import { z } from "zod";
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Aktualne hasło jest wymagane"),
+  newPassword: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Hasła nie są takie same",
+  path: ["confirmPassword"],
+});
 
 const AccountSettings = () => {
+  const { t } = useI18n();
+  const { logSettingsChange, logLogout } = useAuditLog();
   const navigate = useNavigate();
   const { signOut } = useAuth();
   
