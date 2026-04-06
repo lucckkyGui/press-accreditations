@@ -1,4 +1,4 @@
-import type jsPDF from 'jspdf';
+import jsPDF from 'jspdf';
 
 interface PieSlice {
   label: string;
