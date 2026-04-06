@@ -338,3 +338,4 @@ function addFooter(doc: jsPDF) {
     );
   }
 }
+}
