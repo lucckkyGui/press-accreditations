@@ -380,6 +380,10 @@ const Settings = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="gdpr">
+          <GDPRSettings />
+        </TabsContent>
       </Tabs>
       
       <Card className="bg-red-50 border-red-100">
