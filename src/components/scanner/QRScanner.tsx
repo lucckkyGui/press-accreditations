@@ -44,7 +44,7 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
     }
     
     if (settings.playSound && isAudioSupported()) {
-      playSound(success ? "success" : "error").catch(err => 
+      playSound(success ? "success" : "error").catch(() => {});
     }
   };
 
