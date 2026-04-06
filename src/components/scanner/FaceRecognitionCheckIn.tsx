@@ -127,7 +127,7 @@ export default function FaceRecognitionCheckIn() {
           toast.error(data.message);
         }
       }
-    } catch (e: unknown) {
+    } catch (e: Error | unknown) {
       toast.error(e.message || 'Błąd rozpoznawania twarzy');
     } finally {
       setIsProcessing(false);

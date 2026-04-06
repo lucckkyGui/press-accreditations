@@ -43,7 +43,7 @@ export const AccreditationRequestService = {
       return { 
         data: data.map(fromAccreditationRequestDb) 
       };
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać wniosków o akredytację",
@@ -69,7 +69,7 @@ export const AccreditationRequestService = {
       return { 
         data: fromAccreditationRequestDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       return { 
         error: {
           message: error.message || "Nie udało się pobrać wniosku o akredytację",
@@ -108,7 +108,7 @@ export const AccreditationRequestService = {
       return { 
         data: fromAccreditationRequestDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       return { 
         error: {
           message: error.message || "Nie udało się utworzyć wniosku o akredytację",
@@ -153,7 +153,7 @@ export const AccreditationRequestService = {
       return { 
         data: fromAccreditationRequestDb(data) 
       };
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       return { 
         error: {
           message: error.message || "Nie udało się zaktualizować wniosku o akredytację",

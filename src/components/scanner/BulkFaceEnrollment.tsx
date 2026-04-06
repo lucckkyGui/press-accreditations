@@ -203,7 +203,7 @@ export default function BulkFaceEnrollment() {
             success: true,
             message: data.message || 'Zapisano',
           });
-        } catch (err: unknown) {
+        } catch (err: Error | unknown) {
           enrollResults.push({
             guestName: `${guest.first_name} ${guest.last_name}`,
             fileName: item.fileName,
@@ -218,7 +218,7 @@ export default function BulkFaceEnrollment() {
       setResults(enrollResults);
       const successCount = enrollResults.filter((r) => r.success).length;
       toast.success(`Enrollment zakończony: ${successCount}/${enrollResults.length} zapisanych`);
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       toast.error(err.message || 'Błąd przetwarzania');
     } finally {
       setIsProcessing(false);
@@ -302,7 +302,7 @@ export default function BulkFaceEnrollment() {
           });
           if (error) throw error;
           enrollResults.push({ guestName: `${guest.first_name} ${guest.last_name}`, fileName, success: true, message: data.message || 'Zapisano' });
-        } catch (err: unknown) {
+        } catch (err: Error | unknown) {
           enrollResults.push({ guestName: `${guest.first_name} ${guest.last_name}`, fileName, success: false, message: err.message || 'Błąd zapisu' });
         }
         setProcessedItems(i + 1); setProgress(((i + 1) / rows.length) * 100);
@@ -311,7 +311,7 @@ export default function BulkFaceEnrollment() {
       setResults(enrollResults);
       const successCount = enrollResults.filter((r) => r.success).length;
       toast.success(`Enrollment zakończony: ${successCount}/${enrollResults.length} zapisanych`);
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       toast.error(err.message || 'Błąd przetwarzania');
     } finally {
       setIsProcessing(false);

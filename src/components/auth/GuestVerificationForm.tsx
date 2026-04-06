@@ -67,7 +67,7 @@ export const GuestVerificationForm = ({
       } else {
         throw new Error(t('auth.invalidVerificationCode'));
       }
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       playSoundEffect("error", 0.4);
       
       if (testModeEnabled) {
@@ -101,7 +101,7 @@ export const GuestVerificationForm = ({
       
       playSoundEffect("notification");
       toast.success(t('auth.verificationCodeResent'));
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       playSoundEffect("error", 0.4);
       
       if (testModeEnabled) {

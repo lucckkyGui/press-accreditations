@@ -52,7 +52,7 @@ const AccountSettings = () => {
       if (error) throw error;
       toast.success("Hasło zostało zmienione");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       toast.error(error?.message || "Błąd podczas zmiany hasła");
     } finally {
       setIsChangingPassword(false);

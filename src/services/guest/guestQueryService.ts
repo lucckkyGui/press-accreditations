@@ -67,7 +67,7 @@ export const guestQueryService = {
           totalPages: Math.ceil((totalCount || data.length) / pageSize)
         }
       };
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       return { error: { message: error.message, code: 'FETCH_GUESTS_ERROR' } };
     }
   },

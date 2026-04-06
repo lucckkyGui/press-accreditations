@@ -40,7 +40,7 @@ const AuditTrail = () => {
       });
       setLogs(result.data || []);
       setTotalCount(result.count || 0);
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       toast.error("Błąd ładowania logów: " + (err.message || "Unknown error"));
       setLogs([]);
     } finally {

@@ -24,7 +24,7 @@ export const usePressReleases = (params?: PressReleasesQueryParams) => {
       } else if (response.data) {
         setPressReleases(response.data);
       }
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       setError(err.message || 'Błąd podczas pobierania komunikatów prasowych');
     } finally {
       setIsLoading(false);
@@ -46,7 +46,7 @@ export const usePressReleases = (params?: PressReleasesQueryParams) => {
         fetchPressReleases();
         return response.data;
       }
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       setError(err.message || 'Błąd podczas tworzenia komunikatu prasowego');
       return null;
     }
@@ -63,7 +63,7 @@ export const usePressReleases = (params?: PressReleasesQueryParams) => {
         setPressReleases(prev => prev.filter(pr => pr.id !== id));
         return true;
       }
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       setError(err.message || 'Błąd podczas usuwania komunikatu prasowego');
       return false;
     }
@@ -82,7 +82,7 @@ export const usePressReleases = (params?: PressReleasesQueryParams) => {
         );
         return response.data;
       }
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       setError(err.message || 'Błąd podczas wysyłania komunikatu prasowego');
       return null;
     }
@@ -101,7 +101,7 @@ export const usePressReleases = (params?: PressReleasesQueryParams) => {
         );
         return response.data;
       }
-    } catch (err: unknown) {
+    } catch (err: Error | unknown) {
       setError(err.message || 'Błąd podczas planowania komunikatu prasowego');
       return null;
     }

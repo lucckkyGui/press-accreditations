@@ -23,7 +23,7 @@ export const SocialLoginButtons = () => {
       if (error) {
         throw error;
       }
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       toast.error(`Nie udało się zalogować przez ${getProviderName(provider)}. ${error.message || ''}`);
       setLoadingProvider(null);
     }

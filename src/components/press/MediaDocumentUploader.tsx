@@ -94,7 +94,7 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
         setUploadProgress(0);
       }, 3000);
       
-    } catch (error: unknown) {
+    } catch (error: Error | unknown) {
       clearInterval(interval);
       setUploadStatus('error');
       setError(error.message || 'Failed to upload document');
