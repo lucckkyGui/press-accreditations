@@ -42,11 +42,9 @@ const AccreditationRequest = lazy(() => import("@/pages/AccreditationRequest"));
 const InvitationEditor = lazy(() => import("@/pages/InvitationEditor"));
 const RfidScanner = lazy(() => import("@/pages/RfidScanner"));
 const WristbandManagement = lazy(() => import("@/pages/WristbandManagement"));
-const ZoneHeatmap = lazy(() => import("@/pages/ZoneHeatmap"));
-const SelfCheckInKiosk = lazy(() => import("@/pages/SelfCheckInKiosk"));
 const LiveDashboard = lazy(() => import("@/pages/LiveDashboard"));
 const PostEventReport = lazy(() => import("@/pages/PostEventReport"));
-const PitchDeck = lazy(() => import("@/pages/PitchDeck"));
+
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const EmbedWidget = lazy(() => import("@/pages/EmbedWidget"));
 const EmbedRegisterForm = lazy(() => import("@/pages/EmbedRegisterForm"));
@@ -60,7 +58,7 @@ const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 // New pages — phases 6-35
 const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
 const AIDashboard = lazy(() => import("@/pages/AIDashboard"));
-const AffiliateDashboard = lazy(() => import("@/pages/AffiliateDashboard"));
+
 const WhiteLabelSettings = lazy(() => import("@/pages/WhiteLabelSettings"));
 const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
 const ReportBuilder = lazy(() => import("@/pages/ReportBuilder"));
@@ -105,7 +103,7 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
-        <Route path="/pitch" element={<PitchDeck />} />
+        
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
         <Route path="/access-denied" element={<AccessDenied />} />
@@ -135,7 +133,7 @@ const AppRoutes = () => {
           <Route path="/media-portal" element={<MediaPortalPage />} />
           <Route path="/rfid-scanner" element={<RfidScanner />} />
           <Route path="/wristbands" element={<WristbandManagement />} />
-          <Route path="/zone-heatmap" element={<ZoneHeatmap />} />
+          
           <Route path="/post-event-report" element={<PostEventReport />} />
           <Route path="/embed-widget" element={<EmbedWidget />} />
           <Route path="/waitlist" element={<Waitlist />} />
@@ -144,7 +142,7 @@ const AppRoutes = () => {
           {/* New pages — phases 6-35 */}
           <Route path="/admin/monitoring" element={<AdminMonitoring />} />
           <Route path="/ai-dashboard" element={<AIDashboard />} />
-          <Route path="/affiliate" element={<AffiliateDashboard />} />
+          
           <Route path="/white-label" element={<WhiteLabelSettings />} />
           <Route path="/integrations" element={<IntegrationsHub />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
@@ -171,11 +169,6 @@ const AppRoutes = () => {
         </Route>
 
         {/* Full-screen protected */}
-        <Route path="/kiosk" element={
-          <ProtectedRoute allowedRoles={[...STAFF_ROLES]}>
-            <SelfCheckInKiosk />
-          </ProtectedRoute>
-        } />
         <Route path="/live-dashboard" element={
           <ProtectedRoute allowedRoles={[...ORGANIZER_ROLES]}>
             <LiveDashboard />
