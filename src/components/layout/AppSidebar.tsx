@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Users, QrCode, Settings, BarChart3, Radio, Map, FileBarChart, Sparkles, ChevronRight, Bot, FileText, Ticket, Newspaper, LogOut } from "lucide-react";
+import { Calendar, Users, QrCode, Settings, BarChart3, Radio, Map, FileBarChart, Sparkles, ChevronRight, Bot, FileText, Ticket, Newspaper, LogOut, Brain, Plug, Shield, Paintbrush, Share2, Activity, ShoppingBag, FileSearch } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
@@ -40,6 +40,13 @@ const operationsNavigation: NavItemDef[] = [
   { title: "Media / Prasa", url: "/press-releases", icon: Newspaper },
 ];
 
+const advancedNavigation: NavItemDef[] = [
+  { title: "AI Dashboard", url: "/ai-dashboard", icon: Brain },
+  { title: "Integracje", url: "/integrations", icon: Plug },
+  { title: "Kreator raportów", url: "/report-builder", icon: FileSearch },
+  { title: "Marketplace", url: "/marketplace", icon: ShoppingBag },
+];
+
 const reportsNavigation: NavItemDef[] = [
   { title: "Raport końcowy", url: "/post-event-report", icon: FileBarChart },
   { title: "Raport sponsorski", url: "/sponsor-report", icon: FileText },
@@ -47,6 +54,10 @@ const reportsNavigation: NavItemDef[] = [
 
 const systemNavigation: NavItemDef[] = [
   { title: "AI Support", url: "/ai-support", icon: Bot },
+  { title: "Monitoring", url: "/admin/monitoring", icon: Activity },
+  { title: "Audyt & SSO", url: "/audit-trail", icon: Shield },
+  { title: "White-Label", url: "/white-label", icon: Paintbrush },
+  { title: "Affiliate", url: "/affiliate", icon: Share2 },
   { title: "Pomoc", url: "/help", icon: FileText },
   { title: "Ustawienia", url: "/settings", icon: Settings },
 ];
@@ -54,6 +65,7 @@ const systemNavigation: NavItemDef[] = [
 const allSections = [
   { label: "Główne", items: mainNavigation },
   { label: "Operacje", items: operationsNavigation },
+  { label: "Zaawansowane", items: advancedNavigation },
   { label: "Raporty", items: reportsNavigation },
   { label: "System", items: systemNavigation },
 ];
@@ -188,7 +200,7 @@ const AppSidebar = () => {
               <p className="text-sm font-medium truncate text-foreground">
                 {profile?.firstName || 'Użytkownik'} {profile?.lastName || ''}
               </p>
-              <p className="text-[10px] text-muted-foreground truncate">v1.0.0</p>
+              <p className="text-[10px] text-muted-foreground truncate">v2.0.0</p>
             </div>
             <button
               onClick={() => signOut()}
