@@ -17,6 +17,7 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
+      <SkipToContent />
       <SidebarProvider>
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
