@@ -13,6 +13,57 @@ function jsonError(message: string, status: number) {
   });
 }
 
+// Exponential backoff retry for webhook delivery
+async function deliverWithRetry(
+  url: string,
+  body: string,
+  signatureHex: string,
+  eventType: string,
+  maxRetries = 3
+): Promise<{ ok: boolean; status: number; attempt: number }> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000); // 10s timeout
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Signature': signatureHex,
+          'X-Webhook-Event': eventType,
+          'X-Webhook-Attempt': String(attempt),
+        },
+        body,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (response.ok) {
+        await response.text();
+        return { ok: true, status: response.status, attempt };
+      }
+
+      // Don't retry on 4xx (client errors) — only on 5xx
+      if (response.status >= 400 && response.status < 500) {
+        return { ok: false, status: response.status, attempt };
+      }
+
+      // Exponential backoff: 1s, 2s, 4s
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt - 1) * 1000));
+      }
+    } catch (e) {
+      if (attempt >= maxRetries) {
+        return { ok: false, status: 0, attempt };
+      }
+      await new Promise(r => setTimeout(r, Math.pow(2, attempt - 1) * 1000));
+    }
+  }
+  return { ok: false, status: 0, attempt: maxRetries };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -47,7 +98,6 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
-
     const { event_type, event_id, payload } = await req.json();
 
     if (!event_type || !event_id) {
@@ -61,17 +111,14 @@ Deno.serve(async (req) => {
       .eq('id', event_id)
       .single();
 
-    if (eventError || !event) {
-      return jsonError('Event not found', 404);
-    }
+    if (eventError || !event) return jsonError('Event not found', 404);
 
     const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: userId });
-
     if (event.organizer_id !== userId && !isAdmin) {
       return jsonError('Forbidden - not event owner or admin', 403);
     }
 
-    // Find active webhook subscriptions for this event
+    // Find active webhook subscriptions
     const { data: subscriptions, error } = await supabase
       .from('webhook_subscriptions')
       .select('*')
@@ -97,35 +144,35 @@ Deno.serve(async (req) => {
           { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
         );
         const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(body));
-        const signatureHex = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+        const signatureHex = Array.from(new Uint8Array(signature))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
 
-        const response = await fetch(sub.url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Webhook-Signature': signatureHex,
-            'X-Webhook-Event': event_type,
-          },
-          body,
-        });
+        // Deliver with exponential backoff retry
+        const result = await deliverWithRetry(sub.url, body, signatureHex, event_type);
 
-        if (!response.ok) {
-          await supabase.from('webhook_subscriptions').update({
-            failure_count: sub.failure_count + 1,
-            updated_at: new Date().toISOString(),
-            ...(sub.failure_count >= 9 ? { is_active: false } : {}),
-          }).eq('id', sub.id);
-          throw new Error(`Webhook ${sub.url} returned ${response.status}`);
-        } else {
+        if (result.ok) {
           await supabase.from('webhook_subscriptions').update({
             failure_count: 0,
             last_triggered_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }).eq('id', sub.id);
-        }
+          return { id: sub.id, status: 'delivered', attempts: result.attempt };
+        } else {
+          const newFailureCount = (sub.failure_count || 0) + 1;
+          // Dead letter queue: disable after 10 consecutive failures
+          await supabase.from('webhook_subscriptions').update({
+            failure_count: newFailureCount,
+            updated_at: new Date().toISOString(),
+            ...(newFailureCount >= 10 ? { is_active: false } : {}),
+          }).eq('id', sub.id);
 
-        await response.text();
-        return { id: sub.id, status: 'delivered' };
+          // Log to dead letter if disabled
+          if (newFailureCount >= 10) {
+            console.warn(`[DLQ] Webhook ${sub.id} (${sub.url}) disabled after ${newFailureCount} failures`);
+          }
+
+          throw new Error(`Webhook ${sub.url} failed after ${result.attempt} attempts (status: ${result.status})`);
+        }
       })
     );
 

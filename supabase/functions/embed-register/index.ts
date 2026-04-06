@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { checkRateLimit, getClientIP, createRateLimitResponse } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,10 +8,7 @@ const corsHeaders = {
 };
 
 function generateQRCodeSVG(data: string): string {
-  // Simple QR code placeholder using a Google Charts API URL for the email
-  // We'll use an inline SVG approach with the data encoded
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&format=svg`;
-  return qrUrl;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}&format=svg`;
 }
 
 function buildConfirmationEmail(params: {
@@ -137,17 +134,21 @@ async function sendConfirmationEmail(params: {
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Rate limiting — 30 requests per minute per IP for public registration
+  const clientIP = getClientIP(req);
+  const rl = checkRateLimit(clientIP, { maxRequests: 30, windowMs: 60_000, keyPrefix: "embed-register" });
+  if (!rl.allowed) return createRateLimitResponse(rl, corsHeaders);
 
   try {
     const { eventId, firstName, lastName, email, company, phone, ticketType } = await req.json();
     const VALID_TICKET_TYPES = ["general", "vip", "press", "speaker", "exhibitor"];
     const safeTicketType = VALID_TICKET_TYPES.includes(ticketType) ? ticketType : "general";
 
-    // Validate required fields
     if (!eventId || !firstName || !lastName || !email) {
       return new Response(
         JSON.stringify({ error: "Wymagane pola: eventId, firstName, lastName, email" }),
@@ -155,7 +156,6 @@ serve(async (req) => {
       );
     }
 
-    // Basic validation
     if (firstName.length > 100 || lastName.length > 100 || email.length > 255) {
       return new Response(
         JSON.stringify({ error: "Przekroczono limit długości pól" }),
@@ -171,11 +171,11 @@ serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    // Check event exists and is published
     const { data: event, error: eventError } = await supabase
       .from("events")
       .select("id, title, max_guests, is_published")
@@ -196,7 +196,6 @@ serve(async (req) => {
       );
     }
 
-    // Check for duplicate email
     const { count: existingCount } = await supabase
       .from("guests")
       .select("id", { count: "exact", head: true })
@@ -210,7 +209,6 @@ serve(async (req) => {
       );
     }
 
-    // Check capacity
     let isWaitlisted = false;
     if (event.max_guests) {
       const { count: guestCount } = await supabase
@@ -224,10 +222,8 @@ serve(async (req) => {
       }
     }
 
-    // Generate QR code
     const qrCode = crypto.randomUUID();
 
-    // Insert guest
     const { data: guest, error: insertError } = await supabase
       .from("guests")
       .insert({
@@ -252,7 +248,6 @@ serve(async (req) => {
       );
     }
 
-    // Send confirmation email (non-blocking)
     sendConfirmationEmail({
       to: guest.email,
       firstName: guest.first_name,
