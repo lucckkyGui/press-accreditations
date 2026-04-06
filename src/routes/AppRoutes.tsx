@@ -9,7 +9,7 @@ import NotFound from "@/pages/NotFound";
 import AccessDenied from "@/pages/AccessDenied";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { GenericPageSkeleton } from "@/components/common/PageSkeleton";
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -69,8 +69,8 @@ const AuditTrail = lazy(() => import("@/pages/AuditTrail"));
 const DigitalPassPage = lazy(() => import("@/pages/DigitalPassPage"));
 
 const LazyFallback = () => (
-  <div className="h-64 flex items-center justify-center">
-    <LoadingSpinner />
+  <div className="p-6">
+    <GenericPageSkeleton />
   </div>
 );
 
