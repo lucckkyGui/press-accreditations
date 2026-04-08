@@ -45,12 +45,11 @@ const EmbedRegisterForm = () => {
 
   useEffect(() => {
     if (!eventId) return;
-    // Fetch event info (published events are publicly visible via RLS)
+    // Fetch event info via public_events view (excludes organizer_id)
     supabase
-      .from("events")
+      .from("public_events" as any)
       .select("id, title, max_guests, start_date, end_date, location")
       .eq("id", eventId)
-      .eq("is_published", true)
       .single()
       .then(({ data, error: err }) => {
         if (err || !data) {
