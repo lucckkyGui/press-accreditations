@@ -8,7 +8,8 @@ import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, Al
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
-import JSZip from 'jszip';
+// JSZip loaded dynamically when needed
+const loadJSZip = () => import('jszip').then(m => m.default);
 import Papa from 'papaparse';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

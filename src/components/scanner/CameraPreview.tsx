@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, CameraOff, QrCode, Smartphone } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import type { Html5Qrcode as Html5QrcodeType } from "html5-qrcode";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -22,7 +22,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   onQrCodeDetected,
 }) => {
   const { t } = useI18n();
-  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const qrScannerRef = useRef<Html5QrcodeType | null>(null);
   const scannerContainerId = "qr-reader";
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
