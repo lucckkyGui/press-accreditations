@@ -24,6 +24,15 @@ export function getMockEvents(_categoryId: string): MockEvent[] {
   return [];
 }
 
+export function getCategoryName(categoryId: string, _language: string): string {
+  return categoryId;
+}
+
+export function filterEventsByFeatured(events: MockEvent[], featured: boolean): MockEvent[] {
+  if (!featured) return events;
+  return events.filter(e => e.featured);
+}
+
 export function sortEvents(events: MockEvent[], sortOrder: EventSortOrder): MockEvent[] {
   const sorted = [...events];
   switch (sortOrder) {
