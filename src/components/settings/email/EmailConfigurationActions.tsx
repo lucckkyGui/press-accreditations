@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check } from 'lucide-react';
-import { mockEmailService } from '@/services/api/mockEmailService';
+import { emailConfigService } from '@/services/api/emailConfigService';
 import { toast } from 'sonner';
 import { EmailIntegrationConfig } from '@/types/supabase';
 
