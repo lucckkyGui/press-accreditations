@@ -28,53 +28,45 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   const [isCameraReady, setIsCameraReady] = useState(false);
 
   useEffect(() => {
-    // Initialize QR scanner
     if (scanning && !qrScannerRef.current) {
       import("html5-qrcode").then(({ Html5Qrcode }) => {
         const qrScanner = new Html5Qrcode(scannerContainerId);
         qrScannerRef.current = qrScanner;
-      
-      const config = { 
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-      };
-      
-      qrScanner.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          if (onQrCodeDetected) {
-            onQrCodeDetected(decodedText);
-            qrScanner.stop().catch(() => {});
-          }
-        },
-        (errorMessage) => {
-          // Scanning errors are not important - not showing to user
-        }
-      )
-      .then(() => {
-        setIsCameraReady(true);
-      })
-      .catch((err) => {
-        setCameraError("Nie udało się uruchomić kamery. Sprawdź uprawnienia.");
+
+        const config = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+        };
+
+        qrScanner.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText) => {
+            if (onQrCodeDetected) {
+              onQrCodeDetected(decodedText);
+              qrScanner.stop().catch(() => {});
+            }
+          },
+          () => {}
+        )
+        .then(() => setIsCameraReady(true))
+        .catch(() => setCameraError("Nie udało się uruchomić kamery. Sprawdź uprawnienia."));
       });
     }
 
     return () => {
-      // Clean up scanner when component unmounts
       if (qrScannerRef.current) {
         const scanner = qrScannerRef.current;
         qrScannerRef.current = null;
         setIsCameraReady(false);
         try {
           const state = scanner.getState();
-          // Only stop if scanner is actively scanning or paused (states 2 and 3)
           if (state === 2 || state === 3) {
             scanner.stop().catch(() => {});
           }
         } catch {
-          // Scanner not in a stoppable state, ignore
+          // Scanner not in a stoppable state
         }
       }
     };

@@ -69,7 +69,7 @@ export default function BulkFaceEnrollment() {
       setIsLoadingThumbnails(true);
       try {
         const zipData = await file.arrayBuffer();
-        const zip = await JSZip.loadAsync(zipData);
+        const zip = await (await loadJSZip()).loadAsync(zipData);
         const imageFiles = Object.keys(zip.files).filter(
           (f) => !zip.files[f].dir && /\.(jpe?g|png|webp)$/i.test(f)
         );
