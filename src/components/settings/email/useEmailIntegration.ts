@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { mockEmailService } from '@/services/api/mockEmailService';
+import { emailConfigService } from '@/services/api/emailConfigService';
 import { EmailIntegrationConfig } from '@/types/supabase';
 
 export const useEmailIntegration = () => {
@@ -22,7 +22,7 @@ export const useEmailIntegration = () => {
   } = useQuery({
     queryKey: ['emailConfig'],
     queryFn: async () => {
-      const response = await mockEmailService.getEmailConfiguration();
+      const response = await emailConfigService.getEmailConfiguration();
       return response.data;
     }
   });
@@ -35,7 +35,7 @@ export const useEmailIntegration = () => {
   
   const updateConfigMutation = useMutation({
     mutationFn: async (config: EmailIntegrationConfig) => {
-      return mockEmailService.updateEmailConfiguration(config);
+      return emailConfigService.updateEmailConfiguration(config);
     },
     onSuccess: () => {
       toast.success('Konfiguracja email została zaktualizowana');

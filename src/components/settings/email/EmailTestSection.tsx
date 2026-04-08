@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Send } from 'lucide-react';
-import { mockEmailService } from '@/services/api/mockEmailService';
+import { emailConfigService } from '@/services/api/emailConfigService';
 import { toast } from 'sonner';
 import { EmailIntegrationConfig } from '@/types/supabase';
 
@@ -24,7 +24,7 @@ const EmailTestSection = ({ emailConfig }: EmailTestSectionProps) => {
     
     setIsSendingTest(true);
     try {
-      const response = await mockEmailService.sendTestEmail(testEmailAddress);
+      const response = await emailConfigService.sendTestEmail(testEmailAddress);
       if (response.error) {
         toast.error(`Wysyłanie wiadomości testowej nie powiodło się: ${response.error.message}`);
       } else {

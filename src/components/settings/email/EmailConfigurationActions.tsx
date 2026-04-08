@@ -18,7 +18,7 @@ const EmailConfigurationActions = ({ emailConfig, onSave, isSaving }: EmailConfi
   const handleTestConnection = async () => {
     setIsTesting(true);
     try {
-      const response = await mockEmailService.testConnection(emailConfig);
+      const response = await emailConfigService.testConnection(emailConfig);
       if (response.error) {
         toast.error(`Test połączenia nie powiódł się: ${response.error.message}`);
       } else {
