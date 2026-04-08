@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check } from 'lucide-react';
-import { mockEmailService } from '@/services/api/mockEmailService';
+import { emailConfigService } from '@/services/api/emailConfigService';
 import { toast } from 'sonner';
 import { EmailIntegrationConfig } from '@/types/supabase';
 
@@ -18,7 +18,7 @@ const EmailConfigurationActions = ({ emailConfig, onSave, isSaving }: EmailConfi
   const handleTestConnection = async () => {
     setIsTesting(true);
     try {
-      const response = await mockEmailService.testConnection(emailConfig);
+      const response = await emailConfigService.testConnection(emailConfig);
       if (response.error) {
         toast.error(`Test połączenia nie powiódł się: ${response.error.message}`);
       } else {
