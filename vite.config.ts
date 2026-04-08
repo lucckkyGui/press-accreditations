@@ -29,8 +29,6 @@ export default defineConfig(({ mode }) => ({
           'vendor-charts': ['recharts'],
           'vendor-motion': ['framer-motion'],
           'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable'],
-          'vendor-qr': ['html5-qrcode'],
           'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge', 'class-variance-authority', 'zod'],
         },
       },
