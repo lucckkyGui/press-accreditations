@@ -30,8 +30,9 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   useEffect(() => {
     // Initialize QR scanner
     if (scanning && !qrScannerRef.current) {
-      const qrScanner = new Html5Qrcode(scannerContainerId);
-      qrScannerRef.current = qrScanner;
+      import("html5-qrcode").then(({ Html5Qrcode }) => {
+        const qrScanner = new Html5Qrcode(scannerContainerId);
+        qrScannerRef.current = qrScanner;
       
       const config = { 
         fps: 10,

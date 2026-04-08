@@ -88,9 +88,10 @@ const SponsorReport = () => {
     setLoading(false);
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!reportData) return;
     const { event } = reportData;
+    const { jsPDF, autoTable } = await loadPdfLibs();
     const doc = new jsPDF();
     const pw = doc.internal.pageSize.getWidth();
 
