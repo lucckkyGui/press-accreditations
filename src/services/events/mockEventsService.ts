@@ -33,7 +33,7 @@ export function filterEventsByFeatured(events: MockEvent[], featured: boolean): 
   return events.filter(e => e.featured);
 }
 
-export function sortEvents(events: MockEvent[], sortOrder: EventSortOrder): MockEvent[] {
+export function sortEvents(events: MockEvent[], sortOrder: EventSortOrder, _language?: string): MockEvent[] {
   const sorted = [...events];
   switch (sortOrder) {
     case "date-asc": return sorted.sort((a, b) => a.startDate.localeCompare(b.startDate));
@@ -45,7 +45,7 @@ export function sortEvents(events: MockEvent[], sortOrder: EventSortOrder): Mock
   }
 }
 
-export function filterEventsBySearch(events: MockEvent[], query: string): MockEvent[] {
+export function filterEventsBySearch(events: MockEvent[], query: string, _language?: string): MockEvent[] {
   if (!query) return events;
   const q = query.toLowerCase();
   return events.filter(e =>
