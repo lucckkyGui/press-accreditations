@@ -1,112 +1,88 @@
-
 import { useState, useEffect } from 'react';
 import { 
   PressRelease, 
   PressReleaseForm, 
   PressReleasesQueryParams 
 } from '@/types/pressRelease';
-import { mockPressReleaseService } from '@/services/press/mockPressReleaseService';
+import { supabase } from '@/integrations/supabase/client';
 
 export const usePressReleases = (params?: PressReleasesQueryParams) => {
   const [pressReleases, setPressReleases] = useState<PressRelease[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const fetchPressReleases = async () => {
     setIsLoading(true);
-    setError(null);
-    
     try {
-      const response = await mockPressReleaseService.getPressReleases(params);
+      let query = supabase
+        .from('press_releases')
+        .select('*');
+
+      if (params?.status) query = query.eq('status', params.status);
+      if (params?.type) query = query.eq('type', params.type);
+      if (params?.eventId) query = query.eq('event_id', params.eventId);
+
+      const { data, error: fetchError } = await query;
       
-      if (response.error) {
-        setError(response.error.message);
-      } else if (response.data) {
-        setPressReleases(response.data);
-      }
+      if (fetchError) throw fetchError;
+      setPressReleases(data as PressRelease[]);
     } catch (err: any) {
-      setError(err.message || 'Błąd podczas pobierania komunikatów prasowych');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchPressReleases();
   }, [params?.status, params?.type, params?.eventId]);
-  
+
   const createPressRelease = async (form: PressReleaseForm): Promise<PressRelease | null> => {
-    try {
-      const response = await mockPressReleaseService.createPressRelease(form);
-      
-      if (response.error) {
-        setError(response.error.message);
-        return null;
-      } else {
-        fetchPressReleases();
-        return response.data;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas tworzenia komunikatu prasowego');
-      return null;
-    }
+    const { data, error } = await supabase
+      .from('press_releases')
+      .insert([form])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data as PressRelease;
   };
-  
+
   const deletePressRelease = async (id: string): Promise<boolean> => {
-    try {
-      const response = await mockPressReleaseService.deletePressRelease(id);
-      
-      if (response.error) {
-        setError(response.error.message);
-        return false;
-      } else {
-        setPressReleases(prev => prev.filter(pr => pr.id !== id));
-        return true;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas usuwania komunikatu prasowego');
-      return false;
-    }
+    const { error } = await supabase
+      .from('press_releases')
+      .delete()
+      .eq('id', id);
+    
+    if (error) return false;
+    setPressReleases(prev => prev.filter(pr => pr.id !== id));
+    return true;
   };
-  
+
   const sendPressRelease = async (id: string): Promise<PressRelease | null> => {
-    try {
-      const response = await mockPressReleaseService.sendPressRelease(id);
+    const { data, error } = await supabase
+      .from('press_releases')
+      .update({ status: 'sent' })
+      .eq('id', id)
+      .select()
+      .single();
       
-      if (response.error) {
-        setError(response.error.message);
-        return null;
-      } else {
-        setPressReleases(prev => 
-          prev.map(pr => pr.id === id ? response.data : pr)
-        );
-        return response.data;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas wysyłania komunikatu prasowego');
-      return null;
-    }
+    if (error) throw error;
+    return data as PressRelease;
   };
-  
+
   const schedulePressRelease = async (id: string, date: string): Promise<PressRelease | null> => {
-    try {
-      const response = await mockPressReleaseService.schedulePressRelease(id, date);
+    const { data, error } = await supabase
+      .from('press_releases')
+      .update({ scheduled_at: date, status: 'scheduled' })
+      .eq('id', id)
+      .select()
+      .single();
       
-      if (response.error) {
-        setError(response.error.message);
-        return null;
-      } else {
-        setPressReleases(prev => 
-          prev.map(pr => pr.id === id ? response.data : pr)
-        );
-        return response.data;
-      }
-    } catch (err: any) {
-      setError(err.message || 'Błąd podczas planowania komunikatu prasowego');
-      return null;
-    }
+    if (error) throw error;
+    return data as PressRelease;
   };
-  
+
   return { 
     pressReleases,
     isLoading,
