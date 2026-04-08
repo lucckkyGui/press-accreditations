@@ -1,13 +1,20 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import type { EventAnalyticsData } from '@/hooks/analytics/useEventAnalytics';
-import { drawPieChart, drawBarChart, drawAreaChart } from './pdfChartDrawer';
+import type jsPDF from 'jspdf';
 
-export function generateEventPdfReport(data: EventAnalyticsData) {
+const loadPdfLibs = async () => {
+  const [{ default: jsPDF }, { default: autoTable }, chartDrawer] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+    import('./pdfChartDrawer'),
+  ]);
+  return { jsPDF, autoTable, ...chartDrawer };
+};
+
+export async function generateEventPdfReport(data: EventAnalyticsData) {
+  const { jsPDF, autoTable, drawPieChart, drawBarChart, drawAreaChart } = await loadPdfLibs();
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // Header
   doc.setFontSize(22);
   doc.setTextColor(30, 30, 30);
   doc.text('Raport po wydarzeniu', pageWidth / 2, 25, { align: 'center' });
@@ -27,14 +34,13 @@ export function generateEventPdfReport(data: EventAnalyticsData) {
   doc.setDrawColor(200, 200, 200);
   doc.line(20, 53, pageWidth - 20, 53);
 
-  renderSummarySection(doc, data, 62);
-  renderZonesSection(doc, data);
-  renderAccessSection(doc, data);
-  renderTimelineSection(doc, data);
+  renderSummarySection(doc, autoTable, data, 62);
+  renderZonesSection(doc, autoTable, data);
+  renderAccessSection(doc, autoTable, data);
+  renderTimelineSection(doc, autoTable, data);
 
-  // --- Charts page ---
   doc.addPage();
-  renderChartsPage(doc, data);
+  renderChartsPage(doc, data, drawPieChart, drawBarChart, drawAreaChart);
 
   addFooter(doc);
 
@@ -42,7 +48,8 @@ export function generateEventPdfReport(data: EventAnalyticsData) {
   doc.save(fileName);
 }
 
-export function generateComparisonPdfReport(left: EventAnalyticsData, right: EventAnalyticsData) {
+export async function generateComparisonPdfReport(left: EventAnalyticsData, right: EventAnalyticsData) {
+  const { jsPDF, autoTable, drawBarChart, drawAreaChart } = await loadPdfLibs();
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -115,9 +122,8 @@ export function generateComparisonPdfReport(left: EventAnalyticsData, right: Eve
     columnStyles: { 3: { fontStyle: 'bold' } },
   });
 
-  // --- Comparison charts page ---
   doc.addPage();
-  renderComparisonChartsPage(doc, left, right);
+  renderComparisonChartsPage(doc, left, right, drawBarChart, drawAreaChart);
 
   addFooter(doc);
 
@@ -127,14 +133,15 @@ export function generateComparisonPdfReport(left: EventAnalyticsData, right: Eve
 
 // ---- Chart rendering ----
 
-function renderChartsPage(doc: jsPDF, data: EventAnalyticsData) {
+function renderChartsPage(
+  doc: jsPDF, data: EventAnalyticsData,
+  drawPieChart: any, drawBarChart: any, drawAreaChart: any
+) {
   const pageWidth = doc.internal.pageSize.getWidth();
-
   doc.setFontSize(16);
   doc.setTextColor(30, 30, 30);
   doc.text('Wykresy', pageWidth / 2, 20, { align: 'center' });
 
-  // Pie chart - guest status (left side)
   drawPieChart(doc, [
     { label: 'Obecni', value: data.guests.checkedIn, color: [16, 185, 129] },
     { label: 'Potwierdzeni', value: data.guests.confirmed, color: [59, 130, 246] },
@@ -142,7 +149,6 @@ function renderChartsPage(doc: jsPDF, data: EventAnalyticsData) {
     { label: 'Odrzuceni', value: data.guests.declined, color: [239, 68, 68] },
   ], 55, 72, 30, 'Status gości');
 
-  // Bar chart - zones (right side)
   if (data.guests.byZone.length > 0) {
     drawBarChart(
       doc,
@@ -158,7 +164,6 @@ function renderChartsPage(doc: jsPDF, data: EventAnalyticsData) {
     );
   }
 
-  // Area chart - check-ins timeline (full width, bottom)
   if (data.checkIns.byHour.length > 0) {
     drawAreaChart(
       doc,
@@ -170,14 +175,15 @@ function renderChartsPage(doc: jsPDF, data: EventAnalyticsData) {
   }
 }
 
-function renderComparisonChartsPage(doc: jsPDF, left: EventAnalyticsData, right: EventAnalyticsData) {
+function renderComparisonChartsPage(
+  doc: jsPDF, left: EventAnalyticsData, right: EventAnalyticsData,
+  drawBarChart: any, drawAreaChart: any
+) {
   const pageWidth = doc.internal.pageSize.getWidth();
-
   doc.setFontSize(16);
   doc.setTextColor(30, 30, 30);
   doc.text('Wykresy porównawcze', pageWidth / 2, 20, { align: 'center' });
 
-  // Side-by-side zone bar charts
   const allZones = Array.from(new Set([
     ...left.guests.byZone.map(z => z.zone),
     ...right.guests.byZone.map(z => z.zone),
@@ -198,7 +204,6 @@ function renderComparisonChartsPage(doc: jsPDF, left: EventAnalyticsData, right:
     );
   }
 
-  // Side-by-side timeline
   if (left.checkIns.byHour.length > 0) {
     drawAreaChart(
       doc,
@@ -226,7 +231,7 @@ function sanitize(s: string) {
   return s.replace(/[^a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, '_');
 }
 
-function renderSummarySection(doc: jsPDF, data: EventAnalyticsData, y: number) {
+function renderSummarySection(doc: jsPDF, autoTable: any, data: EventAnalyticsData, y: number) {
   doc.setFontSize(14);
   doc.setTextColor(30, 30, 30);
   doc.text('Podsumowanie', 20, y);
@@ -256,7 +261,7 @@ function renderSummarySection(doc: jsPDF, data: EventAnalyticsData, y: number) {
   });
 }
 
-function renderZonesSection(doc: jsPDF, data: EventAnalyticsData) {
+function renderZonesSection(doc: jsPDF, autoTable: any, data: EventAnalyticsData) {
   let y = (doc as any).lastAutoTable.finalY + 15;
   if (y > 240) { doc.addPage(); y = 20; }
 
@@ -279,7 +284,7 @@ function renderZonesSection(doc: jsPDF, data: EventAnalyticsData) {
   }
 }
 
-function renderAccessSection(doc: jsPDF, data: EventAnalyticsData) {
+function renderAccessSection(doc: jsPDF, autoTable: any, data: EventAnalyticsData) {
   let y = (doc as any).lastAutoTable?.finalY + 15 || 20;
   if (y > 240) { doc.addPage(); y = 20; }
 
@@ -299,7 +304,7 @@ function renderAccessSection(doc: jsPDF, data: EventAnalyticsData) {
   }
 }
 
-function renderTimelineSection(doc: jsPDF, data: EventAnalyticsData) {
+function renderTimelineSection(doc: jsPDF, autoTable: any, data: EventAnalyticsData) {
   if (data.checkIns.byHour.length > 0) {
     let y = (doc as any).lastAutoTable?.finalY + 15 || 20;
     if (y > 240) { doc.addPage(); y = 20; }

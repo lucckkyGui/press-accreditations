@@ -8,7 +8,8 @@ import { Upload, FileArchive, FileSpreadsheet, CheckCircle, XCircle, Loader2, Al
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
-import JSZip from 'jszip';
+// JSZip loaded dynamically when needed
+const loadJSZip = () => import('jszip').then(m => m.default);
 import Papa from 'papaparse';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -68,7 +69,7 @@ export default function BulkFaceEnrollment() {
       setIsLoadingThumbnails(true);
       try {
         const zipData = await file.arrayBuffer();
-        const zip = await JSZip.loadAsync(zipData);
+        const zip = await (await loadJSZip()).loadAsync(zipData);
         const imageFiles = Object.keys(zip.files).filter(
           (f) => !zip.files[f].dir && /\.(jpe?g|png|webp)$/i.test(f)
         );
@@ -174,7 +175,7 @@ export default function BulkFaceEnrollment() {
 
     try {
       const zipData = await zipFile.arrayBuffer();
-      const zip = await JSZip.loadAsync(zipData);
+      const zip = await (await loadJSZip()).loadAsync(zipData);
       const enrollResults: EnrollmentResult[] = [];
 
       for (let i = 0; i < mapped.length; i++) {
@@ -260,7 +261,7 @@ export default function BulkFaceEnrollment() {
       if (!emailCol && !idCol) { toast.error('Brak kolumny identyfikującej gościa'); setIsProcessing(false); return; }
 
       const zipData = await zipFile.arrayBuffer();
-      const zip = await JSZip.loadAsync(zipData);
+      const zip = await (await loadJSZip()).loadAsync(zipData);
       setTotalItems(rows.length);
       const enrollResults: EnrollmentResult[] = [];
 

@@ -7,8 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { toast } from "sonner";
 import { FileBarChart, Download, Users, TrendingUp, Clock, BarChart3 } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// jsPDF loaded dynamically on PDF download
+const loadPdfLibs = async () => {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ]);
+  return { jsPDF, autoTable };
+};
 
 interface ReportData {
   event: any;
@@ -82,9 +88,10 @@ const SponsorReport = () => {
     setLoading(false);
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!reportData) return;
     const { event } = reportData;
+    const { jsPDF, autoTable } = await loadPdfLibs();
     const doc = new jsPDF();
     const pw = doc.internal.pageSize.getWidth();
 
