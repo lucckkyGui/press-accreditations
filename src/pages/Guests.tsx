@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useGuestsPage } from "./guests";
 import GuestsPageHeader from "./guests/GuestsPageHeader";
@@ -14,13 +14,22 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ZoneManagement from '@/components/guests/advanced/ZoneManagement';
-import BlacklistWhitelistManager from '@/components/guests/advanced/BlacklistWhitelistManager';
-import ReportExporter from '@/components/reports/ReportExporter';
-import AIFraudDetection from '@/components/security/AIFraudDetection';
-import BiometricVerification from '@/components/security/BiometricVerification';
-import PredictiveAnalytics from '@/components/analytics/PredictiveAnalytics';
-import BlockchainCredentials from '@/components/guests/advanced/BlockchainCredentials';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+
+// Lazy-load heavy advanced tab components
+const ZoneManagement = lazy(() => import('@/components/guests/advanced/ZoneManagement'));
+const BlacklistWhitelistManager = lazy(() => import('@/components/guests/advanced/BlacklistWhitelistManager'));
+const ReportExporter = lazy(() => import('@/components/reports/ReportExporter'));
+const AIFraudDetection = lazy(() => import('@/components/security/AIFraudDetection'));
+const BiometricVerification = lazy(() => import('@/components/security/BiometricVerification'));
+const PredictiveAnalytics = lazy(() => import('@/components/analytics/PredictiveAnalytics'));
+const BlockchainCredentials = lazy(() => import('@/components/guests/advanced/BlockchainCredentials'));
+
+const LazyTab = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="flex justify-center py-12"><LoadingSpinner /></div>}>
+    {children}
+  </Suspense>
+);
 
 const Guests = () => {
   const guestsPageProps = useGuestsPage();
@@ -188,13 +197,13 @@ const AdvancedGuestsPanel = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="zones"><ZoneManagement /></TabsContent>
-        <TabsContent value="security"><BlacklistWhitelistManager /></TabsContent>
-        <TabsContent value="reports"><ReportExporter /></TabsContent>
-        <TabsContent value="ai-fraud"><AIFraudDetection /></TabsContent>
-        <TabsContent value="biometric"><BiometricVerification /></TabsContent>
-        <TabsContent value="analytics"><PredictiveAnalytics /></TabsContent>
-        <TabsContent value="blockchain"><BlockchainCredentials /></TabsContent>
+        <TabsContent value="zones"><LazyTab><ZoneManagement /></LazyTab></TabsContent>
+        <TabsContent value="security"><LazyTab><BlacklistWhitelistManager /></LazyTab></TabsContent>
+        <TabsContent value="reports"><LazyTab><ReportExporter /></LazyTab></TabsContent>
+        <TabsContent value="ai-fraud"><LazyTab><AIFraudDetection /></LazyTab></TabsContent>
+        <TabsContent value="biometric"><LazyTab><BiometricVerification /></LazyTab></TabsContent>
+        <TabsContent value="analytics"><LazyTab><PredictiveAnalytics /></LazyTab></TabsContent>
+        <TabsContent value="blockchain"><LazyTab><BlockchainCredentials /></LazyTab></TabsContent>
       </Tabs>
     </div>
   );
