@@ -1,15 +1,17 @@
 
 import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import Register from "@/pages/auth/Register";
-import AuthCallback from "@/pages/AuthCallback";
-import NotFound from "@/pages/NotFound";
-import AccessDenied from "@/pages/AccessDenied";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { GenericPageSkeleton } from "@/components/common/PageSkeleton";
+
+// Lazy-load ALL pages including auth pages to slim down app core
+const Index = lazy(() => import("@/pages/Index"));
+const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/auth/Register"));
+const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const AccessDenied = lazy(() => import("@/pages/AccessDenied"));
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -55,7 +57,6 @@ const LandingPageBuilder = lazy(() => import("@/pages/LandingPageBuilder"));
 const PublicAccreditationPage = lazy(() => import("@/pages/PublicAccreditationPage"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 
-// New pages — phases 6-35
 const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
 const AIDashboard = lazy(() => import("@/pages/AIDashboard"));
 
@@ -73,7 +74,6 @@ const LazyFallback = () => (
 );
 
 const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
-const STAFF_ROLES = ['admin', 'organizer', 'staff'] as const;
 const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
 
 const AppRoutes = () => {
@@ -139,7 +139,6 @@ const AppRoutes = () => {
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/sponsor-report" element={<SponsorReport />} />
           <Route path="/landing-page/:eventId" element={<LandingPageBuilder />} />
-          {/* New pages — phases 6-35 */}
           <Route path="/admin/monitoring" element={<AdminMonitoring />} />
           <Route path="/ai-dashboard" element={<AIDashboard />} />
           

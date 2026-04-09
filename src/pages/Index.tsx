@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { Navigate } from 'react-router-dom';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import HomePage from '@/pages/HomePage';
+
+const HomePage = lazy(() => import('@/pages/HomePage'));
 
 const Index = () => {
   const { isLoading, isAuthenticated } = useAuth();
@@ -23,7 +24,15 @@ const Index = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <HomePage />;
+  return (
+    <Suspense fallback={
+      <div className="h-screen w-full flex items-center justify-center">
+        <LoadingSpinner size={12} />
+      </div>
+    }>
+      <HomePage />
+    </Suspense>
+  );
 };
 
 export default Index;
