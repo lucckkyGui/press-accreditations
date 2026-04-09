@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useMediaRegistrations } from '@/hooks/press';
@@ -14,19 +14,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
-import MediaRegistrationForm from '@/components/press/MediaRegistrationForm';
-import MediaRegistrationList from '@/components/press/MediaRegistrationList';
-import MediaRegistrationStatus from '@/components/press/MediaRegistrationStatus';
-import DocumentUploader from '@/components/documents/DocumentUploader';
-import MediaDocumentList from '@/components/press/MediaDocumentList';
-import BadgeGenerator from '@/components/badges/BadgeGenerator';
-import CheckInSystem from '@/components/checkin/CheckInSystem';
-import MediaAnalyticsDashboard from '@/components/analytics/MediaAnalyticsDashboard';
-import MediaCommunicationTool from '@/components/communication/MediaCommunicationTool';
-import CalendarIntegration from '@/components/calendar/CalendarIntegration';
+// Lazy-load heavy tab components
+const MediaRegistrationForm = lazy(() => import('@/components/press/MediaRegistrationForm'));
+const MediaRegistrationList = lazy(() => import('@/components/press/MediaRegistrationList'));
+const MediaRegistrationStatus = lazy(() => import('@/components/press/MediaRegistrationStatus'));
+const DocumentUploader = lazy(() => import('@/components/documents/DocumentUploader'));
+const MediaDocumentList = lazy(() => import('@/components/press/MediaDocumentList'));
+const BadgeGenerator = lazy(() => import('@/components/badges/BadgeGenerator'));
+const CheckInSystem = lazy(() => import('@/components/checkin/CheckInSystem'));
+const MediaAnalyticsDashboard = lazy(() => import('@/components/analytics/MediaAnalyticsDashboard'));
+const MediaCommunicationTool = lazy(() => import('@/components/communication/MediaCommunicationTool'));
+const CalendarIntegration = lazy(() => import('@/components/calendar/CalendarIntegration'));
+
+const LazyTab = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="flex justify-center py-12"><LoadingSpinner /></div>}>
+    {children}
+  </Suspense>
+);
 
 export default function MediaPortalPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -52,12 +59,10 @@ export default function MediaPortalPage() {
   };
   
   const handleEditRegistration = () => {
-    // Implement edit functionality
     toast.info("Edycja rejestracji w przygotowaniu");
   };
   
   const handleCancelRegistration = () => {
-    // Implement cancel functionality
     toast.info("Anulowanie rejestracji w przygotowaniu");
   };
   
@@ -99,166 +104,178 @@ export default function MediaPortalPage() {
         </TabsList>
         
         <TabsContent value="my-registrations" className="space-y-4">
-          {isOrganizer ? (
-            <MediaRegistrationList eventId={eventId} isOrganizer={true} />
-          ) : (
-            <>
-              {!showRegistrationForm && !userRegistration && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Aplikuj o akredytację medialną</CardTitle>
-                    <CardDescription>
-                      Złóż wniosek o akredytację medialną aby uzyskać dostęp do wydarzenia.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">
-                      Jako przedstawiciel mediów możesz aplikować o akredytację do relacjonowania tego wydarzenia.
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 mb-4 text-gray-600">
-                      <li>Wypełnij formularz rejestracyjny z danymi Twojej organizacji medialnej</li>
-                      <li>Prześlij dokumenty potwierdzające (legitymacja prasowa, portfolio)</li>
-                      <li>Śledź status swojego wniosku i otrzymuj aktualizacje</li>
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button onClick={handleCreateNewRegistration}>Aplikuj teraz</Button>
-                  </CardFooter>
-                </Card>
-              )}
-              
-              {showRegistrationForm && !userRegistration && (
-                <MediaRegistrationForm 
-                  eventId={eventId}
-                  onSuccess={handleRegistrationSuccess} 
-                />
-              )}
-              
-              {userRegistration && (
-                <div className="space-y-6">
-                  <MediaRegistrationStatus 
-                    registration={userRegistration} 
-                    onEdit={handleEditRegistration}
-                    onCancel={handleCancelRegistration}
+          <LazyTab>
+            {isOrganizer ? (
+              <MediaRegistrationList eventId={eventId} isOrganizer={true} />
+            ) : (
+              <>
+                {!showRegistrationForm && !userRegistration && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Aplikuj o akredytację medialną</CardTitle>
+                      <CardDescription>
+                        Złóż wniosek o akredytację medialną aby uzyskać dostęp do wydarzenia.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 mb-4">
+                        Jako przedstawiciel mediów możesz aplikować o akredytację do relacjonowania tego wydarzenia.
+                      </p>
+                      <ul className="list-disc list-inside space-y-2 mb-4 text-gray-600">
+                        <li>Wypełnij formularz rejestracyjny z danymi Twojej organizacji medialnej</li>
+                        <li>Prześlij dokumenty potwierdzające (legitymacja prasowa, portfolio)</li>
+                        <li>Śledź status swojego wniosku i otrzymuj aktualizacje</li>
+                      </ul>
+                    </CardContent>
+                    <CardFooter>
+                      <Button onClick={handleCreateNewRegistration}>Aplikuj teraz</Button>
+                    </CardFooter>
+                  </Card>
+                )}
+                
+                {showRegistrationForm && !userRegistration && (
+                  <MediaRegistrationForm 
+                    eventId={eventId}
+                    onSuccess={handleRegistrationSuccess} 
                   />
-                  
-                  <MediaRegistrationList eventId={eventId} />
-                </div>
-              )}
-            </>
-          )}
+                )}
+                
+                {userRegistration && (
+                  <div className="space-y-6">
+                    <MediaRegistrationStatus 
+                      registration={userRegistration} 
+                      onEdit={handleEditRegistration}
+                      onCancel={handleCancelRegistration}
+                    />
+                    
+                    <MediaRegistrationList eventId={eventId} />
+                  </div>
+                )}
+              </>
+            )}
+          </LazyTab>
         </TabsContent>
         
         <TabsContent value="documents" className="space-y-4">
-          {!isOrganizer && userRegistration && (
-            <DocumentUploader 
-              registrationId={userRegistration.id}
-              onUploadComplete={(files) => {}}
-            />
-          )}
-          
-          {userRegistration && (
-            <MediaDocumentList 
-              registrationId={userRegistration.id}
-              isOrganizer={isOrganizer} 
-            />
-          )}
-          
-          {!userRegistration && !isOrganizer && (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <p>Musisz najpierw aplikować o akredytację aby móc przesyłać dokumenty.</p>
-                  <Button 
-                    className="mt-4" 
-                    onClick={() => setActiveTab('my-registrations')}
-                  >
-                    Aplikuj o akredytację
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <LazyTab>
+            {!isOrganizer && userRegistration && (
+              <DocumentUploader 
+                registrationId={userRegistration.id}
+                onUploadComplete={(files) => {}}
+              />
+            )}
+            
+            {userRegistration && (
+              <MediaDocumentList 
+                registrationId={userRegistration.id}
+                isOrganizer={isOrganizer} 
+              />
+            )}
+            
+            {!userRegistration && !isOrganizer && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p>Musisz najpierw aplikować o akredytację aby móc przesyłać dokumenty.</p>
+                    <Button 
+                      className="mt-4" 
+                      onClick={() => setActiveTab('my-registrations')}
+                    >
+                      Aplikuj o akredytację
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </LazyTab>
         </TabsContent>
 
         <TabsContent value="badges" className="space-y-4">
-          {userRegistration && (
-            <BadgeGenerator
-              registrationId={userRegistration.id}
-              userInfo={{
-                firstName: profile?.firstName || '',
-                lastName: profile?.lastName || '',
-                mediaOrganization: userRegistration.mediaOrganization,
-                jobTitle: userRegistration.jobTitle
-              }}
-              eventInfo={{
-                name: 'Konferencja Tech 2024',
-                date: new Date().toLocaleDateString(),
-                location: 'Hotel Warsaw'
-              }}
-            />
-          )}
-          
-          {!userRegistration && (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <p>Aby wygenerować identyfikator, musisz mieć zatwierdzoną akredytację.</p>
-                  <Button 
-                    className="mt-4" 
-                    onClick={() => setActiveTab('my-registrations')}
-                  >
-                    Sprawdź status akredytacji
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <LazyTab>
+            {userRegistration && (
+              <BadgeGenerator
+                registrationId={userRegistration.id}
+                userInfo={{
+                  firstName: profile?.firstName || '',
+                  lastName: profile?.lastName || '',
+                  mediaOrganization: userRegistration.mediaOrganization,
+                  jobTitle: userRegistration.jobTitle
+                }}
+                eventInfo={{
+                  name: 'Konferencja Tech 2024',
+                  date: new Date().toLocaleDateString(),
+                  location: 'Hotel Warsaw'
+                }}
+              />
+            )}
+            
+            {!userRegistration && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p>Aby wygenerować identyfikator, musisz mieć zatwierdzoną akredytację.</p>
+                    <Button 
+                      className="mt-4" 
+                      onClick={() => setActiveTab('my-registrations')}
+                    >
+                      Sprawdź status akredytacji
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </LazyTab>
         </TabsContent>
 
         <TabsContent value="checkin" className="space-y-4">
-          {isOrganizer ? (
-            <CheckInSystem />
-          ) : (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <p>System check-in/check-out jest dostępny tylko dla organizatorów.</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <LazyTab>
+            {isOrganizer ? (
+              <CheckInSystem />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p>System check-in/check-out jest dostępny tylko dla organizatorów.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </LazyTab>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          {isOrganizer ? (
-            <MediaAnalyticsDashboard />
-          ) : (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <p>Panel analityczny jest dostępny tylko dla organizatorów.</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <LazyTab>
+            {isOrganizer ? (
+              <MediaAnalyticsDashboard />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p>Panel analityczny jest dostępny tylko dla organizatorów.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </LazyTab>
         </TabsContent>
 
         <TabsContent value="communication" className="space-y-4">
-          {isOrganizer ? (
-            <div className="space-y-6">
-              <MediaCommunicationTool />
-              <CalendarIntegration />
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <p>Narzędzia komunikacji są dostępne tylko dla organizatorów.</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <LazyTab>
+            {isOrganizer ? (
+              <div className="space-y-6">
+                <MediaCommunicationTool />
+                <CalendarIntegration />
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p>Narzędzia komunikacji są dostępne tylko dla organizatorów.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </LazyTab>
         </TabsContent>
       </Tabs>
     </div>
