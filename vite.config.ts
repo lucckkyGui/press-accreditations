@@ -26,10 +26,10 @@ export default defineConfig(({ mode }) => ({
           'vendor-ui-form': ['@radix-ui/react-select', '@radix-ui/react-checkbox', '@radix-ui/react-switch', '@radix-ui/react-radio-group', '@radix-ui/react-label', '@radix-ui/react-slider'],
           'vendor-ui-extra': ['@radix-ui/react-accordion', '@radix-ui/react-scroll-area', '@radix-ui/react-separator', '@radix-ui/react-toast', '@radix-ui/react-avatar', '@radix-ui/react-progress'],
           'vendor-query': ['@tanstack/react-query'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge', 'class-variance-authority', 'zod'],
+          // recharts and framer-motion removed from manual chunks
+          // → they will be code-split into lazy page chunks automatically
         },
       },
     },
