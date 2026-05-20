@@ -1,4 +1,8 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  SUPABASE_PROJECT_ID,
+  SUPABASE_PUBLISHABLE_KEY,
+  supabase,
+} from "@/integrations/supabase/client";
 
 export interface AuditLog {
   id: string;
@@ -42,7 +46,7 @@ export const fetchAuditLogs = async (params: FetchAuditLogsParams = {}): Promise
   const session = await supabase.auth.getSession();
   const token = session.data.session?.access_token;
   
-  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  const projectId = SUPABASE_PROJECT_ID;
   const url = `https://${projectId}.supabase.co/functions/v1/audit-logs?${queryParams.toString()}`;
 
   const response = await fetch(url, {
@@ -50,7 +54,7 @@ export const fetchAuditLogs = async (params: FetchAuditLogsParams = {}): Promise
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
-      "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "",
+      "apikey": SUPABASE_PUBLISHABLE_KEY,
     },
   });
 
