@@ -3,28 +3,21 @@ import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { QrCode, CheckCircle, XCircle, Clock, User, MapPin } from 'lucide-react';
+import { Alert } from '@/components/ui/alert';
+import { QrCode, CheckCircle, XCircle, Clock, MapPin } from 'lucide-react';
 import { Guest, Event } from '@/types';
 import { toast } from 'sonner';
 import CameraPreview from './CameraPreview';
+import { guestScannerService, QrCheckInStatus } from '@/services/scanner/guestScannerService';
 
 interface EnhancedQRScannerProps {
   event: Event;
   onGuestCheckedIn?: (guest: Guest) => void;
 }
 
-interface ScannedGuestData {
-  guestId: string;
-  eventId: string;
-  guestName: string;
-  guestEmail: string;
-  timestamp: string;
-}
-
 interface ScanResult {
   guest: Guest | null;
-  status: 'success' | 'invalid' | 'already_checked' | 'wrong_event' | 'expired';
+  status: QrCheckInStatus;
   message: string;
   timestamp: Date;
 }
@@ -38,135 +31,31 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
   const [cameraActive, setCameraActive] = useState(false);
   const [scanHistory, setScanHistory] = useState<ScanResult[]>([]);
 
-  // Symulacja sprawdzenia gościa w bazie danych
-  const verifyGuestInDatabase = async (guestData: ScannedGuestData): Promise<Guest | null> => {
-    // Tu byłaby prawdziwa integracja z bazą danych
-    await new Promise(resolve => setTimeout(resolve, 500)); // Symulacja opóźnienia API
-
-    // Sprawdź czy event ID się zgadza
-    if (guestData.eventId !== event.id) {
-      return null;
-    }
-
-    // Symulacja sprawdzenia w bazie - zwróć mock guest
-    const mockGuest: Guest = {
-      id: guestData.guestId,
-      firstName: guestData.guestName.split(' ')[0] || 'Jan',
-      lastName: guestData.guestName.split(' ')[1] || 'Kowalski',
-      email: guestData.guestEmail,
-      ticketType: 'uczestnik',
-      zones: [],
-      status: 'confirmed',
-      qrCode: JSON.stringify(guestData),
-      company: 'Test Company',
-      phone: '+48123456789'
-    };
-
-    return mockGuest;
-  };
-
   const handleQrCodeDetected = useCallback(async (qrCode: string) => {
     setScanning(false);
     
     try {
-      // Spróbuj zdekodować dane QR
-      let guestData: ScannedGuestData;
-      try {
-        guestData = JSON.parse(qrCode);
-      } catch (e) {
-        setLastScanResult({
-          guest: null,
-          status: 'invalid',
-          message: 'Nieprawidłowy format kodu QR',
-          timestamp: new Date()
-        });
-        toast.error('Nieprawidłowy format kodu QR');
-        return;
-      }
-
-      // Sprawdź czy kod zawiera wymagane pola
-      if (!guestData.guestId || !guestData.eventId || !guestData.guestName) {
-        setLastScanResult({
-          guest: null,
-          status: 'invalid',
-          message: 'Kod QR nie zawiera wymaganych danych',
-          timestamp: new Date()
-        });
-        toast.error('Kod QR nie zawiera wymaganych danych');
-        return;
-      }
-
-      // Sprawdź czy kod jest dla właściwego wydarzenia
-      if (guestData.eventId !== event.id) {
-        setLastScanResult({
-          guest: null,
-          status: 'wrong_event',
-          message: 'Kod QR jest dla innego wydarzenia',
-          timestamp: new Date()
-        });
-        toast.error('Kod QR jest dla innego wydarzenia');
-        return;
-      }
-
-      // Sprawdź gościa w bazie danych
-      const guest = await verifyGuestInDatabase(guestData);
-      
-      if (!guest) {
-        setLastScanResult({
-          guest: null,
-          status: 'invalid',
-          message: 'Gość nie znaleziony w bazie danych',
-          timestamp: new Date()
-        });
-        toast.error('Gość nie znaleziony w bazie danych');
-        return;
-      }
-
-      // Sprawdź czy gość był już zarejestrowany
-      if (guest.status === 'checked-in') {
-        setLastScanResult({
-          guest,
-          status: 'already_checked',
-          message: 'Gość został już wcześniej zarejestrowany',
-          timestamp: new Date()
-        });
-        toast.warning('Gość został już wcześniej zarejestrowany');
-        return;
-      }
-
-      // Sprawdź czy wydarzenie nie wygasło
-      const now = new Date();
-      if (event.endDate && event.endDate < now) {
-        setLastScanResult({
-          guest,
-          status: 'expired',
-          message: 'Wydarzenie już się zakończyło',
-          timestamp: new Date()
-        });
-        toast.error('Wydarzenie już się zakończyło');
-        return;
-      }
-
-      // Sukces - zarejestruj gościa
-      const updatedGuest = {
-        ...guest,
-        status: 'checked-in' as const,
-        checkedInAt: new Date()
-      };
+      const result = await guestScannerService.verifyAndCheckIn(qrCode, event.id);
 
       setLastScanResult({
-        guest: updatedGuest,
-        status: 'success',
-        message: 'Gość został pomyślnie zarejestrowany',
-        timestamp: new Date()
+        guest: result.guest || null,
+        status: result.status,
+        message: result.message,
+        timestamp: new Date(),
       });
 
-      toast.success(`Zarejestrowano: ${guest.firstName} ${guest.lastName}`);
-      
-      if (onGuestCheckedIn) {
-        onGuestCheckedIn(updatedGuest);
+      if (result.success && result.guest) {
+        toast.success(`Zarejestrowano: ${result.guest.firstName} ${result.guest.lastName}`);
+        onGuestCheckedIn?.(result.guest);
+        return;
       }
 
+      if (result.status === 'duplicate') {
+        toast.warning(result.message);
+        return;
+      }
+
+      toast.error(result.message);
     } catch (error) {
       setLastScanResult({
         guest: null,
@@ -176,7 +65,7 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
       });
       toast.error('Wystąpił błąd podczas przetwarzania kodu');
     }
-  }, [event.id, event.endDate, onGuestCheckedIn]);
+  }, [event.id, onGuestCheckedIn]);
 
   // Dodaj wynik do historii
   React.useEffect(() => {
@@ -200,7 +89,7 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
     switch (status) {
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'already_checked':
+      case 'duplicate':
         return <Clock className="h-5 w-5 text-yellow-500" />;
       default:
         return <XCircle className="h-5 w-5 text-red-500" />;
@@ -211,12 +100,14 @@ const EnhancedQRScanner: React.FC<EnhancedQRScannerProps> = ({
     switch (status) {
       case 'success':
         return <Badge className="bg-green-500">Zarejestrowany</Badge>;
-      case 'already_checked':
+      case 'duplicate':
         return <Badge variant="secondary">Już zarejestrowany</Badge>;
       case 'wrong_event':
         return <Badge variant="destructive">Złe wydarzenie</Badge>;
       case 'expired':
         return <Badge variant="destructive">Wygasłe</Badge>;
+      case 'unauthorized':
+        return <Badge variant="destructive">Brak uprawnień</Badge>;
       default:
         return <Badge variant="destructive">Błąd</Badge>;
     }

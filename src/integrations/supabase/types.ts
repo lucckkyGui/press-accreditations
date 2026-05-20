@@ -1411,6 +1411,14 @@ export type Database = {
         }
         Returns: Json
       }
+      process_qr_check_in: {
+        Args: {
+          _device_info?: Json
+          _event_id: string
+          _qr_code: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "organizer" | "staff" | "guest"

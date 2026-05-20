@@ -211,7 +211,7 @@ export const MediaRegistrationService = {
       
       const { data, error } = await supabase
         .from('media_registrations')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id)
         .select('*, documents:media_documents(*)')
         .single();
@@ -405,7 +405,7 @@ export const MediaRegistrationService = {
       
       const { data, error } = await supabase
         .from('media_documents')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();

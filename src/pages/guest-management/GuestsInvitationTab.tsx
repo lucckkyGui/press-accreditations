@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { GuestsInvitationManager } from "./";
+import GuestsInvitationManager from "./GuestsInvitationManager";
 
 interface GuestsInvitationTabProps {
   guests: any[];

@@ -65,13 +65,16 @@ const QRScanner = ({ onScanSuccess, eventId }: QRScannerProps) => {
       // Use the real scanner service to verify and check in
       const result: ScanResult = await guestScannerService.verifyAndCheckIn(qrCode, eventId);
       
-      if (result.success && result.guest) {
+      if ((result.success || result.status === "duplicate") && result.guest) {
         setScanning(false);
         setLastScannedGuest(result.guest);
         
-        if (result.alreadyCheckedIn) {
+        if (result.status === "duplicate") {
           setScanResult("error");
-          setErrorMessage(`${result.guest.firstName} ${result.guest.lastName} już został zarejestrowany o ${new Date(result.checkInTime!).toLocaleTimeString('pl-PL')}`);
+          const checkInTime = result.checkInTime
+            ? new Date(result.checkInTime).toLocaleTimeString("pl-PL")
+            : "wcześniej";
+          setErrorMessage(`${result.guest.firstName} ${result.guest.lastName} już został zarejestrowany o ${checkInTime}`);
           performFeedback(false);
         } else {
           setScanResult("success");

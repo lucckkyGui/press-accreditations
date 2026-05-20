@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useGuestsPage } from "./guests";
-import GuestsPageHeader from "./guests/GuestsPageHeader";
-import GuestsTabs from "./guests/GuestsTabs";
-import GuestsDialogs from "./guests/GuestsDialogs";
+import { useGuestsPage } from "./guest-management/useGuestsPage";
+import GuestsPageHeader from "./guest-management/GuestsPageHeader";
+import GuestsTabs from "./guest-management/GuestsTabs";
+import GuestsDialogs from "./guest-management/GuestsDialogs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types';

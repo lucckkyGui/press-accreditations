@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { GuestsFilters, GuestsBulkActions } from "./";
+import GuestsFilters from "./GuestsFilters";
+import GuestsBulkActions from "./GuestsBulkActions";
 import { GuestsTable } from "@/components/guests/GuestsTable";
 
 interface GuestsListTabProps {

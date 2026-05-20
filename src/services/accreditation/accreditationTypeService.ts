@@ -94,7 +94,7 @@ export const AccreditationTypeService = {
       
       const { data, error } = await supabase
         .from('accreditation_types')
-        .insert(toAccreditationTypeDb(newType))
+        .insert(toAccreditationTypeDb(newType) as any)
         .select()
         .single();
       
@@ -123,7 +123,7 @@ export const AccreditationTypeService = {
     try {
       const { data, error } = await supabase
         .from('accreditation_types')
-        .update(toAccreditationTypeDb(updates))
+        .update(toAccreditationTypeDb(updates) as any)
         .eq('id', id)
         .select()
         .single();

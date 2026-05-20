@@ -99,7 +99,7 @@ export const AccreditationRequestService = {
       
       const { data, error } = await supabase
         .from('accreditation_requests')
-        .insert(toAccreditationRequestDb(newRequest))
+        .insert(toAccreditationRequestDb(newRequest) as any)
         .select()
         .single();
       
