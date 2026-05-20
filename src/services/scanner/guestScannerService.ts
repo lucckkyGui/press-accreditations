@@ -1,171 +1,245 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Guest } from "@/types";
+import type { Json } from "@/integrations/supabase/types";
+import type { Guest, GuestEmailStatus, GuestStatus, GuestTicketType } from "@/types";
+
+export type QrCheckInStatus =
+  | "success"
+  | "duplicate"
+  | "invalid"
+  | "wrong_event"
+  | "expired"
+  | "unauthorized";
+
+export type ScannerDeviceInfo = Record<string, Json>;
 
 export interface ScanResult {
   success: boolean;
+  status: QrCheckInStatus;
   guest?: Guest;
   message: string;
   alreadyCheckedIn?: boolean;
   checkInTime?: string;
+  scanTime?: string;
 }
+
+interface RpcGuest {
+  id?: unknown;
+  firstName?: unknown;
+  lastName?: unknown;
+  email?: unknown;
+  company?: unknown;
+  phone?: unknown;
+  ticketType?: unknown;
+  zones?: unknown;
+  status?: unknown;
+  emailStatus?: unknown;
+  qrCode?: unknown;
+  invitationSentAt?: unknown;
+  invitationOpenedAt?: unknown;
+  checkedInAt?: unknown;
+}
+
+interface ProcessQrCheckInResponse {
+  success?: unknown;
+  status?: unknown;
+  guest?: unknown;
+  message?: unknown;
+  checkedInAt?: unknown;
+  scanTime?: unknown;
+}
+
+const CHECK_IN_STATUSES = new Set<QrCheckInStatus>([
+  "success",
+  "duplicate",
+  "invalid",
+  "wrong_event",
+  "expired",
+  "unauthorized",
+]);
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const asString = (value: unknown): string | undefined =>
+  typeof value === "string" && value.length > 0 ? value : undefined;
+
+const asStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+};
+
+const asDate = (value: unknown): Date | undefined => {
+  const dateValue = asString(value);
+  if (!dateValue) return undefined;
+
+  const date = new Date(dateValue);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+const normalizeStatus = (status: unknown): QrCheckInStatus => {
+  if (typeof status === "string" && CHECK_IN_STATUSES.has(status as QrCheckInStatus)) {
+    return status as QrCheckInStatus;
+  }
+
+  return "invalid";
+};
+
+const mapRpcGuest = (guest: unknown): Guest | undefined => {
+  if (!isRecord(guest)) return undefined;
+
+  const candidate = guest as RpcGuest;
+  const id = asString(candidate.id);
+  const firstName = asString(candidate.firstName);
+  const lastName = asString(candidate.lastName);
+  const email = asString(candidate.email);
+  const qrCode = asString(candidate.qrCode);
+
+  if (!id || !firstName || !lastName || !email || !qrCode) {
+    return undefined;
+  }
+
+  return {
+    id,
+    firstName,
+    lastName,
+    email,
+    company: asString(candidate.company),
+    phone: asString(candidate.phone),
+    ticketType: (asString(candidate.ticketType) || "uczestnik") as GuestTicketType,
+    zones: asStringArray(candidate.zones),
+    status: (asString(candidate.status) || "invited") as GuestStatus,
+    emailStatus: asString(candidate.emailStatus) as GuestEmailStatus | undefined,
+    qrCode,
+    invitationSentAt: asDate(candidate.invitationSentAt),
+    invitationOpenedAt: asDate(candidate.invitationOpenedAt),
+    checkedInAt: asDate(candidate.checkedInAt),
+  };
+};
+
+const normalizeRpcResponse = (payload: Json | null): ScanResult => {
+  if (!isRecord(payload)) {
+    return {
+      success: false,
+      status: "invalid",
+      message: "Nieprawidłowa odpowiedź systemu check-in",
+    };
+  }
+
+  const response = payload as ProcessQrCheckInResponse;
+  const status = normalizeStatus(response.status);
+  const guest = mapRpcGuest(response.guest);
+  const checkInTime = asString(response.checkedInAt);
+
+  return {
+    success: response.success === true && status === "success",
+    status,
+    guest,
+    message: asString(response.message) || "Nie udało się przetworzyć kodu QR",
+    alreadyCheckedIn: status === "duplicate",
+    checkInTime,
+    scanTime: asString(response.scanTime),
+  };
+};
+
+const getDefaultDeviceInfo = (): ScannerDeviceInfo => {
+  if (typeof navigator === "undefined") {
+    return { source: "server" };
+  }
+
+  return {
+    source: "browser",
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    language: navigator.language,
+    online: navigator.onLine,
+  };
+};
+
+const mapDbGuestToGuest = (data: Record<string, unknown>): Guest => ({
+  id: String(data.id),
+  firstName: String(data.first_name),
+  lastName: String(data.last_name),
+  email: String(data.email),
+  company: asString(data.company),
+  phone: asString(data.phone),
+  ticketType: (asString(data.ticket_type) || "uczestnik") as GuestTicketType,
+  zones: asStringArray(data.zones),
+  status: (asString(data.status) || "invited") as GuestStatus,
+  emailStatus: asString(data.email_status) as GuestEmailStatus | undefined,
+  qrCode: String(data.qr_code),
+  invitationSentAt: asDate(data.invitation_sent_at),
+  invitationOpenedAt: asDate(data.invitation_opened_at),
+  checkedInAt: asDate(data.checked_in_at),
+});
 
 export const guestScannerService = {
   /**
-   * Verify guest by QR code and check them in
+   * Verify guest by QR code and check them in through the atomic Supabase RPC.
    */
-  async verifyAndCheckIn(qrCode: string, eventId?: string): Promise<ScanResult> {
-    try {
-      // Find guest by QR code
-      let query = supabase
-        .from('guests')
-        .select('*')
-        .eq('qr_code', qrCode);
-      
-      if (eventId) {
-        query = query.eq('event_id', eventId);
-      }
-
-      const { data: guests, error } = await query;
-
-      if (error) {
-        return {
-          success: false,
-          message: 'Błąd podczas weryfikacji kodu QR',
-        };
-      }
-
-      if (!guests || guests.length === 0) {
-        return {
-          success: false,
-          message: 'Nie znaleziono gościa z tym kodem QR',
-        };
-      }
-
-      const guestData = guests[0];
-
-      // Check if already checked in
-      if (guestData.checked_in_at) {
-        const guest: Guest = {
-          id: guestData.id,
-          firstName: guestData.first_name,
-          lastName: guestData.last_name,
-          email: guestData.email,
-          company: guestData.company || undefined,
-          ticketType: ((guestData as any).ticket_type || 'uczestnik') as any,
-          zones: ((guestData as any).zones || []) as string[],
-          status: guestData.status as Guest['status'],
-          qrCode: guestData.qr_code,
-          phone: guestData.phone || undefined,
-          checkedInAt: new Date(guestData.checked_in_at),
-          invitationSentAt: guestData.invitation_sent_at ? new Date(guestData.invitation_sent_at) : undefined,
-          invitationOpenedAt: guestData.invitation_opened_at ? new Date(guestData.invitation_opened_at) : undefined,
-        };
-
-        return {
-          success: true,
-          guest,
-          message: 'Gość już został zarejestrowany',
-          alreadyCheckedIn: true,
-          checkInTime: guestData.checked_in_at,
-        };
-      }
-
-      // Check in the guest
-      const now = new Date().toISOString();
-      const { error: updateError } = await supabase
-        .from('guests')
-        .update({ 
-          checked_in_at: now,
-          status: 'checked-in'
-        })
-        .eq('id', guestData.id);
-
-      if (updateError) {
-        return {
-          success: false,
-          message: 'Błąd podczas rejestracji gościa',
-        };
-      }
-
-      const guest: Guest = {
-        id: guestData.id,
-        firstName: guestData.first_name,
-        lastName: guestData.last_name,
-        email: guestData.email,
-        company: guestData.company || undefined,
-        ticketType: ((guestData as any).ticket_type || 'uczestnik') as any,
-        zones: ((guestData as any).zones || []) as string[],
-        status: 'checked-in',
-        qrCode: guestData.qr_code,
-        phone: guestData.phone || undefined,
-        checkedInAt: new Date(now),
-        invitationSentAt: guestData.invitation_sent_at ? new Date(guestData.invitation_sent_at) : undefined,
-        invitationOpenedAt: guestData.invitation_opened_at ? new Date(guestData.invitation_opened_at) : undefined,
-      };
-
-      return {
-        success: true,
-        guest,
-        message: `Zarejestrowano: ${guest.firstName} ${guest.lastName}`,
-        alreadyCheckedIn: false,
-        checkInTime: now,
-      };
-    } catch (error) {
+  async verifyAndCheckIn(
+    qrCode: string,
+    eventId?: string,
+    deviceInfo: ScannerDeviceInfo = getDefaultDeviceInfo()
+  ): Promise<ScanResult> {
+    if (!eventId) {
       return {
         success: false,
-        message: 'Wystąpił nieoczekiwany błąd',
+        status: "invalid",
+        message: "Wybierz wydarzenie przed rozpoczęciem skanowania",
       };
     }
+
+    const { data, error } = await supabase.rpc("process_qr_check_in", {
+      _qr_code: qrCode,
+      _event_id: eventId,
+      _device_info: deviceInfo,
+    });
+
+    if (error) {
+      return {
+        success: false,
+        status: "invalid",
+        message: "Błąd podczas rejestracji gościa",
+      };
+    }
+
+    return normalizeRpcResponse(data);
   },
 
   /**
-   * Get guest by QR code without checking in
+   * Get guest by QR code without checking in.
    */
   async getGuestByQrCode(qrCode: string): Promise<Guest | null> {
     const { data, error } = await supabase
-      .from('guests')
-      .select('*')
-      .eq('qr_code', qrCode)
+      .from("guests")
+      .select("*")
+      .eq("qr_code", qrCode)
       .single();
 
-    if (error || !data) {
+    if (error || !data || !isRecord(data)) {
       return null;
     }
 
-    return {
-      id: data.id,
-      firstName: data.first_name,
-      lastName: data.last_name,
-      email: data.email,
-      company: data.company || undefined,
-      ticketType: ((data as any).ticket_type || 'uczestnik') as any,
-      zones: ((data as any).zones || []) as string[],
-      status: data.status as Guest['status'],
-      qrCode: data.qr_code,
-      phone: data.phone || undefined,
-      checkedInAt: data.checked_in_at ? new Date(data.checked_in_at) : undefined,
-      invitationSentAt: data.invitation_sent_at ? new Date(data.invitation_sent_at) : undefined,
-      invitationOpenedAt: data.invitation_opened_at ? new Date(data.invitation_opened_at) : undefined,
-    };
+    return mapDbGuestToGuest(data);
   },
 
   /**
-   * Undo check-in
+   * Undo check-in. This remains an explicit organizer action outside the scan flow.
    */
   async undoCheckIn(guestId: string): Promise<boolean> {
     const { error } = await supabase
-      .from('guests')
-      .update({ 
+      .from("guests")
+      .update({
         checked_in_at: null,
-        status: 'confirmed'
+        status: "confirmed",
       })
-      .eq('id', guestId);
+      .eq("id", guestId);
 
     return !error;
   },
 
   /**
-   * Get check-in statistics for an event
+   * Get check-in statistics for an event.
    */
   async getCheckInStats(eventId: string): Promise<{
     total: number;
@@ -174,19 +248,19 @@ export const guestScannerService = {
     percentage: number;
   }> {
     const { data: guests, error } = await supabase
-      .from('guests')
-      .select('id, checked_in_at')
-      .eq('event_id', eventId);
+      .from("guests")
+      .select("id, checked_in_at")
+      .eq("event_id", eventId);
 
     if (error || !guests) {
       return { total: 0, checkedIn: 0, pending: 0, percentage: 0 };
     }
 
     const total = guests.length;
-    const checkedIn = guests.filter(g => g.checked_in_at).length;
+    const checkedIn = guests.filter((guest) => guest.checked_in_at).length;
     const pending = total - checkedIn;
     const percentage = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
 
     return { total, checkedIn, pending, percentage };
-  }
+  },
 };

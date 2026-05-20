@@ -62,7 +62,19 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/2d0a4d04-4931-48a0-9fb9-d4708261c4bc) and click on Share -> Publish.
+The production deployment path is GitHub + Vercel with CI gates. See [Deployment Runbook](docs/deployment.md).
+
+Before promoting a release, run:
+
+```sh
+npm ci
+npm run lint
+npm run typecheck
+npm run build
+npm run test:run
+```
+
+Lovable publishing can still be used for prototypes, but production releases should go through GitHub pull requests and Vercel deployments.
 
 ## Can I connect a custom domain to my Lovable project?
 

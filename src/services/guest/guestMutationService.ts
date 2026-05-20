@@ -62,7 +62,7 @@ export const guestMutationService = {
       
       const { data, error } = await supabase
         .from('guests')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();

@@ -8,11 +8,9 @@ import {
   createRateLimitResponse,
   addRateLimitHeaders 
 } from "../_shared/rateLimiter.ts";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const corsHeaders = buildCorsHeaders();
 
 // Rate limit: 10 requests per minute per IP
 const RATE_LIMIT_CONFIG = {

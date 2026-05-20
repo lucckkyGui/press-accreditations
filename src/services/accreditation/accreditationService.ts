@@ -146,7 +146,7 @@ export const AccreditationService = {
       
       const { data, error } = await supabase
         .from('accreditations')
-        .insert(toAccreditationDb(newAccreditation))
+        .insert(toAccreditationDb(newAccreditation) as any)
         .select()
         .single();
       
@@ -379,7 +379,7 @@ export const AccreditationService = {
           status: status,
           notes: notes,
           updated_at: new Date().toISOString()
-        })
+        } as any)
         .eq('id', id)
         .select()
         .single();

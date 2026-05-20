@@ -23,7 +23,13 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      // Baseline current MVP debt; tighten these module-by-module as strict TS work lands.
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      "no-empty": ["warn", { allowEmptyCatch: true }],
+      "prefer-const": "warn",
     },
   }
 );

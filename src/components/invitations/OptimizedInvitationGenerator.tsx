@@ -87,6 +87,7 @@ const OptimizedInvitationGenerator: React.FC<OptimizedInvitationGeneratorProps> 
     const qrData = JSON.stringify({
       guestId: guest.id,
       eventId: event.id,
+      qrCode: guest.qrCode,
       guestName: `${guest.firstName} ${guest.lastName}`,
       guestEmail: guest.email,
       timestamp: new Date().toISOString(),
