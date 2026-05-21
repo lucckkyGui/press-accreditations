@@ -11,9 +11,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }: ProtectedRouteProps) => {
   const location = useLocation();
-  const { isLoading, isAuthenticated, roles } = useAuth();
+  const { isLoading, isAuthenticated, roles, rolesLoaded } = useAuth();
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && !rolesLoaded)) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
         <LoadingSpinner />

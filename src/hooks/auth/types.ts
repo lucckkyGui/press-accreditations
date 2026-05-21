@@ -25,6 +25,8 @@ export interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   roles: AppRole[];
+  rolesLoaded: boolean;
+  userDataLoaded: boolean;
   loading: boolean;
   isLoading: boolean;
   isAuthenticated: boolean;

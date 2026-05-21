@@ -11,9 +11,12 @@ export const useAuthState = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
+  const [userDataLoaded, setUserDataLoaded] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout>>();
+  const userDataRequest = useRef(0);
 
   const scheduleRefresh = useCallback((sess: Session | null) => {
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
@@ -33,34 +36,66 @@ export const useAuthState = () => {
     }, refreshIn);
   }, []);
 
-  const fetchUserData = useCallback(async (userId: string, userEmail: string) => {
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('id, first_name, last_name, avatar_url, phone, organization_name')
-      .eq('id', userId)
-      .single();
+  const resetUserData = useCallback(() => {
+    setProfile(null);
+    setRoles([]);
+    setRolesLoaded(false);
+    setUserDataLoaded(false);
+  }, []);
 
-    if (profileData) {
-      setProfile({
-        id: profileData.id,
-        firstName: profileData.first_name || '',
-        lastName: profileData.last_name || '',
-        email: userEmail,
-        avatarUrl: profileData.avatar_url || undefined,
-        phone: profileData.phone || undefined,
-        organizationName: profileData.organization_name || undefined,
+  const fetchUserData = useCallback(async (userId: string, userEmail: string, requestId: number) => {
+    try {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, phone, organization_name')
+        .eq('id', userId)
+        .single();
+
+      if (userDataRequest.current !== requestId) return;
+
+      if (profileData) {
+        setProfile({
+          id: profileData.id,
+          firstName: profileData.first_name || '',
+          lastName: profileData.last_name || '',
+          email: userEmail,
+          avatarUrl: profileData.avatar_url || undefined,
+          phone: profileData.phone || undefined,
+          organizationName: profileData.organization_name || undefined,
+        });
+      }
+
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (userDataRequest.current !== requestId) return;
+
+      if (rolesError) {
+        console.error('[auth] Failed to fetch user roles', {
+          userId,
+          error: rolesError,
+        });
+        setRoles([]);
+        return;
+      }
+
+      const fetchedRoles = (rolesData ?? []).map(r => r.role as AppRole);
+      setRoles(fetchedRoles.length > 0 ? fetchedRoles : ['guest']);
+    } catch (error) {
+      if (userDataRequest.current !== requestId) return;
+
+      console.error('[auth] Failed to fetch user data', {
+        userId,
+        error,
       });
-    }
-
-    const { data: rolesData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId);
-
-    if (rolesData && rolesData.length > 0) {
-      setRoles(rolesData.map(r => r.role as AppRole));
-    } else {
-      setRoles(['guest']);
+      setRoles([]);
+    } finally {
+      if (userDataRequest.current === requestId) {
+        setRolesLoaded(true);
+        setUserDataLoaded(true);
+      }
     }
   }, []);
 
@@ -71,14 +106,19 @@ export const useAuthState = () => {
         setUser(newSession?.user ?? null);
         setIsAuthenticated(!!newSession);
         scheduleRefresh(newSession);
+        setAuthLoading(false);
 
         if (newSession?.user) {
+          const requestId = userDataRequest.current + 1;
+          userDataRequest.current = requestId;
+          resetUserData();
+
           setTimeout(() => {
-            fetchUserData(newSession.user.id, newSession.user.email || '');
+            fetchUserData(newSession.user.id, newSession.user.email || '', requestId);
           }, 0);
         } else {
-          setProfile(null);
-          setRoles([]);
+          userDataRequest.current += 1;
+          resetUserData();
         }
       }
     );
@@ -90,10 +130,19 @@ export const useAuthState = () => {
       scheduleRefresh(existingSession);
 
       if (existingSession?.user) {
-        fetchUserData(existingSession.user.id, existingSession.user.email || '')
-          .finally(() => setLoading(false));
+        const requestId = userDataRequest.current + 1;
+        userDataRequest.current = requestId;
+        resetUserData();
+        fetchUserData(existingSession.user.id, existingSession.user.email || '', requestId)
+          .finally(() => {
+            if (userDataRequest.current === requestId) {
+              setAuthLoading(false);
+            }
+          });
       } else {
-        setLoading(false);
+        userDataRequest.current += 1;
+        resetUserData();
+        setAuthLoading(false);
       }
     });
 
@@ -101,17 +150,30 @@ export const useAuthState = () => {
       subscription.unsubscribe();
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
     };
-  }, [fetchUserData, scheduleRefresh]);
+  }, [fetchUserData, resetUserData, scheduleRefresh]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+
+    console.info('[auth] state', {
+      userId: user?.id ?? null,
+      roles,
+      rolesLoaded,
+    });
+  }, [roles, rolesLoaded, user?.id]);
 
   const hasRole = useCallback((role: AppRole) => roles.includes(role), [roles]);
   const isOrganizer = roles.includes('organizer') || roles.includes('admin');
   const isAdmin = roles.includes('admin');
+  const loading = authLoading || (isAuthenticated && !userDataLoaded);
 
   return {
     user,
     session,
     profile,
     roles,
+    rolesLoaded,
+    userDataLoaded,
     loading,
     isLoading: loading,
     isAuthenticated,
