@@ -53,49 +53,27 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
-            >
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2">
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Platforma akredytacyjna nowej generacji</span>
-            </motion.div>
+            </div>
             
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.05] tracking-tight"
-            >
+            <h1 className="mb-6 text-5xl font-extrabold leading-[1.05] text-foreground md:text-6xl lg:text-7xl">
               <span className="block text-foreground">Akredytacje</span>
-              <motion.span
+              <span
                 className="block gradient-text-hero"
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 style={{ backgroundSize: "200% auto" }}
               >
                 bez chaosu.
-              </motion.span>
-            </motion.h1>
+              </span>
+            </h1>
             
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-muted-foreground max-w-lg mb-10 leading-relaxed"
-            >
+            <p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground md:text-xl">
               Zaproszenia z QR, automatyczny mailing, check-in w&nbsp;2&nbsp;sekundy — 
               nawet offline. Jedno narzędzie do obsługi gości na&nbsp;każdym wydarzeniu.
-            </motion.p>
+            </p>
             
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-4 mb-14"
-            >
+            <div className="mb-14 flex flex-wrap gap-4">
               <Button 
                 size="lg" 
                 className="gradient-primary text-primary-foreground hover:opacity-90 gap-2 px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
@@ -113,15 +91,10 @@ const HeroSection = () => {
                 <Play className="h-4 w-4 text-primary" />
                 Zobacz demo
               </Button>
-            </motion.div>
+            </div>
             
             {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-wrap gap-6"
-            >
+            <div className="flex flex-wrap gap-6">
               {[
                 { icon: Shield, label: "Zgodne z RODO", color: "text-secondary" },
                 { icon: Zap, label: "Setup w 5 minut", color: "text-accent" },
@@ -132,7 +105,7 @@ const HeroSection = () => {
                   <span>{item.label}</span>
                 </div>
               ))}
-            </motion.div>
+            </div>
           </div>
           
           {/* Right side - Dashboard preview */}
