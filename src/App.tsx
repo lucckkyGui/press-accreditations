@@ -16,6 +16,7 @@ import OnlineStatusToast from "./components/common/OnlineStatusToast";
 import CommandPalette from "./components/common/CommandPalette";
 import TopProgressBar from "./components/common/TopProgressBar";
 import KeyboardShortcutsDialog from "./components/common/KeyboardShortcutsDialog";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ const App = () => {
                 <KeyboardShortcutsDialog />
                 <Toaster />
                 <Sonner />
+                <SpeedInsights />
               </TooltipProvider>
             </AuthProvider>
           </QueryClientProvider>
