@@ -24,6 +24,9 @@ verify_jwt = false
 [functions.ai-support-chat]
 verify_jwt = true
 
+[functions.audit-logs]
+verify_jwt = true
+
 [functions.embed-register]
 verify_jwt = false
 

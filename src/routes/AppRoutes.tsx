@@ -76,6 +76,7 @@ const LazyFallback = () => (
 );
 
 const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
+const ADMIN_ROLES = ['admin'] as const;
 const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
 
 const disabledPublicFeature = <Navigate to="/" replace />;
@@ -151,7 +152,11 @@ const AppRoutes = () => {
           <Route path="/white-label" element={features.whiteLabel ? <WhiteLabelSettings /> : disabledOrganizerFeature} />
           <Route path="/integrations" element={<IntegrationsHub />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
-          <Route path="/audit-trail" element={<AuditTrail />} />
+          <Route path="/audit-trail" element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <AuditTrail />
+            </ProtectedRoute>
+          } />
           <Route path="/digital-pass" element={<DigitalPassPage />} />
         </Route>
 
