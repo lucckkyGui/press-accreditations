@@ -27,13 +27,13 @@ const getStatusDetails = (status: AccreditationStatus) => {
       };
     case "approved":
       return {
-        color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+        color: "bg-success/10 text-success",
         icon: <Check className="h-4 w-4" />,
         label: "Approved"
       };
     case "rejected":
       return {
-        color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+        color: "bg-destructive/10 text-destructive",
         icon: <X className="h-4 w-4" />,
         label: "Rejected"
       };
