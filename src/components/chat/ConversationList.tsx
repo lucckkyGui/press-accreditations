@@ -55,7 +55,7 @@ export function ConversationList({ eventId, selectedId, onSelect, className }: C
               Nowa
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Nowa konwersacja</DialogTitle>
             </DialogHeader>

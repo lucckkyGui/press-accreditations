@@ -539,7 +539,7 @@ const EventDetails = () => {
 
       {/* QR dialog */}
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
-        <DialogContent className="sm:max-w-[400px] rounded-lg border-border shadow-card">
+        <DialogContent className="sm:max-w-[400px] rounded-lg border-border shadow-card" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Kod QR gościa</DialogTitle>
           </DialogHeader>

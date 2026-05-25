@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { 
   Calendar, Users, Mail, QrCode, ArrowRight, ArrowLeft, CheckCircle2, Sparkles, X
@@ -105,7 +105,8 @@ const OnboardingWizard = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden [&>button]:hidden rounded-lg border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden [&>button]:hidden rounded-lg border-0 shadow-2xl" aria-describedby={undefined}>
+        <DialogTitle className="sr-only">Kreator konfiguracji</DialogTitle>
         {/* Progress bar */}
         <div className="relative">
           <Progress value={progress} className="h-1.5 rounded-none" />

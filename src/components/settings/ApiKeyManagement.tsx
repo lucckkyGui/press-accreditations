@@ -200,7 +200,7 @@ export default function ApiKeyManagement() {
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 mr-2" /> Nowy klucz</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>{generatedKey ? 'Klucz wygenerowany' : 'Utwórz klucz API'}</DialogTitle>
               </DialogHeader>
@@ -295,7 +295,7 @@ export default function ApiKeyManagement() {
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 mr-2" /> Nowy webhook</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>Dodaj webhook</DialogTitle>
               </DialogHeader>

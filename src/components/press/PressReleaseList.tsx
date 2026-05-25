@@ -263,7 +263,7 @@ const PressReleaseList: React.FC = () => {
           <DialogTrigger asChild>
             <Button>Nowy komunikat</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Nowy komunikat prasowy</DialogTitle>
             </DialogHeader>

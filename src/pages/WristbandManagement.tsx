@@ -233,7 +233,7 @@ const WristbandManagement = () => {
               <DialogTrigger asChild>
                 <Button variant="outline"><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" aria-describedby={undefined}>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
@@ -349,7 +349,7 @@ const WristbandManagement = () => {
               <DialogTrigger asChild>
                 <Button><Plus className="h-4 w-4 mr-2" />Przypisz opaskę</Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent aria-describedby={undefined}>
                 <DialogHeader><DialogTitle>Przypisz opaskę RFID</DialogTitle></DialogHeader>
                 <div className="space-y-4">
                   <div>
