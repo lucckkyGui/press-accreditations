@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,12 +22,7 @@ const WEBHOOK_EVENT_TYPES = [
 ];
 
 function generateApiKey(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = 'pk_';
-  for (let i = 0; i < 40; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return `pk_${generateSecureToken(32)}`;
 }
 
 async function hashKey(key: string): Promise<string> {
@@ -38,12 +33,26 @@ async function hashKey(key: string): Promise<string> {
 }
 
 function generateWebhookSecret(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = 'whsec_';
-  for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  return `whsec_${generateSecureToken(32)}`;
+}
+
+function generateSecureToken(byteLength: number): string {
+  const bytes = new Uint8Array(byteLength);
+  crypto.getRandomValues(bytes);
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function validateWebhookUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:') {
+      throw new Error();
+    }
+    return url.toString();
+  } catch {
+    throw new Error('Webhook URL musi być poprawnym adresem HTTPS');
   }
-  return result;
 }
 
 export default function ApiKeyManagement() {
@@ -124,12 +133,13 @@ export default function ApiKeyManagement() {
   const createWebhookMutation = useMutation({
     mutationFn: async () => {
       const secret = generateWebhookSecret();
+      const url = validateWebhookUrl(webhookUrl);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await (supabase as any).from('webhook_subscriptions').insert({
         user_id: user.id,
-        url: webhookUrl,
+        url,
         secret,
         event_id: webhookEventId === 'all' ? null : webhookEventId,
         events: webhookEvents,
@@ -163,7 +173,7 @@ export default function ApiKeyManagement() {
     toast.success('Skopiowano do schowka');
   };
 
-  const baseUrl = `https://ajotwgirccdjntuotxzy.supabase.co/functions/v1/public-api`;
+  const baseUrl = `${SUPABASE_URL}/functions/v1/public-api`;
 
   return (
     <Tabs defaultValue="keys" className="space-y-4">
