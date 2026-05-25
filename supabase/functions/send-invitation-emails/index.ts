@@ -6,11 +6,12 @@ import {
   checkRateLimit, 
   getClientIP, 
   createRateLimitResponse,
-  addRateLimitHeaders 
 } from "../_shared/rateLimiter.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { getAuthenticatedUser, hasAllowedRole } from "../_shared/auth.ts";
 
 const corsHeaders = buildCorsHeaders();
+const MAX_BATCH_SIZE = 100;
 
 // Rate limit: 10 requests per minute per IP
 const RATE_LIMIT_CONFIG = {
@@ -22,6 +23,28 @@ const RATE_LIMIT_CONFIG = {
 interface SendInvitationRequest {
   campaignId: string;
   batchSize?: number;
+}
+
+function jsonResponse(body: unknown, status: number, headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...corsHeaders, ...headers },
+  });
+}
+
+function clampBatchSize(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return 50;
+  return Math.min(Math.max(Math.floor(parsed), 1), MAX_BATCH_SIZE);
+}
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -39,36 +62,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return jsonResponse({ error: 'Unauthorized - invalid token' }, 401);
 
-    // Authentication check
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      console.error('Missing or invalid Authorization header');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - missing token' }),
-        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    // Verify the token and get user claims
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    
-    if (claimsError || !claimsData?.claims) {
-      console.error('Token validation failed:', claimsError);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - invalid token' }),
-        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
     console.log(`Authenticated user: ${userId}`);
 
     // Use service role client for database operations
@@ -79,16 +76,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-    const { campaignId, batchSize = 50 }: SendInvitationRequest = await req.json();
+    const { campaignId, batchSize }: SendInvitationRequest = await req.json();
+    const safeBatchSize = clampBatchSize(batchSize);
 
     if (!campaignId) {
-      return new Response(
-        JSON.stringify({ error: 'Campaign ID is required' }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ error: 'Campaign ID is required' }, 400);
     }
 
-    console.log(`Processing campaign: ${campaignId}, batch size: ${batchSize}`);
+    console.log(`Processing campaign: ${campaignId}, batch size: ${safeBatchSize}`);
 
     // Authorization check: Verify user owns the campaign's event
     const { data: campaign, error: campaignError } = await serviceClient
@@ -99,10 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (campaignError || !campaign) {
       console.error('Campaign not found:', campaignError);
-      return new Response(
-        JSON.stringify({ error: 'Campaign not found' }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ error: 'Campaign not found' }, 404);
     }
 
     const { data: event, error: eventError } = await serviceClient
@@ -113,29 +105,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (eventError || !event) {
       console.error('Event not found:', eventError);
-      return new Response(
-        JSON.stringify({ error: 'Event not found' }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ error: 'Event not found' }, 404);
     }
 
     // Check if user is the event organizer or an admin
-    const { data: userRole } = await serviceClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-
-    const isAdmin = !!userRole;
+    const isAdmin = await hasAllowedRole(serviceClient, userId, ["admin"]);
     const isOrganizer = event.organizer_id === userId;
 
     if (!isOrganizer && !isAdmin) {
       console.warn(`User ${userId} attempted to access campaign ${campaignId} without authorization`);
-      return new Response(
-        JSON.stringify({ error: 'Forbidden - not event organizer or admin' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ error: 'Forbidden - not event organizer or admin' }, 403);
     }
 
     console.log(`Authorization passed for user ${userId} (organizer: ${isOrganizer}, admin: ${isAdmin})`);
@@ -152,27 +131,40 @@ const handler = async (req: Request): Promise<Response> => {
         )
       `)
       .eq('status', 'pending')
-      .limit(batchSize);
+      .eq('invitation.event_id', campaign.event_id)
+      .limit(safeBatchSize);
 
     if (queueError) {
       throw new Error(`Queue error: ${queueError.message}`);
     }
 
     if (!pendingEmails || pendingEmails.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No pending emails found" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+      return jsonResponse({ message: "No pending emails found" }, 200);
     }
 
     console.log(`Found ${pendingEmails.length} pending emails`);
 
     let sentCount = 0;
     let failedCount = 0;
+    let skippedCount = 0;
 
     // Process emails in batch
     for (const emailItem of pendingEmails) {
       try {
+        if (emailItem.invitation?.event?.id !== campaign.event_id) {
+          skippedCount++;
+          console.warn(`Skipping email ${emailItem.id}: queue item does not belong to campaign event ${campaign.event_id}`);
+          continue;
+        }
+
+        const invitation = emailItem.invitation;
+        const eventTitle = escapeHtml(invitation.event.title);
+        const eventDate = new Date(invitation.event.start_date).toLocaleDateString('pl-PL');
+        const eventLocation = escapeHtml(invitation.event.location || 'Do ustalenia');
+        const eventDescription = escapeHtml(invitation.event.description || '');
+        const guestName = `${escapeHtml(invitation.guest.first_name)} ${escapeHtml(invitation.guest.last_name)}`.trim();
+        const qrCodeData = escapeHtml(invitation.qr_code_data);
+
         // Update status to sending
         await serviceClient
           .from('email_queue')
@@ -182,24 +174,24 @@ const handler = async (req: Request): Promise<Response> => {
         // Create invitation HTML with QR code
         const invitationHtml = `
           <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-            <h1 style="color: #333; text-align: center;">Zaproszenie na ${emailItem.invitation.event.title}</h1>
+            <h1 style="color: #333; text-align: center;">Zaproszenie na ${eventTitle}</h1>
             
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h2>Drogi ${emailItem.invitation.guest.first_name} ${emailItem.invitation.guest.last_name},</h2>
+              <h2>Drogi ${guestName},</h2>
               <p>Zapraszamy Cię na wydarzenie:</p>
               
               <div style="background: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                <h3 style="margin: 0; color: #007bff;">${emailItem.invitation.event.title}</h3>
-                <p style="margin: 5px 0;"><strong>Data:</strong> ${new Date(emailItem.invitation.event.start_date).toLocaleDateString('pl-PL')}</p>
-                <p style="margin: 5px 0;"><strong>Lokalizacja:</strong> ${emailItem.invitation.event.location || 'Do ustalenia'}</p>
-                ${emailItem.invitation.event.description ? `<p style="margin: 5px 0;"><strong>Opis:</strong> ${emailItem.invitation.event.description}</p>` : ''}
+                <h3 style="margin: 0; color: #007bff;">${eventTitle}</h3>
+                <p style="margin: 5px 0;"><strong>Data:</strong> ${eventDate}</p>
+                <p style="margin: 5px 0;"><strong>Lokalizacja:</strong> ${eventLocation}</p>
+                ${eventDescription ? `<p style="margin: 5px 0;"><strong>Opis:</strong> ${eventDescription}</p>` : ''}
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
                 <h3>Twój kod QR:</h3>
                 <div style="background: white; padding: 20px; border-radius: 8px; display: inline-block;">
                   <div id="qr-code" style="font-family: monospace; font-size: 12px; word-break: break-all; max-width: 200px;">
-                    ${emailItem.invitation.qr_code_data}
+                    ${qrCodeData}
                   </div>
                 </div>
                 <p style="font-size: 14px; color: #666; margin-top: 10px;">
@@ -247,7 +239,8 @@ const handler = async (req: Request): Promise<Response> => {
         await serviceClient
           .from('invitations')
           .update({ sent_at: new Date().toISOString() })
-          .eq('id', emailItem.invitation.id);
+          .eq('id', invitation.id)
+          .eq('event_id', campaign.event_id);
 
         sentCount++;
         console.log(`Email sent to: ${emailItem.recipient_email}`);
@@ -291,28 +284,20 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    return new Response(
-      JSON.stringify({
+    return jsonResponse(
+      {
         success: true,
         processed: pendingEmails.length,
         sent: sentCount,
         failed: failedCount,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+        skipped: skippedCount,
+      },
+      200,
     );
 
   } catch (error) {
     console.error("Error in send-invitation-emails function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return jsonResponse({ error: error.message }, 500);
   }
 };
 
