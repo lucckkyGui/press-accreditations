@@ -1,10 +1,32 @@
+/**
+ * AppSidebar.tsx — slim wersja zgodna z mockupem.
+ *
+ * Zmiany vs. poprzednia:
+ *  - 2 grupy zamiast 5 (Główne + Pozostałe) — reszta dostępna przez ⌘K
+ *  - liczniki obok itemów (Wydarzenia · 14, Goście · 1 247) — pobierane z hooków lub mockowane
+ *  - LIVE chip na Skanerze QR kiedy event aktywny
+ *  - shortcuts widoczne zawsze (a nie tylko na hover)
+ *  - workspace switcher + plan card + user footer — bez zmian
+ */
 
 import React from "react";
 import {
-  Calendar, Users, QrCode, Settings, BarChart3, Radio, Map,
-  FileBarChart, Sparkles, ChevronRight, Bot, FileText, Ticket,
-  Newspaper, LogOut, Brain, Plug, Shield, Paintbrush, Share2,
-  Activity, ShoppingBag, FileSearch, Stethoscope, ChevronsUpDown,
+  Calendar,
+  Users,
+  QrCode,
+  Settings,
+  BarChart3,
+  FileBarChart,
+  Sparkles,
+  ChevronRight,
+  ChevronsUpDown,
+  LogOut,
+  Newspaper,
+  Ticket,
+  Plug,
+  Brain,
+  Shield,
+  Stethoscope,
   Zap,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
@@ -23,94 +45,108 @@ import {
 import { useAuth } from "@/hooks/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { features } from "@/config/features";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
+// ─── Types ─────────────────────────────────────────────────────
 interface NavItemDef {
   title: string;
   url: string;
   icon: React.ElementType;
   shortcut?: string;
+  /** Optional bullet count (events, guests, accreditations…) */
+  countQueryKey?: "events" | "guests" | "accreditations";
+  /** Render a LIVE chip on the right side when condition met (only Scanner). */
+  liveWhenActive?: boolean;
 }
 
-const mainNavigation: NavItemDef[] = [
-  { title: "Dashboard",   url: "/dashboard", icon: BarChart3, shortcut: "G D" },
-  { title: "Wydarzenia",  url: "/events",    icon: Calendar,  shortcut: "G E" },
-  { title: "Goście",      url: "/guests",    icon: Users,     shortcut: "G G" },
-  { title: "Skaner QR",   url: "/scanner",   icon: QrCode,    shortcut: "G S" },
-  { title: "Diagnostyka", url: "/diagnostics", icon: Stethoscope },
+// ─── Counts hook ──────────────────────────────────────────────
+/**
+ * Lekki hook: zlicza obiekty z tabel Supabase dla bieżącego usera.
+ * Cache na 60s — wystarcza dla badge w sidebarze.
+ * Jeśli zapytania nie istnieją w danym środowisku — zwraca undefined (badge się nie pokaże).
+ */
+function useSidebarCounts(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["sidebarCounts", userId],
+    enabled: !!userId,
+    staleTime: 60 * 1000,
+    queryFn: async () => {
+      if (!userId) return null;
+      const [eventsRes, guestsRes, accRes] = await Promise.all([
+        supabase.from("events").select("id, start_date, end_date", { count: "exact", head: false }).eq("organizer_id", userId),
+        supabase.from("guests").select("id", { count: "exact", head: true }),
+        supabase.from("accreditation_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      ]);
+      const now = Date.now();
+      const events = (eventsRes.data ?? []) as { id: string; start_date: string; end_date: string }[];
+      const liveEvent = events.find((e) => {
+        const s = new Date(e.start_date).getTime();
+        const en = new Date(e.end_date).getTime();
+        return s <= now && now <= en;
+      });
+      return {
+        events: events.length,
+        guests: guestsRes.count ?? 0,
+        accreditations: accRes.count ?? 0,
+        isLive: !!liveEvent,
+      };
+    },
+  });
+}
+
+// ─── Nav definitions ──────────────────────────────────────────
+const mainNav: NavItemDef[] = [
+  { title: "Pulpit",      url: "/dashboard", icon: BarChart3, shortcut: "G D" },
+  { title: "Wydarzenia",  url: "/events",    icon: Calendar,  shortcut: "G E", countQueryKey: "events" },
+  { title: "Goście",      url: "/guests",    icon: Users,     shortcut: "G G", countQueryKey: "guests" },
+  { title: "Skaner QR",    url: "/scanner",   icon: QrCode,    shortcut: "G S", liveWhenActive: true },
+  { title: "Akredytacje", url: "/guests?filter=pending", icon: Newspaper, shortcut: "G A", countQueryKey: "accreditations" },
   { title: "Bilety",      url: "/ticketing", icon: Ticket },
+  { title: "Analityka",   url: "/ai-dashboard", icon: Brain, shortcut: "G N" },
 ];
 
-const operationsNavigation: NavItemDef[] = [
-  ...(features.rfid        ? [{ title: "Skaner RFID",  url: "/rfid-scanner", icon: Radio }] : []),
-  ...(features.wristbands  ? [{ title: "Opaski RFID",  url: "/wristbands",   icon: Radio }] : []),
-  ...(features.rfid        ? [{ title: "Heatmapa stref", url: "/zone-heatmap", icon: Map }] : []),
-  { title: "Media / Prasa", url: "/press-releases", icon: Newspaper },
+const secondaryNav: NavItemDef[] = [
+  { title: "Raport końcowy",  url: "/post-event-report", icon: FileBarChart },
+  { title: "Integracje",      url: "/integrations",      icon: Plug },
+  { title: "Bezpieczeństwo",  url: "/audit-trail",       icon: Shield },
+  { title: "Diagnostyka",     url: "/diagnostics",       icon: Stethoscope },
+  { title: "Ustawienia",      url: "/settings",          icon: Settings },
 ];
 
-const advancedNavigation: NavItemDef[] = [
-  { title: "AI Dashboard",      url: "/ai-dashboard",   icon: Brain },
-  { title: "Integracje",        url: "/integrations",   icon: Plug },
-  { title: "Kreator raportów",  url: "/report-builder", icon: FileSearch },
-  ...(features.marketplace ? [{ title: "Marketplace", url: "/marketplace", icon: ShoppingBag }] : []),
-];
-
-const reportsNavigation: NavItemDef[] = [
-  { title: "Raport końcowy",    url: "/post-event-report", icon: FileBarChart },
-  { title: "Raport sponsorski", url: "/sponsor-report",    icon: FileText },
-];
-
-const systemNavigation: NavItemDef[] = [
-  { title: "AI Support",  url: "/ai-support",        icon: Bot },
-  { title: "Monitoring",  url: "/admin/monitoring",  icon: Activity },
-  { title: "Audyt & SSO", url: "/audit-trail",       icon: Shield },
-  ...(features.whiteLabel ? [{ title: "White-Label", url: "/white-label", icon: Paintbrush }] : []),
-  { title: "Affiliate",   url: "/affiliate",         icon: Share2 },
-  { title: "Pomoc",       url: "/help",              icon: FileText },
-  { title: "Ustawienia",  url: "/settings",          icon: Settings },
-];
-
-const allSections = [
-  { label: "Główne",        items: mainNavigation },
-  { label: "Operacje",      items: operationsNavigation },
-  { label: "Zaawansowane",  items: advancedNavigation },
-  { label: "Raporty",       items: reportsNavigation },
-  { label: "System",        items: systemNavigation },
-];
-
+// ─── NavItem ──────────────────────────────────────────────────
 const NavItem = ({
   item,
   active,
   collapsed,
+  count,
+  isLive,
 }: {
   item: NavItemDef;
   active: boolean;
   collapsed: boolean;
+  count?: number;
+  isLive?: boolean;
 }) => {
   const inner = (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={active} className="p-0 h-auto">
         <Link
           to={item.url}
-          onMouseEnter={() => {
-            const routeMap: Record<string, () => Promise<unknown>> = {
-              "/dashboard":  () => import("@/pages/Dashboard"),
-              "/events":     () => import("@/pages/Events"),
-              "/guests":     () => import("@/pages/Guests"),
-              "/scanner":    () => import("@/pages/Scanner"),
-              "/diagnostics":() => import("@/pages/Diagnostics"),
-              "/settings":   () => import("@/pages/Settings"),
-              "/notifications": () => import("@/pages/Notifications"),
-            };
-            routeMap[item.url]?.();
-          }}
           className={[
-            "flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors duration-150 group/item",
+            "relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-colors duration-150 group/item",
             active
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              ? "bg-muted text-foreground"
+              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
           ].join(" ")}
         >
+          {/* Active rail */}
+          {active && (
+            <span
+              aria-hidden
+              className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary shadow-glow"
+            />
+          )}
           <item.icon
             className={[
               "h-4 w-4 shrink-0 transition-colors",
@@ -119,15 +155,23 @@ const NavItem = ({
           />
           {!collapsed && (
             <>
-              <span className="text-[13px] font-medium flex-1 truncate leading-none">
-                {item.title}
-              </span>
-              {item.shortcut && !active && (
-                <span className="kbd hidden lg:inline-flex opacity-0 group-hover/item:opacity-100 transition-opacity">
-                  {item.shortcut}
+              <span className="text-[13px] font-medium flex-1 truncate leading-none">{item.title}</span>
+
+              {/* Right-side meta: LIVE chip > count > shortcut */}
+              {item.liveWhenActive && isLive ? (
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success pulse-live" />
+                  <span className="mono text-[10px] text-success">LIVE</span>
                 </span>
-              )}
-              {active && (
+              ) : typeof count === "number" && count > 0 ? (
+                <span className="mono text-[10.5px] text-muted-foreground/70 tabular-nums">
+                  {count.toLocaleString("pl-PL")}
+                </span>
+              ) : item.shortcut ? (
+                <span className="kbd hidden xl:inline-flex">{item.shortcut}</span>
+              ) : null}
+
+              {active && !item.liveWhenActive && !count && (
                 <ChevronRight className="h-3.5 w-3.5 text-primary opacity-50" />
               )}
             </>
@@ -143,50 +187,48 @@ const NavItem = ({
         <TooltipTrigger asChild>{inner}</TooltipTrigger>
         <TooltipContent side="right" sideOffset={8}>
           <p>{item.title}</p>
-          {item.shortcut && (
-            <span className="text-[10px] text-muted-foreground ml-2">{item.shortcut}</span>
-          )}
+          {item.shortcut && <span className="text-[10px] text-muted-foreground ml-2">{item.shortcut}</span>}
         </TooltipContent>
       </Tooltip>
     );
   }
-
   return inner;
 };
 
+// ─── Sidebar ──────────────────────────────────────────────────
 const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user, roles } = useAuth();
+  const { data: counts } = useSidebarCounts(user?.id);
 
   const orgName = profile?.organizationName || "Moja organizacja";
-  const initials = [profile?.firstName?.[0], profile?.lastName?.[0]]
-    .filter(Boolean)
-    .join("")
-    .toUpperCase() || "U";
+  const initials =
+    [profile?.firstName?.[0], profile?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "U";
+
+  const planUsedPct = 68; // można podłączyć useSubscription.usage
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="py-2 px-2 gap-0">
-
         {/* ── Workspace switcher ─────────────────── */}
         <div className={`px-1 pt-3 pb-2 mb-1 ${collapsed ? "flex justify-center" : ""}`}>
           <button
             className={[
-              "flex items-center gap-2.5 w-full rounded-lg px-2 py-2",
-              "text-foreground hover:bg-muted transition-colors duration-150 group",
+              "flex items-center gap-2.5 w-full rounded-md px-2 py-2 group",
+              "text-foreground hover:bg-muted transition-colors duration-150",
               collapsed ? "justify-center" : "",
             ].join(" ")}
           >
-            <div className="h-6 w-6 rounded-md bg-primary flex items-center justify-center shrink-0">
+            <div className="h-6 w-6 rounded-md bg-gradient-accent flex items-center justify-center shrink-0 shadow-glow-soft">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
             {!collapsed && (
               <>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-[13px] font-semibold truncate leading-none">{orgName}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">Organizator</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-none mono">workspace · pro</p>
                 </div>
                 <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground shrink-0" />
               </>
@@ -194,73 +236,109 @@ const AppSidebar = () => {
           </button>
         </div>
 
-        {/* ── Navigation sections ────────────────── */}
-        <div className="hair-t mx-1 mb-2" />
+        {/* ── Search hint (collapsed-friendly) ────── */}
+        {!collapsed && (
+          <button
+            onClick={() =>
+              document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))
+            }
+            className="mx-1 mb-3 flex items-center gap-2 h-8 px-2 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm3.5-1.5L14 14" />
+            </svg>
+            <span className="text-[12px] flex-1 text-left">Szukaj lub przejdź…</span>
+            <span className="kbd">⌘K</span>
+          </button>
+        )}
 
-        {allSections.map((section, idx) => (
-          <React.Fragment key={section.label}>
-            {idx > 0 && <div className="mx-1 my-1 hair-t" />}
-            <SidebarGroup className="py-0">
-              {!collapsed && section.label && (
-                <SidebarGroupLabel className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 px-2.5 h-7 flex items-center">
-                  {section.label}
-                </SidebarGroupLabel>
-              )}
-              <SidebarGroupContent>
-                <SidebarMenu className="gap-0.5">
-                  {section.items.map((item) => (
-                    <NavItem
-                      key={item.url}
-                      item={item}
-                      active={location.pathname === item.url}
-                      collapsed={collapsed}
-                    />
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </React.Fragment>
-        ))}
+        {/* ── Main nav ────────────────────────────── */}
+        <SidebarGroup className="py-0">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 px-2.5 h-7 flex items-center">
+              Główne
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-0.5">
+              {mainNav.map((item) => (
+                <NavItem
+                  key={item.url}
+                  item={item}
+                  active={location.pathname === item.url || location.pathname.startsWith(item.url + "/")}
+                  collapsed={collapsed}
+                  count={item.countQueryKey ? counts?.[item.countQueryKey] : undefined}
+                  isLive={item.liveWhenActive ? counts?.isLive : false}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* ── Hairline ───────────────────────────── */}
+        <div className="mx-1 my-2 hair-t" />
+
+        {/* ── Secondary nav ──────────────────────── */}
+        <SidebarGroup className="py-0">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 px-2.5 h-7 flex items-center">
+              Pozostałe
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-0.5">
+              {secondaryNav.map((item) => (
+                <NavItem
+                  key={item.url}
+                  item={item}
+                  active={location.pathname === item.url}
+                  collapsed={collapsed}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Plan card + User footer ────────────── */}
+      {/* ── Footer: plan card + user ───────────── */}
       <SidebarFooter className="p-2 gap-2">
-        {/* Plan card */}
         {!collapsed && (
-          <div className="card-glow rounded-lg p-3">
-            <div className="flex items-center justify-between mb-2">
+          <div className="card-glow rounded-md p-3 relative">
+            <div className="flex items-center justify-between mb-2 relative">
               <div className="flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[11px] font-semibold text-foreground">Pro Plan</span>
+                <span className="text-[11px] font-semibold text-foreground">Plan Pro</span>
               </div>
-              <span className="chip chip-ok">
+              <span className="chip chip-acc">
                 <span className="chip-dot" />
-                Aktywny
+                aktywny
               </span>
             </div>
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1.5">
-              <span>Goście</span>
-              <span className="mono">340 / 500</span>
+            <div className="flex items-center justify-between text-[10.5px] text-muted-foreground mb-1.5 relative mono">
+              <span>Wydarzenia</span>
+              <span>{Math.round(planUsedPct / 2)} / 50</span>
             </div>
-            <div className="h-0.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full w-[68%] bg-primary rounded-full" />
+            <div className="h-0.5 rounded-full bg-muted overflow-hidden relative">
+              <div className="h-full bg-primary rounded-full" style={{ width: `${planUsedPct}%` }} />
             </div>
+            <Link
+              to="/settings"
+              className="block mt-2 text-[11px] text-foreground/80 hover:text-foreground underline underline-offset-2 decoration-border relative"
+            >
+              Przejdź na Enterprise →
+            </Link>
           </div>
         )}
 
-        {/* Hairline separator */}
         <div className="hair-t mx-0" />
 
-        {/* User row */}
         {collapsed ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex justify-center py-1">
                 <Avatar className="h-7 w-7">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
-                  <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
-                    {initials}
-                  </AvatarFallback>
+                  <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">{initials}</AvatarFallback>
                 </Avatar>
               </div>
             </TooltipTrigger>
@@ -273,17 +351,14 @@ const AppSidebar = () => {
           <div className="flex items-center gap-2.5 px-1 py-1">
             <Avatar className="h-7 w-7 shrink-0">
               <AvatarImage src={profile?.avatarUrl || undefined} />
-              <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium truncate text-foreground leading-none">
-                {profile?.firstName || "Użytkownik"}{" "}
-                {profile?.lastName || ""}
+                {profile?.firstName || "Użytkownik"} {profile?.lastName || ""}
               </p>
-              <p className="text-[10px] text-muted-foreground truncate mt-0.5 leading-none">
-                {profile?.email || "v2.0.0"}
+              <p className="text-[10px] text-muted-foreground truncate mt-0.5 leading-none mono">
+                {roles[0] || "organizator"}
               </p>
             </div>
             <button
