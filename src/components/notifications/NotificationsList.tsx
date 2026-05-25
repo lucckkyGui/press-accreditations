@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EmptyNotifications } from "@/components/common/EmptyState";
 
 interface NotificationsListProps {
   eventId: string;
@@ -93,9 +94,7 @@ const NotificationsList = ({
         </CardHeader>
         <CardContent>
           {notifications.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Brak zaplanowanych powiadomień
-            </div>
+            <EmptyNotifications />
           ) : (
             <ScrollArea className="h-[300px]">
               <div className="space-y-3">
@@ -103,10 +102,10 @@ const NotificationsList = ({
                   <div 
                     key={notification.id}
                     className={`p-3 rounded-md border flex flex-col sm:flex-row justify-between items-start gap-3 ${
-                      notification.status === "failed" ? "bg-red-50 border-red-200" :
-                      notification.status === "sent" ? "bg-gray-50" :
-                      isNotificationPast(notification.scheduledFor) ? "bg-amber-50 border-amber-200" : 
-                      "bg-white"
+                      notification.status === "failed" ? "bg-destructive/10 border-destructive/30" :
+                      notification.status === "sent" ? "bg-muted/40" :
+                      isNotificationPast(notification.scheduledFor) ? "bg-warning/10 border-warning/30" :
+                      "bg-card"
                     }`}
                   >
                     <div className="space-y-1 flex-1">
@@ -116,7 +115,7 @@ const NotificationsList = ({
                           {getStatusBadge(notification.status)}
                           
                           {isNotificationPast(notification.scheduledFor) && notification.status === "scheduled" && (
-                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Opóźnione
                             </Badge>
