@@ -37,13 +37,13 @@ export default function MediaAnalyticsDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-info/10 rounded-lg">
+                <Users className="h-6 w-6 text-info" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Akredytowani dziennikarze</p>
+                <p className="text-sm text-muted-foreground">Akredytowani dziennikarze</p>
                 <p className="text-2xl font-bold">127</p>
-                <p className="text-xs text-green-600">+12% vs poprzedni miesiąc</p>
+                <p className="text-xs text-success">+12% vs poprzedni miesiąc</p>
               </div>
             </div>
           </CardContent>
@@ -52,13 +52,13 @@ export default function MediaAnalyticsDashboard() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <FileText className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-success/10 rounded-lg">
+                <FileText className="h-6 w-6 text-success" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Publikacje medialne</p>
+                <p className="text-sm text-muted-foreground">Publikacje medialne</p>
                 <p className="text-2xl font-bold">248</p>
-                <p className="text-xs text-green-600">+8% vs poprzedni miesiąc</p>
+                <p className="text-xs text-success">+8% vs poprzedni miesiąc</p>
               </div>
             </div>
           </CardContent>
@@ -71,9 +71,9 @@ export default function MediaAnalyticsDashboard() {
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Wydarzenia tego miesiąca</p>
+                <p className="text-sm text-muted-foreground">Wydarzenia tego miesiąca</p>
                 <p className="text-2xl font-bold">15</p>
-                <p className="text-xs text-blue-600">3 w planowaniu</p>
+                <p className="text-xs text-info">3 w planowaniu</p>
               </div>
             </div>
           </CardContent>
@@ -86,9 +86,9 @@ export default function MediaAnalyticsDashboard() {
                 <TrendingUp className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Wskaźnik pokrycia</p>
+                <p className="text-sm text-muted-foreground">Wskaźnik pokrycia</p>
                 <p className="text-2xl font-bold">84%</p>
-                <p className="text-xs text-green-600">+5% vs poprzedni miesiąc</p>
+                <p className="text-xs text-success">+5% vs poprzedni miesiąc</p>
               </div>
             </div>
           </CardContent>
