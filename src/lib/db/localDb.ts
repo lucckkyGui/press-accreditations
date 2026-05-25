@@ -3,8 +3,28 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database, Json } from "@/integrations/supabase/types";
 
 type GuestRow = Database["public"]["Tables"]["guests"]["Row"];
+type GuestManifestRow = Pick<
+  GuestRow,
+  | "id"
+  | "event_id"
+  | "first_name"
+  | "last_name"
+  | "ticket_type"
+  | "zones"
+  | "status"
+  | "qr_code"
+  | "checked_in_at"
+  | "created_at"
+  | "updated_at"
+>;
 
-export type LocalGuest = Omit<GuestRow, "zones"> & {
+export type LocalGuest = Omit<GuestManifestRow, "zones"> & {
+  company: string | null;
+  email: string;
+  email_status: string | null;
+  invitation_opened_at: string | null;
+  invitation_sent_at: string | null;
+  phone: string | null;
   zones: string[];
 };
 
@@ -75,11 +95,19 @@ class PressAccreditationsLocalDb extends Dexie {
 export const localDb = new PressAccreditationsLocalDb();
 
 const GUEST_MANIFEST_PAGE_SIZE = 1000;
+const GUEST_MANIFEST_COLUMNS =
+  "id,event_id,first_name,last_name,ticket_type,zones,status,qr_code,checked_in_at,created_at,updated_at" as const;
 const DEVICE_ID_SYNC_META_KEY = "scannerDeviceId";
 let cachedDeviceId: string | null = null;
 
-const normalizeGuestRow = (guest: GuestRow): LocalGuest => ({
+const normalizeGuestRow = (guest: GuestManifestRow): LocalGuest => ({
   ...guest,
+  company: null,
+  email: "",
+  email_status: null,
+  invitation_opened_at: null,
+  invitation_sent_at: null,
+  phone: null,
   zones: guest.zones ?? [],
 });
 
@@ -111,7 +139,7 @@ export const downloadEventManifest = async (
     const to = from + GUEST_MANIFEST_PAGE_SIZE - 1;
     const { data, error, count } = await supabase
       .from("guests")
-      .select("*", { count: "exact" })
+      .select(GUEST_MANIFEST_COLUMNS, { count: "exact" })
       .eq("event_id", normalizedEventId)
       .order("id", { ascending: true })
       .range(from, to);
@@ -212,4 +240,15 @@ export const getOrCreateDeviceId = async (): Promise<string> => {
   cachedDeviceId = nextDeviceId;
 
   return nextDeviceId;
+};
+
+export const clearLocalOfflineData = async (): Promise<void> => {
+  cachedDeviceId = null;
+
+  await localDb.transaction("rw", localDb.guests, localDb.scanQueue, localDb.eventManifest, localDb.syncMeta, async () => {
+    await localDb.guests.clear();
+    await localDb.scanQueue.clear();
+    await localDb.eventManifest.clear();
+    await localDb.syncMeta.clear();
+  });
 };
