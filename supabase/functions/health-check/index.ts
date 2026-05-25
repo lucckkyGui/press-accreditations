@@ -1,7 +1,25 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 
 const corsHeaders = buildCorsHeaders();
+
+async function checkEndpoint(name: string, url: string, headers: HeadersInit = {}) {
+  const start = Date.now();
+  try {
+    const res = await fetch(url, { headers });
+    return {
+      name,
+      result: {
+        status: res.status >= 500 ? "degraded" : "healthy",
+        latency_ms: Date.now() - start,
+      },
+    };
+  } catch {
+    return {
+      name,
+      result: { status: "unhealthy" },
+    };
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -10,42 +28,33 @@ Deno.serve(async (req) => {
 
   const start = Date.now();
   const checks: Record<string, { status: string; latency_ms?: number }> = {};
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
 
-  // Database check
-  try {
-    const dbStart = Date.now();
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-    const { error } = await supabase.from("profiles").select("id").limit(1);
-    checks.database = { status: error ? "degraded" : "healthy", latency_ms: Date.now() - dbStart };
-  } catch {
-    checks.database = { status: "unhealthy" };
-  }
-
-  // Auth check
-  try {
-    const authStart = Date.now();
-    const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/health`, {
-      headers: { apikey: Deno.env.get("SUPABASE_ANON_KEY") || "" },
+  if (!supabaseUrl) {
+    return new Response(JSON.stringify({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      total_latency_ms: Date.now() - start,
+      checks: {
+        configuration: { status: "unhealthy" },
+      },
+      version: "2.0.0",
+    }), {
+      status: 503,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-    checks.auth = { status: res.ok ? "healthy" : "degraded", latency_ms: Date.now() - authStart };
-  } catch {
-    checks.auth = { status: "unhealthy" };
   }
 
-  // Storage check
-  try {
-    const storageStart = Date.now();
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-    const { error } = await supabase.storage.listBuckets();
-    checks.storage = { status: error ? "degraded" : "healthy", latency_ms: Date.now() - storageStart };
-  } catch {
-    checks.storage = { status: "unhealthy" };
+  const publicHeaders = { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` };
+  const results = await Promise.all([
+    checkEndpoint("database", `${supabaseUrl}/rest/v1/`, { apikey: supabaseAnonKey }),
+    checkEndpoint("auth", `${supabaseUrl}/auth/v1/health`, { apikey: supabaseAnonKey }),
+    checkEndpoint("storage", `${supabaseUrl}/storage/v1/bucket`, publicHeaders),
+  ]);
+
+  for (const { name, result } of results) {
+    checks[name] = result;
   }
 
   const overall = Object.values(checks).every(c => c.status === "healthy") ? "healthy" :
@@ -57,7 +66,6 @@ Deno.serve(async (req) => {
     total_latency_ms: Date.now() - start,
     checks,
     version: "2.0.0",
-    environment: "production",
   }), {
     status: overall === "healthy" ? 200 : 503,
     headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Bot, Send, User, Loader2, Sparkles } from "lucide-react";
 import {
-  SUPABASE_PUBLISHABLE_KEY,
+  supabase,
   SUPABASE_URL,
 } from "@/integrations/supabase/client";
 const ReactMarkdown = lazy(() => import("react-markdown"));
@@ -57,13 +57,21 @@ const AIChatSupport = () => {
     let assistantContent = "";
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Zaloguj się ponownie, aby skorzystać z czatu AI." }]);
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/ai-support-chat`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ messages: newMessages }),
         }

@@ -22,7 +22,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.ai-support-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.embed-register]
 verify_jwt = false
@@ -34,7 +34,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.check-resource-alerts]
-verify_jwt = false
+verify_jwt = true
 
 [functions.gdpr-export]
 verify_jwt = false

@@ -1,7 +1,48 @@
 import { checkRateLimit, getClientIP, createRateLimitResponse } from "../_shared/rateLimiter.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { getAuthenticatedUser } from "../_shared/auth.ts";
 
 const corsHeaders = buildCorsHeaders();
+const MAX_MESSAGES = 16;
+const MAX_MESSAGE_CHARS = 2_000;
+const MAX_TOTAL_CHARS = 8_000;
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+function normalizeMessages(body: unknown): ChatMessage[] | null {
+  if (!body || typeof body !== "object") return null;
+
+  const rawBody = body as { messages?: unknown; message?: unknown };
+  const rawMessages = Array.isArray(rawBody.messages)
+    ? rawBody.messages
+    : typeof rawBody.message === "string"
+      ? [{ role: "user", content: rawBody.message }]
+      : null;
+
+  if (!rawMessages || rawMessages.length === 0 || rawMessages.length > MAX_MESSAGES) {
+    return null;
+  }
+
+  let totalChars = 0;
+  const messages: ChatMessage[] = [];
+  for (const rawMessage of rawMessages) {
+    if (!rawMessage || typeof rawMessage !== "object") return null;
+    const { role, content } = rawMessage as { role?: unknown; content?: unknown };
+    if ((role !== "user" && role !== "assistant") || typeof content !== "string") return null;
+
+    const trimmedContent = content.trim();
+    if (!trimmedContent || trimmedContent.length > MAX_MESSAGE_CHARS) return null;
+    totalChars += trimmedContent.length;
+    if (totalChars > MAX_TOTAL_CHARS) return null;
+
+    messages.push({ role, content: trimmedContent });
+  }
+
+  return messages;
+}
 
 const SYSTEM_PROMPT = `Jesteś asystentem AI platformy akredytacyjnej do zarządzania wydarzeniami. Pomagasz zarówno **organizatorom** jak i **gościom**.
 
@@ -36,13 +77,32 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Rate limiting — 20 requests per minute per IP
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
+  // Rate limiting — authenticated user limit plus coarse IP backstop.
   const clientIP = getClientIP(req);
-  const rl = checkRateLimit(clientIP, { maxRequests: 20, windowMs: 60_000, keyPrefix: "ai-chat" });
-  if (!rl.allowed) return createRateLimitResponse(rl, corsHeaders);
+  const userRateLimit = checkRateLimit(user.id, { maxRequests: 20, windowMs: 60_000, keyPrefix: "ai-chat-user" });
+  if (!userRateLimit.allowed) return createRateLimitResponse(userRateLimit, corsHeaders);
+
+  const ipRateLimit = checkRateLimit(clientIP, { maxRequests: 60, windowMs: 60_000, keyPrefix: "ai-chat-ip" });
+  if (!ipRateLimit.allowed) return createRateLimitResponse(ipRateLimit, corsHeaders);
 
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const messages = normalizeMessages(body);
+    if (!messages) {
+      return new Response(
+        JSON.stringify({ error: "Invalid messages payload" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -92,7 +152,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("chat error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "AI service unavailable" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

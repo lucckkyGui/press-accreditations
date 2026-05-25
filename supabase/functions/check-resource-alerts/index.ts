@@ -2,8 +2,10 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "npm:resend@2.0.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { getAuthenticatedUser, hasAllowedRole } from "../_shared/auth.ts";
 
 const corsHeaders = buildCorsHeaders();
+const ALERT_ROLES = ["admin", "organizer"] as const;
 
 interface ResourceLimit {
   name: string;
@@ -29,7 +31,22 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const canSendAlerts = await hasAllowedRole(supabase, user.id, ALERT_ROLES);
+    if (!canSendAlerts) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Get admin/organizer emails from profiles
     const { data: adminProfiles } = await supabase
