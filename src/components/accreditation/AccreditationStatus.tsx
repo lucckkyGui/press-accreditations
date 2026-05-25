@@ -39,13 +39,13 @@ const getStatusDetails = (status: AccreditationStatus) => {
       };
     case "expired":
       return {
-        color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+        color: "bg-muted text-muted-foreground",
         icon: <Clock className="h-4 w-4" />,
         label: "Expired"
       };
     default:
       return {
-        color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+        color: "bg-muted text-muted-foreground",
         icon: <Clock className="h-4 w-4" />,
         label: "Unknown"
       };
