@@ -85,7 +85,7 @@ export default function RegistrationActions({
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <DropdownMenuItem
-              className="cursor-pointer text-red-600 focus:text-red-600"
+              className="cursor-pointer text-destructive focus:text-destructive"
               onSelect={(e) => e.preventDefault()}
             >
               <Trash className="mr-2 h-4 w-4" />
@@ -104,7 +104,7 @@ export default function RegistrationActions({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={() => onDelete(registration.id)}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-destructive hover:bg-destructive/90"
               >
                 Delete
               </AlertDialogAction>

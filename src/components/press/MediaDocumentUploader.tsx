@@ -128,15 +128,15 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
         
         <div className="space-y-2">
           <Label htmlFor="document-file">Select File</Label>
-          <div className="border border-gray-300 dark:border-gray-600 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+          <div className="border border-border dark:border-border rounded-md p-4 text-center cursor-pointer hover:bg-muted/40 dark:hover:bg-card"
             onClick={() => fileInputRef.current?.click()}>
             <div className="flex flex-col items-center justify-center gap-2">
-              <Upload className="h-8 w-8 text-gray-400" />
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
                 {selectedFile ? selectedFile.name : 'Click to browse or drop a file'}
               </div>
               {selectedFile && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </div>
               )}
@@ -154,21 +154,21 @@ export default function MediaDocumentUploader({ registrationId, onSuccess }: Med
         {uploadStatus === 'uploading' && (
           <div className="space-y-2">
             <Progress value={uploadProgress} className="h-2" />
-            <p className="text-xs text-center text-gray-500">
+            <p className="text-xs text-center text-muted-foreground">
               Uploading: {Math.round(uploadProgress)}%
             </p>
           </div>
         )}
         
         {uploadStatus === 'success' && (
-          <div className="p-2 bg-green-50 border border-green-100 rounded-md flex items-center gap-2 text-green-600">
+          <div className="p-2 bg-success/10 border border-success/20 rounded-md flex items-center gap-2 text-success">
             <CheckCircle className="h-4 w-4" />
             <p className="text-sm">Document uploaded successfully</p>
           </div>
         )}
         
         {uploadStatus === 'error' && (
-          <div className="p-2 bg-red-50 border border-red-100 rounded-md flex items-center gap-2 text-red-600">
+          <div className="p-2 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2 text-destructive">
             <AlertCircle className="h-4 w-4" />
             <p className="text-sm">{error || 'An error occurred while uploading'}</p>
           </div>

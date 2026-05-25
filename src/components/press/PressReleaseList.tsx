@@ -25,12 +25,12 @@ interface PressReleaseCardProps {
 }
 
 const statusColors: Record<PressReleaseStatus, string> = {
-  draft: 'bg-gray-200 text-gray-800',
-  scheduled: 'bg-blue-100 text-blue-800',
-  sent: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+  draft: 'bg-muted text-foreground',
+  scheduled: 'bg-info/10 text-info',
+  sent: 'bg-success/15 text-success',
+  cancelled: 'bg-destructive/10 text-destructive',
   published: 'bg-emerald-100 text-emerald-800',
-  archived: 'bg-orange-100 text-orange-800'
+  archived: 'bg-warning/10 text-warning'
 };
 
 const statusLabels: Record<PressReleaseStatus, string> = {

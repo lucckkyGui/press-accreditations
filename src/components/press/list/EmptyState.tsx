@@ -14,8 +14,8 @@ export default function EmptyState({ isOrganizer }: EmptyStateProps) {
         <CardTitle className="text-lg">Media Registrations</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col items-center justify-center py-6 text-center text-gray-500">
-          <AlertCircle className="h-12 w-12 mb-2 text-gray-400" />
+        <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
+          <AlertCircle className="h-12 w-12 mb-2 text-muted-foreground" />
           <h3 className="text-lg font-medium mb-1">No registrations</h3>
           <p className="text-sm">
             {isOrganizer

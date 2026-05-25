@@ -61,7 +61,7 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
   const getStatusBadge = (status: MediaDocumentStatus) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-600">Approved</Badge>;
+        return <Badge className="bg-success">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
       default:
@@ -96,8 +96,8 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
           <CardTitle className="text-lg">Documents</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-6 text-center text-gray-500">
-            <File className="h-12 w-12 mb-2 text-gray-400" />
+          <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
+            <File className="h-12 w-12 mb-2 text-muted-foreground" />
             <h3 className="text-lg font-medium mb-1">No documents yet</h3>
             <p className="text-sm">
               {isOrganizer
@@ -166,7 +166,7 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem
-                            className="cursor-pointer text-red-600 focus:text-red-600"
+                            className="cursor-pointer text-destructive focus:text-destructive"
                             onSelect={(e) => e.preventDefault()}
                           >
                             <Trash className="mr-2 h-4 w-4" />
@@ -184,7 +184,7 @@ export default function MediaDocumentList({ registrationId, isOrganizer = false 
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction 
                               onClick={() => handleDelete(document.id)}
-                              className="bg-red-600 hover:bg-red-700"
+                              className="bg-destructive hover:bg-destructive/90"
                             >
                               Delete
                             </AlertDialogAction>
