@@ -226,8 +226,8 @@ export default function MediaCommunicationTool() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            {message.type === 'email' && <Mail className="h-4 w-4 text-blue-500" />}
-                            {message.type === 'push' && <Bell className="h-4 w-4 text-green-500" />}
+                            {message.type === 'email' && <Mail className="h-4 w-4 text-info" />}
+                            {message.type === 'push' && <Bell className="h-4 w-4 text-success" />}
                             {message.type === 'sms' && <MessageSquare className="h-4 w-4 text-orange-500" />}
                             <h4 className="font-medium">{message.subject}</h4>
                             <Badge 
@@ -236,8 +236,8 @@ export default function MediaCommunicationTool() {
                               {message.status === 'sent' ? 'Wysłane' : 'Szkic'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{message.content}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <p className="text-sm text-muted-foreground mb-2">{message.content}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span>Do: {message.recipients.length} odbiorców</span>
                             <span>Wysłane: {message.sentAt.toLocaleString()}</span>
                           </div>
