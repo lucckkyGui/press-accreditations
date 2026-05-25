@@ -37,7 +37,7 @@ export default defineConfig(({ command, mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(buildMetadata.version),
     },
-    envPrefix: ["VITE_", "SUPABASE_"],
+    envPrefix: "VITE_",
     server: {
       host: "::",
       port: 8080,
