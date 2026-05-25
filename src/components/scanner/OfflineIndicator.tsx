@@ -27,19 +27,19 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         {isOnline ? (
-          <div className="flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-            <Wifi className="text-green-500 h-4 w-4 mr-2" />
-            <span className="text-sm text-green-700">Online</span>
+          <div className="flex items-center px-3 py-1 bg-success/10 border border-success/30 rounded-full">
+            <Wifi className="text-success h-4 w-4 mr-2" />
+            <span className="text-sm text-success">Online</span>
           </div>
         ) : (
-          <div className="flex items-center px-3 py-1 bg-amber-50 border border-amber-200 rounded-full">
+          <div className="flex items-center px-3 py-1 bg-warning/10 border border-warning/30 rounded-full">
             <WifiOff className="text-amber-500 h-4 w-4 mr-2" />
-            <span className="text-sm text-amber-700">Offline</span>
+            <span className="text-sm text-warning">Offline</span>
           </div>
         )}
 
         {pendingScans > 0 && (
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+          <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">
             {pendingScans} oczekujących
           </Badge>
         )}
@@ -87,7 +87,7 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       {isOnline && lastSyncTime && pendingScans === 0 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
           <div className="flex items-center">
-            <AlertCircle className="h-4 w-4 mr-1 text-green-500" />
+            <AlertCircle className="h-4 w-4 mr-1 text-success" />
             <span>Wszystkie dane zsynchronizowane</span>
           </div>
           <span className="text-xs">{lastSyncTime.toLocaleString()}</span>
