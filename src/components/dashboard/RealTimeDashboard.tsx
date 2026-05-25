@@ -86,7 +86,7 @@ const RealTimeDashboard: React.FC = () => {
       {/* Live indicator */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+          <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-success pulse-live' : 'bg-muted-foreground'}`} />
           <span className="text-sm font-medium">
             {isLive ? 'Na żywo' : 'Wstrzymane'}
           </span>
@@ -118,10 +118,10 @@ const RealTimeDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Check-in na żywo</CardTitle>
-            <QrCode className="h-4 w-4 text-green-500" />
+            <QrCode className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.checkedIn}</div>
+            <div className="text-2xl font-bold text-success">{stats.checkedIn}</div>
             <Progress value={checkInRate} className="mt-2" />
             <p className="text-xs text-muted-foreground">{checkInRate.toFixed(1)}% obecnych</p>
           </CardContent>
@@ -130,7 +130,7 @@ const RealTimeDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Emaile wysłane</CardTitle>
-            <Mail className="h-4 w-4 text-blue-500" />
+            <Mail className="h-4 w-4 text-info" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.emailsSent.toLocaleString('pl-PL')}</div>
@@ -143,10 +143,10 @@ const RealTimeDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Otwarte emaile</CardTitle>
-            <TrendingUp className="h-4 w-4 text-purple-500" />
+            <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.emailsOpened.toLocaleString('pl-PL')}</div>
+            <div className="text-2xl font-bold text-primary">{stats.emailsOpened.toLocaleString('pl-PL')}</div>
             <Progress value={emailOpenRate} className="mt-2" />
             <p className="text-xs text-muted-foreground">{emailOpenRate.toFixed(1)}% open rate</p>
           </CardContent>
@@ -198,11 +198,11 @@ const RealTimeDashboard: React.FC = () => {
 
       {/* Quick actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-success/30 bg-success/10">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <QrCode className="h-5 w-5 text-green-600" />
+              <div className="p-2 bg-success/15 rounded-lg">
+                <QrCode className="h-5 w-5 text-success" />
               </div>
               <div>
                 <div className="font-medium">Aktywne skanowanie</div>
@@ -214,11 +214,11 @@ const RealTimeDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-info/30 bg-info/10">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Mail className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-info/15 rounded-lg">
+                <Mail className="h-5 w-5 text-info" />
               </div>
               <div>
                 <div className="font-medium">Status wysyłki</div>
@@ -234,7 +234,7 @@ const RealTimeDashboard: React.FC = () => {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <TrendingUp className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <div className="font-medium">Engagement</div>
