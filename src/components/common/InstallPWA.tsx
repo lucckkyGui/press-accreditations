@@ -1,0 +1,88 @@
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { 
+  Smartphone, 
+  WifiOff 
+} from 'lucide-react';
+import { usePWA } from '@/hooks/usePWA';
+import { useI18n } from '@/hooks/useI18n';
+import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+interface InstallPWAProps {
+  className?: string;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  showOfflineIndicator?: boolean;
+}
+
+export function InstallPWA({ 
+  className, 
+  variant = "outline", 
+  showOfflineIndicator = true 
+}: InstallPWAProps) {
+  const { 
+    isInstallable, 
+    isInstalled, 
+    installPWA, 
+    isOnline
+  } = usePWA({ showDebugInfo: false });
+  const { t } = useI18n();
+  const [isInstalling, setIsInstalling] = useState(false);
+
+  const handleInstallClick = async () => {
+    setIsInstalling(true);
+    try {
+      const result = await installPWA();
+      if (result) {
+        toast.success(t('notifications.appInstalled'));
+      }
+    } catch (error) {
+      toast.error('Nie udało się zainstalować aplikacji');
+    } finally {
+      setIsInstalling(false);
+    }
+  };
+
+  // Jeśli aplikacja jest już zainstalowana, nie pokazujemy przycisku
+  if (isInstalled) {
+    return null;
+  }
+
+  const showOfflineAlert = showOfflineIndicator && !isOnline;
+
+  if (!showOfflineAlert && !isInstallable) {
+    return null;
+  }
+  
+  return (
+    <div className={`space-y-2 ${className}`}>
+      {/* Wskaźnik statusu offline */}
+      {showOfflineAlert && (
+        <Alert className="bg-amber-50 border-amber-200">
+          <WifiOff className="h-4 w-4 text-amber-500" />
+          <AlertTitle>Tryb offline</AlertTitle>
+          <AlertDescription>
+            Jesteś obecnie w trybie offline. Niektóre funkcje mogą być niedostępne.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Przycisk instalacji */}
+      {isInstallable && (
+        <Button 
+          variant={variant}
+          onClick={handleInstallClick}
+          disabled={isInstalling}
+          className={`gap-2 ${className}`}
+          size="sm"
+        >
+          <Smartphone className="h-4 w-4" />
+          {isInstalling 
+            ? 'Instalowanie...' 
+            : t('notifications.installApp')}
+        </Button>
+      )}
+    </div>
+  );
+}

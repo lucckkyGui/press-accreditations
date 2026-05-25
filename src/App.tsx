@@ -1,0 +1,72 @@
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "./hooks/auth/AuthProvider";
+import { I18nProvider } from "./hooks/useI18n";
+import CookieConsent from "./components/common/CookieConsent";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import ScrollToTop from "./components/common/ScrollToTop";
+import SkipToContent from "./components/common/SkipToContent";
+import FloatingScrollTop from "./components/common/FloatingScrollTop";
+import OnlineStatusToast from "./components/common/OnlineStatusToast";
+import CommandPalette from "./components/common/CommandPalette";
+import TopProgressBar from "./components/common/TopProgressBar";
+import KeyboardShortcutsDialog from "./components/common/KeyboardShortcutsDialog";
+import ServiceWorkerUpdatePrompt from "./components/common/ServiceWorkerUpdatePrompt";
+import { syncWorker } from "@/lib/sync/syncWorker";
+import ObservabilityContext from "@/components/common/ObservabilityContext";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const App = () => {
+  useEffect(() => {
+    syncWorker.start();
+
+    return () => {
+      syncWorker.stop();
+    };
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <BrowserRouter>
+        <SkipToContent />
+        <ScrollToTop />
+        <TopProgressBar />
+        <I18nProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ObservabilityContext />
+              <TooltipProvider delayDuration={0}>
+                <AppRoutes />
+                <CookieConsent />
+                <FloatingScrollTop />
+                <OnlineStatusToast />
+                <CommandPalette />
+                <KeyboardShortcutsDialog />
+                <ServiceWorkerUpdatePrompt />
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </I18nProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
+  );
+};
+
+export default App;

@@ -1,0 +1,23 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /guests
+Disallow: /scanner
+Disallow: /settings
+Disallow: /profile
+Disallow: /notifications
+Disallow: /auth/
+
+Sitemap: https://press-accreditations.lovable.app/sitemap.xml
