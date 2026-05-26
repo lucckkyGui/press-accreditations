@@ -77,7 +77,9 @@ export const useAuthState = () => {
           userId,
           error: rolesError,
         });
-        setRoles([]);
+        // Fall back to 'guest' so the user still lands somewhere sensible
+        // rather than getting bounced to /access-denied with an empty role array.
+        setRoles(['guest']);
         return;
       }
 
