@@ -22,24 +22,24 @@ export default function MediaRegistrationStatus({
   const getStatusIcon = (status: RegistrationStatus) => {
     switch (status) {
       case 'approved':
-        return <CheckCircle className="h-8 w-8 text-green-500" />;
+        return <CheckCircle className="h-8 w-8 text-success" />;
       case 'rejected':
-        return <XCircle className="h-8 w-8 text-red-500" />;
+        return <XCircle className="h-8 w-8 text-destructive" />;
       case 'changes_requested':
-        return <FileEdit className="h-8 w-8 text-amber-500" />;
+        return <FileEdit className="h-8 w-8 text-warning" />;
       default: // pending
-        return <Clock className="h-8 w-8 text-blue-500" />;
+        return <Clock className="h-8 w-8 text-info" />;
     }
   };
   
   const getStatusBadge = (status: RegistrationStatus) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-600">Approved</Badge>;
+        return <Badge className="bg-success">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
       case 'changes_requested':
-        return <Badge className="bg-amber-500">Changes Requested</Badge>;
+        return <Badge className="bg-warning">Changes Requested</Badge>;
       default:
         return <Badge variant="secondary">Pending</Badge>;
     }
@@ -71,7 +71,7 @@ export default function MediaRegistrationStatus({
               <span>Status:</span> 
               {getStatusBadge(registration.status)}
             </div>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {new Date(registration.updatedAt).toLocaleDateString()}
             </p>
           </div>
@@ -83,12 +83,12 @@ export default function MediaRegistrationStatus({
           <h4 className="font-semibold">Message</h4>
           <div className={`p-3 rounded-md ${
             registration.status === 'rejected' 
-              ? 'bg-red-50 border border-red-100 text-red-700' 
-              : 'bg-gray-50 border border-gray-100'
+              ? 'bg-destructive/10 border border-destructive/20 text-destructive' 
+              : 'bg-muted/40 border border-border/30'
           }`}>
             {registration.status === 'rejected' && (
               <div className="flex items-start space-x-2 mb-2">
-                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
                 <span className="font-medium">Rejection Reason</span>
               </div>
             )}

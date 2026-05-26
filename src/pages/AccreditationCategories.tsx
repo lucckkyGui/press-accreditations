@@ -25,7 +25,7 @@ const eventCategories = [
     titlePl: "Wydarzenia sportowe",
     icon: Users,
     count: 8,
-    color: "bg-blue-500",
+    color: "bg-info",
     description: "Professional sports competitions",
     descriptionPl: "Profesjonalne zawody sportowe"
   },
@@ -45,7 +45,7 @@ const eventCategories = [
     titlePl: "Konferencje prasowe",
     icon: Mic,
     count: 6,
-    color: "bg-amber-500",
+    color: "bg-warning",
     description: "Media announcements and Q&A sessions",
     descriptionPl: "Ogłoszenia dla mediów i sesje Q&A"
   },
@@ -55,7 +55,7 @@ const eventCategories = [
     titlePl: "Premiery filmowe",
     icon: Film,
     count: 9,
-    color: "bg-red-500",
+    color: "bg-destructive",
     description: "Movie premieres and film festivals",
     descriptionPl: "Premiery filmowe i festiwale filmowe"
   },
@@ -75,7 +75,7 @@ const eventCategories = [
     titlePl: "Wydarzenia biznesowe",
     icon: Briefcase,
     count: 5,
-    color: "bg-slate-600",
+    color: "bg-muted-foreground",
     description: "Corporate announcements and product launches",
     descriptionPl: "Ogłoszenia korporacyjne i premiery produktów"
   },

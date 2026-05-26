@@ -53,11 +53,13 @@ describe("guestScannerService.verifyAndCheckIn", () => {
       { source: "test" }
     );
 
-    expect(supabaseMocks.rpc).toHaveBeenCalledWith("process_qr_check_in", {
+    expect(supabaseMocks.rpc).toHaveBeenCalledWith("process_qr_check_in", expect.objectContaining({
       _qr_code: "qr-123",
       _event_id: "event-1",
       _device_info: { source: "test" },
-    });
+      _client_scan_id: expect.any(String),
+      _scanned_at: expect.any(String),
+    }));
     expect(result.success).toBe(true);
     expect(result.status).toBe("success");
     expect(result.guest?.firstName).toBe("Anna");

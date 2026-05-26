@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { getMockEventAnalytics } from './mockEventAnalytics';
 
 export interface EventAnalyticsData {
   event: {
@@ -36,6 +35,33 @@ export interface EventAnalyticsData {
   };
 }
 
+const createEmptyAnalytics = (event: EventAnalyticsData['event']): EventAnalyticsData => ({
+  event,
+  guests: {
+    total: 0,
+    checkedIn: 0,
+    confirmed: 0,
+    invited: 0,
+    declined: 0,
+    byZone: [],
+  },
+  emails: {
+    sent: 0,
+    opened: 0,
+    failed: 0,
+    pending: 0,
+  },
+  checkIns: {
+    byHour: [],
+    peakHour: '-',
+    peakCount: 0,
+    avgDurationMinutes: 0,
+  },
+  zones: {
+    entries: [],
+  },
+});
+
 export function useEventAnalytics(eventId: string | undefined) {
   return useQuery({
     queryKey: ['event-analytics', eventId],
@@ -55,13 +81,19 @@ export function useEventAnalytics(eventId: string | undefined) {
       const accessLogs = accessLogsRes.data || [];
       const zonePresence = zonePresenceRes.data || [];
 
-      // Demo mode: if event not found in DB or no guests data
       if (!event) {
-        return getMockEventAnalytics(eventId);
+        throw new Error('Event not found');
       }
 
       if (guests.length === 0) {
-        return getMockEventAnalytics(eventId, event.title);
+        return createEmptyAnalytics({
+          id: event.id,
+          title: event.title,
+          location: event.location,
+          startDate: event.start_date,
+          endDate: event.end_date,
+          maxGuests: event.max_guests,
+        });
       }
       // Guest stats
       const checkedIn = guests.filter(g => g.status === 'checked-in').length;

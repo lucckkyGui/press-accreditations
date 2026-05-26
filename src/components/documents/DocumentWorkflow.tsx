@@ -142,7 +142,7 @@ export function DocumentWorkflow({ eventId, className }: DocumentWorkflowProps) 
               Prześlij dokument
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Prześlij nowy dokument</DialogTitle>
             </DialogHeader>

@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Bot, Send, User, Loader2, Sparkles } from "lucide-react";
 import {
-  SUPABASE_PUBLISHABLE_KEY,
+  supabase,
   SUPABASE_URL,
 } from "@/integrations/supabase/client";
 const ReactMarkdown = lazy(() => import("react-markdown"));
@@ -57,13 +57,21 @@ const AIChatSupport = () => {
     let assistantContent = "";
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Zaloguj się ponownie, aby skorzystać z czatu AI." }]);
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/ai-support-chat`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ messages: newMessages }),
         }
@@ -164,7 +172,7 @@ const AIChatSupport = () => {
           <ScrollArea className="h-[500px] p-4" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full space-y-6 py-12">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Bot className="h-8 w-8 text-primary" />
                 </div>
                 <div className="text-center space-y-2">

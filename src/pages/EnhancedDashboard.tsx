@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Zap, Smartphone, Settings } from 'lucide-react';
+import { BarChart3, Zap, Smartphone, QrCode } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import PageContent from '@/components/layout/PageContent';
 import RealTimeDashboard from '@/components/dashboard/RealTimeDashboard';
 import SmartInvitationSystem from '@/components/invitations/SmartInvitationSystem';
-import OfflineCheckinSystem from '@/components/scanner/OfflineCheckinSystem';
+import { Button } from '@/components/ui/button';
 
 const EnhancedDashboard = () => {
   const [activeTab, setActiveTab] = useState('realtime');
+  const navigate = useNavigate();
 
   return (
     <PageContent>
@@ -47,7 +49,20 @@ const EnhancedDashboard = () => {
           </TabsContent>
 
           <TabsContent value="offline" className="space-y-4">
-            <OfflineCheckinSystem />
+            <section className="rounded-xl border border-border bg-card p-5 shadow-sm md:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Offline check-in</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Lokalna walidacja QR, manifest wydarzenia i kolejka skanów są dostępne w skanerze QR.
+                  </p>
+                </div>
+                <Button onClick={() => navigate('/scanner')} className="gap-2">
+                  <QrCode className="h-4 w-4" />
+                  Otwórz skaner QR
+                </Button>
+              </div>
+            </section>
           </TabsContent>
         </Tabs>
       </div>

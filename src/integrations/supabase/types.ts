@@ -1413,9 +1413,11 @@ export type Database = {
       }
       process_qr_check_in: {
         Args: {
+          _client_scan_id?: string
           _device_info?: Json
           _event_id: string
           _qr_code: string
+          _scanned_at?: string
         }
         Returns: Json
       }

@@ -100,10 +100,10 @@ const StatsCards: React.FC<StatsCardsProps> = ({
       {/* Karta udanych skanowań */}
       <Card>
         <CardContent className="p-4 flex flex-col items-center justify-center space-y-2">
-          <div className="bg-green-100 p-3 rounded-full dark:bg-green-900/20">
-            <UserCheck className="h-6 w-6 text-green-600 dark:text-green-500" />
+          <div className="bg-success/10 p-3 rounded-full">
+            <UserCheck className="h-6 w-6 text-success" />
           </div>
-          <div className="text-2xl font-bold text-green-600 dark:text-green-500">{successful}</div>
+          <div className="text-2xl font-bold text-success">{successful}</div>
           <div className="text-muted-foreground text-sm">Zatwierdzonych</div>
         </CardContent>
       </Card>
@@ -111,10 +111,10 @@ const StatsCards: React.FC<StatsCardsProps> = ({
       {/* Karta odrzuconych skanowań */}
       <Card>
         <CardContent className="p-4 flex flex-col items-center justify-center space-y-2">
-          <div className="bg-red-100 p-3 rounded-full dark:bg-red-900/20">
-            <UserX className="h-6 w-6 text-red-600 dark:text-red-500" />
+          <div className="bg-destructive/10 p-3 rounded-full">
+            <UserX className="h-6 w-6 text-destructive" />
           </div>
-          <div className="text-2xl font-bold text-red-600 dark:text-red-500">{failed}</div>
+          <div className="text-2xl font-bold text-destructive">{failed}</div>
           <div className="text-muted-foreground text-sm">Odrzuconych</div>
         </CardContent>
       </Card>
@@ -122,8 +122,8 @@ const StatsCards: React.FC<StatsCardsProps> = ({
       {/* Karta eksportu danych */}
       <Card>
         <CardContent className="p-4 flex flex-col items-center justify-center space-y-2">
-          <div className="bg-blue-100 p-3 rounded-full dark:bg-blue-900/20">
-            <Download className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+          <div className="bg-info/10 p-3 rounded-full">
+            <Download className="h-6 w-6 text-info" />
           </div>
           <div className="text-sm font-medium">Eksport danych</div>
           <div className="flex gap-2">

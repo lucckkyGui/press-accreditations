@@ -15,7 +15,7 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-6 max-w-md p-6">
         <div className="flex justify-center">
-          <div className="bg-primary/10 rounded-2xl p-5">
+          <div className="bg-primary/10 rounded-lg p-5">
             <QrCode className="h-16 w-16 text-primary" />
           </div>
         </div>

@@ -218,7 +218,7 @@ const About = () => {
               ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={idx} className="group hover:-translate-y-1 transition-all duration-300 rounded-2xl">
+                  <Card key={idx} className="group hover:-translate-y-0.5 transition-all duration-300 rounded-lg">
                     <CardContent className="p-6">
                       <div className="inline-flex p-3 rounded-xl mb-4 bg-primary/10 text-primary">
                         <Icon className="h-6 w-6" />

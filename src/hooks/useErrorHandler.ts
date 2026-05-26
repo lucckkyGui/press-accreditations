@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { captureError } from '@/lib/observability';
 
 interface RetryConfig {
   maxRetries: number;
@@ -78,6 +79,13 @@ export const useErrorHandler = (defaultRetryConfig?: Partial<RetryConfig>) => {
     // All retries failed
     setErrorState(prev => ({ ...prev, isRetrying: false }));
     toast.error(`${operationName} failed after ${finalConfig.maxRetries} retries: ${lastError!.message}`);
+    captureError(lastError!, {
+      action: operationName,
+      route: window.location.pathname,
+      metadata: {
+        retries: finalConfig.maxRetries,
+      },
+    });
     throw lastError!;
   }, [config]);
 
@@ -88,6 +96,10 @@ export const useErrorHandler = (defaultRetryConfig?: Partial<RetryConfig>) => {
   const handleError = useCallback((error: Error, context: string = 'Unknown') => {
     setErrorState(prev => ({ ...prev, error }));
     toast.error(`Error in ${context}: ${error.message}`);
+    captureError(error, {
+      action: context,
+      route: window.location.pathname,
+    });
   }, []);
 
   return {

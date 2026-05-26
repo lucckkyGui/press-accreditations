@@ -2,11 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  Download, 
   Smartphone, 
-  AlertCircle, 
-  CheckCircle,
-  Wifi, 
   WifiOff 
 } from 'lucide-react';
 import { usePWA } from '@/hooks/usePWA';
@@ -29,24 +25,10 @@ export function InstallPWA({
     isInstallable, 
     isInstalled, 
     installPWA, 
-    isOnline,
-    hasServiceWorker,
-    registerServiceWorker
+    isOnline
   } = usePWA({ showDebugInfo: false });
   const { t } = useI18n();
   const [isInstalling, setIsInstalling] = useState(false);
-  
-  // Rejestracja Service Worker jeśli nie jest zarejestrowany
-  const handleRegisterServiceWorker = async () => {
-    if (!hasServiceWorker) {
-      const registration = await registerServiceWorker();
-      if (registration) {
-        toast.success('Service Worker zarejestrowany pomyślnie');
-      } else {
-        toast.error('Nie udało się zarejestrować Service Worker');
-      }
-    }
-  };
 
   const handleInstallClick = async () => {
     setIsInstalling(true);
@@ -66,11 +48,17 @@ export function InstallPWA({
   if (isInstalled) {
     return null;
   }
+
+  const showOfflineAlert = showOfflineIndicator && !isOnline;
+
+  if (!showOfflineAlert && !isInstallable) {
+    return null;
+  }
   
   return (
     <div className={`space-y-2 ${className}`}>
       {/* Wskaźnik statusu offline */}
-      {showOfflineIndicator && !isOnline && (
+      {showOfflineAlert && (
         <Alert className="bg-amber-50 border-amber-200">
           <WifiOff className="h-4 w-4 text-amber-500" />
           <AlertTitle>Tryb offline</AlertTitle>
@@ -81,7 +69,7 @@ export function InstallPWA({
       )}
       
       {/* Przycisk instalacji */}
-      {isInstallable ? (
+      {isInstallable && (
         <Button 
           variant={variant}
           onClick={handleInstallClick}
@@ -93,16 +81,6 @@ export function InstallPWA({
           {isInstalling 
             ? 'Instalowanie...' 
             : t('notifications.installApp')}
-        </Button>
-      ) : !hasServiceWorker && (
-        <Button 
-          variant="ghost" 
-          onClick={handleRegisterServiceWorker}
-          size="sm"
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Włącz wsparcie dla trybu offline
         </Button>
       )}
     </div>

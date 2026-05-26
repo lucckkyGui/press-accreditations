@@ -108,11 +108,11 @@ END:VCALENDAR`;
 
   const getEventTypeColor = (type: CalendarEvent['type']) => {
     switch (type) {
-      case 'conference': return 'bg-blue-100 text-blue-800';
-      case 'press-briefing': return 'bg-green-100 text-green-800';
+      case 'conference': return 'bg-info/10 text-info';
+      case 'press-briefing': return 'bg-success/10 text-success';
       case 'interview': return 'bg-purple-100 text-purple-800';
       case 'workshop': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-foreground';
     }
   };
 
@@ -148,7 +148,7 @@ END:VCALENDAR`;
                       </span>
                     </div>
                     
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         <span>
@@ -167,7 +167,7 @@ END:VCALENDAR`;
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-700 mt-2">{event.description}</p>
+                    <p className="text-sm text-foreground mt-2">{event.description}</p>
                   </div>
                 </div>
                 
@@ -217,9 +217,9 @@ END:VCALENDAR`;
           ))}
         </div>
         
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-900 mb-2">Automatyczna synchronizacja</h4>
-          <p className="text-sm text-blue-700 mb-3">
+        <div className="bg-info/10 border border-info/30 rounded-lg p-4">
+          <h4 className="font-medium text-foreground mb-2">Automatyczna synchronizacja</h4>
+          <p className="text-sm text-info mb-3">
             Wydarzenia są automatycznie synchronizowane z Twoim kalendarzem. 
             Otrzymasz powiadomienia o zbliżających się terminach.
           </p>

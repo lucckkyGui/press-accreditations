@@ -38,7 +38,7 @@ const EventAttendanceStats = ({
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
             <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+              <span className="inline-block w-3 h-3 bg-success rounded-full mr-2"></span>
               <span>Obecni</span>
             </div>
             <span className="font-medium">{checkedIn} / {total} ({checkedInPercent}%)</span>
@@ -49,7 +49,7 @@ const EventAttendanceStats = ({
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
             <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+              <span className="inline-block w-3 h-3 bg-info rounded-full mr-2"></span>
               <span>Potwierdzeni</span>
             </div>
             <span className="font-medium">{confirmed} / {total} ({confirmedPercent}%)</span>
@@ -60,7 +60,7 @@ const EventAttendanceStats = ({
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
             <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-amber-500 rounded-full mr-2"></span>
+              <span className="inline-block w-3 h-3 bg-warning rounded-full mr-2"></span>
               <span>Zaproszeni</span>
             </div>
             <span className="font-medium">{invited} / {total} ({invitedPercent}%)</span>
@@ -71,7 +71,7 @@ const EventAttendanceStats = ({
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-1">
             <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+              <span className="inline-block w-3 h-3 bg-destructive rounded-full mr-2"></span>
               <span>Odrzuceni</span>
             </div>
             <span className="font-medium">{declined} / {total} ({declinedPercent}%)</span>

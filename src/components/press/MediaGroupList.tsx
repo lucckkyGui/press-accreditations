@@ -124,7 +124,7 @@ const MediaGroupList: React.FC = () => {
           <DialogTrigger asChild>
             <Button>Nowa grupa</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Nowa grupa mediów</DialogTitle>
             </DialogHeader>

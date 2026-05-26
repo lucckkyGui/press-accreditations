@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, ExternalLink, MapPin } from "lucide-react";
 import NotFound from "@/pages/NotFound";
 
 interface FormField {
@@ -137,8 +137,10 @@ const PublicAccreditationPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="light">
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
@@ -153,223 +155,229 @@ const PublicAccreditationPage = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: `linear-gradient(135deg, ${page.primary_color}15, ${page.secondary_color}15)` }}>
-        <div className="text-center space-y-4 max-w-md">
-          <CheckCircle className="h-20 w-20 mx-auto" style={{ color: page.primary_color }} />
-          <h2 className="text-2xl font-bold text-gray-900">Zgłoszenie przyjęte!</h2>
-          <p className="text-gray-500">
-            Twoje zgłoszenie akredytacyjne zostało wysłane i oczekuje na rozpatrzenie.
-            Otrzymasz powiadomienie na podany adres e-mail.
-          </p>
+      <div className="light">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+          <div className="text-center space-y-4 max-w-md">
+            <CheckCircle className="h-20 w-20 mx-auto text-success" />
+            <h2 className="text-2xl font-bold text-foreground">Zgłoszenie przyjęte!</h2>
+            <p className="text-muted-foreground">
+              Twoje zgłoszenie akredytacyjne zostało wysłane i oczekuje na rozpatrzenie.
+              Otrzymasz powiadomienie na podany adres e-mail.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, ${page.primary_color}08, ${page.secondary_color}08)` }}>
-      {/* Banner */}
-      {page.banner_url && (
-        <div className="w-full h-48 md:h-64 overflow-hidden">
-          <img src={page.banner_url} alt="" className="w-full h-full object-cover" />
-        </div>
-      )}
-
-      <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="text-center space-y-4 mb-8">
-          {page.logo_url && (
-            <img
-              src={page.logo_url}
-              alt="Logo"
-              className="h-16 md:h-20 mx-auto object-contain"
-            />
-          )}
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {page.events?.title}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">Formularz akredytacji prasowej</p>
-          </div>
-          {page.events?.location && (
-            <p className="text-sm text-gray-500">📍 {page.events.location}</p>
-          )}
-          {page.events?.start_date && (
-            <p className="text-sm text-gray-400">
-              📅{" "}
-              {new Date(page.events.start_date).toLocaleDateString("pl-PL", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-              {page.events?.end_date &&
-                page.events.end_date !== page.events.start_date &&
-                ` – ${new Date(page.events.end_date).toLocaleDateString("pl-PL", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}`}
-            </p>
-          )}
-        </div>
-
-        {/* Description */}
-        {page.description && (
-          <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <p className="text-sm text-gray-600 whitespace-pre-line">{page.description}</p>
+    <div className="light">
+      <div className="min-h-screen bg-background">
+        {/* Banner */}
+        {page.banner_url && (
+          <div className="w-full h-48 md:h-64 overflow-hidden">
+            <img src={page.banner_url} alt="" className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border p-6 md:p-8 space-y-5">
-          <div
-            className="h-1.5 rounded-full mx-auto w-20 mb-4"
-            style={{ background: `linear-gradient(90deg, ${page.primary_color}, ${page.secondary_color})` }}
-          />
-
-          {error && error !== "not_found" && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-              <p className="text-sm text-red-600">{error}</p>
+        <div className="max-w-2xl mx-auto px-4 py-8 md:py-12">
+          {/* Header */}
+          <div className="text-center space-y-3 mb-8">
+            {page.logo_url && (
+              <img
+                src={page.logo_url}
+                alt="Logo"
+                className="h-16 md:h-20 mx-auto object-contain"
+              />
+            )}
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                {page.events?.title}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">Formularz akredytacji prasowej</p>
             </div>
-          )}
-
-          {/* Honeypot fields — invisible to humans, bots will fill them */}
-          <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
-            <label htmlFor="__hp_website">Website</label>
-            <input
-              type="text"
-              id="__hp_website"
-              name="_website"
-              tabIndex={-1}
-              autoComplete="off"
-              value={formData._website || ""}
-              onChange={(e) => updateField("_website", e.target.value)}
-            />
-            <label htmlFor="__hp_field">Company URL</label>
-            <input
-              type="text"
-              id="__hp_field"
-              name="_hp_field"
-              tabIndex={-1}
-              autoComplete="off"
-              value={formData._hp_field || ""}
-              onChange={(e) => updateField("_hp_field", e.target.value)}
-            />
+            {page.events?.location && (
+              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                {page.events.location}
+              </p>
+            )}
+            {page.events?.start_date && (
+              <p className="text-sm text-muted-foreground">
+                {new Date(page.events.start_date).toLocaleDateString("pl-PL", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+                {page.events?.end_date &&
+                  page.events.end_date !== page.events.start_date &&
+                  ` – ${new Date(page.events.end_date).toLocaleDateString("pl-PL", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}`}
+              </p>
+            )}
           </div>
 
-          {/* Accreditation type selector */}
-          {config?.accreditation_types && config.accreditation_types.length > 1 && (
-            <div>
-              <Label className="text-sm font-medium text-gray-700">Typ akredytacji *</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                {config.accreditation_types.map((at) => (
-                  <button
-                    key={at.value}
-                    type="button"
-                    onClick={() => updateField("accreditation_type", at.value)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border-2 transition-all ${
-                      formData.accreditation_type === at.value
-                        ? "text-white border-transparent shadow-md"
-                        : "text-gray-600 border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
-                    style={
-                      formData.accreditation_type === at.value
-                        ? { backgroundColor: page.primary_color, borderColor: page.primary_color }
-                        : {}
-                    }
-                  >
-                    {at.label}
-                  </button>
-                ))}
-              </div>
+          {/* Description */}
+          {page.description && (
+            <div className="rounded-lg border border-border bg-card shadow-card p-6 mb-6">
+              <p className="text-sm text-muted-foreground whitespace-pre-line">{page.description}</p>
             </div>
           )}
 
-          {/* Dynamic fields */}
-          {visibleFields.map((field) => (
-            <div key={field.key}>
-              <Label className="text-sm font-medium text-gray-700">
-                {field.label} {field.required && "*"}
-              </Label>
-              {field.type === "textarea" ? (
-                <Textarea
-                  required={field.required}
-                  maxLength={1000}
-                  value={formData[field.key] || ""}
-                  onChange={(e) => updateField(field.key, e.target.value)}
-                  className="mt-1"
-                  rows={3}
-                />
-              ) : field.type === "checkbox" ? (
-                <div className="flex items-center gap-2 mt-1">
-                  <Checkbox
-                    checked={formData[field.key] || false}
-                    onCheckedChange={(checked) => updateField(field.key, checked)}
-                  />
-                  <span className="text-sm text-gray-600">{field.label}</span>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card shadow-card p-6 md:p-8 space-y-5">
+            <div
+              className="h-1 rounded-full mx-auto w-20 mb-4"
+              style={{ background: `linear-gradient(90deg, ${page.primary_color}, ${page.secondary_color})` }}
+            />
+
+            {error && error !== "not_found" && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
+            {/* Honeypot fields — invisible to humans, bots will fill them */}
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
+              <label htmlFor="__hp_website">Website</label>
+              <input
+                type="text"
+                id="__hp_website"
+                name="_website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData._website || ""}
+                onChange={(e) => updateField("_website", e.target.value)}
+              />
+              <label htmlFor="__hp_field">Company URL</label>
+              <input
+                type="text"
+                id="__hp_field"
+                name="_hp_field"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData._hp_field || ""}
+                onChange={(e) => updateField("_hp_field", e.target.value)}
+              />
+            </div>
+
+            {/* Accreditation type selector */}
+            {config?.accreditation_types && config.accreditation_types.length > 1 && (
+              <div>
+                <Label className="text-sm font-medium text-foreground">Typ akredytacji *</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                  {config.accreditation_types.map((at) => (
+                    <button
+                      key={at.value}
+                      type="button"
+                      onClick={() => updateField("accreditation_type", at.value)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                        formData.accreditation_type === at.value
+                          ? "text-white border-transparent shadow-card"
+                          : "text-muted-foreground border-border hover:border-primary/40 bg-card"
+                      }`}
+                      style={
+                        formData.accreditation_type === at.value
+                          ? { backgroundColor: page.primary_color, borderColor: page.primary_color }
+                          : {}
+                      }
+                    >
+                      {at.label}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                <Input
-                  type={field.type || "text"}
-                  required={field.required}
-                  maxLength={255}
-                  value={formData[field.key] || ""}
-                  onChange={(e) => updateField(field.key, e.target.value)}
-                  className="mt-1"
-                />
-              )}
-            </div>
-          ))}
-
-          {/* Terms */}
-          {page.terms_text && (
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <p className="text-xs text-gray-500 whitespace-pre-line max-h-32 overflow-y-auto">
-                {page.terms_text}
-              </p>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                />
-                <span className="text-sm text-gray-600">Akceptuję regulamin</span>
               </div>
-            </div>
-          )}
+            )}
 
-          <Button
-            type="submit"
-            className="w-full text-white font-semibold py-3"
-            disabled={submitting}
-            style={{ backgroundColor: page.primary_color }}
-          >
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Wyślij zgłoszenie"}
-          </Button>
+            {/* Dynamic fields */}
+            {visibleFields.map((field) => (
+              <div key={field.key}>
+                <Label className="text-sm font-medium text-foreground">
+                  {field.label} {field.required && "*"}
+                </Label>
+                {field.type === "textarea" ? (
+                  <Textarea
+                    required={field.required}
+                    maxLength={1000}
+                    value={formData[field.key] || ""}
+                    onChange={(e) => updateField(field.key, e.target.value)}
+                    className="mt-1"
+                    rows={3}
+                  />
+                ) : field.type === "checkbox" ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Checkbox
+                      checked={formData[field.key] || false}
+                      onCheckedChange={(checked) => updateField(field.key, checked)}
+                    />
+                    <span className="text-sm text-muted-foreground">{field.label}</span>
+                  </div>
+                ) : (
+                  <Input
+                    type={field.type || "text"}
+                    required={field.required}
+                    maxLength={255}
+                    value={formData[field.key] || ""}
+                    onChange={(e) => updateField(field.key, e.target.value)}
+                    className="mt-1"
+                  />
+                )}
+              </div>
+            ))}
 
-          {/* Social links */}
-          {Object.keys(socialLinks).length > 0 && (
-            <div className="flex justify-center gap-4 pt-2">
-              {Object.entries(socialLinks).map(([platform, url]) =>
-                url ? (
-                  <a
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
-                  >
-                    {platform} <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : null
-              )}
-            </div>
-          )}
+            {/* Terms */}
+            {page.terms_text && (
+              <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-2">
+                <p className="text-xs text-muted-foreground whitespace-pre-line max-h-32 overflow-y-auto">
+                  {page.terms_text}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={acceptTerms}
+                    onCheckedChange={(checked) => setAcceptTerms(checked === true)}
+                  />
+                  <span className="text-sm text-muted-foreground">Akceptuję regulamin</span>
+                </div>
+              </div>
+            )}
 
-          <p className="text-[10px] text-gray-400 text-center">
-            Powered by Press Accreditations
-          </p>
-        </form>
+            <Button
+              type="submit"
+              className="w-full text-white font-semibold py-3 rounded-lg"
+              disabled={submitting}
+              style={{ backgroundColor: page.primary_color }}
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Wyślij zgłoszenie"}
+            </Button>
+
+            {/* Social links */}
+            {Object.keys(socialLinks).length > 0 && (
+              <div className="flex justify-center gap-4 pt-2">
+                {Object.entries(socialLinks).map(([platform, url]) =>
+                  url ? (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                    >
+                      {platform} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : null
+                )}
+              </div>
+            )}
+
+            <p className="text-[10px] text-muted-foreground/60 text-center">
+              Powered by Press Accreditations
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

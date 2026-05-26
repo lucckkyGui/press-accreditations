@@ -102,7 +102,7 @@ const Products = () => {
             return (
               <Card
                 key={product.id}
-                className={`relative flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1 ${
+                className={`relative flex flex-col rounded-lg transition-all duration-300 hover:-translate-y-1 ${
                   product.popular
                     ? "border-2 border-primary shadow-xl shadow-primary/10 md:scale-105"
                     : "border shadow-sm hover:shadow-md"

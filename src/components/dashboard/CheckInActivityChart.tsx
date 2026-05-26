@@ -45,7 +45,7 @@ const CheckInActivityChart: React.FC<CheckInChartProps> = ({ guests }) => {
   const hasData = chartData.some(d => d.count > 0);
 
   return (
-    <Card className="rounded-2xl border-border">
+    <Card className="rounded-lg border-border">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Activity className="h-5 w-5 text-primary" />

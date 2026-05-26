@@ -71,8 +71,8 @@ const IntegrationsHub = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-              <Check className="h-6 w-6 text-green-600" />
+            <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
+              <Check className="h-6 w-6 text-success" />
             </div>
             <div>
               <p className="text-2xl font-bold">{integrations.filter(i => i.connected).length}</p>

@@ -122,52 +122,11 @@ export function usePWA(options: UsePWAOptions = {}) {
     }
   };
   
-  // Sprawdź, czy Service Worker jest zarejestrowany
-  const [hasServiceWorker, setHasServiceWorker] = useState<boolean>(false);
-  
-  useEffect(() => {
-    const checkServiceWorker = async () => {
-      if ('serviceWorker' in navigator) {
-        try {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          setHasServiceWorker(registrations.length > 0);
-          
-          if (showDebugInfo) {
-          }
-        } catch (error) {
-          setHasServiceWorker(false);
-        }
-      }
-    };
-    
-    checkServiceWorker();
-  }, [showDebugInfo]);
-  
-  // Rejestruj Service Worker jeśli jeszcze nie jest zarejestrowany
-  const registerServiceWorker = async () => {
-    if ('serviceWorker' in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.register('/serviceWorker.js');
-        
-        if (showDebugInfo) {
-        }
-        
-        setHasServiceWorker(true);
-        return registration;
-      } catch (error) {
-        return null;
-      }
-    }
-    return null;
-  };
-  
   return {
     isInstallable,
     isInstalled,
     installPWA,
     installationStatus,
-    isOnline,
-    hasServiceWorker,
-    registerServiceWorker
+    isOnline
   };
 }

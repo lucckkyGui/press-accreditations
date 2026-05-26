@@ -108,7 +108,7 @@ const Onboarding = () => {
       <div className="border-b bg-card">
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
             <Badge variant="secondary" className="text-xs font-bold tracking-wider">

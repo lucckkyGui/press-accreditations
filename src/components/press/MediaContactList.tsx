@@ -63,7 +63,7 @@ const MediaContactList: React.FC = () => {
             <DialogTrigger asChild>
               <Button variant="outline">Import kontaktów</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>Import kontaktów</DialogTitle>
               </DialogHeader>
@@ -75,7 +75,7 @@ const MediaContactList: React.FC = () => {
             <DialogTrigger asChild>
               <Button>Nowy kontakt</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>Nowy kontakt medialny</DialogTitle>
               </DialogHeader>

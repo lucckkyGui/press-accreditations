@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { captureError } from '@/lib/observability';
 
 interface Props {
   children: ReactNode;
@@ -24,6 +25,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught:', error, errorInfo);
+    captureError(error, {
+      action: 'react_error_boundary',
+      route: window.location.pathname,
+      metadata: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
   }
 
   handleReset = () => {
@@ -39,7 +47,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-[400px] flex items-center justify-center p-8">
           <div className="text-center space-y-4 max-w-md">
-            <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+            <div className="mx-auto h-16 w-16 rounded-lg bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
             <h2 className="text-xl font-bold text-foreground">Coś poszło nie tak</h2>

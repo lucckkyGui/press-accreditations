@@ -27,12 +27,12 @@ export const EventsSkeleton = () => (
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-4 w-64" />
       </div>
-      <Skeleton className="h-10 w-40 rounded-xl" />
+      <Skeleton className="h-10 w-40 rounded-lg" />
     </div>
     <div className="flex gap-4">
-      <Skeleton className="h-11 flex-1 max-w-sm rounded-xl" />
-      <Skeleton className="h-9 w-24 rounded-xl" />
-      <Skeleton className="h-9 w-24 rounded-xl" />
+      <Skeleton className="h-11 flex-1 max-w-sm rounded-lg" />
+      <Skeleton className="h-9 w-24 rounded-lg" />
+      <Skeleton className="h-9 w-24 rounded-lg" />
     </div>
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
@@ -48,8 +48,8 @@ export const GuestsSkeleton = () => (
     <div className="flex justify-between items-center">
       <Skeleton className="h-8 w-40" />
       <div className="flex gap-2">
-        <Skeleton className="h-9 w-28 rounded-xl" />
-        <Skeleton className="h-9 w-28 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-lg" />
+        <Skeleton className="h-9 w-28 rounded-lg" />
       </div>
     </div>
     <SkeletonTable rows={8} columns={6} />

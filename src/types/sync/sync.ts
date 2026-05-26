@@ -3,13 +3,15 @@
  * Typy związane z synchronizacją offline
  */
 
+import type { Json } from "@/integrations/supabase/types";
+
 // Dodatkowe typy do synchronizacji danych offline
 export interface SyncOperation {
   id: string;
   type: "create" | "update" | "delete";
   entity: "guest" | "event" | "notification" | "scan";
   entityId: string;
-  data: any;
+  data: Json;
   timestamp: string;
   status: "pending" | "synced" | "failed";
   error?: string;
@@ -17,7 +19,7 @@ export interface SyncOperation {
 
 // Interfejs do obsługi zapisywania i odczytywania danych z lokalnego storage
 export interface LocalStorageService {
-  set(key: string, value: any): void;
+  set(key: string, value: Json): void;
   get<T>(key: string): T | null;
   remove(key: string): void;
   clear(): void;

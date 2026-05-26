@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiResponse } from '@/types/api/apiResponse';
 import { MigrationService } from '@/services/migration/migrationService';
+import type { Json } from '@/integrations/supabase/types';
 
 /**
  * Hook ułatwiający korzystanie z API
@@ -131,7 +132,7 @@ export function useApiMutation<TData = any, TParams = any>(
           type: operationType as any,
           entity: entity as any,
           entityId,
-          data: params
+          data: params as unknown as Json
         });
         
         // Zwróć symulowaną odpowiedź, aby aplikacja mogła działać dalej

@@ -79,7 +79,7 @@ const AdminMonitoring = () => {
       </div>
 
       {/* Overall Status */}
-      <Card className={`border-2 ${health?.status === "healthy" ? "border-green-500/30 bg-green-50/50 dark:bg-green-950/20" : health?.status === "degraded" ? "border-yellow-500/30 bg-yellow-50/50" : "border-destructive/30 bg-destructive/5"}`}>
+      <Card className={`border-2 ${health?.status === "healthy" ? "border-success/30 bg-success/5" : health?.status === "degraded" ? "border-warning/30 bg-warning/5" : "border-destructive/30 bg-destructive/5"}`}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -175,7 +175,7 @@ const AdminMonitoring = () => {
                       <div className="flex-1">
                         <div className="h-4 bg-muted rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${h.status === "healthy" ? "bg-green-500" : h.status === "degraded" ? "bg-yellow-500" : "bg-destructive"}`}
+                            className={`h-full rounded-full ${h.status === "healthy" ? "bg-success" : h.status === "degraded" ? "bg-warning" : "bg-destructive"}`}
                             style={{ width: `${Math.min(100, (h.latency / 2000) * 100)}%` }}
                           />
                         </div>

@@ -15,6 +15,7 @@ const routeLabels: Record<string, string> = {
   events: 'Wydarzenia',
   guests: 'Goście',
   scanner: 'Skaner QR',
+  diagnostics: 'Diagnostyka',
   ticketing: 'Bilety',
   settings: 'Ustawienia',
   profile: 'Profil',

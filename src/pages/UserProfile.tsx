@@ -157,7 +157,7 @@ const UserProfile = () => {
           </TabsContent>
           
           <TabsContent value="notifications" className="space-y-4">
-            <div className="bg-white p-6 rounded-lg border shadow-sm">
+            <div className="bg-card p-6 rounded-lg border border-border shadow-card">
               <h2 className="text-xl font-semibold mb-4">Ustawienia powiadomień</h2>
               
               <div className="space-y-6">

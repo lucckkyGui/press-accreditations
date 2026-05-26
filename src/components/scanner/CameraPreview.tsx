@@ -116,8 +116,8 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           <Camera className="h-12 w-12 text-white opacity-20" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-48 h-48 border-2 border-white border-opacity-40 rounded-md"></div>
-            <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-red-500 opacity-70 transform -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute animate-ping w-4 h-4 bg-red-500 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 w-40 h-0.5 bg-destructive opacity-70 transform -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute animate-ping w-4 h-4 bg-destructive rounded-full"></div>
           </div>
         </div>
       ) : (

@@ -101,7 +101,7 @@ const ValuePropositionSection: React.FC = () => {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.12 }}
             >
-              <Card className="relative group hover:shadow-card-hover transition-all duration-300 border hover:border-primary/20 rounded-2xl hover:-translate-y-1 h-full">
+              <Card className="relative group hover:shadow-card-hover transition-all duration-300 border hover:border-primary/20 rounded-lg hover:-translate-y-0.5 h-full">
                 <CardContent className="pt-8 pb-6 px-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${item.colorClass}`}>
@@ -136,7 +136,7 @@ const ValuePropositionSection: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="gradient-primary rounded-3xl p-8 md:p-12 text-center relative overflow-hidden"
+          className="gradient-primary rounded-xl p-8 md:p-12 text-center relative overflow-hidden"
         >
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-[40px]" />
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-white/5 rounded-full blur-[60px]" />

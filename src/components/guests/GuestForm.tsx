@@ -75,7 +75,7 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] rounded-2xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[520px] rounded-lg p-0 gap-0 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary/5 to-secondary/5 px-6 py-5 border-b border-border/40">
           <DialogHeader>

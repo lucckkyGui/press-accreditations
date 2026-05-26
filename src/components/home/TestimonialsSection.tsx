@@ -40,7 +40,7 @@ interface TestimonialProps {
 }
 
 const Testimonial = ({ quote, author, role, company, rating, avatarColor }: TestimonialProps) => (
-  <Card className="bg-card border rounded-2xl p-6 shadow-soft h-full hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
+  <Card className="bg-card border rounded-lg p-6 shadow-card h-full hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5">
     <CardContent className="p-0 space-y-4">
       <div className="flex items-center justify-between">
         <Quote className="h-5 w-5 text-primary/40" />

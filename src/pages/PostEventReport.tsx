@@ -37,18 +37,7 @@ const PostEventReport = () => {
     queryKey: ['events-for-report'],
     queryFn: async () => {
       const { data } = await supabase.from('events').select('id, title, start_date, end_date').order('start_date', { ascending: false });
-      const dbEvents = data || [];
-      // Add demo event if not already in DB
-      const demoEvent = {
-        id: 'demo-tech-summit-2026',
-        title: 'Konferencja Tech Summit 2026',
-        start_date: '2026-03-22T09:00:00+00:00',
-        end_date: '2026-03-22T18:00:00+00:00',
-      };
-      if (!dbEvents.find(e => e.id === demoEvent.id)) {
-        dbEvents.push(demoEvent);
-      }
-      return dbEvents;
+      return data || [];
     },
   });
 
@@ -67,7 +56,6 @@ const PostEventReport = () => {
     }
   };
 
-  const isDemo = analytics && 'isDemo' in analytics && (analytics as any).isDemo;
   const checkInRate = analytics && analytics.guests.total > 0
     ? (analytics.guests.checkedIn / analytics.guests.total) * 100 : 0;
   const emailOpenRate = analytics && analytics.emails.sent > 0
@@ -171,12 +159,6 @@ const PostEventReport = () => {
         {/* Single event mode */}
         {!compareMode && analytics && (
           <>
-            {isDemo && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-sm">
-                <BarChart3 className="h-4 w-4 shrink-0" />
-                <span>Tryb demo — wyświetlane są przykładowe dane. Zaloguj się jako organizator wydarzenia, aby zobaczyć rzeczywiste statystyki.</span>
-              </div>
-            )}
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>

@@ -94,3 +94,28 @@ export interface EventsQueryParams extends PaginationParams, FilterParams {
   categoryId?: string;
   organizerId?: string;
 }
+
+export interface PublicAccreditationEvent {
+  id: string;
+  title: string;
+  titlePl: string;
+  location: string;
+  locationPl: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  descriptionPl: string;
+  category: string;
+  registrationOpen: boolean;
+  deadline: string;
+  attendees: number;
+  type: string;
+  featured: boolean;
+}
+
+export type EventSortOrder =
+  | "date-asc"
+  | "date-desc"
+  | "name-asc"
+  | "name-desc"
+  | "attendees-desc";

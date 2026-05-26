@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import AnimatedCounter from "@/components/common/AnimatedCounter";
+import { Sparkline } from "@/components/ui/sparkline";
 
 interface StatCardProps {
   title: string;
@@ -10,7 +11,8 @@ interface StatCardProps {
   icon: React.ReactNode;
   description?: string;
   className?: string;
-  trend?: "up" | "down" | "neutral";
+  tone?: "success" | "warning" | "info" | "muted";
+  sparkline?: number[];
 }
 
 const StatCard = ({
@@ -19,36 +21,62 @@ const StatCard = ({
   icon,
   description,
   className,
-  trend,
+  tone = "info",
+  sparkline,
 }: StatCardProps) => {
-  const isNumeric = typeof value === 'number';
+  const isNumeric = typeof value === "number";
+
+  const toneClassName = {
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/10 text-warning",
+    info:    "bg-info/10 text-info",
+    muted:   "bg-muted text-muted-foreground",
+  }[tone];
+
+  const indicatorClassName = {
+    success: "bg-success",
+    warning: "bg-warning",
+    info:    "bg-info",
+    muted:   "bg-muted-foreground",
+  }[tone];
+
+  const sparklineColor = {
+    success: "success",
+    warning: "warning",
+    info:    "info",
+    muted:   "primary",
+  }[tone] as "success" | "warning" | "info" | "primary";
 
   return (
     <Card className={cn(
-      "overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 border-border rounded-2xl",
-      className
+      "overflow-hidden rounded-lg border-border shadow-card transition-shadow duration-200 hover:shadow-card-hover",
+      className,
     )}>
       <CardContent className="p-5">
-        <div className="flex justify-between items-start">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground tracking-wide">{title}</p>
-            <h3 className="text-3xl font-bold tracking-tight text-foreground">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1 flex-1">
+            <div className="flex items-center gap-2">
+              <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", indicatorClassName)} />
+              <p className="truncate text-[12px] font-medium text-muted-foreground">{title}</p>
+            </div>
+            <h3 className="text-2xl font-bold text-foreground tabular-nums tracking-tight">
               {isNumeric ? <AnimatedCounter value={value} /> : value}
             </h3>
             {description && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                {trend === "up" && <span className="text-success">↑</span>}
-                {trend === "down" && <span className="text-destructive">↓</span>}
-                {description}
-              </p>
+              <p className="text-[11px] leading-5 text-muted-foreground">{description}</p>
             )}
           </div>
-          <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-            {icon}
+
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", toneClassName)}>
+              {icon}
+            </div>
+            {sparkline && sparkline.length >= 2 && (
+              <Sparkline data={sparkline} color={sparklineColor} height={28} />
+            )}
           </div>
         </div>
       </CardContent>
-      <div className="h-1 w-full bg-gradient-to-r from-primary/30 via-primary to-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </Card>
   );
 };
