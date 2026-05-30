@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { features } from "@/config/features";
 import { Sparkline } from "@/components/ui/sparkline";
 import { cn } from "@/lib/utils";
+import AccreditationManagement from "@/components/accreditation/AccreditationManagement";
 
 const getEventCode = (id: string) =>
   `EVT-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
@@ -297,6 +298,10 @@ const EventDetails = () => {
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
                 Bezpieczeństwo
               </TabsTrigger>
+              <TabsTrigger value="accreditations" data-tab="accreditations"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
+                Akredytacje
+              </TabsTrigger>
             </TabsList>
 
             {/* Overview tab */}
@@ -426,6 +431,15 @@ const EventDetails = () => {
               <div className="text-center py-12 text-muted-foreground text-sm">
                 Konfiguracja bezpieczeństwa będzie dostępna wkrótce.
               </div>
+            </TabsContent>
+
+            {/* Accreditation requests tab */}
+            <TabsContent value="accreditations" className="mt-0">
+              <AccreditationManagement
+                eventId={eventId}
+                title="Wnioski akredytacyjne"
+                description="Przeglądaj i zatwierdzaj wnioski mediów dla tego wydarzenia"
+              />
             </TabsContent>
           </Tabs>
         </div>

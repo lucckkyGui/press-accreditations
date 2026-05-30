@@ -11,22 +11,10 @@
 
 import React from "react";
 import {
-  Calendar,
-  Users,
-  QrCode,
-  Settings,
-  BarChart3,
-  FileBarChart,
   Sparkles,
   ChevronRight,
   ChevronsUpDown,
   LogOut,
-  Newspaper,
-  Ticket,
-  Plug,
-  Brain,
-  Shield,
-  Stethoscope,
   Zap,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
@@ -47,18 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-// ─── Types ─────────────────────────────────────────────────────
-interface NavItemDef {
-  title: string;
-  url: string;
-  icon: React.ElementType;
-  shortcut?: string;
-  /** Optional bullet count (events, guests, accreditations…) */
-  countQueryKey?: "events" | "guests" | "accreditations";
-  /** Render a LIVE chip on the right side when condition met (only Scanner). */
-  liveWhenActive?: boolean;
-}
+import { coreNav, supportingNav, systemNav, type NavItem as NavItemDef } from "@/config/navigation";
 
 // ─── Counts hook ──────────────────────────────────────────────
 /**
@@ -96,23 +73,9 @@ function useSidebarCounts(userId: string | undefined) {
 }
 
 // ─── Nav definitions ──────────────────────────────────────────
-const mainNav: NavItemDef[] = [
-  { title: "Pulpit",      url: "/dashboard", icon: BarChart3, shortcut: "G D" },
-  { title: "Wydarzenia",  url: "/events",    icon: Calendar,  shortcut: "G E", countQueryKey: "events" },
-  { title: "Goście",      url: "/guests",    icon: Users,     shortcut: "G G", countQueryKey: "guests" },
-  { title: "Skaner QR",    url: "/scanner",   icon: QrCode,    shortcut: "G S", liveWhenActive: true },
-  { title: "Akredytacje", url: "/guests?filter=pending", icon: Newspaper, shortcut: "G A", countQueryKey: "accreditations" },
-  { title: "Bilety",      url: "/ticketing", icon: Ticket },
-  { title: "Analityka",   url: "/ai-dashboard", icon: Brain, shortcut: "G N" },
-];
-
-const secondaryNav: NavItemDef[] = [
-  { title: "Raport końcowy",  url: "/post-event-report", icon: FileBarChart },
-  { title: "Integracje",      url: "/integrations",      icon: Plug },
-  { title: "Bezpieczeństwo",  url: "/audit-trail",       icon: Shield },
-  { title: "Diagnostyka",     url: "/diagnostics",       icon: Stethoscope },
-  { title: "Ustawienia",      url: "/settings",          icon: Settings },
-];
+// Source of truth: src/config/navigation.ts (core / supporting / system).
+// Frozen & hidden-from-sales modules are intentionally NOT rendered here.
+const mainNav = coreNav;
 
 // ─── NavItem ──────────────────────────────────────────────────
 const NavItem = ({
@@ -200,8 +163,13 @@ const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile, signOut, user, roles } = useAuth();
+  const { profile, signOut, user, roles, isAdmin } = useAuth();
   const { data: counts } = useSidebarCounts(user?.id);
+
+  // Secondary nav = supporting + system modules. adminOnly items hidden for non-admins.
+  const secondaryNav = [...supportingNav, ...systemNav].filter(
+    (item) => !item.adminOnly || isAdmin
+  );
 
   const orgName = profile?.organizationName || "Moja organizacja";
   const initials =
