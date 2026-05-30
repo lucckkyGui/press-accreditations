@@ -6,11 +6,50 @@ const corsHeaders = buildCorsHeaders();
 
 const RATE_LIMIT = { maxRequests: 5, windowMs: 60_000, keyPrefix: "landing-register" };
 
+const FAKE_ID = "00000000-0000-0000-0000-000000000000";
+
+// ── Validation constants (zsynchronizowane z src/lib/accreditation) ──
+const MEDIA_ROLE_VALUES = [
+  "journalist", "photographer", "video", "radio", "podcast", "influencer", "other",
+];
+
+const DISPOSABLE_EMAIL_DOMAINS = [
+  "tempmail.com", "temp-mail.org", "throwaway.email", "guerrillamail.com",
+  "guerrillamailblock.com", "sharklasers.com", "grr.la", "mailinator.com",
+  "yopmail.com", "10minutemail.com", "10minutemail.net", "trashmail.com",
+  "fakeinbox.com", "getnada.com", "dispostable.com", "maildrop.cc",
+  "mailnesia.com", "mintemail.com", "tempinbox.com", "spam4.me",
+  "moakt.com", "emailondeck.com",
+];
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 // Simple input sanitizer — strip HTML tags
 const sanitize = (val: unknown): string => {
   if (typeof val !== "string") return "";
   return val.replace(/<[^>]*>/g, "").trim();
 };
+
+const isValidUrl = (v: string): boolean => {
+  if (!v) return false;
+  try {
+    const u = new URL(v);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const splitLinks = (v: string): string[] =>
+  v.split(/[\n,;\s]+/).map((s) => s.trim()).filter(Boolean);
+
+const areValidUrlList = (v: string): boolean => {
+  const links = splitLinks(v);
+  return links.length > 0 && links.every(isValidUrl);
+};
+
+const makeRef = (id: string): string =>
+  "ACR-" + id.replace(/-/g, "").slice(0, 8).toUpperCase();
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,105 +60,125 @@ Deno.serve(async (req) => {
   const rl = checkRateLimit(getClientIP(req), RATE_LIMIT);
   if (!rl.allowed) return createRateLimitResponse(rl, corsHeaders);
 
+  const json = (payload: Record<string, unknown>, status: number) =>
+    new Response(JSON.stringify(payload), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+
+  const fieldError = (error: string, field: string, status = 400) =>
+    json({ error, field }, status);
+
   try {
     const body = await req.json();
 
-    // Honeypot check — if the hidden field is filled, it's a bot
+    // ── Anti-spam: honeypot ──────────────────────────────────────
     if (body._website || body._hp_field) {
       // Silently accept to not tip off the bot
-      return new Response(
-        JSON.stringify({ success: true, id: "00000000-0000-0000-0000-000000000000" }),
-        { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return json({ success: true, id: FAKE_ID, reference: makeRef(FAKE_ID) }, 201);
     }
 
-    // Timing check — if submitted in less than 3 seconds, likely a bot
+    // ── Anti-spam: timing (< 3s = bot) ───────────────────────────
     if (body._form_loaded_at) {
       const elapsed = Date.now() - Number(body._form_loaded_at);
       if (elapsed < 3000) {
-        return new Response(
-          JSON.stringify({ success: true, id: "00000000-0000-0000-0000-000000000000" }),
-          { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return json({ success: true, id: FAKE_ID, reference: makeRef(FAKE_ID) }, 201);
       }
     }
 
+    // ── Extract + sanitize ───────────────────────────────────────
     const slug = sanitize(body.slug);
     const first_name = sanitize(body.first_name);
     const last_name = sanitize(body.last_name);
     const email = sanitize(body.email).toLowerCase();
     const phone = sanitize(body.phone);
     const media_organization = sanitize(body.media_organization);
+    const media_type = sanitize(body.media_type);
     const job_title = sanitize(body.job_title);
+    const role = sanitize(body.role);
     const social_media = sanitize(body.social_media);
     const portfolio_url = sanitize(body.portfolio_url);
+    const publication_links = sanitize(body.publication_links);
     const coverage_description = sanitize(body.coverage_description);
+    const requested_access = sanitize(body.requested_access);
     const previous_accreditation = body.previous_accreditation === true;
+    const consent_data_processing = body.consent_data_processing === true;
+    const consent_marketing = body.consent_marketing === true;
     const accreditation_type = sanitize(body.accreditation_type);
-    const custom_fields = typeof body.custom_fields === "object" && body.custom_fields !== null
-      ? body.custom_fields
-      : {};
+    const custom_fields =
+      typeof body.custom_fields === "object" && body.custom_fields !== null
+        ? body.custom_fields
+        : {};
 
-    // Validate required fields
-    if (!slug || !first_name || !last_name || !email) {
-      return new Response(
-        JSON.stringify({ error: "Brakuje wymaganych pól (imię, nazwisko, email)" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // ── Base required ────────────────────────────────────────────
+    if (!slug) return fieldError("Brak identyfikatora strony", "slug");
+    if (!first_name) return fieldError("Imię jest wymagane", "first_name");
+    if (!last_name) return fieldError("Nazwisko jest wymagane", "last_name");
+    if (!email) return fieldError("Adres e-mail jest wymagany", "email");
+
+    // Email format
+    if (!EMAIL_REGEX.test(email) || email.length > 255) {
+      return fieldError("Nieprawidłowy format adresu e-mail", "email");
     }
 
-    // Validate email format (stricter)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      return new Response(
-        JSON.stringify({ error: "Nieprawidłowy format adresu email" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Block disposable email domains (common ones)
-    const disposableDomains = [
-      "tempmail.com", "throwaway.email", "guerrillamail.com", "mailinator.com",
-      "yopmail.com", "sharklasers.com", "guerrillamailblock.com", "grr.la",
-      "10minutemail.com", "trashmail.com", "temp-mail.org", "fakeinbox.com",
-    ];
+    // Disposable email
     const emailDomain = email.split("@")[1];
-    if (disposableDomains.includes(emailDomain)) {
-      return new Response(
-        JSON.stringify({ error: "Proszę użyć służbowego adresu email" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (DISPOSABLE_EMAIL_DOMAINS.includes(emailDomain)) {
+      return fieldError("Użyj służbowego adresu e-mail (adresy tymczasowe są niedozwolone)", "email");
     }
 
-    // Validate field lengths
-    if (first_name.length > 100 || last_name.length > 100 || email.length > 255) {
-      return new Response(
-        JSON.stringify({ error: "Przekroczono maksymalną długość pola" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Role
+    if (!role) return fieldError("Wybierz typ relacji / rolę", "role");
+    if (!MEDIA_ROLE_VALUES.includes(role)) {
+      return fieldError("Nieprawidłowy typ relacji", "role");
     }
 
-    // Validate URL fields if provided
-    if (portfolio_url && portfolio_url.length > 0) {
-      try {
-        const url = new URL(portfolio_url);
-        if (!["http:", "https:"].includes(url.protocol)) {
-          throw new Error("Invalid protocol");
-        }
-      } catch {
-        return new Response(
-          JSON.stringify({ error: "Nieprawidłowy format URL portfolio" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    // Consent (required)
+    if (!consent_data_processing) {
+      return fieldError("Zgoda na przetwarzanie danych jest wymagana", "consent_data_processing");
+    }
+
+    // Field lengths
+    if (first_name.length > 100 || last_name.length > 100) {
+      return fieldError("Przekroczono maksymalną długość pola", "first_name");
+    }
+
+    // URL formats (if provided)
+    if (portfolio_url && !isValidUrl(portfolio_url)) {
+      return fieldError("Nieprawidłowy adres URL portfolio", "portfolio_url");
+    }
+    if (publication_links && !areValidUrlList(publication_links)) {
+      return fieldError("Podaj prawidłowe adresy URL (każdy w nowej linii)", "publication_links");
+    }
+
+    // ── Type-dependent validation ────────────────────────────────
+    if (role === "photographer") {
+      if (!portfolio_url && !publication_links) {
+        return fieldError("Fotoreporter: podaj portfolio lub linki do publikacji", "portfolio_url");
+      }
+    } else if (role === "video") {
+      if (!coverage_description) {
+        return fieldError("Opisz planowaną relację wideo", "coverage_description");
+      }
+    } else if (role === "influencer") {
+      if (!social_media) {
+        return fieldError("Podaj profile w social media", "social_media");
+      }
+    } else if (role === "journalist") {
+      if (!media_organization) {
+        return fieldError("Podaj redakcję / medium", "media_organization");
+      }
+      if (!publication_links) {
+        return fieldError("Podaj linki do publikacji", "publication_links");
       }
     }
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Find landing page by slug
+    // ── Find landing page ────────────────────────────────────────
     const { data: landingPage, error: lpError } = await supabaseAdmin
       .from("event_landing_pages")
       .select("id, event_id, is_active, form_config")
@@ -128,44 +187,58 @@ Deno.serve(async (req) => {
       .single();
 
     if (lpError || !landingPage) {
-      return new Response(
-        JSON.stringify({ error: "Strona rejestracji nie została znaleziona lub jest nieaktywna" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      return json(
+        { error: "Strona rejestracji nie została znaleziona lub jest nieaktywna" },
+        404,
       );
     }
 
-    // Check for duplicate submission
+    // ── Duplicate email per event (HARD) — must NOT create record ─
     const { data: existing } = await supabaseAdmin
       .from("landing_page_submissions")
       .select("id")
       .eq("landing_page_id", landingPage.id)
       .eq("email", email)
-      .single();
+      .maybeSingle();
 
     if (existing) {
-      return new Response(
-        JSON.stringify({ error: "Ten adres email został już zarejestrowany na to wydarzenie" }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      return json(
+        { error: "Ten adres e-mail został już zarejestrowany na to wydarzenie", field: "email" },
+        409,
       );
     }
 
-    // Validate required fields from form_config
+    // ── Similar media + name (SOFT) — flag, allow ────────────────
+    let possibleDuplicate = false;
+    if (media_organization && last_name) {
+      const { data: similar } = await supabaseAdmin
+        .from("landing_page_submissions")
+        .select("id")
+        .eq("landing_page_id", landingPage.id)
+        .ilike("media_organization", media_organization)
+        .ilike("last_name", last_name)
+        .limit(1);
+      possibleDuplicate = Array.isArray(similar) && similar.length > 0;
+    }
+
+    // ── Required fields from form_config ─────────────────────────
     const formConfig = landingPage.form_config as any;
+    const skip = ["first_name", "last_name", "email", "role"];
     if (formConfig?.fields) {
       for (const field of formConfig.fields) {
-        if (field.required && field.visible && !["first_name", "last_name", "email"].includes(field.key)) {
+        if (field.required && field.visible && !skip.includes(field.key)) {
           const value = body[field.key];
-          if (!value || (typeof value === "string" && value.trim() === "")) {
-            return new Response(
-              JSON.stringify({ error: `Pole "${field.label}" jest wymagane` }),
-              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-            );
+          const empty =
+            value === undefined || value === null ||
+            (typeof value === "string" && value.trim() === "") || value === false;
+          if (empty) {
+            return fieldError(`Pole "${field.label}" jest wymagane`, field.key);
           }
         }
       }
     }
 
-    // Insert submission
+    // ── Insert submission ────────────────────────────────────────
     const { data: submission, error: insertError } = await supabaseAdmin
       .from("landing_page_submissions")
       .insert({
@@ -176,13 +249,20 @@ Deno.serve(async (req) => {
         email,
         phone: phone || null,
         media_organization: media_organization || null,
+        media_type: media_type || null,
         job_title: job_title || null,
+        role,
         social_media: social_media || null,
         portfolio_url: portfolio_url || null,
+        publication_links: publication_links || null,
         coverage_description: coverage_description || null,
+        requested_access: requested_access || null,
         previous_accreditation,
+        consent_data_processing,
+        consent_marketing,
         accreditation_type: accreditation_type || null,
         custom_fields,
+        flags: possibleDuplicate ? { possible_duplicate: true } : {},
         status: "pending",
       })
       .select("id")
@@ -190,13 +270,12 @@ Deno.serve(async (req) => {
 
     if (insertError) {
       console.error("Insert error:", insertError);
-      return new Response(
-        JSON.stringify({ error: "Błąd zapisu zgłoszenia. Spróbuj ponownie." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return json({ error: "Błąd zapisu zgłoszenia. Spróbuj ponownie." }, 500);
     }
 
-    // Send confirmation email via Resend
+    const reference = makeRef(submission.id);
+
+    // ── Confirmation email to applicant (non-critical) ───────────
     try {
       const resendKey = Deno.env.get("RESEND_API_KEY");
       if (resendKey) {
@@ -209,34 +288,93 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             from: "Akredytacje <noreply@notify.bookingartistagency.com>",
             to: [email],
-            subject: "Potwierdzenie zgłoszenia akredytacyjnego",
+            subject: `Potwierdzenie zgłoszenia akredytacyjnego (${reference})`,
             html: `
-              <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+              <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 24px;">
                 <h2>Dziękujemy za zgłoszenie!</h2>
                 <p>Twoje zgłoszenie akredytacyjne zostało przyjęte i oczekuje na rozpatrzenie.</p>
+                <p style="background:#f3f4f6;border-radius:8px;padding:12px;font-size:14px;">
+                  Numer zgłoszenia: <strong>${reference}</strong>
+                </p>
                 <p><strong>${first_name} ${last_name}</strong></p>
                 ${media_organization ? `<p>Redakcja: ${media_organization}</p>` : ""}
-                ${accreditation_type ? `<p>Typ akredytacji: ${accreditation_type}</p>` : ""}
                 <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
-                <p style="color: #6b7280; font-size: 12px;">Otrzymasz powiadomienie o decyzji na ten adres email.</p>
+                <p style="color: #6b7280; font-size: 12px;">
+                  Otrzymasz powiadomienie o decyzji na ten adres e-mail.
+                </p>
               </div>
             `,
           }),
         });
       }
     } catch (emailErr) {
-      console.error("Email send failed (non-critical):", emailErr);
+      console.error("Applicant email send failed (non-critical):", emailErr);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, id: submission.id }),
-      { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // ── Internal notification to organizer (non-critical) ────────
+    try {
+      const { data: ev } = await supabaseAdmin
+        .from("events")
+        .select("organizer_id, title")
+        .eq("id", landingPage.event_id)
+        .single();
+
+      if (ev?.organizer_id) {
+        // In-app notification
+        await supabaseAdmin.from("user_notifications").insert({
+          user_id: ev.organizer_id,
+          event_id: landingPage.event_id,
+          type: "accreditation_request",
+          title: "Nowe zgłoszenie akredytacyjne",
+          message:
+            `${first_name} ${last_name}` +
+            (media_organization ? ` (${media_organization})` : "") +
+            ` złożył(a) zgłoszenie${ev.title ? ` na: ${ev.title}` : ""}.` +
+            (possibleDuplicate ? " ⚠ Możliwy duplikat." : ""),
+          action_url: "/guests?filter=pending",
+          metadata: { submission_id: submission.id, reference, role, possible_duplicate: possibleDuplicate },
+        });
+
+        // Email to organizer (best-effort, requires auth lookup)
+        const resendKey = Deno.env.get("RESEND_API_KEY");
+        if (resendKey) {
+          const { data: organizer } = await supabaseAdmin.auth.admin.getUserById(ev.organizer_id);
+          const organizerEmail = organizer?.user?.email;
+          if (organizerEmail) {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${resendKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: "Akredytacje <noreply@notify.bookingartistagency.com>",
+                to: [organizerEmail],
+                subject: `Nowe zgłoszenie akredytacyjne — ${ev.title ?? ""} (${reference})`,
+                html: `
+                  <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 24px;">
+                    <h2>Nowe zgłoszenie akredytacyjne</h2>
+                    <p><strong>${first_name} ${last_name}</strong>${media_organization ? ` — ${media_organization}` : ""}</p>
+                    <p>Rola: ${role}</p>
+                    <p>E-mail: ${email}</p>
+                    <p>Numer: <strong>${reference}</strong></p>
+                    ${possibleDuplicate ? `<p style="color:#b45309;">⚠ Możliwy duplikat (to samo medium i nazwisko już występuje).</p>` : ""}
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+                    <p style="color:#6b7280;font-size:12px;">Rozpatrz w panelu: Akredytacje → oczekujące.</p>
+                  </div>
+                `,
+              }),
+            });
+          }
+        }
+      }
+    } catch (notifyErr) {
+      console.error("Organizer notification failed (non-critical):", notifyErr);
+    }
+
+    return json({ success: true, id: submission.id, reference }, 201);
   } catch (err) {
     console.error("Unexpected error:", err);
-    return new Response(
-      JSON.stringify({ error: "Wystąpił nieoczekiwany błąd" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return json({ error: "Wystąpił nieoczekiwany błąd" }, 500);
   }
 });

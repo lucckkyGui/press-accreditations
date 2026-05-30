@@ -11,38 +11,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   ArrowLeft, Globe, Palette, FileText, Settings2, Eye, Copy, Check,
-  Plus, Trash2, GripVertical, ExternalLink, Loader2, Save
+  Plus, Trash2, GripVertical, ExternalLink, Loader2, Save,
+  Monitor, Smartphone, MapPin, CalendarDays
 } from "lucide-react";
+import {
+  type FormConfig,
+  type FormField,
+  type FormSectionId,
+  FORM_SECTIONS,
+  FIELD_SECTION,
+  MEDIA_ROLES,
+} from "@/lib/accreditation/types";
 
-interface FormField {
-  key: string;
-  label: string;
-  type: string;
-  required: boolean;
-  visible: boolean;
-}
-
-interface AccreditationType {
-  value: string;
-  label: string;
-}
-
-interface FormConfig {
-  fields: FormField[];
-  accreditation_types: AccreditationType[];
-}
+const MEDIA_TYPE_OPTIONS = [
+  { value: "press", label: "Prasa" },
+  { value: "online", label: "Portal / Online" },
+  { value: "tv", label: "Telewizja" },
+  { value: "radio", label: "Radio" },
+  { value: "agency", label: "Agencja prasowa" },
+  { value: "podcast", label: "Podcast" },
+  { value: "social", label: "Social media" },
+  { value: "other", label: "Inne" },
+];
 
 const DEFAULT_FORM_CONFIG: FormConfig = {
   fields: [
     { key: "first_name", label: "Imię", type: "text", required: true, visible: true },
     { key: "last_name", label: "Nazwisko", type: "text", required: true, visible: true },
     { key: "email", label: "Email", type: "email", required: true, visible: true },
+    { key: "phone", label: "Telefon", type: "tel", required: false, visible: true },
     { key: "media_organization", label: "Redakcja / Medium", type: "text", required: true, visible: true },
+    { key: "media_type", label: "Typ medium", type: "select", required: false, visible: true, options: MEDIA_TYPE_OPTIONS },
     { key: "job_title", label: "Stanowisko", type: "text", required: false, visible: true },
-    { key: "phone", label: "Telefon", type: "tel", required: false, visible: false },
-    { key: "social_media", label: "Social media", type: "textarea", required: false, visible: false },
-    { key: "portfolio_url", label: "Portfolio / Strona", type: "url", required: false, visible: false },
     { key: "coverage_description", label: "Opis planowanej relacji", type: "textarea", required: false, visible: true },
+    { key: "portfolio_url", label: "Portfolio / Strona", type: "url", required: false, visible: true },
+    { key: "publication_links", label: "Linki do publikacji", type: "textarea", required: false, visible: true },
+    { key: "social_media", label: "Social media", type: "textarea", required: false, visible: false },
+    { key: "requested_access", label: "Wnioskowany dostęp / strefy", type: "textarea", required: false, visible: false },
     { key: "previous_accreditation", label: "Posiadam wcześniejsze akredytacje", type: "checkbox", required: false, visible: false },
   ],
   accreditation_types: [
@@ -79,6 +84,9 @@ const LandingPageBuilder = () => {
   });
   const [formConfig, setFormConfig] = useState<FormConfig>(DEFAULT_FORM_CONFIG);
   const [isActive, setIsActive] = useState(true);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+
+  const slugValid = /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(slug);
 
   useEffect(() => {
     if (!eventId) return;
@@ -272,10 +280,15 @@ const LandingPageBuilder = () => {
                 <Input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                  className="max-w-[200px] h-8 text-sm font-mono"
+                  className={`max-w-[200px] h-8 text-sm font-mono ${slug && !slugValid ? "border-destructive" : ""}`}
                   placeholder="nazwa-wydarzenia"
                 />
               </div>
+              {slug && !slugValid && (
+                <p className="text-[11px] text-destructive mt-1">
+                  Min. 3 znaki: małe litery, cyfry i myślniki (nie na początku/końcu).
+                </p>
+              )}
             </div>
             <Button variant="outline" size="sm" onClick={copyUrl}>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -298,6 +311,9 @@ const LandingPageBuilder = () => {
           </TabsTrigger>
           <TabsTrigger value="form" className="flex-1">
             <Settings2 className="h-4 w-4 mr-1" /> Formularz
+          </TabsTrigger>
+          <TabsTrigger value="preview" className="flex-1">
+            <Eye className="h-4 w-4 mr-1" /> Podgląd
           </TabsTrigger>
         </TabsList>
 
@@ -495,7 +511,188 @@ const LandingPageBuilder = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Live preview */}
+        <TabsContent value="preview" className="space-y-4 mt-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Podgląd na żywo — tak zobaczą stronę zgłaszający się.
+            </p>
+            <div className="inline-flex rounded-lg border bg-card p-0.5">
+              <Button
+                type="button"
+                variant={previewDevice === "desktop" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-8"
+                onClick={() => setPreviewDevice("desktop")}
+              >
+                <Monitor className="h-4 w-4 mr-1" /> Desktop
+              </Button>
+              <Button
+                type="button"
+                variant={previewDevice === "mobile" ? "secondary" : "ghost"}
+                size="sm"
+                className="h-8"
+                onClick={() => setPreviewDevice("mobile")}
+              >
+                <Smartphone className="h-4 w-4 mr-1" /> Mobile
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-center bg-muted/40 rounded-xl border p-4 md:p-6 overflow-x-auto">
+            <div
+              className={`bg-white text-slate-900 rounded-lg shadow-lg overflow-hidden transition-all ${
+                previewDevice === "mobile" ? "w-[375px]" : "w-full max-w-[760px]"
+              }`}
+            >
+              <LandingPreview
+                event={event}
+                logoUrl={logoUrl}
+                bannerUrl={bannerUrl}
+                primaryColor={primaryColor}
+                description={description}
+                termsText={termsText}
+                formConfig={formConfig}
+                isActive={isActive}
+              />
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+};
+
+// ─── Non-interactive live preview of the public landing ──────────────
+interface LandingPreviewProps {
+  event: { title?: string; location?: string | null; start_date?: string } | null;
+  logoUrl: string;
+  bannerUrl: string;
+  primaryColor: string;
+  description: string;
+  termsText: string;
+  formConfig: FormConfig;
+  isActive: boolean;
+}
+
+const LandingPreview: React.FC<LandingPreviewProps> = ({
+  event, logoUrl, bannerUrl, primaryColor, description, termsText, formConfig, isActive,
+}) => {
+  const visibleFields = (formConfig.fields || []).filter((f) => f.visible);
+  const bySection: Record<FormSectionId, FormField[]> = {
+    person: [], media: [], coverage: [], access: [], consents: [],
+  };
+  visibleFields.forEach((f) => {
+    const section = (f.section || FIELD_SECTION[f.key] || "media") as FormSectionId;
+    bySection[section].push(f);
+  });
+
+  const sectionHasContent = (id: FormSectionId) =>
+    id === "media" || id === "consents" || bySection[id].length > 0;
+  const sections = FORM_SECTIONS.filter((s) => sectionHasContent(s.id));
+  const accTypes = formConfig.accreditation_types || [];
+
+  return (
+    <div className="text-sm">
+      {!isActive && (
+        <div className="bg-amber-100 text-amber-800 text-xs text-center py-1.5 font-medium">
+          Strona nieaktywna — niewidoczna publicznie
+        </div>
+      )}
+      {bannerUrl && (
+        <div className="w-full h-28 overflow-hidden bg-slate-100">
+          <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
+      <div className="p-5 space-y-4">
+        <div className="text-center space-y-2">
+          {logoUrl && <img src={logoUrl} alt="Logo" className="h-10 mx-auto object-contain" />}
+          <h1 className="text-lg font-bold">{event?.title || "Tytuł wydarzenia"}</h1>
+          <p className="text-xs text-slate-500">Formularz akredytacji prasowej</p>
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-slate-500">
+            {event?.location && (
+              <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{event.location}</span>
+            )}
+            {event?.start_date && (
+              <span className="inline-flex items-center gap-1">
+                <CalendarDays className="h-3 w-3" />
+                {new Date(event.start_date).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" })}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {description && (
+          <div className="rounded-lg border bg-slate-50 p-3 text-xs text-slate-600 whitespace-pre-line">
+            {description}
+          </div>
+        )}
+
+        {sections.map((section, idx) => (
+          <div key={section.id} className="rounded-lg border p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <span
+                className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                style={{ backgroundColor: primaryColor }}
+              >
+                {idx + 1}
+              </span>
+              <span className="font-semibold text-xs">{section.title}</span>
+            </div>
+
+            {section.id === "media" && accTypes.length > 1 && (
+              <div className="flex flex-wrap gap-1.5">
+                {accTypes.map((t) => (
+                  <span key={t.value} className="text-[11px] border rounded px-2 py-0.5 text-slate-600">{t.label}</span>
+                ))}
+              </div>
+            )}
+
+            {section.id === "media" && (
+              <div>
+                <p className="text-[11px] text-slate-500 mb-1">Typ relacji / rola *</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {MEDIA_ROLES.map((r) => (
+                    <span key={r.value} className="text-[11px] border rounded px-2 py-0.5 text-slate-600">{r.label}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {bySection[section.id].map((f) => (
+              <div key={f.key}>
+                <p className="text-[11px] text-slate-500">
+                  {f.label}{f.required ? " *" : ""}
+                </p>
+                {f.type === "checkbox" ? (
+                  <div className="h-4 w-4 border rounded bg-slate-50" />
+                ) : f.type === "textarea" ? (
+                  <div className="h-10 border rounded bg-slate-50" />
+                ) : (
+                  <div className="h-7 border rounded bg-slate-50" />
+                )}
+              </div>
+            ))}
+
+            {section.id === "consents" && (
+              <div className="space-y-1.5 text-[11px] text-slate-600">
+                {termsText && <p>☐ Akceptuję regulamin *</p>}
+                <p>☐ Zgoda na przetwarzanie danych osobowych *</p>
+                <p>☐ Zgoda marketingowa (opcjonalnie)</p>
+              </div>
+            )}
+          </div>
+        ))}
+
+        <button
+          className="w-full text-white font-semibold py-2 rounded-lg text-sm"
+          style={{ backgroundColor: primaryColor }}
+          disabled
+        >
+          Wyślij zgłoszenie
+        </button>
+      </div>
     </div>
   );
 };

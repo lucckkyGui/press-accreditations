@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, Calendar, Users, QrCode, Settings } from 'lucide-react';
+import { BarChart3, Calendar, Newspaper, QrCode, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const tabs = [
-  { path: '/dashboard', icon: BarChart3, label: 'Panel' },
+  { path: '/dashboard', icon: BarChart3, label: 'Pulpit' },
   { path: '/events', icon: Calendar, label: 'Wydarzenia' },
-  { path: '/guests', icon: Users, label: 'Goście' },
-  { path: '/scanner', icon: QrCode, label: 'Skaner' },
+  { path: '/guests', icon: Newspaper, label: 'Zgłoszenia' },
+  { path: '/scanner', icon: QrCode, label: 'Check-in' },
   { path: '/settings', icon: Settings, label: 'Więcej' },
 ];
 
