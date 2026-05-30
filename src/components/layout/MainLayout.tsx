@@ -5,28 +5,24 @@ import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 import MobileTabBar from "./MobileTabBar";
-import { Outlet, useLocation } from "react-router-dom";
-import { useWindowSize } from "@/hooks/useWindowSize";
+import { Outlet } from "react-router-dom";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import AppBreadcrumbs from "@/components/common/AppBreadcrumbs";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import PageTransition from "@/components/common/PageTransition";
 import SkipToContent from "@/components/common/SkipToContent";
 
 const MainLayout: React.FC = () => {
-  const { isMobile } = useWindowSize();
   useKeyboardShortcuts();
 
   return (
-    <div className="min-h-screen flex w-full bg-muted/30">
+    <div className="min-h-screen flex w-full bg-background">
       <SkipToContent />
       <SidebarProvider>
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main id="main-content" className="flex-1 p-3 md:p-6 lg:p-8 pb-20 md:pb-6 overflow-auto" role="main">
+          <main id="main-content" className="flex-1 p-4 md:p-6 lg:p-8 pb-20 md:pb-6 overflow-auto" role="main">
             <div className="max-w-7xl mx-auto w-full animate-fade-in">
-              <AppBreadcrumbs />
               <Suspense fallback={
                 <div className="h-64 flex items-center justify-center">
                   <LoadingSpinner />

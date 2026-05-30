@@ -62,23 +62,24 @@ CREATE TABLE ticket_types (
 -- Guests table
 CREATE TABLE guests (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     company VARCHAR,
     phone VARCHAR,
-    zone VARCHAR NOT NULL CHECK (zone IN ('vip', 'press', 'staff', 'general')),
+    ticket_type TEXT DEFAULT 'uczestnik',
+    zone TEXT,
+    zones TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
     status VARCHAR NOT NULL CHECK (status IN ('invited', 'confirmed', 'declined', 'checked-in')),
-    email_status VARCHAR CHECK (email_status IN ('sent', 'opened', 'failed', 'unknown')),
+    email_status VARCHAR CHECK (email_status IN ('sent', 'opened', 'failed', 'unknown', 'pending')),
     qr_code VARCHAR NOT NULL UNIQUE,
     invitation_sent_at TIMESTAMP WITH TIME ZONE,
     invitation_opened_at TIMESTAMP WITH TIME ZONE,
     checked_in_at TIMESTAMP WITH TIME ZONE,
-    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     notes TEXT,
     tags VARCHAR[],
     custom_field_values JSONB DEFAULT '{}',
-    ticket_type_id UUID REFERENCES ticket_types(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     created_by UUID REFERENCES users(id),
@@ -188,5 +189,8 @@ CREATE INDEX idx_users_organization ON users(organization_id);
 CREATE INDEX idx_events_organization ON events(organization_id);
 CREATE INDEX idx_guests_event ON guests(event_id);
 CREATE INDEX idx_guests_status ON guests(status);
+CREATE INDEX idx_guests_ticket_type ON guests(ticket_type);
+CREATE INDEX idx_guests_event_ticket_type ON guests(event_id, ticket_type);
+CREATE INDEX idx_guests_zones_gin ON guests USING GIN(zones);
 CREATE INDEX idx_scans_event ON scans(event_id);
 CREATE INDEX idx_scans_guest ON scans(guest_id);

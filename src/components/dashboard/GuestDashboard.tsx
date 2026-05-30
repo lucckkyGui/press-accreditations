@@ -138,7 +138,7 @@ const GuestDashboard = () => {
 
       {/* Quick stats */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="card-glow border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/20 rounded-full">
@@ -152,7 +152,7 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-info/10 to-info/5 border-info/20">
+        <Card className="card-glow border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-info/20 rounded-full">
@@ -166,7 +166,7 @@ const GuestDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
+        <Card className="card-glow border-border">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-warning/20 rounded-full">
@@ -375,7 +375,7 @@ const GuestDashboard = () => {
           </Card>
 
           {/* Help card */}
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <Card className="card-glow border-border">
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="p-3 bg-primary/20 rounded-full w-fit mx-auto mb-3">

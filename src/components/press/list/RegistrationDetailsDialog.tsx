@@ -43,31 +43,31 @@ export default function RegistrationDetailsDialog({
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="text-sm font-medium text-gray-500">Media Organization</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Media Organization</h4>
               <p>{registration.mediaOrganization}</p>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-gray-500">Job Title</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Job Title</h4>
               <p>{registration.jobTitle}</p>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-gray-500">Website</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Website</h4>
               <p>{registration.website || 'Not provided'}</p>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-gray-500">Previous Accreditation</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Previous Accreditation</h4>
               <p>{registration.previousAccreditation ? 'Yes' : 'No'}</p>
             </div>
             {registration.coverageDescription && (
               <div className="col-span-2">
-                <h4 className="text-sm font-medium text-gray-500">Coverage Description</h4>
+                <h4 className="text-sm font-medium text-muted-foreground">Coverage Description</h4>
                 <p className="whitespace-pre-wrap">{registration.coverageDescription}</p>
               </div>
             )}
           </div>
           
           <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-2">Supporting Documents</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-2">Supporting Documents</h4>
             <MediaDocumentList 
               registrationId={registration.id} 
               isOrganizer={isOrganizer}

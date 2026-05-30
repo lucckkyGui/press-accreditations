@@ -21,10 +21,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Card className={`rounded-2xl overflow-hidden border-0 shadow-md ${subscribed ? 'bg-primary/5' : 'bg-warning/5'}`}>
+    <Card className={`rounded-lg overflow-hidden border shadow-md ${subscribed ? 'bg-primary/5' : 'bg-warning/5'}`}>
       <CardContent className="flex flex-wrap items-center justify-between gap-4 py-5 px-6">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-2xl ${subscribed ? 'bg-primary/15 text-primary' : 'bg-warning/15 text-warning'}`}>
+          <div className={`p-3 rounded-lg ${subscribed ? 'bg-primary/15 text-primary' : 'bg-warning/15 text-warning'}`}>
             <Crown className="h-6 w-6" />
           </div>
           <div>

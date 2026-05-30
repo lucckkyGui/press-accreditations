@@ -7,17 +7,14 @@ const LEGACY_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ey
 
 export const SUPABASE_URL =
   import.meta.env.VITE_SUPABASE_URL ||
-  import.meta.env.SUPABASE_URL ||
   LEGACY_SUPABASE_URL;
 
 export const SUPABASE_PUBLISHABLE_KEY =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  import.meta.env.SUPABASE_PUBLISHABLE_KEY ||
   LEGACY_SUPABASE_PUBLISHABLE_KEY;
 
 export const SUPABASE_PROJECT_ID =
   import.meta.env.VITE_SUPABASE_PROJECT_ID ||
-  import.meta.env.SUPABASE_PROJECT_ID ||
   "ajotwgirccdjntuotxzy";
 
 // Import the supabase client like this:

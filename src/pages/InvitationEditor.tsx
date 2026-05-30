@@ -347,7 +347,7 @@ Zespół Organizacyjny`
       
       {/* Dialog z pełnym podglądem */}
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px]" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Pełny podgląd zaproszenia</DialogTitle>
           </DialogHeader>

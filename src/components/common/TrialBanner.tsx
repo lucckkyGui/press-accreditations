@@ -25,7 +25,7 @@ const TrialBanner: React.FC = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-r from-primary/90 via-primary to-primary/80 text-primary-foreground rounded-2xl p-4 sm:p-5 mb-6 shadow-lg shadow-primary/20">
+    <div className="relative bg-gradient-to-r from-primary/90 via-primary to-primary/80 text-primary-foreground rounded-lg p-4 sm:p-5 mb-6 shadow-lg shadow-primary/20">
       <button
         onClick={handleDismiss}
         className="absolute top-3 right-3 p-1 rounded-lg hover:bg-primary-foreground/20 transition-colors"

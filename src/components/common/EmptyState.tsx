@@ -19,7 +19,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
 }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-    <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mb-4">
       <Icon className="h-8 w-8 text-muted-foreground/50" />
     </div>
     <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>

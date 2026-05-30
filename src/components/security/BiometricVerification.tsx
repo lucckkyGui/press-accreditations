@@ -170,9 +170,9 @@ const BiometricVerification: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <Fingerprint className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <p className="text-sm text-gray-600">Przyłóż palec do skanera</p>
+            <div className="bg-muted rounded-lg p-8 text-center">
+              <Fingerprint className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <p className="text-sm text-muted-foreground">Przyłóż palec do skanera</p>
             </div>
             <Button onClick={simulateFingerprint} className="w-full">
               Symuluj skan
@@ -188,9 +188,9 @@ const BiometricVerification: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <Eye className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <p className="text-sm text-gray-600">Spójrz w kamerę</p>
+            <div className="bg-muted rounded-lg p-8 text-center">
+              <Eye className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <p className="text-sm text-muted-foreground">Spójrz w kamerę</p>
             </div>
             <Button onClick={simulateIrisScanner} className="w-full">
               Symuluj skan
@@ -220,9 +220,9 @@ const BiometricVerification: React.FC = () => {
               <div className="text-right">
                 <div className="flex items-center gap-2 mb-1">
                   {capturedData.verified ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-success" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   <Badge variant={capturedData.verified ? "default" : "destructive"}>
                     {capturedData.verified ? 'Zweryfikowano' : 'Odrzucono'}

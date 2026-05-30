@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Users, Tag, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FormattedDate from "./FormattedDate";
-import { MockEvent } from "@/services/events/mockEventsService";
+import type { PublicAccreditationEvent } from "@/types/event/event";
 
 interface AccreditationEventCardProps {
-  event: MockEvent;
+  event: PublicAccreditationEvent;
   currentLanguage: string;
   translations: {
     duration: string;

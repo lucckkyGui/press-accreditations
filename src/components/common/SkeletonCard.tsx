@@ -16,14 +16,14 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   showHeader = true,
   showIcon = true,
 }) => (
-  <Card className={cn("rounded-2xl border-border", className)}>
+  <Card className={cn("rounded-lg border-border", className)}>
     {showHeader && (
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-3.5 w-48" />
         </div>
-        {showIcon && <Skeleton className="h-10 w-10 rounded-xl shrink-0" />}
+        {showIcon && <Skeleton className="h-10 w-10 rounded-lg shrink-0" />}
       </CardHeader>
     )}
     <CardContent className="space-y-3">
@@ -39,7 +39,7 @@ interface SkeletonStatCardProps {
 }
 
 export const SkeletonStatCard: React.FC<SkeletonStatCardProps> = ({ className }) => (
-  <Card className={cn("overflow-hidden rounded-2xl border-border", className)}>
+  <Card className={cn("overflow-hidden rounded-lg border-border", className)}>
     <CardContent className="p-5">
       <div className="flex justify-between items-start">
         <div className="space-y-3">
@@ -47,7 +47,7 @@ export const SkeletonStatCard: React.FC<SkeletonStatCardProps> = ({ className })
           <Skeleton className="h-8 w-16" />
           <Skeleton className="h-3 w-32" />
         </div>
-        <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
+        <Skeleton className="h-11 w-11 rounded-lg shrink-0" />
       </div>
     </CardContent>
   </Card>

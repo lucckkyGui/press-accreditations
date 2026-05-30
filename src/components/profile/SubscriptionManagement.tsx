@@ -139,7 +139,7 @@ const SubscriptionManagement = () => {
           ) : (
             <>
               <div className="text-center py-6 space-y-3">
-                <div className="mx-auto h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <div className="mx-auto h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Crown className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold">Aktywuj plan premium</h3>

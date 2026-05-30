@@ -3,7 +3,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EventSortOrder } from "@/services/events/mockEventsService";
+import type { EventSortOrder } from "@/types/event/event";
 
 interface EventFiltersProps {
   searchQuery: string;

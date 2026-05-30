@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { features } from '@/config/features';
 
 // Lazy-load heavy advanced tab components
 const ZoneManagement = lazy(() => import('@/components/guests/advanced/ZoneManagement'));
@@ -81,12 +82,12 @@ const Guests = () => {
   if (events.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <CalendarDays className="h-8 w-8 text-primary/40" />
+        <div className="mx-auto mb-4 h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
+          <CalendarDays className="h-7 w-7 text-primary/50" />
         </div>
-        <h2 className="text-xl font-semibold text-foreground mb-2">Brak wydarzeń</h2>
-        <p className="text-muted-foreground mb-6">Utwórz wydarzenie, aby zarządzać gośćmi</p>
-        <Button className="rounded-xl" onClick={() => navigate('/events')}>Utwórz wydarzenie</Button>
+        <h2 className="text-base font-semibold text-foreground mb-2">Brak wydarzeń</h2>
+        <p className="text-muted-foreground mb-6 text-sm">Utwórz wydarzenie, aby zarządzać gośćmi</p>
+        <Button className="rounded-lg" onClick={() => navigate('/events')}>Utwórz wydarzenie</Button>
       </div>
     );
   }
@@ -94,7 +95,7 @@ const Guests = () => {
   return (
     <div className="space-y-6">
       {/* Event selector */}
-      <Card className="rounded-2xl border-border bg-primary/5">
+      <Card className="rounded-lg border-border bg-card">
         <CardContent className="py-4 px-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <label className="text-sm font-semibold text-foreground whitespace-nowrap">Wydarzenie:</label>
@@ -157,6 +158,50 @@ const Guests = () => {
 
 const AdvancedGuestsPanel = () => {
   const [activeTab, setActiveTab] = useState('zones');
+  const advancedTabs = [
+    {
+      value: 'zones',
+      icon: BarChart3,
+      label: 'Strefy',
+      content: <ZoneManagement />,
+    },
+    {
+      value: 'security',
+      icon: Shield,
+      label: 'Kontrola',
+      content: <BlacklistWhitelistManager />,
+    },
+    {
+      value: 'reports',
+      icon: FileDown,
+      label: 'Raporty',
+      content: <ReportExporter />,
+    },
+    ...(features.aiFraud ? [{
+      value: 'ai-fraud',
+      icon: Brain,
+      label: 'AI Fraud',
+      content: <AIFraudDetection />,
+    }] : []),
+    ...(features.faceRecognition ? [{
+      value: 'biometric',
+      icon: Fingerprint,
+      label: 'Biometria',
+      content: <BiometricVerification />,
+    }] : []),
+    {
+      value: 'analytics',
+      icon: Brain,
+      label: 'Analityka',
+      content: <PredictiveAnalytics />,
+    },
+    ...(features.blockchain ? [{
+      value: 'blockchain',
+      icon: Shield,
+      label: 'Blockchain',
+      content: <BlockchainCredentials />,
+    }] : []),
+  ];
 
   return (
     <div className="space-y-4">
@@ -166,44 +211,20 @@ const AdvancedGuestsPanel = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
-          <TabsTrigger value="zones" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Strefy</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Kontrola</span>
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <FileDown className="h-4 w-4" />
-            <span className="hidden sm:inline">Raporty</span>
-          </TabsTrigger>
-          <TabsTrigger value="ai-fraud" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            <span className="hidden sm:inline">AI Fraud</span>
-          </TabsTrigger>
-          <TabsTrigger value="biometric" className="flex items-center gap-2">
-            <Fingerprint className="h-4 w-4" />
-            <span className="hidden sm:inline">Biometria</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            <span className="hidden sm:inline">Analityka</span>
-          </TabsTrigger>
-          <TabsTrigger value="blockchain" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Blockchain</span>
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+          {advancedTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
+              <tab.icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="zones"><LazyTab><ZoneManagement /></LazyTab></TabsContent>
-        <TabsContent value="security"><LazyTab><BlacklistWhitelistManager /></LazyTab></TabsContent>
-        <TabsContent value="reports"><LazyTab><ReportExporter /></LazyTab></TabsContent>
-        <TabsContent value="ai-fraud"><LazyTab><AIFraudDetection /></LazyTab></TabsContent>
-        <TabsContent value="biometric"><LazyTab><BiometricVerification /></LazyTab></TabsContent>
-        <TabsContent value="analytics"><LazyTab><PredictiveAnalytics /></LazyTab></TabsContent>
-        <TabsContent value="blockchain"><LazyTab><BlockchainCredentials /></LazyTab></TabsContent>
+        {advancedTabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value}>
+            <LazyTab>{tab.content}</LazyTab>
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );

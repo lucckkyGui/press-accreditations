@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { GenericPageSkeleton } from "@/components/common/PageSkeleton";
+import { features } from "@/config/features";
 
 // Lazy-load ALL pages including auth pages to slim down app core
 const Index = lazy(() => import("@/pages/Index"));
@@ -19,6 +20,7 @@ const Guests = lazy(() => import("@/pages/Guests"));
 const Events = lazy(() => import("@/pages/Events"));
 const EventDetails = lazy(() => import("@/pages/EventDetails"));
 const Scanner = lazy(() => import("@/pages/Scanner"));
+const Diagnostics = lazy(() => import("@/pages/Diagnostics"));
 const SettingsPage = lazy(() => import("@/pages/Settings"));
 const ProfileSettings = lazy(() => import("@/pages/settings/ProfileSettings"));
 const AccountSettings = lazy(() => import("@/pages/settings/AccountSettings"));
@@ -74,7 +76,11 @@ const LazyFallback = () => (
 );
 
 const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
+const ADMIN_ROLES = ['admin'] as const;
 const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
+
+const disabledPublicFeature = <Navigate to="/" replace />;
+const disabledOrganizerFeature = <Navigate to="/dashboard" replace />;
 
 const AppRoutes = () => {
   return (
@@ -107,7 +113,7 @@ const AppRoutes = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
         <Route path="/access-denied" element={<AccessDenied />} />
-        <Route path="/marketplace" element={<EventMarketplace />} />
+        <Route path="/marketplace" element={features.marketplace ? <EventMarketplace /> : disabledPublicFeature} />
         {/* Public accreditation landing page - must be before catch-all */}
         <Route path="/:slug" element={<PublicAccreditationPage />} />
         
@@ -127,25 +133,30 @@ const AppRoutes = () => {
           <Route path="/events" element={<Events />} />
           <Route path="/events/:eventId" element={<EventDetails />} />
           <Route path="/scanner" element={<Scanner />} />
+          <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/invitation-editor" element={<InvitationEditor />} />
           <Route path="/ticketing" element={<Ticketing />} />
           <Route path="/press-releases" element={<PressReleasePage />} />
           <Route path="/media-portal" element={<MediaPortalPage />} />
-          <Route path="/rfid-scanner" element={<RfidScanner />} />
-          <Route path="/wristbands" element={<WristbandManagement />} />
+          <Route path="/rfid-scanner" element={features.rfid ? <RfidScanner /> : disabledOrganizerFeature} />
+          <Route path="/wristbands" element={features.wristbands ? <WristbandManagement /> : disabledOrganizerFeature} />
           
           <Route path="/post-event-report" element={<PostEventReport />} />
           <Route path="/embed-widget" element={<EmbedWidget />} />
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/sponsor-report" element={<SponsorReport />} />
-          <Route path="/landing-page/:eventId" element={<LandingPageBuilder />} />
+          <Route path="/landing-page/:eventId" element={features.landingPageBuilder ? <LandingPageBuilder /> : disabledOrganizerFeature} />
           <Route path="/admin/monitoring" element={<AdminMonitoring />} />
           <Route path="/ai-dashboard" element={<AIDashboard />} />
           
-          <Route path="/white-label" element={<WhiteLabelSettings />} />
+          <Route path="/white-label" element={features.whiteLabel ? <WhiteLabelSettings /> : disabledOrganizerFeature} />
           <Route path="/integrations" element={<IntegrationsHub />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
-          <Route path="/audit-trail" element={<AuditTrail />} />
+          <Route path="/audit-trail" element={
+            <ProtectedRoute allowedRoles={[...ADMIN_ROLES]}>
+              <AuditTrail />
+            </ProtectedRoute>
+          } />
           <Route path="/digital-pass" element={<DigitalPassPage />} />
         </Route>
 

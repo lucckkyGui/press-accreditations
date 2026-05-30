@@ -31,7 +31,7 @@ const EventsTabContent: React.FC<EventsTabContentProps> = ({ eventsData, eventsL
   return (
     <div className="space-y-6">
       {activeEvents.length > 0 && (
-        <Card className="border-0 rounded-2xl bg-success/5 shadow-sm">
+        <Card className="border-0 rounded-lg bg-success/5 shadow-card">
           <CardHeader>
             <div className="flex items-center gap-2.5">
               <div className="h-3 w-3 rounded-full bg-success animate-pulse" />
@@ -61,7 +61,7 @@ const EventsTabContent: React.FC<EventsTabContentProps> = ({ eventsData, eventsL
         </Card>
       )}
 
-      <Card className="rounded-2xl border-border">
+      <Card className="rounded-lg border-border">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-foreground">Nadchodzące wydarzenia</CardTitle>
@@ -80,7 +80,7 @@ const EventsTabContent: React.FC<EventsTabContentProps> = ({ eventsData, eventsL
             </div>
           ) : upcomingEvents.length === 0 ? (
             <div className="text-center py-14 text-muted-foreground">
-              <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <div className="mx-auto mb-4 h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Calendar className="h-8 w-8 text-primary/40" />
               </div>
               <p className="font-medium text-foreground">Brak nadchodzących wydarzeń</p>

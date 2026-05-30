@@ -485,7 +485,7 @@ const Purchase = () => {
   const renderConfirmation = () => (
     <div className="mb-8 text-center">
       <div className="mb-6 flex justify-center">
-        <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-full">
+        <div className="bg-success/10 p-4 rounded-full">
           <Check className="h-16 w-16 text-green-600 dark:text-green-400" />
         </div>
       </div>

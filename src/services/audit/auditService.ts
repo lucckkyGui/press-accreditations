@@ -1,6 +1,6 @@
 import {
-  SUPABASE_PROJECT_ID,
   SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_URL,
   supabase,
 } from "@/integrations/supabase/client";
 
@@ -35,19 +35,11 @@ export const fetchAuditLogs = async (params: FetchAuditLogsParams = {}): Promise
   if (params.limit) queryParams.set("limit", String(params.limit));
   if (params.offset) queryParams.set("offset", String(params.offset));
 
-  const { data, error } = await supabase.functions.invoke("audit-logs", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    body: null,
-  });
-
-  // supabase.functions.invoke doesn't support query params well for GET,
-  // so we'll use fetch directly
   const session = await supabase.auth.getSession();
   const token = session.data.session?.access_token;
+  if (!token) throw new Error("Missing session");
   
-  const projectId = SUPABASE_PROJECT_ID;
-  const url = `https://${projectId}.supabase.co/functions/v1/audit-logs?${queryParams.toString()}`;
+  const url = `${SUPABASE_URL}/functions/v1/audit-logs?${queryParams.toString()}`;
 
   const response = await fetch(url, {
     method: "GET",

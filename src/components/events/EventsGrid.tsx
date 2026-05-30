@@ -1,10 +1,10 @@
 
 import React from "react";
-import { MockEvent } from "@/services/events/mockEventsService";
+import type { PublicAccreditationEvent } from "@/types/event/event";
 import AccreditationEventCard from "./AccreditationEventCard";
 
 interface EventsGridProps {
-  events: MockEvent[];
+  events: PublicAccreditationEvent[];
   currentLanguage: string;
   noEventsMessage: string;
   translations: {

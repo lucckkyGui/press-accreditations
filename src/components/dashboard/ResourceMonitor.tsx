@@ -168,7 +168,7 @@ const ResourceMonitor = () => {
     <div className="space-y-6">
       {/* Threshold alerts banner */}
       {thresholdAlerts.length > 0 && (
-        <Alert variant="destructive" className="rounded-2xl border-destructive/30 bg-destructive/5">
+        <Alert variant="destructive" className="rounded-lg border-destructive/30 bg-destructive/5">
           <AlertTriangle className="h-5 w-5" />
           <AlertTitle className="text-base font-semibold">
             ⚠️ Przekroczono {THRESHOLD}% limitu zasobów
@@ -224,7 +224,7 @@ const ResourceMonitor = () => {
       </div>
 
       {/* Database usage */}
-      <Card className="rounded-2xl border-border">
+      <Card className="rounded-lg border-border">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Database className="h-5 w-5 text-primary" />
@@ -281,7 +281,7 @@ const ResourceMonitor = () => {
       </Card>
 
       {/* Email stats */}
-      <Card className="rounded-2xl border-border">
+      <Card className="rounded-lg border-border">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
@@ -316,7 +316,7 @@ const ResourceMonitor = () => {
       </Card>
 
       {/* Storage estimate */}
-      <Card className="rounded-2xl border-border">
+      <Card className="rounded-lg border-border">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
             <HardDrive className="h-5 w-5 text-primary" />

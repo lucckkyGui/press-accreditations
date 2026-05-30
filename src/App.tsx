@@ -1,7 +1,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -17,6 +17,9 @@ import OnlineStatusToast from "./components/common/OnlineStatusToast";
 import CommandPalette from "./components/common/CommandPalette";
 import TopProgressBar from "./components/common/TopProgressBar";
 import KeyboardShortcutsDialog from "./components/common/KeyboardShortcutsDialog";
+import ServiceWorkerUpdatePrompt from "./components/common/ServiceWorkerUpdatePrompt";
+import { syncWorker } from "@/lib/sync/syncWorker";
+import ObservabilityContext from "@/components/common/ObservabilityContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +32,14 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  useEffect(() => {
+    syncWorker.start();
+
+    return () => {
+      syncWorker.stop();
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <BrowserRouter>
@@ -38,6 +49,7 @@ const App = () => {
         <I18nProvider>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
+              <ObservabilityContext />
               <TooltipProvider delayDuration={0}>
                 <AppRoutes />
                 <CookieConsent />
@@ -45,13 +57,13 @@ const App = () => {
                 <OnlineStatusToast />
                 <CommandPalette />
                 <KeyboardShortcutsDialog />
+                <ServiceWorkerUpdatePrompt />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>
             </AuthProvider>
           </QueryClientProvider>
         </I18nProvider>
-        <SpeedInsights />
       </BrowserRouter>
     </ErrorBoundary>
   );

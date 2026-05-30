@@ -46,7 +46,7 @@ const EventCard = ({
   }
 
   return (
-    <Card className="group w-full overflow-hidden rounded-2xl border-0 bg-card shadow-soft hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1">
+    <Card className="group w-full overflow-hidden rounded-lg border border-border bg-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5">
       {/* Top gradient accent bar */}
       <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/70 to-secondary" />
       

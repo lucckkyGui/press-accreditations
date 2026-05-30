@@ -189,10 +189,13 @@ export const guestScannerService = {
       };
     }
 
+    const scannedAt = new Date().toISOString();
     const { data, error } = await supabase.rpc("process_qr_check_in", {
       _qr_code: qrCode,
       _event_id: eventId,
       _device_info: deviceInfo,
+      _client_scan_id: crypto.randomUUID(),
+      _scanned_at: scannedAt,
     });
 
     if (error) {

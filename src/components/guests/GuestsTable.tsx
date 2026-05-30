@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, QrCode, Send, User } from 'lucide-react';
 import { Guest, GuestTicketType, TICKET_TYPE_LABELS } from "@/types";
 import { Card } from "@/components/ui/card";
 
@@ -16,6 +16,9 @@ interface GuestsTableProps {
   onPageChange: (page: number) => void;
   onEdit: (guest: Guest) => void;
   onDelete: (id: string) => void;
+  onViewQR?: (guest: Guest) => void;
+  onResendInvite?: (guest: Guest) => void;
+  onViewDetails?: (guest: Guest) => void;
   selectedGuests: Guest[];
   setSelectedGuests: React.Dispatch<React.SetStateAction<Guest[]>>;
   isLoading: boolean;
@@ -37,7 +40,8 @@ const ticketTypeColors: Partial<Record<GuestTicketType, string>> = {
 
 export const GuestsTable = ({
   guests, total, page, pageSize, onPageChange,
-  onEdit, onDelete, selectedGuests, setSelectedGuests, isLoading
+  onEdit, onDelete, onViewQR, onResendInvite, onViewDetails,
+  selectedGuests, setSelectedGuests, isLoading
 }: GuestsTableProps) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -104,7 +108,7 @@ export const GuestsTable = ({
 
   if (isLoading) {
     return (
-      <Card className="rounded-2xl border-border">
+      <Card className="rounded-lg border-border">
         <div className="space-y-3 p-6">
           {[1, 2, 3, 4].map(i => <div key={i} className="h-14 rounded-xl bg-muted animate-pulse" />)}
         </div>
@@ -116,7 +120,7 @@ export const GuestsTable = ({
   const rangeEnd = Math.min((page + 1) * pageSize, total);
 
   return (
-    <Card className="rounded-2xl border-border overflow-hidden">
+    <Card className="rounded-lg border-border overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -145,8 +149,12 @@ export const GuestsTable = ({
             </TableRow>
           ) : (
             guests.map((guest) => (
-              <TableRow key={guest.id} className="group hover:bg-primary/5 transition-colors">
-                <TableCell>
+              <TableRow
+                key={guest.id}
+                className={`group hover:bg-primary/5 transition-colors ${onViewDetails ? "cursor-pointer" : ""}`}
+                onClick={onViewDetails ? () => onViewDetails(guest) : undefined}
+              >
+                <TableCell onClick={(event) => event.stopPropagation()}>
                   <Checkbox
                     checked={selectedGuests.some(g => g.id === guest.id)}
                     onCheckedChange={(checked) => handleSelectGuest(guest, !!checked)}
@@ -167,12 +175,27 @@ export const GuestsTable = ({
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(guest.status)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
                   <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="sm" onClick={() => onEdit(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary">
+                    {onViewDetails && (
+                      <Button variant="ghost" size="sm" onClick={() => onViewDetails(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary" aria-label="Szczegóły gościa">
+                        <User className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {onViewQR && (
+                      <Button variant="ghost" size="sm" onClick={() => onViewQR(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary" aria-label="Pokaż QR">
+                        <QrCode className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" onClick={() => onEdit(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary" aria-label="Edytuj gościa">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => onDelete(guest.id)} className="rounded-lg h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive">
+                    {onResendInvite && (
+                      <Button variant="ghost" size="sm" onClick={() => onResendInvite(guest)} className="rounded-lg h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary" aria-label="Wyślij zaproszenie ponownie">
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" onClick={() => onDelete(guest.id)} className="rounded-lg h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" aria-label="Usuń gościa">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

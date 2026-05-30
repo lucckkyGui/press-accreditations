@@ -136,7 +136,7 @@ export default function BadgeGenerator({ registrationId, userInfo, eventInfo }: 
           </div>
         </div>
 
-        <div className="border rounded-lg p-4 bg-gray-50">
+        <div className="border rounded-lg p-4 bg-muted/40">
           <h4 className="font-medium mb-3">Podgląd identyfikatora:</h4>
           <div className="bg-white border-2 border-gray-200 rounded-lg p-4 max-w-sm mx-auto">
             <div className="bg-blue-500 text-white p-3 rounded-t-lg text-center">

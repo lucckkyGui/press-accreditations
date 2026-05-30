@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScanLine, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ScanLine, CheckCircle, XCircle, Clock, QrCode } from 'lucide-react';
 import { relativeTime } from '@/utils/relativeTime';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -78,19 +78,24 @@ const RecentScansWidget: React.FC = () => {
   });
 
   return (
-    <Card className="rounded-2xl border-border/60">
+    <Card className="rounded-xl border-border/60 shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-            <ScanLine className="h-4 w-4 text-primary" />
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <ScanLine className="h-4 w-4 text-primary" />
+              </div>
+              Ostatnie skany
+            </CardTitle>
+            <CardDescription className="mt-1">Ostatnia aktywność wejść i odmów dostępu</CardDescription>
           </div>
-          Ostatnie skany
           {scans.length > 0 && (
-            <Badge variant="secondary" className="ml-auto text-[10px] rounded-lg">
-              Live
+            <Badge variant="secondary" className="rounded-md text-[10px]">
+              Auto-odświeżanie
             </Badge>
           )}
-        </CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="space-y-1">
         {isLoading ? (
@@ -104,7 +109,15 @@ const RecentScansWidget: React.FC = () => {
             </div>
           ))
         ) : scans.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">Brak ostatnich skanów</p>
+          <div className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-8 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <QrCode className="h-6 w-6" />
+            </div>
+            <p className="text-sm font-medium text-foreground">Brak ostatnich skanów</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Po pierwszym skanie zobaczysz tutaj wynik, strefę i czas zdarzenia.
+            </p>
+          </div>
         ) : (
           scans.slice(0, 6).map((scan) => {
             const config = statusConfig[scan.status];

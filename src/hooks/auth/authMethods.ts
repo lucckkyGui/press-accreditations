@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { clearLocalOfflineData } from '@/lib/db/localDb';
 import { toast } from 'sonner';
 import { AuthData } from './types';
 
@@ -49,6 +50,7 @@ export const signOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    await clearLocalOfflineData();
     toast.success('Signed out successfully');
   } catch (error: any) {
     toast.error(error.message);

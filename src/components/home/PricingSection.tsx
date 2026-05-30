@@ -26,7 +26,7 @@ interface PricingCardProps {
 }
 
 const PricingCard = ({ title, price, originalPrice, period, description, features, buttonText, isPrimary = false, badge, isLoading, onSelect }: PricingCardProps) => (
-  <Card className={`flex flex-col relative rounded-2xl transition-all duration-300 hover:-translate-y-1 ${isPrimary ? 'border-2 border-primary shadow-xl shadow-primary/10 md:scale-105 bg-card' : 'border bg-card shadow-soft hover:shadow-card-hover'}`}>
+  <Card className={`flex flex-col relative rounded-lg transition-all duration-300 hover:-translate-y-0.5 ${isPrimary ? 'border-2 border-primary shadow-glow-soft md:scale-105 bg-card' : 'border bg-card shadow-card hover:shadow-card-hover'}`}>
     {badge && (
       <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 gradient-primary text-primary-foreground border-0 px-4 py-1">
         <Sparkles className="h-3 w-3 mr-1" />

@@ -17,7 +17,7 @@ const TicketTypeStatsCard: React.FC<TicketTypeStatsCardProps> = ({ byTicketType,
   const entries = Object.entries(byTicketType).sort((a, b) => b[1] - a[1]);
 
   return (
-    <Card className="rounded-2xl border-border">
+    <Card className="rounded-lg border-border">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Ticket className="h-5 w-5 text-primary" />
