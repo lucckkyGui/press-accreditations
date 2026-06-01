@@ -21,6 +21,8 @@ const AuditTrail = () => {
   const [loading, setLoading] = useState(true);
   const [filterAction, setFilterAction] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterResourceId, setFilterResourceId] = useState("");
+  const [filterEventId, setFilterEventId] = useState("");
   const [page, setPage] = useState(0);
   const pageSize = 50;
 
@@ -35,6 +37,8 @@ const AuditTrail = () => {
       const result = await fetchAuditLogs({
         action: filterAction !== "all" ? filterAction : undefined,
         search: searchTerm || undefined,
+        resourceId: filterResourceId.trim() || undefined,
+        eventId: filterEventId.trim() || undefined,
         limit: pageSize,
         offset: page * pageSize,
       });
@@ -46,7 +50,7 @@ const AuditTrail = () => {
     } finally {
       setLoading(false);
     }
-  }, [filterAction, searchTerm, page]);
+  }, [filterAction, searchTerm, filterResourceId, filterEventId, page]);
 
   useEffect(() => {
     loadLogs();
@@ -123,6 +127,18 @@ const AuditTrail = () => {
                       className="pl-10 w-[200px]"
                     />
                   </div>
+                  <Input
+                    placeholder="resource_id"
+                    value={filterResourceId}
+                    onChange={e => { setFilterResourceId(e.target.value); setPage(0); }}
+                    className="w-[160px]"
+                  />
+                  <Input
+                    placeholder="event_id"
+                    value={filterEventId}
+                    onChange={e => { setFilterEventId(e.target.value); setPage(0); }}
+                    className="w-[160px]"
+                  />
                   <Select value={filterAction} onValueChange={v => { setFilterAction(v); setPage(0); }}>
                     <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
