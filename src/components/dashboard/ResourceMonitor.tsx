@@ -49,7 +49,9 @@ const ResourceMonitor = () => {
         supabase.from("events").select("*", { count: "exact", head: true }).eq("organizer_id", user.id),
         supabase.from("guests").select("*", { count: "exact", head: true }),
         supabase.from("accreditations").select("*", { count: "exact", head: true }),
-        supabase.from("accreditation_requests").select("*", { count: "exact", head: true }),
+        // Single source of truth: media submissions (landing_page_submissions).
+        // Not in generated types yet → cast.
+        (supabase as any).from("landing_page_submissions").select("*", { count: "exact", head: true }),
         supabase.from("invitations").select("*", { count: "exact", head: true }),
         supabase.from("email_queue").select("*", { count: "exact", head: true }),
         supabase.from("email_queue").select("*", { count: "exact", head: true }).eq("status", "failed"),

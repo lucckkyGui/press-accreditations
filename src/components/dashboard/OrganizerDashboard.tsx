@@ -206,9 +206,11 @@ const OrganizerDashboard = () => {
     queryKey: ["pendingAccreditations", user?.id],
     queryFn: async () => {
       if (!user?.id || !eventsData?.length) return [];
-      const { data, error } = await supabase
-        .from("accreditation_requests")
-        .select("*")
+      // Single source of truth: pending media submissions (landing_page_submissions).
+      // Not in generated types yet → cast. RLS scopes to the organizer's events.
+      const { data, error } = await (supabase as any)
+        .from("landing_page_submissions")
+        .select("id, status, event_id")
         .in("event_id", eventsData.map((e) => e.id))
         .eq("status", "pending")
         .limit(5);
