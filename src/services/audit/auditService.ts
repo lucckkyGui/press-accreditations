@@ -23,6 +23,8 @@ interface FetchAuditLogsParams {
   action?: string;
   severity?: string;
   search?: string;
+  resourceId?: string;
+  eventId?: string;
   limit?: number;
   offset?: number;
 }
@@ -32,6 +34,8 @@ export const fetchAuditLogs = async (params: FetchAuditLogsParams = {}): Promise
   if (params.action) queryParams.set("action", params.action);
   if (params.severity) queryParams.set("severity", params.severity);
   if (params.search) queryParams.set("search", params.search);
+  if (params.resourceId) queryParams.set("resource_id", params.resourceId);
+  if (params.eventId) queryParams.set("event_id", params.eventId);
   if (params.limit) queryParams.set("limit", String(params.limit));
   if (params.offset) queryParams.set("offset", String(params.offset));
 

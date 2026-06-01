@@ -1,51 +1,57 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { QrCode, Wifi, WifiOff, CheckCircle, XCircle, Clock, ChevronDown, Camera } from "lucide-react";
+import {
+  QrCode, Wifi, WifiOff, CheckCircle, XCircle, Clock, Camera, Search, Ban, ShieldAlert, Loader2,
+} from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Event, Guest } from "@/types";
+import { Event } from "@/types";
+import {
+  guestScannerService, type ScanResult, type QrCheckInStatus, type ManualSearchResult,
+} from "@/services/scanner/guestScannerService";
 import { processLocalQrScan } from "@/services/scanner/localQrScanService";
-import type { LocalQrScanResult } from "@/services/scanner/localQrScanService";
 import { getOrCreateDeviceId } from "@/lib/db/localDb";
+import { accessLevelLabel } from "@/lib/accreditation/decisionFlow";
+import { createAuditLog } from "@/services/audit/auditService";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import CameraPreview from "@/components/scanner/CameraPreview";
-import OfflineEventManifestCard from "@/components/scanner/OfflineEventManifestCard";
 
-type ScanEntry = LocalQrScanResult & { _id: string };
+interface ScanRecord {
+  _id: string;
+  status: QrCheckInStatus;
+  message: string;
+  name: string | null;
+  company: string | null;
+  accessLevel: string | null;
+  checkInTime: string | null;
+  scannedAt: string;
+  elapsedMs: number;
+}
 
-const GATES = ["Bramka A · Wejście główne", "Bramka B · Wejście boczne", "Wejście VIP", "Backstage"];
-const CAMERAS = ["Kamera: Tylna", "Kamera: Przednia"];
-
-const statusOf = (s: LocalQrScanResult["status"]) => {
-  if (s === "found") return "ok";
-  if (s === "already_checked_in_locally") return "warn";
-  return "bad";
+const STATUS_META: Record<QrCheckInStatus, { label: string; tone: "ok" | "warn" | "bad"; hint: string }> = {
+  success:      { label: "WEJŚCIE OK",      tone: "ok",   hint: "Akredytacja potwierdzona" },
+  duplicate:    { label: "DUPLIKAT",        tone: "warn", hint: "Już zeskanowano" },
+  invalid:      { label: "NIEZNANY QR",     tone: "bad",  hint: "Brak akredytacji" },
+  wrong_event:  { label: "ZŁE WYDARZENIE",  tone: "bad",  hint: "QR z innego eventu" },
+  expired:      { label: "WYGASŁE",         tone: "bad",  hint: "Wydarzenie zakończone" },
+  revoked:      { label: "COFNIĘTE",        tone: "bad",  hint: "Akredytacja cofnięta" },
+  unauthorized: { label: "BRAK UPRAWNIEŃ",  tone: "bad",  hint: "Brak dostępu do skanu" },
 };
 
-const StatusBadge = ({ status }: { status: LocalQrScanResult["status"] }) => {
-  const t = statusOf(status);
-  if (t === "ok")   return <span className="text-[10px] font-bold tabular-nums text-success">OK</span>;
-  if (t === "warn") return <span className="text-[10px] font-bold tabular-nums text-warning">WARN</span>;
-  return <span className="text-[10px] font-bold tabular-nums text-destructive">BAD</span>;
-};
+const toneClasses = (tone: "ok" | "warn" | "bad") =>
+  tone === "ok" ? "border-success/40 bg-success/10 text-success"
+  : tone === "warn" ? "border-warning/40 bg-warning/10 text-warning"
+  : "border-destructive/40 bg-destructive/10 text-destructive";
 
-const StatusDot = ({ status }: { status: LocalQrScanResult["status"] }) => {
-  const t = statusOf(status);
-  return (
-    <span className={cn("h-2 w-2 rounded-full shrink-0",
-      t === "ok"   ? "bg-success" :
-      t === "warn" ? "bg-warning" : "bg-destructive"
-    )} />
-  );
-};
+const formatTime = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
 
 const Scanner = () => {
-  usePageTitle("Skaner check-in");
+  usePageTitle("Check-in akredytacji");
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,21 +61,19 @@ const Scanner = () => {
   const [manualQr, setManualQr] = useState("");
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [gate, setGate] = useState(GATES[0]);
-  const [camera, setCamera] = useState(CAMERAS[0]);
-  const [showOnlyErrors, setShowOnlyErrors] = useState(false);
-  const [scanHistory, setScanHistory] = useState<ScanEntry[]>([]);
-  const [lastScan, setLastScan] = useState<ScanEntry | null>(null);
+  const [history, setHistory] = useState<ScanRecord[]>([]);
+  const [last, setLast] = useState<ScanRecord | null>(null);
   const [sessionCount, setSessionCount] = useState(0);
+  const [admitCount, setAdmitCount] = useState(0);
   const [rejectCount, setRejectCount] = useState(0);
-  const sessionStart = useRef(Date.now());
+
+  // Manual search fallback
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<ManualSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+
   const manualRef = useRef<HTMLInputElement>(null);
 
-  // Tempo (scans per hour)
-  const elapsed = (Date.now() - sessionStart.current) / 3600000;
-  const tempo = elapsed > 0 ? Math.round(sessionCount / elapsed) : 0;
-
-  // Online status
   useEffect(() => {
     const on = () => setIsOnline(true);
     const off = () => setIsOnline(false);
@@ -78,7 +82,6 @@ const Scanner = () => {
     return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
   }, []);
 
-  // Fetch events + device ID
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -89,7 +92,7 @@ const Scanner = () => {
         .eq("organizer_id", user.id)
         .order("start_date", { ascending: false });
       if (data) {
-        const mapped: Event[] = data.map(e => ({
+        const mapped: Event[] = data.map((e) => ({
           id: e.id, name: e.title, description: e.description || "",
           location: e.location || "", startDate: new Date(e.start_date),
           endDate: new Date(e.end_date), isPublished: e.is_published || false,
@@ -102,52 +105,82 @@ const Scanner = () => {
         setEvents(mapped);
         if (mapped.length > 0) setSelectedEvent(mapped[0]);
       }
-      const did = await getOrCreateDeviceId();
-      setDeviceId(did);
+      setDeviceId(await getOrCreateDeviceId());
       setLoading(false);
     };
     init().catch(() => setLoading(false));
   }, []);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === "INPUT") return;
-      if (e.key === "m" || e.key === "M") { e.preventDefault(); manualRef.current?.focus(); }
-      if (e.key === "r" || e.key === "R") { e.preventDefault(); setLastScan(null); }
-      if (e.key === "Escape") { setScanning(false); setCameraActive(false); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+  const pushResult = useCallback((rec: ScanRecord, success: boolean) => {
+    setLast(rec);
+    setHistory((prev) => [rec, ...prev].slice(0, 20));
+    setSessionCount((n) => n + 1);
+    if (success) setAdmitCount((n) => n + 1); else setRejectCount((n) => n + 1);
+    const tone = STATUS_META[rec.status].tone;
+    if (tone === "ok") toast.success(rec.message);
+    else if (tone === "warn") toast.warning(rec.message);
+    else toast.error(rec.message);
   }, []);
 
-  const handleScanResult = useCallback((result: LocalQrScanResult) => {
-    const entry: ScanEntry = { ...result, _id: crypto.randomUUID() };
-    setLastScan(entry);
-    setScanHistory(prev => [entry, ...prev].slice(0, 50));
-    setSessionCount(prev => prev + 1);
-    if (result.status !== "found") setRejectCount(prev => prev + 1);
-    if (result.status === "found") {
-      toast.success(result.message);
-    } else if (result.status === "already_checked_in_locally") {
-      toast.warning(result.message);
-    } else {
-      toast.error(result.message);
-    }
+  const auditScan = useCallback((result: ScanResult, eventId: string) => {
+    // Audyt dla istotnych zdarzeń: success / revoked / duplicate.
+    if (!["success", "revoked", "duplicate"].includes(result.status)) return;
+    const name = result.guest ? `${result.guest.firstName} ${result.guest.lastName}` : "—";
+    createAuditLog({
+      action: `checkin.${result.status}`,
+      resource: "guests",
+      resource_id: result.guest?.id,
+      severity: result.status === "revoked" ? "warning" : "info",
+      details: `Check-in ${result.status}: ${name}` + (result.revocationReason ? ` — ${result.revocationReason}` : ""),
+      metadata: { event_id: eventId, access_level: result.accessLevel ?? null },
+    }).catch((e) => console.error("audit log failed (non-critical):", e));
   }, []);
 
-  const processQr = useCallback(async (payload: string) => {
+  const runScan = useCallback(async (payload: string) => {
     if (isProcessing || !selectedEvent) return;
     const p = payload.trim();
     if (!p) return;
     setIsProcessing(true);
+    const started = performance.now();
     try {
-      const result = await processLocalQrScan({
-        eventId: selectedEvent.id,
-        qrPayload: p,
-        deviceId: deviceId ?? undefined,
-      });
-      handleScanResult(result);
+      if (isOnline) {
+        // Online-first: pełna walidacja przez RPC (7 statusów).
+        const result = await guestScannerService.verifyAndCheckIn(p, selectedEvent.id, {
+          source: "scanner", deviceId: deviceId ?? "unknown", online: true,
+        });
+        const elapsedMs = Math.round(performance.now() - started);
+        auditScan(result, selectedEvent.id);
+        pushResult({
+          _id: crypto.randomUUID(),
+          status: result.status,
+          message: result.message,
+          name: result.guest ? `${result.guest.firstName} ${result.guest.lastName}` : null,
+          company: result.guest?.company ?? null,
+          accessLevel: result.accessLevel ?? null,
+          checkInTime: result.checkInTime ?? null,
+          scannedAt: new Date().toISOString(),
+          elapsedMs,
+        }, result.success);
+      } else {
+        // Offline fallback: lokalny manifest (kolejka sync po sieci).
+        const local = await processLocalQrScan({ eventId: selectedEvent.id, qrPayload: p, deviceId: deviceId ?? undefined });
+        const map: Record<string, QrCheckInStatus> = {
+          found: "success", already_checked_in_locally: "duplicate",
+          wrong_event: "wrong_event", revoked: "revoked", unknown: "invalid",
+        };
+        const status = map[local.status] ?? "invalid";
+        pushResult({
+          _id: crypto.randomUUID(),
+          status,
+          message: local.message + " (offline)",
+          name: local.guest ? `${local.guest.firstName} ${local.guest.lastName}` : null,
+          company: local.guest?.company ?? null,
+          accessLevel: null,
+          checkInTime: local.guest?.checkedInAt ? new Date(local.guest.checkedInAt).toISOString() : null,
+          scannedAt: local.scannedAt,
+          elapsedMs: local.elapsedMs,
+        }, status === "success");
+      }
       setManualQr("");
       setScanning(false);
       setCameraActive(false);
@@ -156,99 +189,62 @@ const Scanner = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing, selectedEvent, deviceId, handleScanResult]);
+  }, [isProcessing, selectedEvent, deviceId, isOnline, pushResult, auditScan]);
 
-  const visibleHistory = showOnlyErrors
-    ? scanHistory.filter(s => statusOf(s.status) !== "ok")
-    : scanHistory;
+  const runSearch = useCallback(async (term: string) => {
+    if (!selectedEvent || term.trim().length < 2) { setSearchResults([]); return; }
+    setSearching(true);
+    try {
+      setSearchResults(await guestScannerService.searchAccreditations(selectedEvent.id, term));
+      createAuditLog({
+        action: "checkin.manual_search", resource: "guests",
+        severity: "info", details: `Manualne wyszukanie: „${term.trim()}"`,
+        metadata: { event_id: selectedEvent.id },
+      }).catch(() => {});
+    } finally {
+      setSearching(false);
+    }
+  }, [selectedEvent]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <LoadingSpinner />
-      </div>
-    );
+    return <div className="flex items-center justify-center h-[80vh]"><LoadingSpinner /></div>;
   }
 
-  const lastScanToneClass = lastScan
-    ? statusOf(lastScan.status) === "ok"   ? "border-success/40 bg-success/10"
-    : statusOf(lastScan.status) === "warn" ? "border-warning/40 bg-warning/10"
-    : "border-destructive/40 bg-destructive/10"
-    : "border-border bg-card";
+  const lastMeta = last ? STATUS_META[last.status] : null;
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] -mx-4 md:-mx-6 lg:-mx-8 overflow-hidden">
-
-      {/* ── Top control bar ── */}
+      {/* Top bar */}
       <div className="flex items-center gap-3 px-4 py-2 border-b border-border bg-background/95 backdrop-blur shrink-0 flex-wrap">
-        <div className="flex items-center gap-2">
-          {scanning ? (
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-success">
-              <span className="h-2 w-2 rounded-full bg-success pulse-live" />
-              SKANOWANIE · 18 fps
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-muted-foreground" />
-              GOTOWY
-            </div>
-          )}
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
+          <QrCode className="h-3.5 w-3.5 text-primary" /> Check-in akredytacji
         </div>
-
         <div className="h-4 w-px bg-border" />
-
         <div className={cn("flex items-center gap-1.5 text-[11px] font-medium", isOnline ? "text-success" : "text-warning")}>
           {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-          {isOnline ? "ONLINE · OFFLINE-READY" : "OFFLINE"}
+          {isOnline ? "ONLINE" : "OFFLINE · kolejka"}
         </div>
-
-        <div className="h-4 w-px bg-border" />
-
-        {/* Gate selector */}
-        <Select value={gate} onValueChange={setGate}>
-          <SelectTrigger className="h-7 text-[11px] border-border/50 bg-transparent rounded-lg gap-1 pr-2 pl-3 w-auto">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {GATES.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        {/* Camera selector */}
-        <Select value={camera} onValueChange={setCamera}>
-          <SelectTrigger className="h-7 text-[11px] border-border/50 bg-transparent rounded-lg gap-1 pr-2 pl-3 w-auto">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CAMERAS.map(c => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        {/* Event selector */}
         <div className="ml-auto">
           <Select
             value={selectedEvent?.id || ""}
-            onValueChange={val => {
-              const ev = events.find(e => e.id === val);
-              if (ev) { setSelectedEvent(ev); setLastScan(null); setScanHistory([]); }
+            onValueChange={(val) => {
+              const ev = events.find((e) => e.id === val);
+              if (ev) { setSelectedEvent(ev); setLast(null); setHistory([]); setSearchResults([]); }
             }}
           >
-            <SelectTrigger className="h-7 text-[11px] border-border/50 bg-transparent rounded-lg gap-1 pr-2 pl-3 max-w-[200px]">
+            <SelectTrigger className="h-7 text-[11px] border-border/50 bg-transparent rounded-lg gap-1 pr-2 pl-3 max-w-[220px]">
               <SelectValue placeholder="Wybierz wydarzenie" />
             </SelectTrigger>
             <SelectContent>
-              {events.map(ev => <SelectItem key={ev.id} value={ev.id} className="text-xs">{ev.name}</SelectItem>)}
+              {events.map((ev) => <SelectItem key={ev.id} value={ev.id} className="text-xs">{ev.name}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* ── Main area ── */}
       <div className="flex flex-1 min-h-0">
-
-        {/* ── Left: viewfinder ── */}
+        {/* Left: viewfinder + manual */}
         <div className="flex-1 flex flex-col relative bg-[#060609] border-r border-border">
-          {/* Viewfinder area */}
           <div className="flex-1 flex items-center justify-center relative p-8">
             {scanning && cameraActive ? (
               <div className="w-full max-w-sm mx-auto">
@@ -257,210 +253,175 @@ const Scanner = () => {
                   cameraActive={cameraActive}
                   onStartScanning={() => { setScanning(true); setCameraActive(true); }}
                   onStopScanning={() => { setScanning(false); setCameraActive(false); }}
-                  onQrCodeDetected={payload => void processQr(payload)}
+                  onQrCodeDetected={(payload) => void runScan(payload)}
                 />
               </div>
             ) : (
               <div className="relative w-72 h-72">
-                {/* Corner brackets */}
                 {[
                   "top-0 left-0 border-t-2 border-l-2 rounded-tl-lg",
                   "top-0 right-0 border-t-2 border-r-2 rounded-tr-lg",
                   "bottom-0 left-0 border-b-2 border-l-2 rounded-bl-lg",
                   "bottom-0 right-0 border-b-2 border-r-2 rounded-br-lg",
-                ].map((cls, i) => (
-                  <div key={i} className={cn("absolute h-10 w-10 border-primary/60", cls)} />
-                ))}
-
-                {/* Center content */}
+                ].map((cls, i) => <div key={i} className={cn("absolute h-10 w-10 border-primary/60", cls)} />)}
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                  <div className="text-[11px] text-white/40 text-center px-4 leading-relaxed">
-                    Wyceluj QR w okno · automatyczna detekcja
-                  </div>
-                  {/* RFID status */}
-                  <div className="flex items-center gap-3 text-[11px]">
-                    <span className="flex items-center gap-1 text-success">
-                      <span className="h-1.5 w-1.5 rounded-full bg-success pulse-live" />
-                      RFID: POŁĄCZONY
-                    </span>
-                    <span className="text-white/30">|</span>
-                    <span className="text-white/40">tryb ręczny</span>
-                  </div>
+                  <div className="text-[11px] text-white/40 text-center px-4">Wyceluj QR akredytacji w okno</div>
                   <Button
-                    className="rounded-lg bg-primary hover:bg-primary/90 glow-accent gap-2"
+                    className="rounded-lg bg-primary hover:bg-primary/90 gap-2"
                     onClick={() => { setScanning(true); setCameraActive(true); }}
                     disabled={!selectedEvent || !deviceId}
                   >
-                    <Camera className="h-4 w-4" />
-                    Uruchom kamerę
+                    <Camera className="h-4 w-4" /> Uruchom kamerę
                   </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Last success indicator (top right of viewfinder) */}
-            {lastScan && (
-              <div className="absolute top-4 right-4 text-right">
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Ostatni sukces</div>
-                <div className="text-sm font-mono text-foreground">
-                  {lastScan.elapsedMs}ms temu
                 </div>
               </div>
             )}
           </div>
 
-          {/* Manual QR input at bottom of viewfinder */}
+          {/* BIG result banner */}
+          {last && lastMeta && (
+            <div className={cn("mx-4 mb-2 rounded-xl border p-4", toneClasses(lastMeta.tone))}>
+              <div className="flex items-start gap-3">
+                <div className="shrink-0">
+                  {lastMeta.tone === "ok" ? <CheckCircle className="h-9 w-9" />
+                    : lastMeta.tone === "warn" ? <Clock className="h-9 w-9" />
+                    : last.status === "revoked" ? <Ban className="h-9 w-9" />
+                    : last.status === "unauthorized" ? <ShieldAlert className="h-9 w-9" />
+                    : <XCircle className="h-9 w-9" />}
+                </div>
+                <div className="min-w-0 flex-1 text-foreground">
+                  <div className="text-2xl font-extrabold tracking-tight">{lastMeta.label}</div>
+                  <div className="font-semibold truncate">{last.name ?? "Nieznana akredytacja"}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {last.company ? `${last.company} · ` : ""}
+                    {last.accessLevel ? accessLevelLabel(last.accessLevel) : lastMeta.hint}
+                  </div>
+                  {last.status === "duplicate" && last.checkInTime && (
+                    <div className="text-xs mt-1 font-medium">Pierwszy check-in: {formatTime(last.checkInTime)}</div>
+                  )}
+                  <div className="text-[10px] text-muted-foreground mt-1 font-mono">{last.elapsedMs} ms</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Manual QR input */}
           <div className="p-4 border-t border-border/40">
-            <form
-              onSubmit={e => { e.preventDefault(); void processQr(manualQr); }}
-              className="flex gap-2"
-            >
+            <form onSubmit={(e) => { e.preventDefault(); void runScan(manualQr); }} className="flex gap-2">
               <Input
                 ref={manualRef}
                 value={manualQr}
-                onChange={e => setManualQr(e.target.value)}
-                placeholder="Wpisz lub wklej kod QR..."
+                onChange={(e) => setManualQr(e.target.value)}
+                placeholder="Wpisz lub wklej token QR…"
                 className="rounded-lg bg-card/50 border-border/50 text-sm h-9"
                 disabled={isProcessing || !selectedEvent}
               />
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                className="rounded-lg h-9 shrink-0"
-                disabled={isProcessing || !manualQr.trim()}
-              >
-                Sprawdź
+              <Button type="submit" variant="outline" size="sm" className="rounded-lg h-9 shrink-0"
+                disabled={isProcessing || !manualQr.trim()}>
+                {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sprawdź"}
               </Button>
             </form>
           </div>
         </div>
 
-        {/* ── Right panel ── */}
+        {/* Right panel: stats + manual search + last 20 */}
         <div className="w-[360px] shrink-0 flex flex-col bg-background border-l border-border">
-
-          {/* Stats header */}
           <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
             {[
-              { label: "SESJA",    value: sessionCount, sub: `od ${new Date(sessionStart.current).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` },
-              { label: "TEMPO",    value: `${tempo}/h`,  sub: "+12% śr." },
-              { label: "ODRZUC.", value: rejectCount,   sub: rejectCount > 0 ? `${Math.round(rejectCount / Math.max(sessionCount, 1) * 100)}%` : "—", warn: rejectCount > 0 },
-            ].map(stat => (
-              <div key={stat.label} className="px-4 py-3 space-y-0.5">
-                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{stat.label}</div>
-                <div className={cn("text-2xl font-bold tabular-nums", stat.warn ? "text-destructive" : "text-foreground")}>
-                  {stat.value}
-                </div>
-                <div className={cn("text-[11px]", stat.warn ? "text-destructive/70" : "text-muted-foreground")}>{stat.sub}</div>
+              { label: "SKANY", value: sessionCount, warn: false },
+              { label: "WEJŚCIA", value: admitCount, warn: false },
+              { label: "ODMOWY", value: rejectCount, warn: rejectCount > 0 },
+            ].map((s) => (
+              <div key={s.label} className="px-4 py-3">
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{s.label}</div>
+                <div className={cn("text-2xl font-bold tabular-nums", s.warn ? "text-destructive" : "text-foreground")}>{s.value}</div>
               </div>
             ))}
           </div>
 
-          {/* Scan stream header */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-            <span className="text-[11px] font-semibold text-foreground">
-              Strumień skanów
-              <span className="text-muted-foreground font-normal ml-1">· ostatnie 50</span>
-            </span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setShowOnlyErrors(false)}
-                className={cn("text-[10px] font-medium px-2 py-0.5 rounded transition-colors",
-                  !showOnlyErrors ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Wszystkie
-              </button>
-              <button
-                onClick={() => setShowOnlyErrors(true)}
-                className={cn("text-[10px] font-medium px-2 py-0.5 rounded transition-colors",
-                  showOnlyErrors ? "bg-destructive/15 text-destructive" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Tylko błędy
-              </button>
-            </div>
+          {/* Manual search fallback */}
+          <div className="border-b border-border p-3">
+            <form onSubmit={(e) => { e.preventDefault(); void runSearch(searchTerm); }} className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Szukaj: nazwisko / e-mail / medium"
+                  className="h-8 text-xs pl-8 rounded-lg"
+                  disabled={!selectedEvent}
+                />
+              </div>
+              <Button type="submit" variant="outline" size="sm" className="h-8 rounded-lg shrink-0" disabled={searching || searchTerm.trim().length < 2}>
+                {searching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Szukaj"}
+              </Button>
+            </form>
+            {searchResults.length > 0 && (
+              <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
+                {searchResults.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => { setManualQr(r.qrCode); void runScan(r.qrCode); setSearchResults([]); setSearchTerm(""); }}
+                    className="w-full text-left rounded-lg border border-border/60 px-2.5 py-1.5 hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium truncate">{r.firstName} {r.lastName}</span>
+                      {r.checkedInAt
+                        ? <span className="text-[10px] text-warning shrink-0">obecny</span>
+                        : r.status === "revoked"
+                          ? <span className="text-[10px] text-destructive shrink-0">cofnięta</span>
+                          : <span className="text-[10px] text-success shrink-0">check-in</span>}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      {r.company ? `${r.company} · ` : ""}{r.accessLevel ? accessLevelLabel(r.accessLevel) : r.email}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Stream entries */}
+          {/* Last 20 scans */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+            <span className="text-[11px] font-semibold text-foreground">
+              Ostatnie skany <span className="text-muted-foreground font-normal ml-1">· 20</span>
+            </span>
+          </div>
           <div className="flex-1 overflow-y-auto">
-            {visibleHistory.length === 0 ? (
+            {history.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 text-muted-foreground/40">
                 <QrCode className="h-8 w-8 mb-2" />
                 <p className="text-xs">Brak skanów w tej sesji</p>
               </div>
             ) : (
               <div className="divide-y divide-border/40">
-                {visibleHistory.map(entry => (
-                  <div key={entry._id} className="flex items-start gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors">
-                    <div className="text-[11px] font-mono text-muted-foreground shrink-0 pt-0.5 w-14">
-                      {new Date(entry.scannedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                    </div>
-                    <StatusDot status={entry.status} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {entry.guest ? `${entry.guest.firstName} ${entry.guest.lastName}` : "Anonim"}
-                        </span>
-                        <StatusBadge status={entry.status} />
+                {history.map((entry) => {
+                  const meta = STATUS_META[entry.status];
+                  return (
+                    <div key={entry._id} className="flex items-start gap-3 px-4 py-2.5">
+                      <div className="text-[11px] font-mono text-muted-foreground shrink-0 pt-0.5 w-14">{formatTime(entry.scannedAt)}</div>
+                      <span className={cn("h-2 w-2 rounded-full shrink-0 mt-1.5",
+                        meta.tone === "ok" ? "bg-success" : meta.tone === "warn" ? "bg-warning" : "bg-destructive")} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium text-foreground truncate">{entry.name ?? "Anonim"}</span>
+                          <span className={cn("text-[10px] font-bold tabular-nums shrink-0",
+                            meta.tone === "ok" ? "text-success" : meta.tone === "warn" ? "text-warning" : "text-destructive")}>
+                            {meta.label}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                          {entry.accessLevel ? accessLevelLabel(entry.accessLevel) : meta.hint}
+                          {entry.status === "duplicate" && entry.checkInTime ? ` · od ${formatTime(entry.checkInTime)}` : ""}
+                        </div>
                       </div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                        {entry.status === "found" ? `OK · ${entry.guest?.ticketType || ""}` :
-                         entry.status === "already_checked_in_locally" ? "Powtórny scan · ignor." :
-                         entry.status === "wrong_event" ? "QR wygasł · Złe wydarzenie" :
-                         "Nieznany QR"}
-                        {entry.guest?.zones?.length ? ` · ${entry.guest.zones.join(" · ")}` : ""}
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
-
-          {/* Last scan confirmation */}
-          {lastScan && (
-            <div className={cn("border-t border-border p-4 transition-colors", lastScanToneClass)}>
-              <div className="flex items-start gap-3">
-                <div className={cn(
-                  "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
-                  statusOf(lastScan.status) === "ok"   ? "bg-success text-white" :
-                  statusOf(lastScan.status) === "warn" ? "bg-warning text-white" : "bg-destructive text-white"
-                )}>
-                  {statusOf(lastScan.status) === "ok" ? <CheckCircle className="h-5 w-5" /> :
-                   statusOf(lastScan.status) === "warn" ? <Clock className="h-5 w-5" /> :
-                   <XCircle className="h-5 w-5" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
-                    {statusOf(lastScan.status) === "ok" ? `CHECK-IN POTWIERDZONY · ${new Date(lastScan.scannedAt).toLocaleTimeString("pl-PL")}` :
-                     statusOf(lastScan.status) === "warn" ? "POWTÓRNY SKAN" : "ODMOWA WEJŚCIA"}
-                  </div>
-                  <div className="font-bold text-foreground">
-                    {lastScan.guest ? `${lastScan.guest.firstName} ${lastScan.guest.lastName}` : "Nieznany gość"}
-                  </div>
-                  {lastScan.guest && (
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-[11px] text-muted-foreground">
-                        {lastScan.guest.company && `${lastScan.guest.company} · `}
-                        {lastScan.guest.zones?.join(" · ")}
-                      </span>
-                      <span className="font-mono text-[11px] text-muted-foreground">RFID–{lastScan.clientScanId.slice(-4).toUpperCase()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
-
-      {/* ── Keyboard shortcuts bar ── */}
-      <div className="flex items-center gap-4 px-4 py-2 border-t border-border bg-background/95 text-[11px] text-muted-foreground shrink-0">
-        <span><span className="kbd">M</span> Manual</span>
-        <span><span className="kbd">R</span> Reskan</span>
-        <span><span className="kbd">Esc</span> Zatrzymaj</span>
-        <span className="ml-auto font-mono opacity-50">v2.4 · {isOnline ? "online" : "offline"}</span>
       </div>
     </div>
   );

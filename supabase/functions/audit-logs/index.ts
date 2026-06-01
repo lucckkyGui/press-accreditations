@@ -38,6 +38,8 @@ Deno.serve(async (req) => {
       const action = url.searchParams.get("action");
       const severity = url.searchParams.get("severity");
       const search = url.searchParams.get("search");
+      const resourceId = url.searchParams.get("resource_id");
+      const eventId = url.searchParams.get("event_id");
       const limit = parseInt(url.searchParams.get("limit") || "100");
       const offset = parseInt(url.searchParams.get("offset") || "0");
 
@@ -60,6 +62,13 @@ Deno.serve(async (req) => {
       }
       if (search) {
         query = query.or(`details.ilike.%${search}%,user_email.ilike.%${search}%`);
+      }
+      if (resourceId) {
+        query = query.eq("resource_id", resourceId);
+      }
+      if (eventId) {
+        // event_id przechowywany w metadata jsonb
+        query = query.contains("metadata", { event_id: eventId });
       }
 
       const { data, error, count } = await query;

@@ -30,7 +30,7 @@ export type LocalGuest = Omit<GuestManifestRow, "zones"> & {
 
 export type ScanQueueStatus = "pending" | "synced" | "failed";
 export type ScanQueueAction = "check-in" | "check-out";
-export type LocalScanValidationResult = "found" | "unknown" | "wrong_event" | "already_checked_in_locally";
+export type LocalScanValidationResult = "found" | "unknown" | "wrong_event" | "already_checked_in_locally" | "revoked";
 
 export interface LocalScanQueueEntry {
   clientScanId: string;

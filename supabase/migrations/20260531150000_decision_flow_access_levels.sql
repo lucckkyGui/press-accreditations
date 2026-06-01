@@ -1,0 +1,240 @@
+-- PressOps — Decision flow: statusy decyzji, access levels, rewokacja (Tydzień 4).
+--
+-- Łączy decyzję PR managera z realną akredytacją + QR passem:
+--   1) rozszerza statusy zgłoszenia o approved_limited / waitlisted,
+--   2) dodaje access_level + token akredytacji na zgłoszeniu i gueście,
+--   3) dodaje pola rewokacji na guests,
+--   4) blokuje check-in cofniętej akredytacji (guests.status = 'revoked')
+--      w funkcji process_qr_check_in (online). Tryb offline blokuje warstwa app.
+--
+-- Migracja idempotentna. Zasada bez zmian: decyzję podejmuje człowiek.
+
+-- ─────────────────────────────────────────────────────────────
+-- 1. Statusy zgłoszenia: + approved_limited, waitlisted
+-- ─────────────────────────────────────────────────────────────
+ALTER TABLE public.landing_page_submissions
+  DROP CONSTRAINT IF EXISTS landing_page_submissions_status_check;
+ALTER TABLE public.landing_page_submissions
+  ADD CONSTRAINT landing_page_submissions_status_check
+  CHECK (status IN ('pending', 'approved', 'approved_limited', 'rejected', 'waitlisted', 'expired'));
+
+-- Access level + token przyznany decyzją
+ALTER TABLE public.landing_page_submissions
+  ADD COLUMN IF NOT EXISTS access_level text,
+  ADD COLUMN IF NOT EXISTS applicant_message text,
+  ADD COLUMN IF NOT EXISTS decision_email_status text,
+  ADD COLUMN IF NOT EXISTS decision_email_sent_at timestamptz,
+  ADD COLUMN IF NOT EXISTS decided_at timestamptz,
+  ADD COLUMN IF NOT EXISTS decided_by uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+
+ALTER TABLE public.landing_page_submissions
+  DROP CONSTRAINT IF EXISTS landing_submissions_access_level_check;
+ALTER TABLE public.landing_page_submissions
+  ADD CONSTRAINT landing_submissions_access_level_check
+  CHECK (access_level IS NULL OR access_level IN (
+    'press','photo','video','radio','podcast','influencer',
+    'photo_pit','interview','backstage_limited','sponsor_media'
+  ));
+
+ALTER TABLE public.landing_page_submissions
+  DROP CONSTRAINT IF EXISTS landing_submissions_decision_email_status_check;
+ALTER TABLE public.landing_page_submissions
+  ADD CONSTRAINT landing_submissions_decision_email_status_check
+  CHECK (decision_email_status IS NULL OR decision_email_status IN ('sent','failed','skipped'));
+
+-- ─────────────────────────────────────────────────────────────
+-- 2. Access level na gueście (przepustka) + rewokacja
+-- ─────────────────────────────────────────────────────────────
+ALTER TABLE public.guests
+  ADD COLUMN IF NOT EXISTS access_level text,
+  ADD COLUMN IF NOT EXISTS revoked_at timestamptz,
+  ADD COLUMN IF NOT EXISTS revocation_reason text;
+
+-- ─────────────────────────────────────────────────────────────
+-- 3. Historia weryfikacji — nowe typy zdarzeń decyzyjnych
+-- ─────────────────────────────────────────────────────────────
+ALTER TABLE public.submission_verification_events
+  DROP CONSTRAINT IF EXISTS submission_verification_events_event_type_check;
+ALTER TABLE public.submission_verification_events
+  ADD CONSTRAINT submission_verification_events_event_type_check
+  CHECK (event_type IN (
+    'scored','rescored','override','note','decision','pass_issued',
+    'pass_revoked','email_sent'
+  ));
+
+-- ─────────────────────────────────────────────────────────────
+-- 4. process_qr_check_in — blokada check-inu cofniętej akredytacji
+--    Sygnatura 5-arg (zgodna z wywołaniami klienta: _client_scan_id, _scanned_at).
+--    Cofnięta akredytacja: guests.status = 'revoked' → scan_result 'unauthorized'.
+-- ─────────────────────────────────────────────────────────────
+DROP FUNCTION IF EXISTS public.process_qr_check_in(text, uuid, jsonb);
+DROP FUNCTION IF EXISTS public.process_qr_check_in(text, uuid, jsonb, uuid, timestamptz);
+
+CREATE OR REPLACE FUNCTION public.process_qr_check_in(
+  _qr_code text,
+  _event_id uuid,
+  _device_info jsonb DEFAULT '{}'::jsonb,
+  _client_scan_id uuid DEFAULT NULL,
+  _scanned_at timestamptz DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _caller_id uuid := auth.uid();
+  _guest public.guests%ROWTYPE;
+  _event_end timestamptz;
+  _checked_in_at timestamptz;
+  _scan_result text;
+  _message text;
+  _qr_hash text := md5(coalesce(_qr_code, ''));
+  _qr_payload jsonb;
+  _payload_qr_code text;
+  _payload_guest_id uuid;
+  _payload_event_id uuid;
+  -- _client_scan_id / _scanned_at są dołączane do device_info dla śladu/idempotencji.
+  _info jsonb := coalesce(_device_info, '{}'::jsonb)
+    || jsonb_build_object('clientScanId', _client_scan_id, 'scannedAt', _scanned_at);
+BEGIN
+  IF _caller_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'status', 'unauthorized', 'message', 'Użytkownik nie jest zalogowany');
+  END IF;
+
+  IF NOT (
+    coalesce(public.is_event_organizer(_caller_id, _event_id), false)
+    OR coalesce(public.is_admin(_caller_id), false)
+  ) THEN
+    RETURN jsonb_build_object('success', false, 'status', 'unauthorized', 'message', 'Brak uprawnień do skanowania tego wydarzenia');
+  END IF;
+
+  IF _qr_code IS NULL OR length(trim(_qr_code)) = 0 THEN
+    _scan_result := 'invalid';
+    _message := 'Kod QR jest pusty';
+    INSERT INTO public.guest_check_in_scans (event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object('success', false, 'status', _scan_result, 'message', _message);
+  END IF;
+
+  BEGIN
+    _qr_payload := _qr_code::jsonb;
+    _payload_qr_code := nullif(trim(_qr_payload->>'qrCode'), '');
+    IF (_qr_payload->>'guestId') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
+      _payload_guest_id := (_qr_payload->>'guestId')::uuid;
+    END IF;
+    IF (_qr_payload->>'eventId') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
+      _payload_event_id := (_qr_payload->>'eventId')::uuid;
+    END IF;
+  EXCEPTION WHEN others THEN
+    _qr_payload := NULL; _payload_qr_code := NULL; _payload_guest_id := NULL; _payload_event_id := NULL;
+  END;
+
+  IF _payload_event_id IS NOT NULL AND _payload_event_id <> _event_id THEN
+    _scan_result := 'wrong_event';
+    _message := 'Kod QR jest dla innego wydarzenia';
+    INSERT INTO public.guest_check_in_scans (event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object('success', false, 'status', _scan_result, 'message', _message);
+  END IF;
+
+  SELECT * INTO _guest
+  FROM public.guests
+  WHERE qr_code = _qr_code
+     OR (_payload_qr_code IS NOT NULL AND qr_code = _payload_qr_code)
+     OR (_payload_guest_id IS NOT NULL AND id = _payload_guest_id)
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    _scan_result := 'invalid';
+    _message := 'Nie znaleziono gościa z tym kodem QR';
+    INSERT INTO public.guest_check_in_scans (event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object('success', false, 'status', _scan_result, 'message', _message);
+  END IF;
+
+  IF _guest.event_id <> _event_id THEN
+    _scan_result := 'wrong_event';
+    _message := 'Kod QR jest dla innego wydarzenia';
+    INSERT INTO public.guest_check_in_scans (guest_id, event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_guest.id, _event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object('success', false, 'status', _scan_result, 'message', _message);
+  END IF;
+
+  -- ── Cofnięta akredytacja: check-in zablokowany ──────────────
+  IF _guest.status = 'revoked' THEN
+    _scan_result := 'unauthorized';
+    _message := 'Akredytacja została cofnięta';
+    INSERT INTO public.guest_check_in_scans (guest_id, event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_guest.id, _event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object(
+      'success', false, 'status', _scan_result, 'message', _message,
+      'guest', jsonb_build_object(
+        'id', _guest.id, 'firstName', _guest.first_name, 'lastName', _guest.last_name,
+        'email', _guest.email, 'company', _guest.company, 'phone', _guest.phone,
+        'ticketType', _guest.ticket_type, 'zones', coalesce(to_jsonb(_guest.zones), '[]'::jsonb),
+        'status', _guest.status, 'qrCode', _guest.qr_code, 'checkedInAt', _guest.checked_in_at
+      )
+    );
+  END IF;
+
+  SELECT end_date INTO _event_end FROM public.events WHERE id = _event_id;
+
+  IF _event_end IS NOT NULL AND _event_end < now() THEN
+    _scan_result := 'expired';
+    _message := 'Wydarzenie już się zakończyło';
+    INSERT INTO public.guest_check_in_scans (guest_id, event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_guest.id, _event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object(
+      'success', false, 'status', _scan_result, 'message', _message,
+      'guest', jsonb_build_object(
+        'id', _guest.id, 'firstName', _guest.first_name, 'lastName', _guest.last_name,
+        'email', _guest.email, 'company', _guest.company, 'phone', _guest.phone,
+        'ticketType', _guest.ticket_type, 'zones', coalesce(to_jsonb(_guest.zones), '[]'::jsonb),
+        'status', _guest.status, 'qrCode', _guest.qr_code, 'checkedInAt', _guest.checked_in_at
+      )
+    );
+  END IF;
+
+  IF _guest.checked_in_at IS NOT NULL THEN
+    _scan_result := 'duplicate';
+    _message := 'Gość został już wcześniej zarejestrowany';
+    INSERT INTO public.guest_check_in_scans (guest_id, event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+    VALUES (_guest.id, _event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+    RETURN jsonb_build_object(
+      'success', false, 'status', _scan_result, 'message', _message, 'checkedInAt', _guest.checked_in_at,
+      'guest', jsonb_build_object(
+        'id', _guest.id, 'firstName', _guest.first_name, 'lastName', _guest.last_name,
+        'email', _guest.email, 'company', _guest.company, 'phone', _guest.phone,
+        'ticketType', _guest.ticket_type, 'zones', coalesce(to_jsonb(_guest.zones), '[]'::jsonb),
+        'status', _guest.status, 'qrCode', _guest.qr_code, 'checkedInAt', _guest.checked_in_at
+      )
+    );
+  END IF;
+
+  _checked_in_at := coalesce(_scanned_at, now());
+
+  UPDATE public.guests
+  SET checked_in_at = _checked_in_at, status = 'checked-in', updated_at = now()
+  WHERE id = _guest.id
+  RETURNING * INTO _guest;
+
+  _scan_result := 'success';
+  _message := 'Gość został pomyślnie zarejestrowany';
+  INSERT INTO public.guest_check_in_scans (guest_id, event_id, qr_code_hash, scan_result, scanned_by, device_info, message)
+  VALUES (_guest.id, _event_id, _qr_hash, _scan_result, _caller_id, _info, _message);
+
+  RETURN jsonb_build_object(
+    'success', true, 'status', _scan_result, 'message', _message,
+    'checkedInAt', _checked_in_at, 'scanTime', now(),
+    'guest', jsonb_build_object(
+      'id', _guest.id, 'firstName', _guest.first_name, 'lastName', _guest.last_name,
+      'email', _guest.email, 'company', _guest.company, 'phone', _guest.phone,
+      'ticketType', _guest.ticket_type, 'zones', coalesce(to_jsonb(_guest.zones), '[]'::jsonb),
+      'status', _guest.status, 'qrCode', _guest.qr_code, 'checkedInAt', _guest.checked_in_at
+    )
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.process_qr_check_in(text, uuid, jsonb, uuid, timestamptz) TO authenticated;
