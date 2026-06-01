@@ -17,6 +17,7 @@ import { features } from "@/config/features";
 import { Sparkline } from "@/components/ui/sparkline";
 import { cn } from "@/lib/utils";
 import AccreditationManagement from "@/components/accreditation/AccreditationManagement";
+import MediaVerificationPanel from "@/components/accreditation/MediaVerificationPanel";
 
 const getEventCode = (id: string) =>
   `EVT-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
@@ -302,6 +303,10 @@ const EventDetails = () => {
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
                 Akredytacje
               </TabsTrigger>
+              <TabsTrigger value="verification" data-tab="verification"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
+                Weryfikacja mediów
+              </TabsTrigger>
             </TabsList>
 
             {/* Overview tab */}
@@ -440,6 +445,11 @@ const EventDetails = () => {
                 title="Wnioski akredytacyjne"
                 description="Przeglądaj i zatwierdzaj wnioski mediów dla tego wydarzenia"
               />
+            </TabsContent>
+
+            {/* Media verification tab */}
+            <TabsContent value="verification" className="mt-0">
+              {eventId && <MediaVerificationPanel eventId={eventId} />}
             </TabsContent>
           </Tabs>
         </div>
