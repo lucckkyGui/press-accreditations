@@ -78,60 +78,130 @@ wiarygodność), opcjonalnie dokumenty.
 
 ## 5. Approval
 
-**Co:** Organizer zatwierdza lub odrzuca wniosek, opcjonalnie z komentarzem.
-Status przechodzi `pending → approved | rejected`.
+**Co:** PR manager podejmuje decyzję w **Panelu decyzji** (tab „Weryfikacja i
+decyzje" w evencie). Statusy: `approved`, `approved_limited`, `rejected`,
+`waitlisted`. Decyzja jest transaction-like: update statusu → (dla approved /
+approved_limited) akredytacja + QR pass → e-mail z decyzją → audit log.
 
-- Route: `/guests?filter=pending` (lista oczekujących) lub tab Akredytacje w evencie
-- Akcja: `AccreditationManagement` → `supabase.update()` na `accreditation_requests`
-  (status, approved_by, approval_date, approval_notes)
-- Po zatwierdzeniu cache sidebara (`sidebarCounts`) jest inwalidowany — licznik
-  oczekujących spada.
-- **P1:** wysyłka e-maila powiadamiającego przez Resend.
+- Komponent: `src/components/accreditation/MediaVerificationPanel.tsx`
+  (Decision Panel: status, access level, notatka wewnętrzna, wiadomość do
+  wnioskodawcy, przełącznik „wyślij e-mail"; bulk actions: approve / reject /
+  waitlist; podgląd QR; status history; cofnięcie akredytacji).
+- Serwis: `decideSubmission` + skróty `approveSubmission`, `approveLimitedSubmission`,
+  `rejectSubmission`, `waitlistSubmission`, `revokeAccreditation`, `resendDecisionEmail`
+  (`src/services/verification/verificationService.ts`).
+- Access levels (10): press, photo, video, radio, podcast, influencer, photo_pit,
+  interview, backstage_limited, sponsor_media — strefy w `src/lib/accreditation/decisionFlow.ts`.
+- E-mail decyzyjny: edge function `supabase/functions/send-decision-email`
+  (Resend). E-mail best-effort — błąd nie blokuje decyzji; panel pokazuje warning
+  i „Wyślij ponownie".
+- Migracja: `20260531150000_decision_flow_access_levels.sql` (statusy, access_level,
+  pola rewokacji, blokada check-inu cofniętej akredytacji).
+- Po decyzji cache sidebara (`sidebarCounts`) jest inwalidowany.
 
 ## 6. QR Pass
 
-**Co:** Dla zatwierdzonego wniosku powstaje akredytacja z unikalnym kodem QR
-(ważność, typ, strefy dostępu).
+**Co:** Po ZATWIERDZENIU zgłoszenia w panelu „Weryfikacja mediów" system
+automatycznie wydaje QR pass. Wydanie tworzy:
 
-- Tabela: `accreditations` (qr_code, request_id, type_id, event_id, user_id,
-  validity_start, validity_end, is_checked_in)
-- Generacja badge/PDF: `src/components/badges/BadgeGenerator.tsx`
-- **Znane do dokończenia (P0):** automatyczne tworzenie wpisu `accreditations`
-  przy approve nie jest jeszcze w pełni spięte — patrz risks w raporcie.
+1. **wpis w `guests`** z unikalnym kodem QR (`uuid`) — to encja, którą skanuje
+   istniejący check-in (online: RPC `process_qr_check_in`; offline: lokalny
+   manifest), dzięki czemu łańcuch działa end-to-end bez zmian w skanerze;
+2. **wpis w `accreditations`** (best-effort) — formalny rekord przepustki / badge
+   (typ, ważność = daty wydarzenia, powiązanie z `accreditation_requests`).
+
+- Wyzwalane: `MediaVerificationPanel` → „Zatwierdź" (auto) lub „Wydaj QR pass"
+  (dla zgłoszeń zatwierdzonych wcześniej). Idempotentne — pass wydawany raz.
+- Serwis: `src/services/verification/verificationService.ts` → `issuePressPass`
+- Czysta logika (testy): `src/lib/accreditation/passIssuance.ts`
+- Render QR + PDF: `src/lib/accreditation/qrImage.ts`, jsPDF (pobranie passu)
+- Śledzenie na zgłoszeniu: `landing_page_submissions.guest_id`,
+  `accreditation_id`, `pass_qr_code`, `pass_issued_at`
+  (migracja `20260531140000_press_accreditation_issuance.sql`)
+- Tabela formalna: `accreditations` (qr_code, request_id, type_id, event_id,
+  user_id, validity_start, validity_end, is_checked_in)
+- Generacja badge/PDF (rozszerzone): `src/components/badges/BadgeGenerator.tsx`
 
 ## 7. Check-in
 
-**Co:** Na miejscu obsługa skanuje QR pass. Działa offline (lokalna kolejka,
-sync po odzyskaniu sieci).
+**Co:** Staff skanuje QR akredytacji na telefonie i dostaje jasny wynik w <2 s.
+**Online-first** (pełna walidacja przez RPC) z **fallbackiem offline** (lokalny
+manifest + kolejka sync po odzyskaniu sieci).
 
-- Route: `/scanner` (`src/pages/Scanner.tsx`)
-- Serwisy: `src/services/scanner/localQrScanService.ts`,
-  `src/lib/sync/syncWorker.ts`, `getOrCreateDeviceId`
-- RPC: `process_qr_check_in`
-- Tabela: aktualizacja `accreditations.is_checked_in`, `checked_in_at`;
-  log w `access_logs`
+- Route: `/scanner` (`src/pages/Scanner.tsx`) — prosty ekran: kamera, duży wynik,
+  kolor statusu, imię/nazwisko, medium, access level, czas pierwszego check-inu
+  przy duplicate; manual search (nazwisko / e-mail / medium); lista ostatnich 20.
+- Serwis online: `guestScannerService.verifyAndCheckIn` + `searchAccreditations`.
+- Serwis offline: `src/services/scanner/localQrScanService.ts`,
+  `src/lib/sync/syncWorker.ts`, `getOrCreateDeviceId`.
+- Czysta klasyfikacja (testy, mirror RPC): `src/lib/checkin/checkInClassifier.ts`.
+- RPC: `process_qr_check_in` (5-arg) — wyszukuje po `guests.qr_code`, ustawia
+  `checked_in_at` + `checked_in_by` + `status='checked-in'`, loguje w
+  `guest_check_in_scans`. Migracja `20260601120000_media_checkin_production.sql`.
+- **7 statusów:** success, duplicate, invalid, wrong_event, expired, revoked,
+  unauthorized. Duplicate **nie nadpisuje** pierwszego `checked_in_at`. Revoked to
+  status odrębny; powód cofnięcia widoczny tylko dla zalogowanego staff/admina.
+- Audyt: success / revoked / duplicate / manual_search → `audit_logs`.
+- Face recognition jest **poza core** (nav `frozen` + flaga `features.faceRecognition`).
+- **Znane do dokończenia (P1):** synchronizacja `accreditations.is_checked_in`
+  z check-inem gościa (check-in aktualizuje `guests`) — patrz risks.
 
 ## 8. Coverage Collection
 
-**Co:** Po evencie media dostarczają materiały (linki do publikacji, zdjęcia,
-nagrania, zasięgi). Organizer zbiera je do raportu wartości medialnej.
+**Co:** Po evencie media dostarczają materiały (linki do publikacji, galerie,
+wideo, social, zasięgi, wzmianki sponsora). Organizer zbiera je na Coverage Board
+i wiąże z bazą Media CRM (kto przyszedł, kto dowiózł wartość).
 
-- Route: `/media-portal` (Media CRM + dokumenty), `/post-event-report`
-- Komponenty: `src/pages/MediaPortalPage.tsx`,
-  `src/components/analytics/MediaAnalyticsDashboard.tsx`
-- **Znane do dokończenia (P1):** brak dedykowanej tabeli `coverage_submissions`
-  i osobnego UI uploadu coverage — obecnie pokrywane częściowo przez media
-  documents + analytics.
+- **Media CRM** — `/media-crm` (`src/pages/MediaCrmPage.tsx`): kontakty + media
+  (outlets), historia zgłoszeń/coverage, tagi, quality rating (1–5), notatki PR,
+  wskaźniki (no-show, obecność, coverage rate). Kontakt tworzony/aktualizowany
+  automatycznie przy approve (dedup po e-mailu; outlet dedup po nazwie/domenie).
+- **Coverage Board** — `/coverage-board` (`src/pages/CoverageBoardPage.tsx`):
+  kanban statusów (pending / submitted / verified / missing), filtry (event,
+  status), „Generuj prośby" dla checked-in mediów, bulk reminder, verify/missing.
+- **Coverage form** — publiczny `/coverage/:token` (`CoverageForm.tsx`): secure
+  link z remindera, bez logowania, mobile-friendly, success screen.
+- Serwisy: `src/services/crm/mediaCrmService.ts`, `coverageService.ts`.
+- Czysta logika (testy): `src/lib/crm/mediaCrm.ts` (dedup, rating, rates, token,
+  harmonogram reminderów 24h/72h/7d).
+- Edge functions: `coverage-submit` (publiczny submit po tokenie),
+  `coverage-reminders` (manual z boardu / cron 24h-72h-7d).
+- Tabele: `media_contacts`, `media_outlets`, `media_contact_outlets`,
+  `coverage_requests`, `coverage_items` (migracja `20260602120000_media_crm_coverage.sql`).
+- Wskaźniki: no-show = 1 − checked_in/approved; coverage rate = coverage/checked_in.
 
 ## 9. Media Report
 
-**Co:** Generowany raport po evencie: frekwencja, check-in, breakdown mediów,
-wartość medialna dla sponsora. Eksport PDF / CSV.
+**Co:** **Media Coverage Report** — główna wartość sprzedażowa: które media realnie
+dowiozły wartość po evencie. Dashboard + PDF (dla sponsora) + CSV.
 
-- Routes: `/post-event-report` (`PostEventReport.tsx`),
-  `/sponsor-report` (`SponsorReport.tsx`)
-- Generatory PDF: `src/utils/pdfReportGenerator.ts`, jsPDF + autotable
-- Wykresy: Recharts
+- Route: `/coverage-report` (`src/pages/MediaCoverageReport.tsx`).
+- Czysta logika (testy): `src/lib/report/coverageReport.ts` — funnel, metryki,
+  rankingi (top outlets / publications / missing), rekomendacje, CSV.
+- Serwis danych: `src/services/report/coverageReportService.ts`.
+- PDF (9 sekcji, jsPDF + autotable, branding, polskie znaki):
+  `src/utils/coverageReportPdf.ts` — executive summary, event overview,
+  accreditation funnel, media attendance, coverage performance, sponsor mentions,
+  top publications, missing coverage (czerwony blok), recommendations.
+- Funnel: submissions → approved → checked-in → coverage submitted → missing.
+- Metryki: approval/check-in/no-show/coverage rate, estimated reach
+  (oznaczony „deklarowany/estymowany" gdy niezweryfikowany), sponsor mentions.
+- Rekomendacje: invite_again / follow_up / deprioritize / sponsor_relevant.
+- Wykresy: Recharts (KPI + lejek). Stary `SponsorReport` (frekwencja gości)
+  pozostaje pod `/sponsor-report`, ale core to Media Coverage Report.
+
+## 10. Security & GDPR
+
+- **Strona B2B** `/security-gdpr` (`SecurityGdprPage.tsx`): audit logs, role-based
+  access, data retention, processors, consent records, export/delete request.
+  Bez obietnic certyfikatów (SOC2/ISO).
+- **Audit trail** `/audit-trail` (admin) — filtrowanie po action/severity/search
+  oraz **resource_id / event_id** (rozszerzona edge function `audit-logs`).
+- **RODO actions** (admin, w Media CRM): eksport danych kontaktu (JSON) oraz
+  usunięcie/anonimizacja PII — `exportContactData` / `anonymizeContact`, logowane
+  w audycie (`gdpr.contact_export` / `gdpr.contact_anonymize`).
+- Audytowane zdarzenia: submission, decision, QR/akredytacja, check-in/revoke,
+  coverage verification, data export/delete.
 - Hook: `src/hooks/analytics/useEventAnalytics.ts`
 
 ---

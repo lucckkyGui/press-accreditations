@@ -57,6 +57,12 @@ const AIChatSupport = lazy(() => import("@/pages/AIChatSupport"));
 const SponsorReport = lazy(() => import("@/pages/SponsorReport"));
 const LandingPageBuilder = lazy(() => import("@/pages/LandingPageBuilder"));
 const PublicAccreditationPage = lazy(() => import("@/pages/PublicAccreditationPage"));
+const PassView = lazy(() => import("@/pages/PassView"));
+const CoverageForm = lazy(() => import("@/pages/CoverageForm"));
+const MediaCrmPage = lazy(() => import("@/pages/MediaCrmPage"));
+const CoverageBoardPage = lazy(() => import("@/pages/CoverageBoardPage"));
+const MediaCoverageReport = lazy(() => import("@/pages/MediaCoverageReport"));
+const SecurityGdprPage = lazy(() => import("@/pages/SecurityGdprPage"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 
 const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
@@ -114,6 +120,10 @@ const AppRoutes = () => {
         <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
         <Route path="/access-denied" element={<AccessDenied />} />
         <Route path="/marketplace" element={features.marketplace ? <EventMarketplace /> : disabledPublicFeature} />
+        {/* Public QR pass (link z e-maila decyzyjnego) - before catch-all /:slug */}
+        <Route path="/pass/:token" element={<PassView />} />
+        {/* Public coverage form (secure token link z remindera) - before catch-all */}
+        <Route path="/coverage/:token" element={<CoverageForm />} />
         {/* Public accreditation landing page - must be before catch-all */}
         <Route path="/:slug" element={<PublicAccreditationPage />} />
         
@@ -138,6 +148,10 @@ const AppRoutes = () => {
           <Route path="/ticketing" element={<Ticketing />} />
           <Route path="/press-releases" element={<PressReleasePage />} />
           <Route path="/media-portal" element={<MediaPortalPage />} />
+          <Route path="/media-crm" element={<MediaCrmPage />} />
+          <Route path="/coverage-board" element={<CoverageBoardPage />} />
+          <Route path="/coverage-report" element={<MediaCoverageReport />} />
+          <Route path="/security-gdpr" element={<SecurityGdprPage />} />
           <Route path="/rfid-scanner" element={features.rfid ? <RfidScanner /> : disabledOrganizerFeature} />
           <Route path="/wristbands" element={features.wristbands ? <WristbandManagement /> : disabledOrganizerFeature} />
           

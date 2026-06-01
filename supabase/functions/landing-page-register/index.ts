@@ -51,6 +51,179 @@ const areValidUrlList = (v: string): boolean => {
 const makeRef = (id: string): string =>
   "ACR-" + id.replace(/-/g, "").slice(0, 8).toUpperCase();
 
+// ── Verification scoring (mirror src/lib/accreditation/verificationScoring.ts) ──
+// UWAGA: utrzymywać w synchronizacji z frontendem. Backend = źródło prawdy.
+// System SUGERUJE i FLAGUJE — NIGDY nie podejmuje automatycznej decyzji.
+const FREE_EMAIL_DOMAINS = [
+  "gmail.com", "googlemail.com", "yahoo.com", "yahoo.co.uk", "ymail.com",
+  "outlook.com", "hotmail.com", "hotmail.co.uk", "live.com", "msn.com",
+  "icloud.com", "me.com", "mac.com", "aol.com", "gmx.com", "gmx.net",
+  "proton.me", "protonmail.com", "zoho.com", "yandex.com", "mail.com",
+  "wp.pl", "o2.pl", "onet.pl", "onet.eu", "op.pl", "interia.pl", "interia.eu",
+  "poczta.onet.pl", "poczta.fm", "gazeta.pl", "tlen.pl", "vp.pl", "go2.pl", "buziaczek.pl",
+];
+
+const COVERAGE_MIN_LENGTH = 40;
+const REVIEW_THRESHOLD = 60;
+const COMPLETENESS_RATIO = 0.75;
+
+type RiskLevel = "low" | "medium" | "high";
+type Band = "strong" | "acceptable" | "needs_review" | "weak";
+interface VerificationFlag { code: string; severity: "high" | "medium" | "low"; message: string; }
+interface VerificationOutput {
+  score: number;
+  risk_level: RiskLevel;
+  status: Band;
+  flags: VerificationFlag[];
+  explanation: string;
+}
+
+const clampScore = (n: number): number => Math.max(0, Math.min(100, n));
+
+const emailDomainOf = (email: string): string | null => {
+  const d = (email || "").toLowerCase().split("@")[1];
+  return d || null;
+};
+const isFreeEmail = (email: string): boolean => {
+  const d = emailDomainOf(email);
+  return d ? FREE_EMAIL_DOMAINS.includes(d) : false;
+};
+const isBusinessEmail = (email: string): boolean => {
+  if (!email || !EMAIL_REGEX.test(email)) return false;
+  const d = emailDomainOf(email);
+  if (!d || DISPOSABLE_EMAIL_DOMAINS.includes(d)) return false;
+  return !FREE_EMAIL_DOMAINS.includes(d);
+};
+const countValidLinks = (v: string): number => splitLinks(v || "").filter(isValidUrl).length;
+
+interface ScoreInput {
+  email: string; role: string; media_organization: string; portfolio_url: string;
+  publication_links: string; social_media: string; coverage_description: string;
+  requested_access: string; phone: string; first_name: string; last_name: string;
+  previous_accreditation: boolean;
+}
+
+const hasRoleEvidence = (s: ScoreInput): boolean => {
+  const links = countValidLinks(s.publication_links);
+  const portfolio = isValidUrl(s.portfolio_url);
+  const social = !!s.social_media;
+  const coverageOk = (s.coverage_description || "").length >= COVERAGE_MIN_LENGTH;
+  switch (s.role) {
+    case "journalist": return links >= 1;
+    case "photographer": return portfolio || links >= 1;
+    case "video": return coverageOk || portfolio || links >= 1;
+    case "influencer": return social;
+    case "radio":
+    case "podcast": return coverageOk || links >= 1 || social;
+    default: return portfolio || links >= 1 || social || coverageOk;
+  }
+};
+
+const computeVerification = (s: ScoreInput, possibleDuplicate: boolean): VerificationOutput => {
+  const contributions: { label: string; points: number }[] = [];
+  const flags: VerificationFlag[] = [];
+
+  const links = countValidLinks(s.publication_links);
+  const portfolio = isValidUrl(s.portfolio_url);
+  const social = !!s.social_media;
+  const org = !!s.media_organization;
+  const coverageLen = (s.coverage_description || "").length;
+  const coverageOk = coverageLen >= COVERAGE_MIN_LENGTH;
+  const disposable = DISPOSABLE_EMAIL_DOMAINS.includes(emailDomainOf(s.email) || "");
+  const free = isFreeEmail(s.email);
+  const business = isBusinessEmail(s.email);
+  const evidence = hasRoleEvidence(s);
+
+  const completenessFields = [
+    s.first_name, s.last_name, s.email, s.phone, s.role,
+    s.media_organization, s.coverage_description, s.requested_access,
+  ];
+  const filled = completenessFields.filter((v) => !!(v && String(v).trim())).length;
+  const completeness = filled / completenessFields.length;
+
+  // Atuty
+  if (business) contributions.push({ label: "E-mail w domenie służbowej / medialnej", points: 15 });
+  if (org) contributions.push({ label: "Podana redakcja / medium", points: 10 });
+  if (links >= 1) contributions.push({ label: "Linki do publikacji", points: 15 });
+  if (links >= 3) contributions.push({ label: "Bogate portfolio publikacji (3+ linki)", points: 15 });
+  if (portfolio) {
+    contributions.push(
+      s.role === "photographer" || s.role === "video"
+        ? { label: "Portfolio (kluczowe dla foto / wideo)", points: 15 }
+        : { label: "Portfolio / strona autora", points: 10 },
+    );
+  }
+  if (social) {
+    contributions.push(
+      s.role === "influencer"
+        ? { label: "Profile social media (influencer)", points: 10 }
+        : { label: "Profile social media", points: 5 },
+    );
+  }
+  if (coverageOk) contributions.push({ label: "Opisana planowana relacja", points: 10 });
+  if (s.previous_accreditation === true) contributions.push({ label: "Wcześniejsza akredytacja", points: 5 });
+  if (completeness >= COMPLETENESS_RATIO) contributions.push({ label: "Kompletnie wypełniony formularz", points: 10 });
+
+  // Ryzyka + flagi
+  if (disposable) {
+    contributions.push({ label: "Adres e-mail tymczasowy / jednorazowy", points: -50 });
+    flags.push({ code: "disposable_email", severity: "high", message: "Adres e-mail tymczasowy / jednorazowy — wysokie ryzyko." });
+  }
+  if (s.role === "journalist" && !org) {
+    contributions.push({ label: "Dziennikarz bez podanej redakcji", points: -25 });
+    flags.push({ code: "journalist_no_organization", severity: "high", message: "Dziennikarz bez podanej redakcji / medium." });
+  }
+  if (!evidence) {
+    const map: Record<string, { code: string; points: number; message: string }> = {
+      journalist: { code: "no_publication_links", points: -20, message: "Brak linków do publikacji." },
+      photographer: { code: "photographer_no_portfolio", points: -25, message: "Fotoreporter bez portfolio i bez linków do publikacji." },
+      video: { code: "no_coverage_evidence", points: -20, message: "Brak opisu relacji wideo i materiałów." },
+      influencer: { code: "influencer_no_social", points: -20, message: "Influencer bez podanych profili social media." },
+    };
+    const e = map[s.role] || { code: "no_media_evidence", points: -15, message: "Brak materiałów potwierdzających działalność medialną." };
+    contributions.push({ label: e.message, points: e.points });
+    flags.push({ code: e.code, severity: "high", message: e.message });
+  }
+  if (free && !evidence) {
+    contributions.push({ label: "Darmowy e-mail bez potwierdzenia publikacji", points: -20 });
+    flags.push({ code: "free_email_no_evidence", severity: "medium", message: "Darmowy adres e-mail bez linków do publikacji — zweryfikuj wiarygodność." });
+  } else if (free) {
+    flags.push({ code: "free_email", severity: "low", message: "Darmowy adres e-mail (zweryfikuj powiązanie z redakcją)." });
+  }
+  if (possibleDuplicate) {
+    contributions.push({ label: "Możliwy duplikat zgłoszenia", points: -10 });
+    flags.push({ code: "possible_duplicate", severity: "medium", message: "Możliwy duplikat — podobne zgłoszenie już istnieje." });
+  }
+  if (coverageLen > 0 && !coverageOk) {
+    flags.push({ code: "sparse_coverage", severity: "low", message: "Pobieżny opis planowanej relacji." });
+  }
+
+  const score = clampScore(contributions.reduce((sum, c) => sum + c.points, 0));
+  const status: Band = score >= 80 ? "strong" : score >= 60 ? "acceptable" : score >= 40 ? "needs_review" : "weak";
+
+  let risk_level: RiskLevel;
+  if (flags.some((f) => f.severity === "high")) risk_level = "high";
+  else if (score < 40) risk_level = "high";
+  else if (flags.some((f) => f.severity === "medium")) risk_level = "medium";
+  else if (score < REVIEW_THRESHOLD) risk_level = "medium";
+  else risk_level = "low";
+
+  const bandLabel: Record<Band, string> = {
+    strong: "silne zgłoszenie", acceptable: "akceptowalne", needs_review: "do weryfikacji", weak: "słabe / wymaga uwagi",
+  };
+  const positives = contributions.filter((c) => c.points > 0);
+  const negatives = contributions.filter((c) => c.points < 0);
+  const parts = [`Wynik ${score}/100 (${bandLabel[status]}).`];
+  if (positives.length) parts.push("Atuty: " + positives.map((c) => `${c.label} (+${c.points})`).join(", ") + ".");
+  if (negatives.length) parts.push("Ryzyka: " + negatives.map((c) => `${c.label} (${c.points})`).join(", ") + ".");
+  if (!positives.length && !negatives.length) parts.push("Brak wyraźnych sygnałów — zgłoszenie minimalne.");
+  const highFlags = flags.filter((f) => f.severity === "high");
+  if (highFlags.length) parts.push("Wymaga uwagi: " + highFlags.map((f) => f.message).join(" "));
+  parts.push("Decyzję podejmuje weryfikator — system jedynie sugeruje.");
+
+  return { score, risk_level, status, flags, explanation: parts.join(" ") };
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -238,6 +411,16 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Media Verification Engine: scoring (sugestia, nie decyzja) ──
+    const verification = computeVerification(
+      {
+        email, role, media_organization, portfolio_url, publication_links,
+        social_media, coverage_description, requested_access, phone,
+        first_name, last_name, previous_accreditation,
+      },
+      possibleDuplicate,
+    );
+
     // ── Insert submission ────────────────────────────────────────
     const { data: submission, error: insertError } = await supabaseAdmin
       .from("landing_page_submissions")
@@ -264,6 +447,11 @@ Deno.serve(async (req) => {
         custom_fields,
         flags: possibleDuplicate ? { possible_duplicate: true } : {},
         status: "pending",
+        verification_score: verification.score,
+        verification_risk_level: verification.risk_level,
+        verification_status: verification.status,
+        verification_flags: verification.flags,
+        verification_explanation: verification.explanation,
       })
       .select("id")
       .single();
@@ -274,6 +462,24 @@ Deno.serve(async (req) => {
     }
 
     const reference = makeRef(submission.id);
+
+    // ── Initial verification event (history, non-critical) ───────
+    try {
+      await supabaseAdmin.from("submission_verification_events").insert({
+        submission_id: submission.id,
+        event_id: landingPage.event_id,
+        actor_id: null,
+        actor_email: "system",
+        event_type: "scored",
+        to_status: verification.status,
+        to_score: verification.score,
+        to_risk: verification.risk_level,
+        note: "Automatyczny scoring przy rejestracji zgłoszenia",
+        metadata: { flags: verification.flags, reference },
+      });
+    } catch (eventErr) {
+      console.error("Verification event insert failed (non-critical):", eventErr);
+    }
 
     // ── Confirmation email to applicant (non-critical) ───────────
     try {

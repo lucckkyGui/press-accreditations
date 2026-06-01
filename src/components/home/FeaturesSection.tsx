@@ -6,39 +6,39 @@ import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: QrCode,
-    title: "Skanowanie QR",
-    description: "Weryfikacja gości w 2 sekundy. Działa offline — synchronizuje się automatycznie po połączeniu.",
+    icon: Shield,
+    title: "Media verification",
+    description: "Scoring i flagi ryzyka dla każdego zgłoszenia mediów. System sugeruje — decyzję podejmuje PR manager.",
     colorClass: "bg-primary/10 text-primary",
   },
   {
     icon: Mail,
-    title: "Automatyczny mailing",
-    description: "Spersonalizowane zaproszenia z kodem QR dla tysięcy gości. Jedno kliknięcie — wysyłka gotowa.",
+    title: "Akredytacja + QR pass",
+    description: "Decyzja (approved / limited / rejected / waitlist) tworzy QR pass i wysyła e-mail z linkiem do passu.",
     colorClass: "bg-info/10 text-info",
   },
   {
-    icon: Users,
-    title: "Zarządzanie gośćmi",
-    description: "Import CSV, strefy dostępu, statusy, historia zmian. Pełna kontrola nad listą gości.",
+    icon: QrCode,
+    title: "QR check-in (offline)",
+    description: "Skan na bramce w <2 s, 7 jasnych statusów. Działa offline — synchronizuje się po odzyskaniu sieci.",
     colorClass: "bg-secondary/10 text-secondary",
   },
   {
     icon: BarChart3,
-    title: "Analityka na żywo",
-    description: "Dashboard real-time: frekwencja, check-in, raporty dla sponsorów — wszystko w jednym widoku.",
+    title: "Media Coverage Report",
+    description: "Raport dla sponsora: funnel, frekwencja, coverage, wzmianki sponsora, top publikacje. PDF + CSV.",
     colorClass: "bg-primary/10 text-primary",
   },
   {
-    icon: Calendar,
-    title: "Multi-event",
-    description: "Zarządzaj wieloma wydarzeniami jednocześnie. Kopiuj ustawienia i listy gości między eventami.",
+    icon: Users,
+    title: "Media CRM",
+    description: "Baza kontaktów i mediów z historią, ratingiem, no-show i coverage rate — do kolejnych wydarzeń.",
     colorClass: "bg-destructive/10 text-destructive",
   },
   {
-    icon: Shield,
-    title: "Bezpieczeństwo & RODO",
-    description: "Szyfrowanie danych, kontrola dostępu, audit log i pełna zgodność z RODO.",
+    icon: Calendar,
+    title: "Coverage collection",
+    description: "Secure linki dla dziennikarzy, automatyczne reminders (24h/72h/7d), board statusów coverage.",
     colorClass: "bg-success/10 text-success",
   },
 ];
@@ -76,11 +76,11 @@ const FeaturesSection = () => {
           </div>
 
           <h2 className="display text-3xl md:text-4xl mb-4">
-            Wszystko czego potrzebujesz
+            Cały workflow media operations
           </h2>
           <p className="text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Kompleksowe narzędzia do zarządzania akredytacjami i gośćmi
-            na wydarzeniach każdej skali.
+            Od zgłoszenia dziennikarza po raport wartości medialnej dla sponsora —
+            jedno narzędzie dla biura prasowego.
           </p>
         </motion.div>
 
