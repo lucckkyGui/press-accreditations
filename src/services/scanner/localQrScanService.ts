@@ -85,6 +85,8 @@ const buildMessage = (status: LocalScanValidationResult, guest: LocalGuest | und
       return guest ? `${getGuestName(guest)} jest już oznaczony lokalnie jako obecny` : "Gość jest już oznaczony lokalnie jako obecny";
     case "wrong_event":
       return "Kod QR należy do innego wydarzenia";
+    case "revoked":
+      return guest ? `Akredytacja cofnięta — odmowa wejścia: ${getGuestName(guest)}` : "Akredytacja została cofnięta — odmowa wejścia";
     case "unknown":
       return "Nie znaleziono kodu QR w pobranym manifeście wydarzenia";
   }
@@ -97,6 +99,11 @@ const getStatusForGuest = (guest: LocalGuest | undefined, eventId: string): Loca
 
   if (guest.event_id !== eventId) {
     return "wrong_event";
+  }
+
+  // Cofnięta akredytacja — check-in zablokowany (spójnie z RPC po stronie serwera).
+  if (guest.status === "revoked") {
+    return "revoked";
   }
 
   if (guest.checked_in_at) {

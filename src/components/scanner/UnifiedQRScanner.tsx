@@ -88,6 +88,7 @@ const STATUS_TONE = (status: LocalQrScanResult["status"]) => {
   switch (status) {
     case "found":                       return "ok";
     case "already_checked_in_locally":  return "warn";
+    case "revoked":
     case "wrong_event":
     case "unknown":                     return "bad";
   }
@@ -97,6 +98,7 @@ const STATUS_LABELS: Record<LocalQrScanResult["status"], string> = {
   found:                       "OK",
   already_checked_in_locally:  "Już wszedł",
   wrong_event:                 "Złe wydarzenie",
+  revoked:                     "Cofnięta",
   unknown:                     "Nieznany",
 };
 
@@ -104,6 +106,7 @@ const STATUS_KIND: Record<LocalQrScanResult["status"], "ok" | "warn" | "bad"> = 
   found:                       "ok",
   already_checked_in_locally:  "warn",
   wrong_event:                 "bad",
+  revoked:                     "bad",
   unknown:                     "bad",
 };
 

@@ -8,6 +8,7 @@ export type QrCheckInStatus =
   | "invalid"
   | "wrong_event"
   | "expired"
+  | "revoked"
   | "unauthorized";
 
 export type ScannerDeviceInfo = Record<string, Json>;
@@ -20,6 +21,23 @@ export interface ScanResult {
   alreadyCheckedIn?: boolean;
   checkInTime?: string;
   scanTime?: string;
+  /** Poziom dostępu akredytacji (z payloadu RPC). */
+  accessLevel?: string;
+  /** Powód cofnięcia — pokazywany tylko staff/admin (status revoked). */
+  revocationReason?: string;
+}
+
+/** Wynik manualnego wyszukania akredytacji (fallback). */
+export interface ManualSearchResult {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string | null;
+  accessLevel: string | null;
+  status: string;
+  qrCode: string;
+  checkedInAt: string | null;
 }
 
 interface RpcGuest {
@@ -54,6 +72,7 @@ const CHECK_IN_STATUSES = new Set<QrCheckInStatus>([
   "invalid",
   "wrong_event",
   "expired",
+  "revoked",
   "unauthorized",
 ]);
 
@@ -125,10 +144,13 @@ const normalizeRpcResponse = (payload: Json | null): ScanResult => {
     };
   }
 
-  const response = payload as ProcessQrCheckInResponse;
+  const response = payload as ProcessQrCheckInResponse & {
+    accessLevel?: unknown; revocationReason?: unknown; guest?: { accessLevel?: unknown } | unknown;
+  };
   const status = normalizeStatus(response.status);
   const guest = mapRpcGuest(response.guest);
   const checkInTime = asString(response.checkedInAt);
+  const guestRecord = isRecord(response.guest) ? response.guest : undefined;
 
   return {
     success: response.success === true && status === "success",
@@ -136,6 +158,8 @@ const normalizeRpcResponse = (payload: Json | null): ScanResult => {
     guest,
     message: asString(response.message) || "Nie udało się przetworzyć kodu QR",
     alreadyCheckedIn: status === "duplicate",
+    accessLevel: asString(response.accessLevel) ?? asString(guestRecord?.accessLevel),
+    revocationReason: status === "revoked" ? asString(response.revocationReason) : undefined,
     checkInTime,
     scanTime: asString(response.scanTime),
   };
@@ -207,6 +231,41 @@ export const guestScannerService = {
     }
 
     return normalizeRpcResponse(data);
+  },
+
+  /**
+   * Manualne wyszukanie akredytacji (fallback) po nazwisku / e-mailu / medium.
+   * Scoped do wydarzenia. RLS pilnuje, że organizator widzi tylko swoje.
+   */
+  async searchAccreditations(eventId: string, term: string): Promise<ManualSearchResult[]> {
+    const q = term.trim();
+    if (!eventId || q.length < 2) return [];
+    const safe = q.replace(/[%,()]/g, " ");
+    // access_level dodane migracją (Tydzień 4/5) — typy Supabase nie zregenerowane,
+    // stąd `(supabase as any)` (ustalony wzorzec w repo).
+    const { data, error } = await (supabase as any)
+      .from("guests")
+      .select("id, first_name, last_name, email, company, access_level, status, qr_code, checked_in_at")
+      .eq("event_id", eventId)
+      .or(`first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%`)
+      .order("last_name", { ascending: true })
+      .limit(20);
+
+    if (error || !Array.isArray(data)) return [];
+    return (data as Record<string, unknown>[]).map((row) => {
+      const r = row;
+      return {
+        id: String(r.id),
+        firstName: String(r.first_name ?? ""),
+        lastName: String(r.last_name ?? ""),
+        email: String(r.email ?? ""),
+        company: asString(r.company) ?? null,
+        accessLevel: asString(r.access_level) ?? null,
+        status: String(r.status ?? ""),
+        qrCode: String(r.qr_code ?? ""),
+        checkedInAt: asString(r.checked_in_at) ?? null,
+      };
+    });
   },
 
   /**
