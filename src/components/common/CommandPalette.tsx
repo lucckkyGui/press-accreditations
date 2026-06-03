@@ -75,7 +75,6 @@ const CommandPalette: React.FC = () => {
       { id: "n-submissions", label: "Zgłoszenia mediów", path: "/guests",          icon: Users,           keywords: "media submissions zgłoszenia goście press", kind: "navigation", shortcut: "G M" },
       { id: "n-accreditations", label: "Akredytacje",   path: "/guests?filter=pending", icon: Newspaper,  keywords: "accreditation requests weryfikacja approval", kind: "navigation", shortcut: "G A" },
       { id: "n-scanner",    label: "Check-in QR",        path: "/scanner",          icon: QrCode,          keywords: "scanner check-in",     kind: "navigation", shortcut: "G S" },
-      { id: "n-media-crm",  label: "Media CRM",          path: "/media-portal",     icon: Globe,           keywords: "media crm kontakty dziennikarze", kind: "navigation" },
       { id: "n-coverage",   label: "Coverage & raporty", path: "/post-event-report", icon: BarChart3,      keywords: "coverage reports raporty wartość medialna", kind: "navigation" },
       { id: "n-diag",       label: "Diagnostyka",       path: "/diagnostics",      icon: Stethoscope,     keywords: "offline sync manifest", kind: "navigation" },
       { id: "n-notif",      label: "Powiadomienia",     path: "/notifications",    icon: Bell,            keywords: "notifications",        kind: "navigation" },

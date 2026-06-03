@@ -108,33 +108,33 @@ describe("passIssuance — computeValidity", () => {
 });
 
 describe("passIssuance — buildAccreditationPassInsert", () => {
-  it("buduje payload akredytacji z is_checked_in=false", () => {
+  it("buduje payload akredytacji zgodny ze schematem bazy", () => {
     const acc = buildAccreditationPassInsert({
       eventId: "e1",
       userId: "u1",
-      typeId: "t1",
+      guestId: "g1",
       requestId: "r1",
-      qrCode: "qr-1",
-      validityStart: "2026-06-01T00:00:00.000Z",
-      validityEnd: "2026-06-02T00:00:00.000Z",
+      type: "Prasa",
+      issuedAt: "2026-06-01T00:00:00.000Z",
+      expiresAt: "2026-06-02T00:00:00.000Z",
     });
     expect(acc).toEqual({
       event_id: "e1",
       user_id: "u1",
-      type_id: "t1",
-      request_id: "r1",
-      qr_code: "qr-1",
-      validity_start: "2026-06-01T00:00:00.000Z",
-      validity_end: "2026-06-02T00:00:00.000Z",
-      is_checked_in: false,
+      guest_id: "g1",
+      accreditation_request_id: "r1",
+      type: "Prasa",
+      status: "issued",
+      issued_at: "2026-06-01T00:00:00.000Z",
+      expires_at: "2026-06-02T00:00:00.000Z",
     });
   });
 
-  it("dopuszcza brak powiązanego wniosku (request_id=null)", () => {
+  it("dopuszcza brak powiązanego wniosku (accreditation_request_id=null)", () => {
     const acc = buildAccreditationPassInsert({
-      eventId: "e1", userId: "u1", typeId: "t1", requestId: null,
-      qrCode: "qr-1", validityStart: "a", validityEnd: "b",
+      eventId: "e1", userId: "u1", guestId: null, requestId: null,
+      type: "Prasa", issuedAt: "a", expiresAt: "b",
     });
-    expect(acc.request_id).toBeNull();
+    expect(acc.accreditation_request_id).toBeNull();
   });
 });

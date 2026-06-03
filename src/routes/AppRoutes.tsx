@@ -27,7 +27,6 @@ const AccountSettings = lazy(() => import("@/pages/settings/AccountSettings"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
 const Ticketing = lazy(() => import("@/pages/Ticketing"));
 const PressReleasePage = lazy(() => import("@/pages/PressReleasePage"));
-const MediaPortalPage = lazy(() => import("@/pages/MediaPortalPage"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Products = lazy(() => import("@/pages/products/Products"));
 const ProductDetails = lazy(() => import("@/pages/products/ProductDetails"));
@@ -147,7 +146,6 @@ const AppRoutes = () => {
           <Route path="/invitation-editor" element={<InvitationEditor />} />
           <Route path="/ticketing" element={<Ticketing />} />
           <Route path="/press-releases" element={<PressReleasePage />} />
-          <Route path="/media-portal" element={<MediaPortalPage />} />
           <Route path="/media-crm" element={<MediaCrmPage />} />
           <Route path="/coverage-board" element={<CoverageBoardPage />} />
           <Route path="/coverage-report" element={<MediaCoverageReport />} />

@@ -24,7 +24,6 @@ import {
   computeValidity,
   isPassAlreadyIssued,
   DEFAULT_PRESS_TYPE_NAME,
-  DEFAULT_PRESS_ACCESS_AREA,
 } from "@/lib/accreditation/passIssuance";
 import {
   type ApprovalStatus,
@@ -376,19 +375,21 @@ async function issueAccreditation(
         eventEnd = ev?.end_date ?? null;
       } catch { /* fallback w computeValidity */ }
       const { validity_start, validity_end } = computeValidity(eventStart, eventEnd);
-      const typeId = await resolveAccreditationTypeId(submission.event_id, actor.id, zones);
-      if (typeId) {
-        const requestId = await resolveRequestId(submission.event_id, submission.email);
-        const { data, error } = await supabase
-          .from("accreditations")
-          .insert(buildAccreditationPassInsert({
-            eventId: submission.event_id, userId: actor.id, typeId, requestId,
-            qrCode: token, validityStart: validity_start, validityEnd: validity_end,
-          }))
-          .select("id").single();
-        if (error) throw error;
-        accreditationId = (data as { id: string }).id;
-      }
+      const requestId = await resolveRequestId(submission.event_id, submission.email);
+      const { data, error } = await supabase
+        .from("accreditations")
+        .insert(buildAccreditationPassInsert({
+          eventId: submission.event_id,
+          userId: actor.id,
+          guestId,
+          requestId,
+          type: DEFAULT_PRESS_TYPE_NAME,
+          issuedAt: validity_start,
+          expiresAt: validity_end,
+        }))
+        .select("id").single();
+      if (error) throw error;
+      accreditationId = (data as { id: string }).id;
     }
   } catch (err) {
     console.error("accreditation record insert failed (non-critical):", err);
@@ -617,12 +618,12 @@ export async function revokeAccreditation(
     .eq("id", submission.guest_id);
   if (guestErr) throw guestErr;
 
-  // Accreditation: revoked flag (best-effort)
+  // Accreditation: status=revoked + powód w metadata (best-effort)
   if (submission.accreditation_id) {
     try {
       await supabase
         .from("accreditations")
-        .update({ revoked: true, revocation_reason: reason, updated_at: now })
+        .update({ status: "revoked", metadata: { revocation_reason: reason }, updated_at: now })
         .eq("id", submission.accreditation_id);
     } catch (err) {
       console.error("accreditation revoke flag failed (non-critical):", err);
@@ -678,42 +679,8 @@ export async function resendDecisionEmail(submission: MediaSubmission, actor: Ac
 }
 
 // ─────────────────────────────────────────────────────────────
-// Helpery akredytacji (typ + powiązanie wniosku)
+// Helpery akredytacji (powiązanie wniosku)
 // ─────────────────────────────────────────────────────────────
-
-/**
- * Rozwiązuje typ akredytacji dla wydarzenia — istniejący lub domyślny „Prasa".
- * `zones` (opcjonalne) → access_areas tworzonego typu. Zwraca null gdy się nie uda
- * (akredytacja jest best-effort i nie może zablokować wydania passu).
- */
-async function resolveAccreditationTypeId(
-  eventId: string,
-  actorId: string,
-  zones?: string[],
-): Promise<string | null> {
-  const { data: existing } = await supabase
-    .from("accreditation_types")
-    .select("id")
-    .eq("event_id", eventId)
-    .order("created_at", { ascending: true })
-    .limit(1);
-  if (existing && existing.length > 0) return existing[0].id;
-
-  const { data: created, error } = await supabase
-    .from("accreditation_types")
-    .insert({
-      event_id: eventId,
-      created_by: actorId,
-      name: DEFAULT_PRESS_TYPE_NAME,
-      description: "Domyślna kategoria akredytacji prasowej (utworzona automatycznie).",
-      access_areas: zones && zones.length > 0 ? zones : [DEFAULT_PRESS_ACCESS_AREA],
-      requires_approval: true,
-    })
-    .select("id")
-    .single();
-  if (error) throw error;
-  return created.id;
-}
 
 /** Łączy przepustkę z lustrzanym wnioskiem w `accreditation_requests` (best-effort). */
 async function resolveRequestId(eventId: string, email: string): Promise<string | null> {
