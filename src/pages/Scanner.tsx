@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import CameraPreview from "@/components/scanner/CameraPreview";
+import OfflineEventManifestCard from "@/components/scanner/OfflineEventManifestCard";
 
 interface ScanRecord {
   _id: string;
@@ -338,6 +339,13 @@ const Scanner = () => {
               </div>
             ))}
           </div>
+
+          {/* Offline manifest: auto-prefetch + status dla obsługi bramki */}
+          {selectedEvent && (
+            <div className="border-b border-border p-3">
+              <OfflineEventManifestCard event={selectedEvent} />
+            </div>
+          )}
 
           {/* Manual search fallback */}
           <div className="border-b border-border p-3">
