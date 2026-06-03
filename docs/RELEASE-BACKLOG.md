@@ -10,17 +10,14 @@
 
 To jest w zakresie R1, ale jeszcze niezrobione:
 
-- [ ] **Rekonsyliacja schematu kod↔baza (Priorytet 2 z sesji) — BLOKER.**
-  4 tabele istnieją tylko na bazie `jozg` (out-of-band z Lovable), bez migracji:
-  `accreditations`, `accreditation_types`, `media_registrations`, `media_documents`.
-  Kod oczekuje innego (starszego) kształtu niż wdrożony. Kroki:
-  1. **Decyzja o źródle prawdy** per tabela (wstępne czytanie: baza = nowszy model, kod = stary prototyp; QR siedzi na `guests`, nie na `accreditations`). Splecione ze split-brainem (I1).
-  2. **Catch-up migracje** dla 4 tabel — z Dockerem (walidacja odtwarzania na świeżym projekcie) i **poprawną kolejnością** (np. `accreditation_types` musi powstać PRZED `20260116091435`, które zmienia jej RLS).
-  3. **Poprawa kodu** issuance (`buildAccreditationPassInsert`) i rejestracji mediów pod uzgodniony schemat.
-  Blokuje ścieżki `/pass` i rejestracji mediów — bez tego R1 nie jest production-ready.
-- [ ] **Dokończenie zdejmowania `as any`** ze spójnych serwisów (`coverageService`, `mediaCrmService`, spójne fragmenty `verificationService`) — po rekonsyliacji. `coverageReportService` już czysty (WIP commit).
-- [ ] **Deploy edge functions + sekrety** (ogon P0-1): `supabase functions deploy` + ustawić `RESEND_API_KEY`, `PUBLIC_APP_URL` (**prawdziwy URL, nie `localhost`**), `ALLOWED_ORIGINS`. Bez tego e-mail / coverage nie działają end-to-end.
-- [ ] **Smoke E2E** głównej ścieżki (P0-5) na żywym projekcie: submission → approve → QR → check-in → coverage → report. Dodać `playwright.config`.
+- [ ] 🔴 **Offline skaner — podpiąć prefetch manifestu do `/scanner` (EVENT-CRITICAL).** Silnik offline gotowy (Dexie, kolejka, sync 30s + `online`, serwerowy dedup first-write-wins w RPC `process_qr_check_in`), ALE `downloadEventManifest()` jest wołany tylko w **niemontowanym** `UnifiedQRScanner`; żywy `Scanner.tsx` go nie wywołuje → Dexie `guests` nigdy nie zapełniany → **offline każdy kod = `unknown`/`invalid`**, bramka nie zweryfikuje gościa ani nie zobaczy nazwiska. Fix: auto-`downloadEventManifest(eventId)` przy wyborze eventu gdy online (albo zrenderować `OfflineEventManifestCard` na Scannerze). Tylko wyzwalacz — maszyneria już jest.
+- [ ] **Dostęp skanera dla obsługi bramki (decyzja).** `/scanner` dopuszcza dziś tylko `admin`/`organizer`; rola `staff` nie wejdzie. Na realny event: albo dopuścić `staff` + konta dla bramkowych (stopgap), albo zbudować „kod skanera" (sekcja F). Do decyzji.
+- [ ] **Catch-up migracje** (Docker) — out-of-band tabele bez migracji (`accreditations`, `accreditation_types`, `media_registrations`, `media_documents`) **+ drift RPC `process_qr_check_in`** (migracja `20260520143000` ma 3 param, wdrożony `jozg` ma 5: `_client_scan_id`/`_scanned_at`). Repo nie odtworzy dziś schematu/RPC na świeżym projekcie. Poprawna kolejność (np. `accreditation_types` przed `20260116091435`). *Code-fix issuance (`buildAccreditationPassInsert`) już zrobiony w Kroku A.*
+- [ ] **Deploy edge functions + sekrety** (ogon P0-1): `supabase functions deploy` + `RESEND_API_KEY`, `PUBLIC_APP_URL` (**prawdziwy URL, nie `localhost`**), `ALLOWED_ORIGINS`.
+- [ ] **Smoke E2E** głównej ścieżki (P0-5): submission → approve → QR → check-in → coverage → report. Dodać `playwright.config`.
+- [ ] **Merge do `main`** po zielonym E2E.
+
+> ✅ **Zrobione w tej sesji** (było tu jako „bloker"): rekonsyliacja schematu kod↔baza — Kroki A/B + P0-3 (deprecacja martwego: Media Portal, invitations/email frontend, `accreditationRequestService`, `AccreditationManagement`; baza=prawda dla aktywnych), **typecheck 103→0**. Higiena `as any` 71→22 (reszta skategoryzowana: a2 drift + third-party + dług generyczny `useApi`).
 
 ---
 
@@ -50,6 +47,8 @@ Wykryte przy audycie `as any` (kat. a2). Każda to osobna decyzja produktowa: do
 - [ ] **Refaktor generyków `useApi`/`ApiResponse`** — warstwa `useApiQuery` nie przenosi `ApiResponse<T>`, więc zdjęcie castu daje `Property 'data' does not exist on type 'never'`. 9× `as any` (`useEvents`, `useGuestQuery`, `useGuestMutations`, `useApi`) zostaje pod tym, dopóki granica generyczna nie zostanie przeprojektowana. Nie R1 — osobny, świadomy refaktor typów.
 - [ ] **`supabase/.temp/` → `.gitignore`** (drobiazg, wciąż niezrobiony).
 - [ ] **config.toml zawsze zsynchronizowany z aktywnym projektem** — lekcja z martwego refa `ajot`; przy każdej zmianie projektu aktualizować `project_id` i `.env`.
+- [ ] **Sekcja `[auth]` w `config.toml`** — dziś jej brak; konfiguracja OTP/OAuth/confirm żyje tylko w dashboardzie Supabase (ryzyko rozjazdu środowisk). Skomitować do repo. Przy okazji **potwierdzić status providerów OAuth** — przyciski `signInWithOAuth` są w UI, ale bez `[auth.external]` provider prawdopodobnie nieaktywny; Apple do dodania.
+- [ ] **Handler `ChunkLoadError`** — auto-reload przy `Failed to fetch dynamically imported module` po deployu (domyka okno między starą kartą a nowym SW; dziś łagodzone tylko `cleanupOutdatedCaches` + prompt).
 - [ ] **Domknąć branchowanie** — `redesign/linear-vercel` (+48 nad main) zmergować do `main`, zacząć z czystego stanu; krótkie gałęzie + częsty merge.
 - [ ] **ADR / `docs/decisions/`** — zapisywać decyzje typu „źródło prawdy", „co frozen" jako krótkie notatki.
 
@@ -96,6 +95,25 @@ Obecne `/accreditation-categories` + `/accreditation-request` to **MOCK** (nie z
 - [ ] **Zaprojektować funnel** — jak dziennikarz trafia do właściwego landingu (publiczna lista wydarzeń? bezpośredni link? coś innego?).
 - [ ] **Po zaprojektowaniu — usunąć mock flow:** `AccreditationRequest`, `AccreditationCategories`, `AccreditationForm`, `AccreditationEvents` + przepiąć linki (`Index.tsx` redirect non-org, `FooterSection`, `InteractiveHero`, `AccreditationEventCard`).
 - Do tego czasu mock zostaje jako nieszkodliwy placeholder (renderuje się, nie psuje linków).
+
+### Dashboardy per rola + konsolidacja logowania  *(zgłoszone przez właściciela, pkt 5)*
+Model ról jest gotowy (`app_role`: admin/moderator/organizer/staff/guest, `user_roles`, RLS, guardy tras), ale dashboardy są tylko dwa (Organizer/Admin vs catch-all `GuestDashboard`).
+- [ ] **Widoki per rola** — osobne dashboardy: dziennikarz, bramkowy (`staff`), koordynator bramki, influencer, organizator.
+- [ ] **Konsolidacja logowania** — jedno wejście (email/hasło + Google/Apple); rozważyć usunięcie osobnego trybu „gość" (dziś realny email-OTP w `GuestLoginForm`), bo myli. Splata się z „Publicznym wejściem dziennikarzy" wyżej — projektować razem.
+
+### Kod skanera — logowanie urządzenia bramki  *(zgłoszone przez właściciela, pkt 3)*
+Dziś skaner wymaga pełnego konta organizer/admin; mechanizmu krótkiego kodu nie ma.
+- [ ] 6-cyfrowy kod parujący urządzenie, generowany przez organizatora/koordynatora, scoped do eventu/strefy, z ważnością. Wymaga tabeli (kod, `event_id`, zakres, expiry, `created_by`) + UI generowania + zakładki „Skaner" z wpisaniem kodu + ścieżki auth bez pełnego konta.
+
+### Marketplace mediów i twórców  *(zgłoszone przez właściciela, pkt 4 — duży epik)*
+Dwustronny marketplace; jest mock `EventMarketplace.tsx` (sekcja E) jako punkt wyjścia. Pod-epiki:
+- [ ] **Konta + profile mediów** (self-service) + portfolio dla fotografów/wideo/redaktorów.
+- [ ] **Marketplace akredytacji** — media aplikują na eventy, organizator akceptuje/odrzuca.
+- [ ] **Marketplace usług + płatności** — twórcy wystawiają usługi, organizator kupuje (Stripe już w stacku).
+- [ ] **Influencerzy + agencje.**
+
+### Skaner: przeglądarka vs native vs hybryda  *(decyzja architektoniczna, pkt 5)*
+Realna granica: QR przez kamerę działa w przeglądarce cross-platform; **Web NFC działa tylko w Chrome/Android — na iOS w żadnej przeglądarce.** Jeśli RFID/NFC na iOS jest w wizji, czysta PWA nie wystarczy → native albo hybryda (Capacitor, jedna baza kodu + natywne pluginy NFC/kamera). Dobry kandydat na realny tiering produktowy (PWA = tylko QR; aplikacja = pełny RFID).
 
 ---
 
