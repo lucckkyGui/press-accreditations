@@ -1845,6 +1845,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_pass_by_token: {
+        Args: { _token: string }
+        Returns: {
+          qr_code: string
+          first_name: string | null
+          last_name: string | null
+          event_name: string | null
+          status: string | null
+        }[]
+      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_event_organizer: {
         Args: { _event_id: string; _user_id: string }

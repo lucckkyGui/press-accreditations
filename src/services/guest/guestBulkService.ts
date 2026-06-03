@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Guest, GuestStatus, GuestTicketType } from "@/types";
 import { GuestDB, BulkEmailRequest } from "@/types/guest/guest";
 import { ApiResponse } from "@/types/api/apiResponse";
-import { v4 as uuidv4 } from "uuid";
 import { mapDbGuestToGuest } from "./guestMapper";
 
 /**
@@ -24,7 +23,6 @@ export const guestBulkService = {
         ticket_type: guest.ticketType || 'uczestnik',
         zones: guest.zones || [],
         status: 'invited',
-        qr_code: uuidv4(),
         event_id: guest.eventId
       }));
 

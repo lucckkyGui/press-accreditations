@@ -40,6 +40,7 @@ import {
   type MediaSubmission, type VerificationEvent, type DecisionResult, type DecisionEmailStatus,
 } from "@/services/verification/verificationService";
 import { qrToDataURL } from "@/utils/qrDataUrl";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   eventId: string;
@@ -285,10 +286,20 @@ export const MediaVerificationPanel: React.FC<Props> = ({ eventId }) => {
 
   const openDetail = (s: MediaSubmission) => { setSelected(s); setOpen(true); };
 
-  const activePassCode = selected?.pass_qr_code || lastDecision?.qrCode || null;
+  // pass_qr_code = pass_token (link). Skanowalny QR koduje numeryczny guests.qr_code,
+  // rozwiązywany authed po guest_id (RPC get_pass_by_token zostaje dla publicznego /pass).
+  const passGuestId = selected?.guest_id ?? lastDecision?.guestId ?? null;
+  const [numericCode, setNumericCode] = useState<string | null>(null);
+  useEffect(() => {
+    if (!passGuestId) { setNumericCode(null); return; }
+    let active = true;
+    supabase.from("guests").select("qr_code").eq("id", passGuestId).maybeSingle()
+      .then(({ data }) => { if (active) setNumericCode(data?.qr_code ?? null); });
+    return () => { active = false; };
+  }, [passGuestId]);
   const passQrDataUrl = useMemo(
-    () => (activePassCode ? qrToDataURL(activePassCode, 220) : ""),
-    [activePassCode],
+    () => (numericCode ? qrToDataURL(numericCode, 220) : ""),
+    [numericCode],
   );
 
   const copyPassCode = (code: string) => {
@@ -298,7 +309,7 @@ export const MediaVerificationPanel: React.FC<Props> = ({ eventId }) => {
   };
 
   const downloadPassPdf = () => {
-    if (!selected || !activePassCode) return;
+    if (!selected || !numericCode) return;
     try {
       const doc = new jsPDF({ unit: "mm", format: "a6" });
       doc.setFontSize(15);
@@ -314,7 +325,7 @@ export const MediaVerificationPanel: React.FC<Props> = ({ eventId }) => {
       for (const line of lines) { doc.text(line, 10, y); y += 6; }
       if (passQrDataUrl) doc.addImage(passQrDataUrl, "PNG", 10, y + 2, 45, 45);
       doc.setFontSize(8);
-      doc.text(activePassCode, 10, y + 53, { maxWidth: 90 });
+      doc.text(numericCode, 10, y + 53, { maxWidth: 90 });
       doc.save(`pass-${(selected.last_name || "akredytacja").toLowerCase()}.pdf`);
       toast.success("Pobrano pass PDF");
     } catch (e) {
@@ -476,7 +487,7 @@ export const MediaVerificationPanel: React.FC<Props> = ({ eventId }) => {
 
               <div className="space-y-5">
                 {/* QR pass preview */}
-                {activePassCode && (
+                {numericCode && (
                   <div className="rounded-lg border border-green-600/40 bg-green-600/5 p-4">
                     <div className="flex items-start gap-4">
                       {passQrDataUrl ? (
@@ -493,9 +504,9 @@ export const MediaVerificationPanel: React.FC<Props> = ({ eventId }) => {
                           {selected.access_level && <span className="text-xs text-muted-foreground">· {accessLevelLabel(selected.access_level)}</span>}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">Skanowalny w check-inie (online i offline).</p>
-                        <code className="mt-2 block break-all rounded bg-muted px-2 py-1 text-xs">{activePassCode}</code>
+                        <code className="mt-2 block break-all rounded bg-muted px-2 py-1 text-xs">{numericCode}</code>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => copyPassCode(activePassCode)}>
+                          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => copyPassCode(numericCode)}>
                             <Copy className="h-3.5 w-3.5" /> Kopiuj kod
                           </Button>
                           <Button variant="outline" size="sm" className="gap-1.5" onClick={downloadPassPdf}>

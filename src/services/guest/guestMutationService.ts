@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Guest } from "@/types";
 import { GuestDB } from "@/types/guest/guest";
 import { ApiResponse } from "@/types/api/apiResponse";
-import { v4 as uuidv4 } from "uuid";
 import { mapDbGuestToGuest } from "./guestMapper";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -16,9 +15,7 @@ export const guestMutationService = {
    */
   async createGuest(guest: Partial<Guest> & { eventId: string }): Promise<ApiResponse<Guest>> {
     try {
-      // Generate a unique QR code
-      const qrCode = uuidv4();
-
+      // qr_code (numeryczny, UNIQUE) nadaje trigger DB przy insercie.
       const { data, error } = await supabase
         .from('guests')
         .insert([{
@@ -30,7 +27,6 @@ export const guestMutationService = {
           ticket_type: guest.ticketType || 'uczestnik',
           zones: guest.zones || [],
           status: 'invited',
-          qr_code: qrCode,
           event_id: guest.eventId
         }])
         .select()

@@ -345,7 +345,7 @@ async function issueAccreditation(
       access_level: accessLevel,
       zones,
       status: "confirmed",
-      qr_code: token,
+      // qr_code (numeryczny) nadaje trigger DB; `token` to pass_token linku (niżej).
     } as never)
     .select("id")
     .single();

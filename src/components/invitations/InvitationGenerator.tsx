@@ -59,17 +59,8 @@ const InvitationGenerator: React.FC<InvitationGeneratorProps> = ({
   };
 
   const generateInvitation = async (guest: Guest): Promise<GeneratedInvitation> => {
-    // Generuj QR kod z danymi gościa i wydarzenia
-    const qrData = JSON.stringify({
-      guestId: guest.id,
-      eventId: event.id,
-      qrCode: guest.qrCode,
-      guestName: `${guest.firstName} ${guest.lastName}`,
-      guestEmail: guest.email,
-      timestamp: new Date().toISOString()
-    });
-
-    const qrCodeDataUrl = await generateQRCode(qrData);
+    // QR koduje sam numeryczny kod gościa (spójne z importem biletów + skanerem).
+    const qrCodeDataUrl = await generateQRCode(guest.qrCode);
 
     // Zastąp placeholdery w szablonie - użyj DOMPurify do sanityzacji
     const rawHtml = invitationTemplate
