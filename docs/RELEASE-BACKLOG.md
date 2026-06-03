@@ -115,6 +115,15 @@ Dwustronny marketplace; jest mock `EventMarketplace.tsx` (sekcja E) jako punkt w
 ### Skaner: przeglądarka vs native vs hybryda  *(decyzja architektoniczna, pkt 5)*
 Realna granica: QR przez kamerę działa w przeglądarce cross-platform; **Web NFC działa tylko w Chrome/Android — na iOS w żadnej przeglądarce.** Jeśli RFID/NFC na iOS jest w wizji, czysta PWA nie wystarczy → native albo hybryda (Capacitor, jedna baza kodu + natywne pluginy NFC/kamera). Dobry kandydat na realny tiering produktowy (PWA = tylko QR; aplikacja = pełny RFID).
 
+### Import biletów z bileterii (.txt / .csv / .xlsx)  *(zgłoszone przez właściciela)*
+Realny workflow z Circoloco: bilety Stage24 mają QR + kod `XXX-XXX-XXXX` (10 cyfr); na bramkę szła płaska lista 10-cyfrowych kodów w `.txt` (~5,4 tys.). Cel: wczytać kody z pliku do `guests`/manifestu, żeby skaner (online i offline) je walidował. Most do czasu integracji API z bileterią.
+- [ ] **Najpierw sprawdzić**, czy import już istnieje (`guestBulkService` robi bulk-insert do `guests`) — jeśli tak, rozszerzyć, nie budować od zera.
+- [ ] **Formaty:** `.txt` (płaska lista kodów), `.csv`, `.xlsx` (kolumny: kod, typ/tier, imię, e-mail).
+- [ ] **Normalizacja kodu** — przy imporcie i przy skanie ścinać myślniki/spacje (`773-010-1526` ↔ `7730101526`), żeby match działał niezależnie od formatu.
+- [ ] **BOM/encoding** — plik z Circoloco miał UTF-8 BOM na 1. linii; parser musi go ścinać (inaczej pierwszy kod nie matchuje).
+- [ ] **Typ/tier tylko z .csv/.xlsx** — `.txt` nie niesie typu (GA vs BACKSTAGE); tiery/strefy + nazwiska importowalne wyłącznie z csv/xlsx. Presety kolumn pod platformy (Stage24/eBilet/RA/Shotgun — różne eksporty).
+- [ ] Po imporcie → `guests` → manifest offline (po naprawie prefetchu) go pobierze → skaner waliduje na bramce.
+
 ---
 
 ## Zrobione w R1 (dla kontekstu)
