@@ -689,7 +689,7 @@ async function resolveRequestId(eventId: string, email: string): Promise<string 
       .from("accreditation_requests")
       .select("id")
       .eq("event_id", eventId)
-      .ilike("contact_email", email)
+      .ilike("email", email)
       .order("created_at", { ascending: false })
       .limit(1);
     return data && data.length > 0 ? data[0].id : null;

@@ -112,11 +112,11 @@ export function useEventAnalytics(eventId: string | undefined) {
       });
       const byZone = Array.from(zoneMap.entries()).map(([zone, data]) => ({ zone, ...data }));
 
-      // Email stats
-      const emailSent = guests.filter(g => g.invitation_sent_at).length;
-      const emailOpened = guests.filter(g => g.invitation_opened_at).length;
+      // Email stats — źródłem prawdy jest guests.email_status (brak kolumn invitation_*).
+      // Śledzenie otwarć (opened) odłożone do osobnego epiku — na razie 0.
+      const emailSent = guests.filter(g => g.email_status === 'sent').length;
       const emailFailed = guests.filter(g => g.email_status === 'failed').length;
-      const emailPending = guests.filter(g => !g.invitation_sent_at && g.email_status !== 'failed').length;
+      const emailPending = guests.filter(g => g.email_status !== 'sent' && g.email_status !== 'failed').length;
 
       // Check-in by hour
       const hourMap = new Map<string, number>();
@@ -198,7 +198,7 @@ export function useEventAnalytics(eventId: string | undefined) {
           maxGuests: event.max_guests,
         },
         guests: { total: guests.length, checkedIn, confirmed, invited, declined, byZone },
-        emails: { sent: emailSent, opened: emailOpened, failed: emailFailed, pending: emailPending },
+        emails: { sent: emailSent, opened: 0, failed: emailFailed, pending: emailPending },
         checkIns: {
           byHour,
           peakHour,

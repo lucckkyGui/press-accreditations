@@ -127,8 +127,6 @@ const EventDetails = () => {
             status: g.status as Guest["status"],
             emailStatus: (g.email_status || "pending") as Guest["emailStatus"],
             qrCode: g.qr_code,
-            invitationSentAt: g.invitation_sent_at ? new Date(g.invitation_sent_at) : undefined,
-            invitationOpenedAt: g.invitation_opened_at ? new Date(g.invitation_opened_at) : undefined,
             checkedInAt: g.checked_in_at ? new Date(g.checked_in_at) : undefined,
           })));
         }

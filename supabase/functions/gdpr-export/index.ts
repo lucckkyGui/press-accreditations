@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
         supabase.from("user_roles").select("role, created_at").eq("user_id", user.id),
         supabase.from("events").select("id, title, start_date, end_date, location, category, created_at").eq("organizer_id", user.id),
         supabase.from("user_notifications").select("title, message, type, created_at, is_read").eq("user_id", user.id).order("created_at", { ascending: false }).limit(500),
-        supabase.from("accreditation_requests").select("media_name, media_type, contact_email, status, created_at").eq("user_id", user.id),
+        supabase.from("accreditation_requests").select("first_name, last_name, email, company, status, created_at").eq("user_id", user.id),
         supabase.from("media_registrations").select("media_organization, job_title, status, created_at").eq("user_id", user.id),
         supabase.from("document_submissions").select("title, file_name, status, created_at").eq("user_id", user.id),
         supabase.from("chat_conversations").select("title, created_at").eq("created_by", user.id),
