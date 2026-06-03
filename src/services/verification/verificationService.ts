@@ -1,9 +1,9 @@
 /**
  * Warstwa danych Media Verification Engine.
  *
- * `landing_page_submissions` oraz `submission_verification_events` nie są w
- * wygenerowanych typach Supabase, dlatego używamy `(supabase as any)` (ustalony
- * wzorzec w repo). RLS pilnuje, że organizator widzi tylko swoje zgłoszenia.
+ * `landing_page_submissions` oraz `submission_verification_events` są w
+ * wygenerowanych typach Supabase — używamy typowanego klienta.
+ * RLS pilnuje, że organizator widzi tylko swoje zgłoszenia.
  *
  * Zasada produktowa: scoring SUGERUJE — decyzję approve/reject podejmuje człowiek.
  * Każda zmiana (rescore, override, notatka, decyzja) jest logowana w historii
@@ -37,6 +37,7 @@ import {
 } from "@/lib/accreditation/decisionFlow";
 import { upsertContactFromActivity } from "@/services/crm/mediaCrmService";
 import type { SubmissionData } from "@/lib/accreditation/types";
+import type { Json } from "@/integrations/supabase/types";
 
 export type SubmissionDecisionStatus =
   | "pending" | "approved" | "approved_limited" | "rejected" | "waitlisted" | "expired";
@@ -115,18 +116,6 @@ interface Actor {
   email: string | null;
 }
 
-const SUBMISSION_COLUMNS =
-  "id, event_id, landing_page_id, first_name, last_name, email, phone, " +
-  "media_organization, media_type, job_title, role, social_media, portfolio_url, " +
-  "publication_links, coverage_description, requested_access, previous_accreditation, " +
-  "accreditation_type, consent_data_processing, consent_marketing, flags, custom_fields, " +
-  "status, verification_score, verification_risk_level, verification_status, " +
-  "verification_flags, verification_explanation, verification_overridden_by, " +
-  "verification_overridden_at, verification_notes, " +
-  "guest_id, accreditation_id, pass_qr_code, pass_issued_at, " +
-  "access_level, applicant_message, decision_email_status, decision_email_sent_at, " +
-  "decided_at, decided_by, created_at, updated_at";
-
 /** Mapuje wiersz zgłoszenia na wejście scoringu. */
 function toSubmissionData(s: MediaSubmission): SubmissionData {
   return {
@@ -152,17 +141,17 @@ function possibleDuplicateOf(s: MediaSubmission): boolean {
 }
 
 export async function fetchSubmissions(eventId: string): Promise<MediaSubmission[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("landing_page_submissions")
-    .select(SUBMISSION_COLUMNS)
+    .select("*")
     .eq("event_id", eventId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as MediaSubmission[];
+  return (data ?? []) as unknown as MediaSubmission[];
 }
 
 export async function fetchVerificationEvents(submissionId: string): Promise<VerificationEvent[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("submission_verification_events")
     .select("*")
     .eq("submission_id", submissionId)
@@ -177,12 +166,13 @@ async function logEvent(
   payload: Partial<VerificationEvent> & Pick<VerificationEvent, "event_type">,
 ): Promise<void> {
   try {
-    await (supabase as any).from("submission_verification_events").insert({
+    await supabase.from("submission_verification_events").insert({
       submission_id: submission.id,
       event_id: submission.event_id,
       actor_id: actor.id,
       actor_email: actor.email,
       ...payload,
+      metadata: (payload.metadata ?? null) as Json,
     });
   } catch (err) {
     // Historia jest best-effort — nie blokuje głównej akcji.
@@ -199,13 +189,13 @@ export async function recalculateSubmission(
     possibleDuplicate: possibleDuplicateOf(submission),
   });
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("landing_page_submissions")
     .update({
       verification_score: result.score,
       verification_risk_level: result.riskLevel,
       verification_status: result.band,
-      verification_flags: result.flags,
+      verification_flags: result.flags as unknown as Json,
       verification_explanation: result.explanation,
       // Przeliczenie czyści wcześniejsze ręczne nadpisanie wyniku.
       verification_overridden_by: null,
@@ -237,7 +227,7 @@ export async function overrideVerification(
   const band = getScoreBand(override.score);
   const now = new Date().toISOString();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("landing_page_submissions")
     .update({
       verification_score: override.score,
@@ -278,7 +268,7 @@ export async function addVerificationNote(
   note: string,
   actor: Actor,
 ): Promise<void> {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("landing_page_submissions")
     .update({ verification_notes: note, updated_at: new Date().toISOString() })
     .eq("id", submission.id);
@@ -369,7 +359,7 @@ async function issueAccreditation(
       let eventStart: string | null = null;
       let eventEnd: string | null = null;
       try {
-        const { data: ev } = await (supabase as any)
+        const { data: ev } = await supabase
           .from("events").select("start_date, end_date").eq("id", submission.event_id).maybeSingle();
         eventStart = ev?.start_date ?? null;
         eventEnd = ev?.end_date ?? null;
@@ -396,7 +386,7 @@ async function issueAccreditation(
   }
 
   const issuedAt = new Date().toISOString();
-  const { error: updateError } = await (supabase as any)
+  const { error: updateError } = await supabase
     .from("landing_page_submissions")
     .update({
       guest_id: guestId, accreditation_id: accreditationId,
@@ -464,7 +454,7 @@ export async function decideSubmission(
   const now = new Date().toISOString();
 
   // 1) Update statusu + metadanych decyzji
-  const { error: updErr } = await (supabase as any)
+  const { error: updErr } = await supabase
     .from("landing_page_submissions")
     .update({
       status: input.status,
@@ -509,7 +499,7 @@ export async function decideSubmission(
   let emailStatus: DecisionEmailStatus = "skipped";
   if (input.sendEmail) {
     emailStatus = await sendDecisionEmail(submission, input.status, input.accessLevel ?? null, input.applicantMessage, pass.qrCode);
-    await (supabase as any)
+    await supabase
       .from("landing_page_submissions")
       .update({
         decision_email_status: emailStatus,
@@ -660,7 +650,7 @@ export async function resendDecisionEmail(submission: MediaSubmission, actor: Ac
     submission.pass_qr_code,
   );
 
-  await (supabase as any)
+  await supabase
     .from("landing_page_submissions")
     .update({
       decision_email_status: emailStatus,

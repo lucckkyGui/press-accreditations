@@ -207,10 +207,10 @@ const OrganizerDashboard = () => {
     queryFn: async () => {
       if (!user?.id || !eventsData?.length) return [];
       // Single source of truth: pending media submissions (landing_page_submissions).
-      // Not in generated types yet → cast. RLS scopes to the organizer's events.
-      const { data, error } = await (supabase as any)
+      // RLS scopes to the organizer's events.
+      const { data, error } = await supabase
         .from("landing_page_submissions")
-        .select("id, status, event_id")
+        .select("id, media_organization, email")
         .in("event_id", eventsData.map((e) => e.id))
         .eq("status", "pending")
         .limit(5);
@@ -338,7 +338,7 @@ const OrganizerDashboard = () => {
       <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
         <LiveEventActivityCard
           event={activeEvents[0] ?? null}
-          accreditationsApproved={accreditationRequests?.filter((r) => r.status === "pending").length ?? 0}
+          accreditationsApproved={accreditationRequests?.length ?? 0}
           accreditationsCapacity={guestsStats.total}
           checkedIn={guestsStats.checkedIn}
           inQueue={pendingCount}

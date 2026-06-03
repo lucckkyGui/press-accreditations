@@ -2,7 +2,7 @@
  * Warstwa danych Coverage collection.
  *
  * coverage_requests (per check-in, secure token) + coverage_items (publikacje).
- * `(supabase as any)` — tabele poza wygenerowanymi typami. RLS = organizer/admin.
+ * Tabele są w wygenerowanych typach Supabase — typowany klient. RLS = organizer/admin.
  * Publiczny submit przez token idzie przez edge function `coverage-submit`.
  */
 import { supabase } from "@/integrations/supabase/client";
@@ -11,8 +11,6 @@ import {
   generateCoverageToken, type CoverageStatus, canTransitionCoverage,
 } from "@/lib/crm/mediaCrm";
 import { upsertContactFromActivity } from "./mediaCrmService";
-
-const sb = () => supabase as any;
 
 export interface CoverageRequest {
   id: string;
@@ -66,11 +64,11 @@ interface Actor { id: string; email: string | null; }
  */
 export async function generateCoverageRequestsForEvent(eventId: string, actor: Actor): Promise<number> {
   // Pobierz organizatora eventu
-  const { data: ev } = await sb().from("events").select("organizer_id, end_date").eq("id", eventId).maybeSingle();
+  const { data: ev } = await supabase.from("events").select("organizer_id, end_date").eq("id", eventId).maybeSingle();
   const organizerId = ev?.organizer_id ?? actor.id;
 
   // Goście (akredytacje) checked-in dla eventu
-  const { data: guests } = await sb().from("guests")
+  const { data: guests } = await supabase.from("guests")
     .select("id, first_name, last_name, email, company, access_level, checked_in_at, status")
     .eq("event_id", eventId)
     .not("checked_in_at", "is", null);
@@ -78,7 +76,7 @@ export async function generateCoverageRequestsForEvent(eventId: string, actor: A
   if (!guests || guests.length === 0) return 0;
 
   // Istniejące requesty (dedup po guest_id)
-  const { data: existing } = await sb().from("coverage_requests")
+  const { data: existing } = await supabase.from("coverage_requests")
     .select("guest_id").eq("event_id", eventId);
   const existingGuestIds = new Set((existing ?? []).map((r: { guest_id: string | null }) => r.guest_id).filter(Boolean));
 
@@ -96,7 +94,7 @@ export async function generateCoverageRequestsForEvent(eventId: string, actor: A
       bump: { coverage_count: 0 },
     }).catch(() => null);
 
-    const { error } = await sb().from("coverage_requests").insert({
+    const { error } = await supabase.from("coverage_requests").insert({
       event_id: eventId,
       organizer_id: organizerId,
       contact_id: contactId,
@@ -134,7 +132,7 @@ export interface CoverageBoardRow extends CoverageRequest {
 export async function fetchCoverageBoard(filters: {
   eventId?: string; status?: CoverageStatus | "all"; mediaType?: string;
 } = {}): Promise<CoverageBoardRow[]> {
-  let q = sb().from("coverage_requests").select("*").order("created_at", { ascending: false });
+  let q = supabase.from("coverage_requests").select("*").order("created_at", { ascending: false });
   if (filters.eventId) q = q.eq("event_id", filters.eventId);
   if (filters.status && filters.status !== "all") q = q.eq("status", filters.status);
   const { data, error } = await q;
@@ -145,7 +143,7 @@ export async function fetchCoverageBoard(filters: {
   const ids = rows.map((r) => r.id);
   const counts = new Map<string, number>();
   if (ids.length > 0) {
-    const { data: items } = await sb().from("coverage_items").select("coverage_request_id").in("coverage_request_id", ids);
+    const { data: items } = await supabase.from("coverage_items").select("coverage_request_id").in("coverage_request_id", ids);
     for (const it of (items ?? []) as Array<{ coverage_request_id: string }>) {
       counts.set(it.coverage_request_id, (counts.get(it.coverage_request_id) ?? 0) + 1);
     }
@@ -154,7 +152,7 @@ export async function fetchCoverageBoard(filters: {
 }
 
 export async function fetchCoverageItems(requestId: string): Promise<CoverageItem[]> {
-  const { data, error } = await sb().from("coverage_items")
+  const { data, error } = await supabase.from("coverage_items")
     .select("*").eq("coverage_request_id", requestId).order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as CoverageItem[];
@@ -168,7 +166,7 @@ async function setStatus(req: CoverageRequest, to: CoverageStatus, actor: Actor,
   if (!canTransitionCoverage(req.status, to)) {
     throw new Error(`Niedozwolone przejście: ${req.status} → ${to}`);
   }
-  const { error } = await sb().from("coverage_requests")
+  const { error } = await supabase.from("coverage_requests")
     .update({ status: to, updated_at: new Date().toISOString() }).eq("id", req.id);
   if (error) throw error;
 
@@ -186,17 +184,17 @@ async function setStatus(req: CoverageRequest, to: CoverageStatus, actor: Actor,
 export async function verifyCoverage(req: CoverageRequest, actor: Actor): Promise<void> {
   await setStatus(req, "coverage_verified", actor);
   // verified_at/by na najnowszym item
-  const { data: items } = await sb().from("coverage_items")
+  const { data: items } = await supabase.from("coverage_items")
     .select("id").eq("coverage_request_id", req.id).order("created_at", { ascending: false }).limit(1);
   if (items && items.length > 0) {
-    await sb().from("coverage_items")
+    await supabase.from("coverage_items")
       .update({ verified_by: actor.id || null, verified_at: new Date().toISOString() })
       .eq("id", items[0].id);
   }
   if (req.contact_id) {
-    const { data: c } = await sb().from("media_contacts").select("coverage_count").eq("id", req.contact_id).maybeSingle();
+    const { data: c } = await supabase.from("media_contacts").select("coverage_count").eq("id", req.contact_id).maybeSingle();
     if (c) {
-      await sb().from("media_contacts")
+      await supabase.from("media_contacts")
         .update({ coverage_count: (c.coverage_count ?? 0) + 1, updated_at: new Date().toISOString() })
         .eq("id", req.contact_id);
     }

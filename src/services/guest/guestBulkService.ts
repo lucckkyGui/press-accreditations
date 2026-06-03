@@ -26,7 +26,7 @@ export const guestBulkService = {
         status: 'invited',
         qr_code: uuidv4(),
         event_id: guest.eventId
-      } as any));
+      }));
 
       const { data, error } = await supabase
         .from('guests')
@@ -84,7 +84,7 @@ export const guestBulkService = {
     try {
       const { error } = await supabase
         .from('guests')
-        .update({ ticket_type: ticketType } as any)
+        .update({ ticket_type: ticketType })
         .in('id', ids);
 
       if (error) throw error;

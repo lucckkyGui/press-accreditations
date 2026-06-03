@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { Guest, Event } from "@/types";
+import { Guest, Event, GuestZone } from "@/types";
 import { GuestsQueryParams } from "@/types/guest/guest";
 import { guestService } from "@/services/guestService";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export const useGuestsPage = () => {
         search: filters.search,
         status: filters.statusFilter,
         ticketType: filters.ticketTypeFilter,
-        zone: filters.zoneFilter as any,
+        zone: filters.zoneFilter as GuestZone | "all",
         eventId: selectedEvent.id
       };
 

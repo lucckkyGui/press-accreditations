@@ -51,7 +51,7 @@ export const rfidService = {
 
   async assignWristband(eventId: string, guestId: string, rfidCode: string) {
     const { data, error } = await supabase
-      .from('wristbands' as any)
+      .from('wristbands')
       .insert({ event_id: eventId, guest_id: guestId, rfid_code: rfidCode })
       .select()
       .single();
@@ -61,7 +61,7 @@ export const rfidService = {
 
   async getWristbands(eventId: string): Promise<WristbandAssignment[]> {
     const { data, error } = await supabase
-      .from('wristbands' as any)
+      .from('wristbands')
       .select('*, guests(first_name, last_name, company)')
       .eq('event_id', eventId)
       .order('assigned_at', { ascending: false });
@@ -80,7 +80,7 @@ export const rfidService = {
 
   async deactivateWristband(wristbandId: string, reason: string) {
     const { error } = await supabase
-      .from('wristbands' as any)
+      .from('wristbands')
       .update({ is_active: false, deactivated_at: new Date().toISOString(), deactivation_reason: reason })
       .eq('id', wristbandId);
     if (error) throw error;
@@ -88,7 +88,7 @@ export const rfidService = {
 
   async getZonePresence(eventId: string): Promise<ZonePresenceEntry[]> {
     const { data, error } = await supabase
-      .from('zone_presence' as any)
+      .from('zone_presence')
       .select('*, wristbands(rfid_code, guests(first_name, last_name))')
       .eq('event_id', eventId)
       .eq('is_inside', true);
@@ -107,7 +107,7 @@ export const rfidService = {
 
   async getAccessLogs(eventId: string, limit = 50) {
     const { data, error } = await supabase
-      .from('access_logs' as any)
+      .from('access_logs')
       .select('*, wristbands(rfid_code, guests(first_name, last_name))')
       .eq('event_id', eventId)
       .order('created_at', { ascending: false })
@@ -128,7 +128,7 @@ export const rfidService = {
 
   async getZoneStats(eventId: string) {
     const { data, error } = await supabase
-      .from('zone_presence' as any)
+      .from('zone_presence')
       .select('zone_name')
       .eq('event_id', eventId)
       .eq('is_inside', true);

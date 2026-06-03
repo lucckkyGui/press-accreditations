@@ -54,8 +54,8 @@ function useSidebarCounts(userId: string | undefined) {
         supabase.from("events").select("id, start_date, end_date", { count: "exact", head: false }).eq("organizer_id", userId),
         supabase.from("guests").select("id", { count: "exact", head: true }),
         // Single source of truth: pending media submissions (landing_page_submissions).
-        // Not in generated types yet → cast. RLS scopes to the organizer's events.
-        (supabase as any).from("landing_page_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        // RLS scopes to the organizer's events.
+        supabase.from("landing_page_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       const now = Date.now();
       const events = (eventsRes.data ?? []) as { id: string; start_date: string; end_date: string }[];

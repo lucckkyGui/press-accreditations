@@ -83,7 +83,7 @@ const PublicAccreditationPage = () => {
   useEffect(() => {
     if (!slug) return;
     formLoadedAt.current = Date.now();
-    (supabase as any)
+    supabase
       .from("event_landing_pages")
       .select("*, events(title, location, start_date, end_date)")
       .eq("slug", slug)

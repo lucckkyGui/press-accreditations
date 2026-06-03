@@ -104,7 +104,7 @@ export function useEventAnalytics(eventId: string | undefined) {
       // By zone
       const zoneMap = new Map<string, { total: number; checkedIn: number }>();
       guests.forEach(g => {
-        const z = (g as any).ticket_type || 'uczestnik';
+        const z = g.ticket_type || 'uczestnik';
         const entry = zoneMap.get(z) || { total: 0, checkedIn: 0 };
         entry.total++;
         if (g.status === 'checked-in') entry.checkedIn++;

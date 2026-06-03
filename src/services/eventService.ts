@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Event } from "@/types";
 import { EventDB, EventsQueryParams } from "@/types/event/event";
 import { ApiResponse } from "@/types/api/apiResponse";
@@ -146,7 +147,7 @@ export const eventService = {
       
       const { data, error } = await supabase
         .from('events')
-        .update(dbEvent as any)
+        .update(dbEvent)
         .eq('id', id)
         .select()
         .single();
@@ -224,8 +225,8 @@ function mapDbEventToEvent(dbEvent: any): Event {
 /**
  * Map frontend Event type to database format
  */
-function mapEventToDbEvent(event: Partial<Event>): Record<string, any> {
-  const dbEvent: Record<string, any> = {};
+function mapEventToDbEvent(event: Partial<Event>): Database["public"]["Tables"]["events"]["Update"] {
+  const dbEvent: Database["public"]["Tables"]["events"]["Update"] = {};
   
   if (event.name !== undefined) dbEvent.title = event.name;
   if (event.description !== undefined) dbEvent.description = event.description;

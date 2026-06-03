@@ -22,6 +22,7 @@ import {
   FIELD_SECTION,
   MEDIA_ROLES,
 } from "@/lib/accreditation/types";
+import type { Json } from "@/integrations/supabase/types";
 
 const MEDIA_TYPE_OPTIONS = [
   { value: "press", label: "Prasa" },
@@ -110,7 +111,7 @@ const LandingPageBuilder = () => {
         .replace(/^-|-$/g, "");
       
       // Load existing landing page
-      const { data: lp } = await (supabase as any)
+      const { data: lp } = await supabase
         .from("event_landing_pages")
         .select("*")
         .eq("event_id", eventId!)
@@ -125,8 +126,8 @@ const LandingPageBuilder = () => {
         setSecondaryColor(lp.secondary_color || "#8b5cf6");
         setDescription(lp.description || "");
         setTermsText(lp.terms_text || "");
-        setSocialLinks(lp.social_links || { Instagram: "", Facebook: "", Twitter: "", Website: "" });
-        setFormConfig(lp.form_config || DEFAULT_FORM_CONFIG);
+        setSocialLinks((lp.social_links as Record<string, string> | null) || { Instagram: "", Facebook: "", Twitter: "", Website: "" });
+        setFormConfig((lp.form_config as unknown as FormConfig) || DEFAULT_FORM_CONFIG);
         setIsActive(lp.is_active);
       } else {
         setSlug(defaultSlug);
@@ -156,20 +157,20 @@ const LandingPageBuilder = () => {
       secondary_color: secondaryColor,
       description: description || null,
       terms_text: termsText || null,
-      social_links: socialLinks,
-      form_config: formConfig,
+      social_links: socialLinks as unknown as Json,
+      form_config: formConfig as unknown as Json,
       is_active: isActive,
     };
 
     let error;
     if (pageId) {
-      const res = await (supabase as any)
+      const res = await supabase
         .from("event_landing_pages")
         .update(payload)
         .eq("id", pageId);
       error = res.error;
     } else {
-      const res = await (supabase as any)
+      const res = await supabase
         .from("event_landing_pages")
         .insert(payload)
         .select("id")

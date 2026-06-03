@@ -1,19 +1,18 @@
 /**
  * Warstwa danych Media CRM.
  *
- * Tabele (media_contacts, media_outlets, media_contact_outlets, coverage_*) nie są
- * w wygenerowanych typach Supabase — używamy `(supabase as any)` (wzorzec w repo).
+ * Tabele (media_contacts, media_outlets, media_contact_outlets, coverage_*) są
+ * w wygenerowanych typach Supabase — używamy typowanego klienta.
  * RLS pilnuje, że organizator widzi tylko swoje rekordy.
  */
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { createAuditLog } from "@/services/audit/auditService";
 import {
   normalizeEmail, outletDedupKey, normalizeOutletName, normalizeDomain,
   noShowRate, coverageRate, showRate,
   type ContactStats,
 } from "@/lib/crm/mediaCrm";
-
-const sb = () => supabase as any;
 
 export interface MediaOutlet {
   id: string;
@@ -83,17 +82,17 @@ export async function upsertOutlet(
 
   // 1) szukaj po domenie
   if (domain) {
-    const { data } = await sb().from("media_outlets")
+    const { data } = await supabase.from("media_outlets")
       .select("id").eq("organizer_id", organizerId).eq("domain", domain).limit(1);
     if (data && data.length > 0) return data[0].id;
   }
   // 2) szukaj po znormalizowanej nazwie
-  const { data: byName } = await sb().from("media_outlets")
+  const { data: byName } = await supabase.from("media_outlets")
     .select("id").eq("organizer_id", organizerId).eq("normalized_name", normalizedName).limit(1);
   if (byName && byName.length > 0) return byName[0].id;
 
   // 3) utwórz
-  const { data: created, error } = await sb().from("media_outlets")
+  const { data: created, error } = await supabase.from("media_outlets")
     .insert({
       organizer_id: organizerId,
       name,
@@ -108,13 +107,13 @@ export async function upsertOutlet(
 }
 
 export async function fetchOutlets(): Promise<MediaOutlet[]> {
-  const { data, error } = await sb().from("media_outlets").select("*").order("name", { ascending: true });
+  const { data, error } = await supabase.from("media_outlets").select("*").order("name", { ascending: true });
   if (error) throw error;
   return (data ?? []) as MediaOutlet[];
 }
 
 export async function fetchOutlet(id: string): Promise<MediaOutlet | null> {
-  const { data } = await sb().from("media_outlets").select("*").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("media_outlets").select("*").eq("id", id).maybeSingle();
   return (data as MediaOutlet) ?? null;
 }
 
@@ -123,13 +122,13 @@ export async function fetchOutlet(id: string): Promise<MediaOutlet | null> {
 // ─────────────────────────────────────────────────────────────
 
 export async function fetchContacts(): Promise<MediaContact[]> {
-  const { data, error } = await sb().from("media_contacts").select("*").order("updated_at", { ascending: false });
+  const { data, error } = await supabase.from("media_contacts").select("*").order("updated_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as MediaContact[];
 }
 
 export async function fetchContact(id: string): Promise<MediaContact | null> {
-  const { data } = await sb().from("media_contacts").select("*").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("media_contacts").select("*").eq("id", id).maybeSingle();
   return (data as MediaContact) ?? null;
 }
 
@@ -164,12 +163,14 @@ export async function upsertContactFromActivity(params: {
     } catch (e) { console.error("outlet upsert failed (non-critical):", e); }
   }
 
-  const { data: existing } = await sb().from("media_contacts")
+  const { data: existing } = await supabase.from("media_contacts")
     .select("*").eq("organizer_id", params.organizerId).ilike("email", email).limit(1);
 
   if (existing && existing.length > 0) {
     const c = existing[0] as MediaContact;
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const patch: Database["public"]["Tables"]["media_contacts"]["Update"] = {
+      updated_at: new Date().toISOString(),
+    };
     // wypełnij brakujące pola, nie nadpisuj istniejących
     if (!c.first_name && params.firstName) patch.first_name = params.firstName;
     if (!c.last_name && params.lastName) patch.last_name = params.lastName;
@@ -177,16 +178,17 @@ export async function upsertContactFromActivity(params: {
     if (!c.role && params.role) patch.role = params.role;
     if (!c.primary_outlet_id && outletId) patch.primary_outlet_id = outletId;
     for (const [k, v] of Object.entries(params.bump ?? {})) {
-      patch[k] = ((c as any)[k] ?? 0) + (v ?? 0);
+      const key = k as keyof NonNullable<typeof params.bump>;
+      patch[key] = (c[key] ?? 0) + (v ?? 0);
     }
-    const { error } = await sb().from("media_contacts").update(patch).eq("id", c.id);
+    const { error } = await supabase.from("media_contacts").update(patch).eq("id", c.id);
     if (error) throw error;
     if (outletId) await linkContactOutlet(c.id, outletId);
     return c.id;
   }
 
   const bump = params.bump ?? {};
-  const { data: created, error } = await sb().from("media_contacts")
+  const { data: created, error } = await supabase.from("media_contacts")
     .insert({
       organizer_id: params.organizerId,
       email,
@@ -210,7 +212,7 @@ export async function upsertContactFromActivity(params: {
 
 async function linkContactOutlet(contactId: string, outletId: string): Promise<void> {
   try {
-    await sb().from("media_contact_outlets").upsert(
+    await supabase.from("media_contact_outlets").upsert(
       { contact_id: contactId, outlet_id: outletId },
       { onConflict: "contact_id,outlet_id", ignoreDuplicates: true },
     );
@@ -221,7 +223,7 @@ export async function updateContactCrm(
   id: string,
   patch: { tags?: string[]; quality_rating?: number | null; pr_notes?: string | null; primary_outlet_id?: string | null },
 ): Promise<void> {
-  const { error } = await sb().from("media_contacts")
+  const { error } = await supabase.from("media_contacts")
     .update({ ...patch, updated_at: new Date().toISOString() })
     .eq("id", id);
   if (error) throw error;
@@ -239,10 +241,10 @@ export interface ContactHistory {
 export async function fetchContactHistory(contact: MediaContact): Promise<ContactHistory> {
   const email = normalizeEmail(contact.email);
   const [{ data: subs }, { data: cov }] = await Promise.all([
-    sb().from("landing_page_submissions")
+    supabase.from("landing_page_submissions")
       .select("id, event_id, status, created_at, access_level, guest_id, pass_issued_at")
       .ilike("email", email).order("created_at", { ascending: false }),
-    sb().from("coverage_requests")
+    supabase.from("coverage_requests")
       .select("id, event_id, status, created_at").eq("contact_id", contact.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -290,7 +292,7 @@ export async function anonymizeContact(contactId: string): Promise<void> {
   if (!contact) throw new Error("Kontakt nie istnieje.");
 
   const anonEmail = `anon+${contactId.slice(0, 8)}@anonymized.local`;
-  const { error } = await sb().from("media_contacts").update({
+  const { error } = await supabase.from("media_contacts").update({
     email: anonEmail,
     first_name: "[usunięto]",
     last_name: "[usunięto]",

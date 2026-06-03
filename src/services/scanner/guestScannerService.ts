@@ -241,9 +241,7 @@ export const guestScannerService = {
     const q = term.trim();
     if (!eventId || q.length < 2) return [];
     const safe = q.replace(/[%,()]/g, " ");
-    // access_level dodane migracją (Tydzień 4/5) — typy Supabase nie zregenerowane,
-    // stąd `(supabase as any)` (ustalony wzorzec w repo).
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("guests")
       .select("id, first_name, last_name, email, company, access_level, status, qr_code, checked_in_at")
       .eq("event_id", eventId)

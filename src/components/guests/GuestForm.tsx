@@ -51,7 +51,7 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
     }
   }, [guest, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     await onSubmit({ ...formData, eventId });
   };
@@ -202,7 +202,7 @@ const GuestForm = ({ guest, eventId, onSubmit, onCancel, isSubmitting, isOpen, o
           <Button type="button" variant="outline" onClick={onCancel} className="rounded-xl">
             Anuluj
           </Button>
-          <Button onClick={(e) => { e.preventDefault(); handleSubmit(e as any); }} disabled={isSubmitting} className="rounded-xl shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 transition-all">
+          <Button onClick={(e) => { e.preventDefault(); handleSubmit(e); }} disabled={isSubmitting} className="rounded-xl shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 transition-all">
             {isSubmitting ? 'Zapisywanie...' : (guest ? 'Zaktualizuj' : 'Dodaj gościa')}
           </Button>
         </div>

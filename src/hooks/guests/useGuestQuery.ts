@@ -42,7 +42,7 @@ export const useGuestQuery = (eventId?: string, initialQueryParams?: Partial<Gue
     : (guestsResponse && typeof guestsResponse === 'object' && 'data' in guestsResponse)
       ? (guestsResponse as any).data || []
       : [];
-  
+
   const pagination = (guestsResponse && typeof guestsResponse === 'object' && 'pagination' in guestsResponse)
     ? (guestsResponse as any).pagination
     : undefined;
