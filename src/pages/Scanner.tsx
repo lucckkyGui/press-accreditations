@@ -27,7 +27,9 @@ interface ScanRecord {
   message: string;
   name: string | null;
   company: string | null;
+  ticketType: string | null;
   accessLevel: string | null;
+  code: string | null;
   checkInTime: string | null;
   scannedAt: string;
   elapsedMs: number;
@@ -42,11 +44,6 @@ const STATUS_META: Record<QrCheckInStatus, { label: string; tone: "ok" | "warn" 
   revoked:      { label: "COFNIĘTE",        tone: "bad",  hint: "Akredytacja cofnięta" },
   unauthorized: { label: "BRAK UPRAWNIEŃ",  tone: "bad",  hint: "Brak dostępu do skanu" },
 };
-
-const toneClasses = (tone: "ok" | "warn" | "bad") =>
-  tone === "ok" ? "border-success/40 bg-success/10 text-success"
-  : tone === "warn" ? "border-warning/40 bg-warning/10 text-warning"
-  : "border-destructive/40 bg-destructive/10 text-destructive";
 
 const formatTime = (iso: string | null) =>
   iso ? new Date(iso).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
@@ -64,6 +61,7 @@ const Scanner = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [history, setHistory] = useState<ScanRecord[]>([]);
   const [last, setLast] = useState<ScanRecord | null>(null);
+  const [resultOpen, setResultOpen] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
   const [admitCount, setAdmitCount] = useState(0);
   const [rejectCount, setRejectCount] = useState(0);
@@ -114,6 +112,7 @@ const Scanner = () => {
 
   const pushResult = useCallback((rec: ScanRecord, success: boolean) => {
     setLast(rec);
+    setResultOpen(true); // duży popup wyniku — zostaje aż obsługa kliknie „Skanuj kolejnego"
     setHistory((prev) => [rec, ...prev].slice(0, 20));
     setSessionCount((n) => n + 1);
     if (success) setAdmitCount((n) => n + 1); else setRejectCount((n) => n + 1);
@@ -138,7 +137,7 @@ const Scanner = () => {
   }, []);
 
   const runScan = useCallback(async (payload: string) => {
-    if (isProcessing || !selectedEvent) return;
+    if (isProcessing || !selectedEvent || resultOpen) return; // popup otwarty → wstrzymaj nowe skany
     const p = payload.trim();
     if (!p) return;
     setIsProcessing(true);
@@ -157,7 +156,9 @@ const Scanner = () => {
           message: result.message,
           name: result.guest ? `${result.guest.firstName} ${result.guest.lastName}` : null,
           company: result.guest?.company ?? null,
+          ticketType: result.guest?.ticketType ?? null,
           accessLevel: result.accessLevel ?? null,
+          code: result.guest?.qrCode ?? p,
           checkInTime: result.checkInTime ?? null,
           scannedAt: new Date().toISOString(),
           elapsedMs,
@@ -176,7 +177,9 @@ const Scanner = () => {
           message: local.message + " (offline)",
           name: local.guest ? `${local.guest.firstName} ${local.guest.lastName}` : null,
           company: local.guest?.company ?? null,
+          ticketType: local.guest?.ticketType ?? null,
           accessLevel: null,
+          code: local.qrCode ?? null,
           checkInTime: local.guest?.checkedInAt ? new Date(local.guest.checkedInAt).toISOString() : null,
           scannedAt: local.scannedAt,
           elapsedMs: local.elapsedMs,
@@ -190,7 +193,7 @@ const Scanner = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing, selectedEvent, deviceId, isOnline, pushResult, auditScan]);
+  }, [isProcessing, selectedEvent, deviceId, isOnline, resultOpen, pushResult, auditScan]);
 
   const runSearch = useCallback(async (term: string) => {
     if (!selectedEvent || term.trim().length < 2) { setSearchResults([]); return; }
@@ -279,28 +282,62 @@ const Scanner = () => {
             )}
           </div>
 
-          {/* BIG result banner */}
-          {last && lastMeta && (
-            <div className={cn("mx-4 mb-2 rounded-xl border p-4", toneClasses(lastMeta.tone))}>
-              <div className="flex items-start gap-3">
-                <div className="shrink-0">
-                  {lastMeta.tone === "ok" ? <CheckCircle className="h-9 w-9" />
-                    : lastMeta.tone === "warn" ? <Clock className="h-9 w-9" />
-                    : last.status === "revoked" ? <Ban className="h-9 w-9" />
-                    : last.status === "unauthorized" ? <ShieldAlert className="h-9 w-9" />
-                    : <XCircle className="h-9 w-9" />}
+          {/* Pełnoekranowy popup wyniku — zostaje aż obsługa kliknie „Skanuj kolejnego" */}
+          {resultOpen && last && lastMeta && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+              role="alertdialog"
+              aria-modal="true"
+              aria-label={lastMeta.label}
+            >
+              <div className={cn(
+                "w-full max-w-md overflow-hidden rounded-2xl border-2 bg-background shadow-2xl",
+                lastMeta.tone === "ok" ? "border-success" : lastMeta.tone === "warn" ? "border-warning" : "border-destructive",
+              )}>
+                {/* Kolorowy header: duża ikona + słowo wyniku */}
+                <div className={cn(
+                  "flex flex-col items-center gap-2 px-6 pt-7 pb-5 text-center",
+                  lastMeta.tone === "ok" ? "bg-success/15 text-success"
+                    : lastMeta.tone === "warn" ? "bg-warning/15 text-warning"
+                    : "bg-destructive/15 text-destructive",
+                )}>
+                  {lastMeta.tone === "ok" ? <CheckCircle className="h-20 w-20" />
+                    : lastMeta.tone === "warn" ? <Clock className="h-20 w-20" />
+                    : last.status === "revoked" ? <Ban className="h-20 w-20" />
+                    : last.status === "unauthorized" ? <ShieldAlert className="h-20 w-20" />
+                    : <XCircle className="h-20 w-20" />}
+                  <div className="text-3xl font-extrabold tracking-tight">{lastMeta.label}</div>
                 </div>
-                <div className="min-w-0 flex-1 text-foreground">
-                  <div className="text-2xl font-extrabold tracking-tight">{lastMeta.label}</div>
-                  <div className="font-semibold truncate">{last.name ?? "Nieznana akredytacja"}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {last.company ? `${last.company} · ` : ""}
-                    {last.accessLevel ? accessLevelLabel(last.accessLevel) : lastMeta.hint}
-                  </div>
-                  {last.status === "duplicate" && last.checkInTime && (
-                    <div className="text-xs mt-1 font-medium">Pierwszy check-in: {formatTime(last.checkInTime)}</div>
+
+                {/* Dane uczestnika */}
+                <div className="space-y-1 px-6 py-5 text-center text-foreground">
+                  <div className="text-2xl font-bold leading-tight">{last.name ?? "Nieznana akredytacja"}</div>
+                  {(last.ticketType || last.accessLevel) && (
+                    <div className="text-sm text-muted-foreground">
+                      {[last.ticketType, last.accessLevel ? accessLevelLabel(last.accessLevel) : null].filter(Boolean).join(" · ")}
+                    </div>
                   )}
-                  <div className="text-[10px] text-muted-foreground mt-1 font-mono">{last.elapsedMs} ms</div>
+                  {last.company && <div className="text-sm text-muted-foreground">{last.company}</div>}
+
+                  {lastMeta.tone === "bad" && (
+                    <div className="mt-2 text-sm font-medium text-destructive">{last.message || lastMeta.hint}</div>
+                  )}
+                  {last.status === "duplicate" && last.checkInTime && (
+                    <div className="mt-2 text-sm font-medium text-warning">Pierwszy check-in: {formatTime(last.checkInTime)}</div>
+                  )}
+                  {last.code && (
+                    <div className="pt-3 font-mono text-[11px] tracking-wider text-muted-foreground">kod {last.code}</div>
+                  )}
+                </div>
+
+                {/* Duży przycisk zamknięcia → wznawia skaner */}
+                <div className="px-6 pb-6">
+                  <Button
+                    onClick={() => { setResultOpen(false); setScanning(true); setCameraActive(true); }}
+                    className="h-14 w-full gap-2 rounded-xl text-lg"
+                  >
+                    <Camera className="h-5 w-5" /> Skanuj kolejnego
+                  </Button>
                 </div>
               </div>
             </div>
