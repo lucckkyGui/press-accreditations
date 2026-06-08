@@ -217,7 +217,7 @@ const Scanner = () => {
   const lastMeta = last ? STATUS_META[last.status] : null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] -mx-4 md:-mx-6 lg:-mx-8 overflow-hidden">
+    <div className="flex flex-col -mx-4 md:-mx-6 lg:-mx-8 md:h-[calc(100vh-64px)] md:overflow-hidden">
       {/* Top bar */}
       <div className="flex items-center gap-3 px-4 py-2 border-b border-border bg-background/95 backdrop-blur shrink-0 flex-wrap">
         <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
@@ -361,7 +361,7 @@ const Scanner = () => {
         </div>
 
         {/* Right panel: stats + manual search + last 20 */}
-        <div className="w-full md:w-[360px] md:shrink-0 flex flex-col bg-background border-t md:border-l md:border-t-0 border-border max-h-[45vh] md:max-h-none min-h-0">
+        <div className="w-full md:w-[360px] md:shrink-0 flex flex-col bg-background border-t md:border-l md:border-t-0 border-border min-h-0 pb-20 md:pb-0">
           <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
             {[
               { label: "SKANY", value: sessionCount, warn: false },

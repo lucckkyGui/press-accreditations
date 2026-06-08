@@ -83,10 +83,13 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
             </div>
           ) : (
             <>
-              {/* Podgląd wypełnia kwadrat (object-cover) — pełna jasność, bez maski */}
+              {/* Podgląd poza przepływem (absolute) — html5-qrcode wstrzykuje video z inline px
+                  z rozdzielczości kamery; `!important` bije inline i zmusza video do wypełnienia
+                  kwadratu (object-cover), a `absolute` w `overflow-hidden` przycina je do kontenera
+                  i nie rozpycha layoutu. */}
               <div
                 id={scannerContainerId}
-                className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
+                className="absolute inset-0 [&_video]:!absolute [&_video]:!inset-0 [&_video]:!h-full [&_video]:!w-full [&_video]:!object-cover"
               />
               {/* Kwadratowy celownik (prowadnica) */}
               <div className={cn(
