@@ -290,71 +290,69 @@ const Scanner = () => {
               aria-modal="true"
               aria-label={lastMeta.label}
             >
-              <div className={cn(
-                "w-full max-w-md overflow-hidden rounded-2xl border-2 bg-background shadow-2xl",
-                lastMeta.tone === "ok" ? "border-success" : lastMeta.tone === "warn" ? "border-warning" : "border-destructive",
-              )}>
-                {/* Kolorowy header: duża ikona + słowo wyniku */}
+              <div className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-card shadow-card">
+                {/* Header: mocny kolor wyniku (funkcjonalny przy drzwiach) */}
                 <div className={cn(
-                  "flex flex-col items-center gap-2 px-6 pt-7 pb-5 text-center",
+                  "flex flex-col items-center gap-2 px-6 pt-6 pb-5 text-center",
                   lastMeta.tone === "ok" ? "bg-success/15 text-success"
                     : lastMeta.tone === "warn" ? "bg-warning/15 text-warning"
                     : "bg-destructive/15 text-destructive",
                 )}>
-                  {lastMeta.tone === "ok" ? <CheckCircle className="h-20 w-20" />
-                    : lastMeta.tone === "warn" ? <Clock className="h-20 w-20" />
-                    : last.status === "revoked" ? <Ban className="h-20 w-20" />
-                    : last.status === "unauthorized" ? <ShieldAlert className="h-20 w-20" />
-                    : <XCircle className="h-20 w-20" />}
-                  <div className="text-3xl font-extrabold tracking-tight">{lastMeta.label}</div>
+                  {lastMeta.tone === "ok" ? <CheckCircle className="h-16 w-16" />
+                    : lastMeta.tone === "warn" ? <Clock className="h-16 w-16" />
+                    : last.status === "revoked" ? <Ban className="h-16 w-16" />
+                    : last.status === "unauthorized" ? <ShieldAlert className="h-16 w-16" />
+                    : <XCircle className="h-16 w-16" />}
+                  <div className="text-2xl font-extrabold tracking-tight">{lastMeta.label}</div>
                 </div>
 
                 {/* Dane uczestnika */}
                 <div className="space-y-1 px-6 py-5 text-center text-foreground">
-                  <div className="text-2xl font-bold leading-tight">{last.name ?? "Nieznana akredytacja"}</div>
+                  <div className="text-xl font-semibold leading-tight">{last.name ?? "Nieznana akredytacja"}</div>
                   {(last.ticketType || last.accessLevel) && (
-                    <div className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {[last.ticketType, last.accessLevel ? accessLevelLabel(last.accessLevel) : null].filter(Boolean).join(" · ")}
-                    </div>
+                    </p>
                   )}
-                  {last.company && <div className="text-sm text-muted-foreground">{last.company}</div>}
+                  {last.company && <p className="text-sm text-muted-foreground">{last.company}</p>}
 
                   {lastMeta.tone === "bad" && (
-                    <div className="mt-2 text-sm font-medium text-destructive">{last.message || lastMeta.hint}</div>
+                    <p className="mt-2 text-sm font-medium text-destructive">{last.message || lastMeta.hint}</p>
                   )}
                   {last.status === "duplicate" && last.checkInTime && (
-                    <div className="mt-2 text-sm font-medium text-warning">Pierwszy check-in: {formatTime(last.checkInTime)}</div>
+                    <p className="mt-2 text-sm font-medium text-warning">Pierwszy check-in: {formatTime(last.checkInTime)}</p>
                   )}
                   {last.code && (
-                    <div className="pt-3 font-mono text-[11px] tracking-wider text-muted-foreground">kod {last.code}</div>
+                    <p className="pt-3 font-mono text-xs tracking-wider text-muted-foreground">kod {last.code}</p>
                   )}
                 </div>
 
-                {/* Duży przycisk zamknięcia → wznawia skaner */}
-                <div className="px-6 pb-6">
+                {/* Przycisk zamknięcia → wznawia skaner */}
+                <div className="border-t border-border p-4">
                   <Button
+                    size="lg"
                     onClick={() => { setResultOpen(false); setScanning(true); setCameraActive(true); }}
-                    className="h-14 w-full gap-2 rounded-xl text-lg"
+                    className="w-full gap-2"
                   >
-                    <Camera className="h-5 w-5" /> Skanuj kolejnego
+                    <Camera className="h-4 w-4" /> Skanuj kolejnego
                   </Button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Manual QR input */}
-          <div className="p-4 border-t border-border/40">
+          {/* Manual QR input — solidne tło + obramowanie, by nigdy nie zlewało się ze statystykami */}
+          <div className="border-t border-border bg-card p-4">
             <form onSubmit={(e) => { e.preventDefault(); void runScan(manualQr); }} className="flex gap-2">
               <Input
                 ref={manualRef}
                 value={manualQr}
                 onChange={(e) => setManualQr(e.target.value)}
                 placeholder="Wpisz lub wklej token QR…"
-                className="rounded-lg bg-card/50 border-border/50 text-sm h-9"
+                className="h-10 rounded-lg border border-border bg-background text-sm placeholder:text-muted-foreground"
                 disabled={isProcessing || !selectedEvent}
               />
-              <Button type="submit" variant="outline" size="sm" className="rounded-lg h-9 shrink-0"
+              <Button type="submit" variant="outline" size="sm" className="h-10 rounded-lg shrink-0"
                 disabled={isProcessing || !manualQr.trim()}>
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sprawdź"}
               </Button>
