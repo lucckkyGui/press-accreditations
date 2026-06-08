@@ -95,7 +95,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
           )}
         </div>
         <p className="text-center mb-4 animate-fade-in font-medium">
-          {t("scanner.title")}<span className="animate-pulse">...</span>
+          {t("pages.scanner.title")}<span className="animate-pulse">...</span>
         </p>
         <Button 
           variant="outline" 
@@ -126,7 +126,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         </div>
       )}
       <p className="text-center text-muted-foreground mb-4">
-        {t("scanner.subtitle")}
+        {t("pages.scanner.subtitle")}
       </p>
       <Button 
         onClick={onStartScanning} 
@@ -134,7 +134,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         size="lg"
       >
         <Smartphone className="h-5 w-5" />
-        {t("scanner.startScanning")}
+        {t("pages.scanner.startScanning")}
       </Button>
     </div>
   );

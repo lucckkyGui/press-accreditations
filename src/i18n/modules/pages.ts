@@ -119,6 +119,8 @@ export const pages = {
     },
     scanner: {
       title: "Scanner",
+      subtitle: "Point the camera at the guest's QR code",
+      startScanning: "Start scanning",
       scanQrCode: "Scan QR Code",
       noCameraAccess: "No camera access",
       cameraPermissionRequired: "Camera permission is required",
@@ -272,6 +274,8 @@ export const pages = {
     },
     scanner: {
       title: "Skaner",
+      subtitle: "Nakieruj kamerę na kod QR gościa",
+      startScanning: "Rozpocznij skanowanie",
       scanQrCode: "Zeskanuj kod QR",
       noCameraAccess: "Brak dostępu do kamery",
       cameraPermissionRequired: "Wymagane uprawnienia do korzystania z kamery",
