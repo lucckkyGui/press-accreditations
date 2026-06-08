@@ -83,13 +83,13 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
             </div>
           ) : (
             <>
-              {/* Podgląd poza przepływem (absolute) — html5-qrcode wstrzykuje video z inline px
-                  z rozdzielczości kamery; `!important` bije inline i zmusza video do wypełnienia
-                  kwadratu (object-cover), a `absolute` w `overflow-hidden` przycina je do kontenera
-                  i nie rozpycha layoutu. */}
+              {/* `!absolute` bije wymuszony przez html5-qrcode inline `position:relative` na #qr-reader,
+                  dzięki czemu `inset-0` daje mu definitywny rozmiar kwadratu (out-of-flow → bez rozpychania).
+                  Video zostaje in-flow `display:block`; `!h-full/!w-full` (override inline width:Xpx) +
+                  `!object-cover` wypełniają i kadrują strumień do kwadratu (widoczny, pełna jasność). */}
               <div
                 id={scannerContainerId}
-                className="absolute inset-0 [&_video]:!absolute [&_video]:!inset-0 [&_video]:!h-full [&_video]:!w-full [&_video]:!object-cover"
+                className="!absolute inset-0 [&_video]:!h-full [&_video]:!w-full [&_video]:!object-cover"
               />
               {/* Kwadratowy celownik (prowadnica) */}
               <div className={cn(
