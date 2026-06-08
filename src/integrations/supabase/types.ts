@@ -1838,22 +1838,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_guest_qr_code: { Args: never; Returns: string }
+      get_pass_by_token: {
+        Args: { _token: string }
+        Returns: {
+          event_name: string
+          first_name: string
+          last_name: string
+          qr_code: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
-      }
-      get_pass_by_token: {
-        Args: { _token: string }
-        Returns: {
-          qr_code: string
-          first_name: string | null
-          last_name: string | null
-          event_name: string | null
-          status: string | null
-        }[]
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_event_organizer: {
