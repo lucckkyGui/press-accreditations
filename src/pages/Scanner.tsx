@@ -243,9 +243,9 @@ const Scanner = () => {
         </div>
       </div>
 
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
         {/* Left: viewfinder + manual */}
-        <div className="flex-1 flex flex-col relative bg-[#060609] border-r border-border">
+        <div className="flex-1 min-h-0 flex flex-col relative bg-[#060609] border-b md:border-r md:border-b-0 border-border">
           <div className="flex-1 flex items-center justify-center relative p-8">
             {scanning && cameraActive ? (
               <div className="w-full max-w-sm mx-auto">
@@ -326,7 +326,7 @@ const Scanner = () => {
         </div>
 
         {/* Right panel: stats + manual search + last 20 */}
-        <div className="w-[360px] shrink-0 flex flex-col bg-background border-l border-border">
+        <div className="w-full md:w-[360px] md:shrink-0 flex flex-col bg-background border-t md:border-l md:border-t-0 border-border max-h-[45vh] md:max-h-none min-h-0">
           <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
             {[
               { label: "SKANY", value: sessionCount, warn: false },
@@ -395,7 +395,7 @@ const Scanner = () => {
               Ostatnie skany <span className="text-muted-foreground font-normal ml-1">· 20</span>
             </span>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {history.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 text-muted-foreground/40">
                 <QrCode className="h-8 w-8 mb-2" />
