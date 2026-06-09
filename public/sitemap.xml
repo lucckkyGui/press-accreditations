@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://press-accreditations.lovable.app/</loc>
+    <loc>https://press-accreditations.vercel.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/home</loc>
+    <loc>https://press-accreditations.vercel.app/home</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/about</loc>
+    <loc>https://press-accreditations.vercel.app/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/contact</loc>
+    <loc>https://press-accreditations.vercel.app/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/pitch</loc>
+    <loc>https://press-accreditations.vercel.app/pitch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/terms</loc>
+    <loc>https://press-accreditations.vercel.app/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/privacy</loc>
+    <loc>https://press-accreditations.vercel.app/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/auth/login</loc>
+    <loc>https://press-accreditations.vercel.app/auth/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/auth/register</loc>
+    <loc>https://press-accreditations.vercel.app/auth/register</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://press-accreditations.lovable.app/events</loc>
+    <loc>https://press-accreditations.vercel.app/events</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>

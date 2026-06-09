@@ -20,4 +20,4 @@ Disallow: /profile
 Disallow: /notifications
 Disallow: /auth/
 
-Sitemap: https://press-accreditations.lovable.app/sitemap.xml
+Sitemap: https://press-accreditations.vercel.app/sitemap.xml

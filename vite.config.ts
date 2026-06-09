@@ -4,7 +4,6 @@ import { VitePWA } from "vite-plugin-pwa";
 import { execSync } from "node:child_process";
 import fs from "fs";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
 const safeGit = (command: string): string => {
   try {
@@ -49,7 +48,7 @@ const getWebManifest = () => {
 const supabaseHttpMethods = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command }) => {
   const buildMetadata = getBuildMetadata();
 
   if (command === "build") {
@@ -127,7 +126,6 @@ export default defineConfig(({ command, mode }) => {
           ],
         },
       }),
-      mode === "development" && componentTagger(),
     ].filter(Boolean),
     resolve: {
       alias: {
