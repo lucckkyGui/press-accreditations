@@ -47,7 +47,7 @@ const json = (body: unknown, status = 200) =>
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-const FROM = "Akredytacje <noreply@bookingartistagency.com>";
+const FROM = Deno.env.get("EMAIL_FROM") ?? "Akredytacje <onboarding@resend.dev>";
 
 interface EmailContent {
   subject: string;
