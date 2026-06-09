@@ -253,7 +253,7 @@ serve(async (req: Request): Promise<Response> => {
     if (!res.ok) {
       const detail = await res.text();
       console.error("Resend send failed:", res.status, detail);
-      return json({ success: false, email_status: "failed", status_code: res.status });
+      return json({ success: false, email_status: "failed", status_code: res.status, detail });
     }
 
     return json({ success: true, email_status: "sent" });

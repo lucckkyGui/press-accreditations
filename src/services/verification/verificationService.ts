@@ -416,7 +416,7 @@ async function sendDecisionEmail(
   qrToken: string | null,
 ): Promise<DecisionEmailStatus> {
   try {
-    const { error } = await supabase.functions.invoke("send-decision-email", {
+    const { data, error } = await supabase.functions.invoke("send-decision-email", {
       body: {
         submission_id: submission.id,
         event_id: submission.event_id,
@@ -427,6 +427,10 @@ async function sendDecisionEmail(
       },
     });
     if (error) throw error;
+    if (!data?.success) {
+      console.error("decision email NOT sent:", data);
+      return "failed";
+    }
     return "sent";
   } catch (err) {
     console.error("decision email failed (non-critical):", err);
