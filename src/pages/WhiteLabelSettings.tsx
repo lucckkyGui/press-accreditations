@@ -127,7 +127,7 @@ const WhiteLabelSettings = () => {
               </div>
               <div className="p-4 bg-muted rounded-lg space-y-2 text-sm">
                 <p className="font-medium">Konfiguracja DNS:</p>
-                <p>Dodaj rekord CNAME wskazujący na <code className="bg-background px-1 rounded">press-accreditations.lovable.app</code></p>
+                <p>Dodaj rekord CNAME wskazujący na <code className="bg-background px-1 rounded">press-accreditations.vercel.app</code></p>
                 <p className="text-muted-foreground">Certyfikat SSL zostanie wygenerowany automatycznie.</p>
               </div>
             </CardContent>
