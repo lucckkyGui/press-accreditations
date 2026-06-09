@@ -1,85 +1,64 @@
-# Welcome to your Lovable project
+# Press Accreditations
 
-## Project info
+Self-serve press & media accreditation for events — online applications,
+organizer review, QR passes, and on-site check-in.
 
-**URL**: https://lovable.dev/projects/2d0a4d04-4931-48a0-9fb9-d4708261c4bc
+## Features
 
-## How can I edit this code?
+- **Public accreditation forms** — media apply online, per event
+- **Organizer review & decisions** — approve, limited access, waitlist, or
+  reject, each with an automated decision email
+- **Per-guest QR pass** — a secure personal link (`/pass`) plus a numeric
+  check-in code
+- **Mobile-first check-in scanner** — offline-capable PWA for fast on-site entry
+- **Role-based access** — admin / organizer / staff, enforced with Postgres
+  Row-Level Security
+- **Post-event coverage** — collect published coverage with automated reminders
+- **Billing** — subscriptions via Stripe
+- Supporting infrastructure: audit logging, GDPR data export, transactional email
 
-There are several ways of editing your application.
+## Tech stack
 
-**Use Lovable**
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui — offline
+  storage via Dexie, shipped as a PWA, deployed on Vercel
+- **Backend:** Supabase — Postgres, Row-Level Security, Edge Functions (Deno)
+- **Email:** Resend
+- **Payments:** Stripe
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/2d0a4d04-4931-48a0-9fb9-d4708261c4bc) and start prompting.
+## Getting started
 
-Changes made via Lovable will be committed automatically to this repo.
+Prerequisites: **Node 22** and npm.
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Quality gate
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Run before every commit:
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-The production deployment path is GitHub + Vercel with CI gates. See [Deployment Runbook](docs/deployment.md).
-
-Before promoting a release, run:
-
-```sh
-npm ci
-npm run lint
-npm run typecheck
-npm run build
-npm run test:run
+```bash
+npm run typecheck && npm run lint && npm run test:run
 ```
 
-Lovable publishing can still be used for prototypes, but production releases should go through GitHub pull requests and Vercel deployments.
+## Project structure
 
-## Can I connect a custom domain to my Lovable project?
+```
+src/                    Frontend application
+supabase/functions/     Edge Functions (Deno)
+supabase/migrations/    Database schema (SQL migrations)
+docs/                   Internal docs — release plan, backlog, runbooks
+```
 
-Yes it is!
+## Deployment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **Frontend** — Vercel; production deploys automatically from `main`
+- **Edge Functions** — `supabase functions deploy <name> --use-api`
+- **Database** — apply schema changes via migration files, then `supabase db push`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Configuration
+
+The frontend (Vite) and Edge Functions (Supabase secrets) read configuration —
+the Resend API key, public app URL, allowed CORS origins, Stripe keys — from
+environment variables. Never commit secret values.
