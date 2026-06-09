@@ -12,13 +12,9 @@ export const guestEmailService = {
    */
   async sendInvitations(ids: string[]): Promise<ApiResponse<void>> {
     try {
-      const now = new Date().toISOString();
       const { error } = await supabase
         .from('guests')
-        .update({ 
-          invitation_sent_at: now,
-          email_status: 'sent'
-        })
+        .update({ email_status: 'sent' })
         .in('id', ids);
 
       if (error) throw error;
@@ -36,13 +32,9 @@ export const guestEmailService = {
     try {
       // Tutaj będzie integracja z rzeczywistym dostawcą email
       // Na razie symulujemy wysyłkę
-      const now = new Date().toISOString();
       const { error } = await supabase
         .from('guests')
-        .update({ 
-          invitation_sent_at: now,
-          email_status: 'sent'
-        })
+        .update({ email_status: 'sent' })
         .in('id', request.guestIds);
 
       if (error) throw error;

@@ -33,9 +33,10 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         const qrScanner = new Html5Qrcode(scannerContainerId);
         qrScannerRef.current = qrScanner;
 
+        // Bez `qrbox` — html5-qrcode rysuje przy nim ciemną maskę poza oknem (przygaszenie).
+        // Dekodowanie działa na pełnej klatce; własny kwadratowy celownik jest tylko prowadnicą.
         const config = {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
         };
 
@@ -75,27 +76,38 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
   if (scanning) {
     return (
       <div className="flex flex-col items-center justify-center p-6 border-2 border-primary rounded-lg bg-muted/10">
-        <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-4 scan-focus-area">
+        <div className="relative mx-auto mb-4 aspect-square w-full max-w-[min(80vw,360px)] overflow-hidden rounded-lg bg-black">
           {cameraError ? (
-            <div className="absolute inset-0 flex items-center justify-center text-white bg-black/90 p-4 text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/90 p-4 text-center text-white">
               <p>{cameraError}</p>
             </div>
           ) : (
-            <div id={scannerContainerId} className="w-full h-full">
+            <>
+              {/* `!absolute` bije wymuszony przez html5-qrcode inline `position:relative` na #qr-reader,
+                  dzięki czemu `inset-0` daje mu definitywny rozmiar kwadratu (out-of-flow → bez rozpychania).
+                  Video zostaje in-flow `display:block`; `!h-full/!w-full` (override inline width:Xpx) +
+                  `!object-cover` wypełniają i kadrują strumień do kwadratu (widoczny, pełna jasność). */}
+              <div
+                id={scannerContainerId}
+                className="!absolute inset-0 [&_video]:!h-full [&_video]:!w-full [&_video]:!object-cover"
+              />
+              {/* Kwadratowy celownik (prowadnica) */}
               <div className={cn(
-                "absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500",
-                isCameraReady ? "opacity-100" : "opacity-0"
+                "pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-500",
+                isCameraReady ? "opacity-100" : "opacity-0",
               )}>
-                <div className="scanner-corners">
-                  <span></span>
+                <div className="relative aspect-square w-2/3">
+                  <span className="absolute left-0 top-0 h-7 w-7 rounded-tl-lg border-l-4 border-t-4 border-primary" />
+                  <span className="absolute right-0 top-0 h-7 w-7 rounded-tr-lg border-r-4 border-t-4 border-primary" />
+                  <span className="absolute bottom-0 left-0 h-7 w-7 rounded-bl-lg border-b-4 border-l-4 border-primary" />
+                  <span className="absolute bottom-0 right-0 h-7 w-7 rounded-br-lg border-b-4 border-r-4 border-primary" />
                 </div>
-                <div className="scanner-laser"></div>
               </div>
-            </div>
+            </>
           )}
         </div>
         <p className="text-center mb-4 animate-fade-in font-medium">
-          {t("scanner.title")}<span className="animate-pulse">...</span>
+          {t("pages.scanner.title")}<span className="animate-pulse">...</span>
         </p>
         <Button 
           variant="outline" 
@@ -126,7 +138,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         </div>
       )}
       <p className="text-center text-muted-foreground mb-4">
-        {t("scanner.subtitle")}
+        {t("pages.scanner.subtitle")}
       </p>
       <Button 
         onClick={onStartScanning} 
@@ -134,7 +146,7 @@ const CameraPreview: React.FC<CameraPreviewProps> = ({
         size="lg"
       >
         <Smartphone className="h-5 w-5" />
-        {t("scanner.startScanning")}
+        {t("pages.scanner.startScanning")}
       </Button>
     </div>
   );

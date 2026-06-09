@@ -55,16 +55,20 @@ export interface GuestPassInsert {
   qr_code: string;
 }
 
-/** Payload wpisu do `accreditations` (formalny rekord przepustki). */
+/**
+ * Payload wpisu do `accreditations` (formalny rekord przepustki).
+ * Kształt zgodny z realnym schematem bazy: `type` (tekst), `accreditation_request_id`,
+ * `issued_at`/`expires_at`. Token QR i stan check-inu żyją na `guests`.
+ */
 export interface AccreditationPassInsert {
   event_id: string;
   user_id: string;
-  type_id: string;
-  request_id: string | null;
-  qr_code: string;
-  validity_start: string;
-  validity_end: string;
-  is_checked_in: false;
+  guest_id: string | null;
+  accreditation_request_id: string | null;
+  type: string;
+  status: string;
+  issued_at: string;
+  expires_at: string;
 }
 
 /**
@@ -156,24 +160,24 @@ export function computeValidity(
   };
 }
 
-/** Buduje payload formalnego wpisu akredytacji. */
+/** Buduje payload formalnego wpisu akredytacji (zgodny ze schematem bazy). */
 export function buildAccreditationPassInsert(params: {
   eventId: string;
   userId: string;
-  typeId: string;
+  guestId: string | null;
   requestId: string | null;
-  qrCode: string;
-  validityStart: string;
-  validityEnd: string;
+  type: string;
+  issuedAt: string;
+  expiresAt: string;
 }): AccreditationPassInsert {
   return {
     event_id: params.eventId,
     user_id: params.userId,
-    type_id: params.typeId,
-    request_id: params.requestId,
-    qr_code: params.qrCode,
-    validity_start: params.validityStart,
-    validity_end: params.validityEnd,
-    is_checked_in: false,
+    guest_id: params.guestId,
+    accreditation_request_id: params.requestId,
+    type: params.type,
+    status: "issued",
+    issued_at: params.issuedAt,
+    expires_at: params.expiresAt,
   };
 }

@@ -21,7 +21,6 @@ const routeLabels: Record<string, string> = {
   profile: 'Profil',
   notifications: 'Powiadomienia',
   'press-releases': 'Media / Prasa',
-  'media-portal': 'Portal mediowy',
   'rfid-scanner': 'Skaner RFID',
   wristbands: 'Opaski RFID',
   'zone-heatmap': 'Heatmapa stref',

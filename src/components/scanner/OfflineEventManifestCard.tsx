@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle, Database, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -33,9 +33,18 @@ const OfflineEventManifestCard = ({ event }: OfflineEventManifestCardProps) => {
   const [loadingManifest, setLoadingManifest] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
+  // Synchroniczny guard in-flight — zamyka okno wyścigu między auto-effectem a
+  // listenerem online (stan `downloading` jest async, więc sam nie wystarcza).
+  const inFlightRef = useRef(false);
+  // Jednorazowy auto-fetch per event.id: nieudane pobranie NIE zapętla się.
+  // Retry zostaje przyciskowi „Odśwież" oraz listenerowi online.
+  const autoFetchAttemptedRef = useRef<string | null>(null);
+
   useEffect(() => {
     let active = true;
 
+    // Nowy event → pozwól na jednorazowy auto-fetch dla niego.
+    autoFetchAttemptedRef.current = null;
     setLoadingManifest(true);
     localDb.eventManifest
       .get(event.id)
@@ -70,6 +79,9 @@ const OfflineEventManifestCard = ({ event }: OfflineEventManifestCardProps) => {
   }, [downloadState]);
 
   const handleDownload = useCallback(async () => {
+    // Sync guard: jeśli pobranie już trwa, nie startuj drugiego (effect vs listener).
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setDownloading(true);
     setDownloadState({
       downloaded: 0,
@@ -91,9 +103,33 @@ const OfflineEventManifestCard = ({ event }: OfflineEventManifestCardProps) => {
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
+      inFlightRef.current = false;
       setDownloading(false);
     }
   }, [event.id, event.maxGuests]);
+
+  // Auto-prefetch: gdy online i brak lokalnego manifestu — pobierz proaktywnie,
+  // jednorazowo per event.id (guard chroni przed pętlą po nieudanym pobraniu).
+  useEffect(() => {
+    if (loadingManifest) return;
+    if (manifest) return;
+    if (autoFetchAttemptedRef.current === event.id) return;
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+
+    autoFetchAttemptedRef.current = event.id; // oznacz PRZED pobraniem — błąd nie zapętli
+    void handleDownload();
+  }, [event.id, loadingManifest, manifest, handleDownload]);
+
+  // Powrót sieci: dociągnij manifest, jeśli wciąż go brak (świadomy retry, omija one-shot).
+  useEffect(() => {
+    const onOnline = () => {
+      if (manifest || inFlightRef.current) return;
+      autoFetchAttemptedRef.current = event.id;
+      void handleDownload();
+    };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [event.id, manifest, handleDownload]);
 
   const statusLabel = manifest
     ? `${manifest.guestCount} gości, ${formatDownloadedAt(manifest.downloadedAt)}`

@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 
 interface AccreditationRequest {
   id: string;
-  media_name: string;
-  contact_email: string;
+  media_organization: string | null;
+  email: string;
 }
 
 interface PendingAccreditationsCardProps {
@@ -53,8 +53,8 @@ const PendingAccreditationsCard: React.FC<PendingAccreditationsCardProps> = ({ r
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{request.media_name}</p>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{request.contact_email}</p>
+                    <p className="truncate text-sm font-semibold text-foreground">{request.media_organization}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{request.email}</p>
                   </div>
                 </div>
                 <Button size="sm" variant="outline" onClick={() => navigate('/guests')} className="h-8 shrink-0 rounded-lg text-xs">

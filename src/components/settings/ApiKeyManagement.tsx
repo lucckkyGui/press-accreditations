@@ -69,7 +69,7 @@ export default function ApiKeyManagement() {
   const { data: apiKeys, isLoading: keysLoading } = useQuery({
     queryKey: ['api-keys'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from('api_keys').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('api_keys').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
@@ -100,7 +100,7 @@ export default function ApiKeyManagement() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await (supabase as any).from('api_keys').insert({
+      const { error } = await supabase.from('api_keys').insert({
         user_id: user.id,
         name: keyName,
         key_hash: keyHash,
@@ -121,7 +121,7 @@ export default function ApiKeyManagement() {
 
   const deleteKeyMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from('api_keys').delete().eq('id', id);
+      const { error } = await supabase.from('api_keys').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {

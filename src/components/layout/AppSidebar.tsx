@@ -53,7 +53,9 @@ function useSidebarCounts(userId: string | undefined) {
       const [eventsRes, guestsRes, accRes] = await Promise.all([
         supabase.from("events").select("id, start_date, end_date", { count: "exact", head: false }).eq("organizer_id", userId),
         supabase.from("guests").select("id", { count: "exact", head: true }),
-        supabase.from("accreditation_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        // Single source of truth: pending media submissions (landing_page_submissions).
+        // RLS scopes to the organizer's events.
+        supabase.from("landing_page_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       const now = Date.now();
       const events = (eventsRes.data ?? []) as { id: string; start_date: string; end_date: string }[];

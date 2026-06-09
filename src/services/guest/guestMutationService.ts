@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Guest } from "@/types";
 import { GuestDB } from "@/types/guest/guest";
 import { ApiResponse } from "@/types/api/apiResponse";
-import { v4 as uuidv4 } from "uuid";
 import { mapDbGuestToGuest } from "./guestMapper";
+import type { Database } from "@/integrations/supabase/types";
 
 /**
  * Service for guest mutations (create, update, delete)
@@ -15,9 +15,7 @@ export const guestMutationService = {
    */
   async createGuest(guest: Partial<Guest> & { eventId: string }): Promise<ApiResponse<Guest>> {
     try {
-      // Generate a unique QR code
-      const qrCode = uuidv4();
-
+      // qr_code (numeryczny, UNIQUE) nadaje trigger DB przy insercie.
       const { data, error } = await supabase
         .from('guests')
         .insert([{
@@ -29,9 +27,8 @@ export const guestMutationService = {
           ticket_type: guest.ticketType || 'uczestnik',
           zones: guest.zones || [],
           status: 'invited',
-          qr_code: qrCode,
           event_id: guest.eventId
-        } as any])
+        }])
         .select()
         .single();
 
@@ -48,7 +45,7 @@ export const guestMutationService = {
    */
   async updateGuest(id: string, guest: Partial<Guest>): Promise<ApiResponse<Guest>> {
     try {
-      const updateData: Record<string, any> = {};
+      const updateData: Database["public"]["Tables"]["guests"]["Update"] = {};
       
       if (guest.firstName !== undefined) updateData.first_name = guest.firstName;
       if (guest.lastName !== undefined) updateData.last_name = guest.lastName;
@@ -62,7 +59,7 @@ export const guestMutationService = {
       
       const { data, error } = await supabase
         .from('guests')
-        .update(updateData as any)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();

@@ -18,6 +18,7 @@ import CommandPalette from "./components/common/CommandPalette";
 import TopProgressBar from "./components/common/TopProgressBar";
 import KeyboardShortcutsDialog from "./components/common/KeyboardShortcutsDialog";
 import ServiceWorkerUpdatePrompt from "./components/common/ServiceWorkerUpdatePrompt";
+import VersionBadge from "./components/common/VersionBadge";
 import { syncWorker } from "@/lib/sync/syncWorker";
 import ObservabilityContext from "@/components/common/ObservabilityContext";
 
@@ -58,6 +59,7 @@ const App = () => {
                 <CommandPalette />
                 <KeyboardShortcutsDialog />
                 <ServiceWorkerUpdatePrompt />
+                <VersionBadge />
                 <Toaster />
                 <Sonner />
               </TooltipProvider>

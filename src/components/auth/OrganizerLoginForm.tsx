@@ -67,6 +67,7 @@ export const OrganizerLoginForm = ({
             <Input
               id="org-email"
               type="email"
+              autoComplete="username"
               placeholder={t('auth.emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -79,6 +80,7 @@ export const OrganizerLoginForm = ({
           <div className="flex items-center justify-between">
             <Label htmlFor="org-password" className="text-sm font-medium">{t('auth.password')}</Label>
             <Button
+              type="button"
               variant="link"
               size="sm"
               className="p-0 h-auto text-xs text-primary/80 hover:text-primary"
@@ -95,6 +97,7 @@ export const OrganizerLoginForm = ({
             <Input
               id="org-password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10 h-11 rounded-xl border-border/60 focus:border-primary/40 transition-colors"
@@ -126,9 +129,10 @@ export const OrganizerLoginForm = ({
         
         <div className="text-center text-sm text-muted-foreground mt-2">
           {t('auth.noAccount')}{" "}
-          <Button 
-            variant="link" 
-            size="sm" 
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
             className="p-0 h-auto text-primary font-medium"
             onClick={() => navigate("/purchase")}
           >

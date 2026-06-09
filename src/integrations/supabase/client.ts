@@ -2,20 +2,31 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const LEGACY_SUPABASE_URL = "https://ajotwgirccdjntuotxzy.supabase.co";
-const LEGACY_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqb3R3Z2lyY2Nkam50dW90eHp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2Mzc5NDUsImV4cCI6MjA4MzIxMzk0NX0.In3UFmKIIWg0H5dwWRgSjwRAsGLuyP7-oEUMAZRw46U";
+const requireEnv = (name: string, value: string | undefined): string => {
+  if (!value) {
+    throw new Error(
+      `[supabase] Missing required environment variable ${name}. ` +
+      `Set it before starting the app — see .env.example. ` +
+      `Refusing to start without explicit Supabase configuration.`,
+    );
+  }
+  return value;
+};
 
-export const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL ||
-  LEGACY_SUPABASE_URL;
+export const SUPABASE_URL = requireEnv(
+  "VITE_SUPABASE_URL",
+  import.meta.env.VITE_SUPABASE_URL,
+);
 
-export const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  LEGACY_SUPABASE_PUBLISHABLE_KEY;
+export const SUPABASE_PUBLISHABLE_KEY = requireEnv(
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+);
 
-export const SUPABASE_PROJECT_ID =
-  import.meta.env.VITE_SUPABASE_PROJECT_ID ||
-  "ajotwgirccdjntuotxzy";
+export const SUPABASE_PROJECT_ID = requireEnv(
+  "VITE_SUPABASE_PROJECT_ID",
+  import.meta.env.VITE_SUPABASE_PROJECT_ID,
+);
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

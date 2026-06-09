@@ -1,15 +1,38 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { execSync } from "node:child_process";
 import fs from "fs";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+const safeGit = (command: string): string => {
+  try {
+    return execSync(command, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  } catch {
+    return "";
+  }
+};
+
 const getBuildMetadata = () => {
   const builtAt = new Date().toISOString();
-  const version = process.env.VITE_APP_VERSION || process.env.VERCEL_GIT_COMMIT_SHA || builtAt;
 
-  return { builtAt, version };
+  // Commit: lokalnie z gita, na Vercel fallback do VERCEL_GIT_COMMIT_SHA (skrócony).
+  const commit =
+    safeGit("git rev-parse --short HEAD") ||
+    process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    "unknown";
+
+  // Branch: lokalnie z gita; "HEAD" (detached, m.in. na Vercel) → fallback do VERCEL_GIT_COMMIT_REF.
+  const rawBranch = safeGit("git rev-parse --abbrev-ref HEAD");
+  const branch =
+    (rawBranch && rawBranch !== "HEAD" ? rawBranch : "") ||
+    process.env.VERCEL_GIT_COMMIT_REF ||
+    "unknown";
+
+  const version = process.env.VITE_APP_VERSION || process.env.VERCEL_GIT_COMMIT_SHA || commit || builtAt;
+
+  return { builtAt, version, commit, branch };
 };
 
 const writeVersionFile = (metadata: ReturnType<typeof getBuildMetadata>) => {
@@ -36,6 +59,9 @@ export default defineConfig(({ command, mode }) => {
   return {
     define: {
       __APP_VERSION__: JSON.stringify(buildMetadata.version),
+      __APP_COMMIT__: JSON.stringify(buildMetadata.commit),
+      __APP_BRANCH__: JSON.stringify(buildMetadata.branch),
+      __APP_BUILT_AT__: JSON.stringify(buildMetadata.builtAt),
     },
     envPrefix: "VITE_",
     server: {

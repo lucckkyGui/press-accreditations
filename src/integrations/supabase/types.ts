@@ -10,7 +10,32 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -57,13 +82,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "access_logs_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "access_logs_wristband_id_fkey"
             columns: ["wristband_id"]
             isOneToOne: false
@@ -74,252 +92,218 @@ export type Database = {
       }
       accreditation_requests: {
         Row: {
-          approval_date: string | null
-          approval_notes: string | null
-          approved_by: string | null
-          contact_email: string
-          contact_phone: string | null
+          accreditation_type_id: string | null
+          company: string | null
           created_at: string | null
+          email: string | null
           event_id: string
+          first_name: string | null
           id: string
-          media_name: string
-          media_type: string
-          request_notes: string | null
-          status: string
+          last_name: string | null
+          message: string | null
+          phone: string | null
+          position: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
           updated_at: string | null
-          user_id: string
-          website_url: string | null
+          user_id: string | null
         }
         Insert: {
-          approval_date?: string | null
-          approval_notes?: string | null
-          approved_by?: string | null
-          contact_email: string
-          contact_phone?: string | null
+          accreditation_type_id?: string | null
+          company?: string | null
           created_at?: string | null
+          email?: string | null
           event_id: string
+          first_name?: string | null
           id?: string
-          media_name: string
-          media_type: string
-          request_notes?: string | null
-          status?: string
+          last_name?: string | null
+          message?: string | null
+          phone?: string | null
+          position?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
           updated_at?: string | null
-          user_id: string
-          website_url?: string | null
+          user_id?: string | null
         }
         Update: {
-          approval_date?: string | null
-          approval_notes?: string | null
-          approved_by?: string | null
-          contact_email?: string
-          contact_phone?: string | null
+          accreditation_type_id?: string | null
+          company?: string | null
           created_at?: string | null
+          email?: string | null
           event_id?: string
+          first_name?: string | null
           id?: string
-          media_name?: string
-          media_type?: string
-          request_notes?: string | null
-          status?: string
+          last_name?: string | null
+          message?: string | null
+          phone?: string | null
+          position?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
           updated_at?: string | null
-          user_id?: string
-          website_url?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "accreditation_requests_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "accreditation_requests_accreditation_type_id_fkey"
+            columns: ["accreditation_type_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "accreditation_types"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accreditation_requests_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "public_events"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
       }
       accreditation_types: {
         Row: {
-          access_areas: string[] | null
           created_at: string | null
-          created_by: string
           description: string | null
-          event_id: string
           id: string
-          max_requests: number | null
+          is_active: boolean | null
           name: string
-          requires_approval: boolean | null
+          requirements: Json | null
           updated_at: string | null
         }
         Insert: {
-          access_areas?: string[] | null
           created_at?: string | null
-          created_by: string
           description?: string | null
-          event_id: string
           id?: string
-          max_requests?: number | null
+          is_active?: boolean | null
           name: string
-          requires_approval?: boolean | null
+          requirements?: Json | null
           updated_at?: string | null
         }
         Update: {
-          access_areas?: string[] | null
           created_at?: string | null
-          created_by?: string
           description?: string | null
-          event_id?: string
           id?: string
-          max_requests?: number | null
+          is_active?: boolean | null
           name?: string
-          requires_approval?: boolean | null
+          requirements?: Json | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "accreditation_types_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accreditation_types_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       accreditations: {
         Row: {
-          checked_in_at: string | null
-          checked_in_by: string | null
-          created_at: string | null
+          accreditation_request_id: string | null
+          created_at: string
           event_id: string
+          expires_at: string | null
+          guest_id: string | null
           id: string
-          is_checked_in: boolean | null
-          qr_code: string
-          request_id: string | null
-          revocation_reason: string | null
-          revoked: boolean | null
-          type_id: string
-          updated_at: string | null
-          user_id: string
-          validity_end: string
-          validity_start: string
+          issued_at: string | null
+          metadata: Json
+          status: string
+          type: string | null
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          checked_in_at?: string | null
-          checked_in_by?: string | null
-          created_at?: string | null
+          accreditation_request_id?: string | null
+          created_at?: string
           event_id: string
+          expires_at?: string | null
+          guest_id?: string | null
           id?: string
-          is_checked_in?: boolean | null
-          qr_code: string
-          request_id?: string | null
-          revocation_reason?: string | null
-          revoked?: boolean | null
-          type_id: string
-          updated_at?: string | null
-          user_id: string
-          validity_end: string
-          validity_start: string
+          issued_at?: string | null
+          metadata?: Json
+          status?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          checked_in_at?: string | null
-          checked_in_by?: string | null
-          created_at?: string | null
+          accreditation_request_id?: string | null
+          created_at?: string
           event_id?: string
+          expires_at?: string | null
+          guest_id?: string | null
           id?: string
-          is_checked_in?: boolean | null
-          qr_code?: string
-          request_id?: string | null
-          revocation_reason?: string | null
-          revoked?: boolean | null
-          type_id?: string
-          updated_at?: string | null
-          user_id?: string
-          validity_end?: string
-          validity_start?: string
+          issued_at?: string | null
+          metadata?: Json
+          status?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "accreditations_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accreditations_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accreditations_request_id_fkey"
-            columns: ["request_id"]
+            foreignKeyName: "accreditations_accreditation_request_id_fkey"
+            columns: ["accreditation_request_id"]
             isOneToOne: false
             referencedRelation: "accreditation_requests"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "accreditations_type_id_fkey"
-            columns: ["type_id"]
+            foreignKeyName: "accreditations_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "accreditation_types"
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accreditations_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
             referencedColumns: ["id"]
           },
         ]
       }
       api_keys: {
         Row: {
-          created_at: string
+          created_at: string | null
           event_id: string | null
           expires_at: string | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
           key_hash: string
-          key_prefix: string
+          key_prefix: string | null
           last_used_at: string | null
           name: string
-          permissions: string[]
-          updated_at: string
-          user_id: string
+          permissions: Json | null
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           event_id?: string | null
           expires_at?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           key_hash: string
-          key_prefix: string
+          key_prefix?: string | null
           last_used_at?: string | null
           name: string
-          permissions?: string[]
-          updated_at?: string
-          user_id: string
+          permissions?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           event_id?: string | null
           expires_at?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           key_hash?: string
-          key_prefix?: string
+          key_prefix?: string | null
           last_used_at?: string | null
           name?: string
-          permissions?: string[]
-          updated_at?: string
-          user_id?: string
+          permissions?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -329,66 +313,7 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "api_keys_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "api_keys_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      audit_logs: {
-        Row: {
-          action: string
-          created_at: string
-          details: string | null
-          id: string
-          ip_address: string | null
-          metadata: Json | null
-          resource: string
-          resource_id: string | null
-          severity: string
-          user_agent: string | null
-          user_email: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string
-          details?: string | null
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          resource: string
-          resource_id?: string | null
-          severity?: string
-          user_agent?: string | null
-          user_email?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string
-          details?: string | null
-          id?: string
-          ip_address?: string | null
-          metadata?: Json | null
-          resource?: string
-          resource_id?: string | null
-          severity?: string
-          user_agent?: string | null
-          user_email?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
       chat_conversations: {
         Row: {
@@ -421,13 +346,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chat_conversations_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
             referencedColumns: ["id"]
           },
         ]
@@ -463,6 +381,170 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coverage_items: {
+        Row: {
+          article_url: string | null
+          coverage_request_id: string
+          created_at: string
+          estimated_reach: number | null
+          event_id: string
+          gallery_url: string | null
+          id: string
+          notes: string | null
+          publication_date: string | null
+          publication_type: string | null
+          social_post_url: string | null
+          sponsor_mentions: number | null
+          submitted_by: string | null
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+          video_url: string | null
+        }
+        Insert: {
+          article_url?: string | null
+          coverage_request_id: string
+          created_at?: string
+          estimated_reach?: number | null
+          event_id: string
+          gallery_url?: string | null
+          id?: string
+          notes?: string | null
+          publication_date?: string | null
+          publication_type?: string | null
+          social_post_url?: string | null
+          sponsor_mentions?: number | null
+          submitted_by?: string | null
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          article_url?: string | null
+          coverage_request_id?: string
+          created_at?: string
+          estimated_reach?: number | null
+          event_id?: string
+          gallery_url?: string | null
+          id?: string
+          notes?: string | null
+          publication_date?: string | null
+          publication_type?: string | null
+          social_post_url?: string | null
+          sponsor_mentions?: number | null
+          submitted_by?: string | null
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coverage_items_coverage_request_id_fkey"
+            columns: ["coverage_request_id"]
+            isOneToOne: false
+            referencedRelation: "coverage_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coverage_requests: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          email: string
+          event_id: string
+          first_name: string | null
+          guest_id: string | null
+          id: string
+          last_name: string | null
+          last_reminder_at: string | null
+          media_name: string | null
+          organizer_id: string
+          reminders_sent: Json
+          status: string
+          submission_id: string | null
+          token: string
+          token_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          email: string
+          event_id: string
+          first_name?: string | null
+          guest_id?: string | null
+          id?: string
+          last_name?: string | null
+          last_reminder_at?: string | null
+          media_name?: string | null
+          organizer_id: string
+          reminders_sent?: Json
+          status?: string
+          submission_id?: string | null
+          token: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          email?: string
+          event_id?: string
+          first_name?: string | null
+          guest_id?: string | null
+          id?: string
+          last_name?: string | null
+          last_reminder_at?: string | null
+          media_name?: string | null
+          organizer_id?: string
+          reminders_sent?: Json
+          status?: string
+          submission_id?: string | null
+          token?: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coverage_requests_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "media_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_requests_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_requests_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "landing_page_submissions"
             referencedColumns: ["id"]
           },
         ]
@@ -566,13 +648,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "document_submissions_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "document_submissions_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
@@ -581,121 +656,149 @@ export type Database = {
           },
         ]
       }
-      email_campaigns: {
+      email_queue: {
         Row: {
-          completed_at: string | null
-          created_at: string | null
-          event_id: string
-          failed_count: number | null
+          attempts: number
+          body: string
+          created_at: string
+          error_message: string | null
+          event_id: string | null
+          guest_id: string | null
           id: string
-          name: string
-          opened_count: number | null
-          sent_count: number | null
-          started_at: string | null
+          metadata: Json
+          provider: string | null
+          provider_message_id: string | null
+          recipient_email: string
+          recipient_name: string | null
+          scheduled_at: string | null
+          sent_at: string | null
           status: string
-          total_recipients: number
-          updated_at: string | null
+          subject: string
+          template_id: string | null
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          event_id: string
-          failed_count?: number | null
+          attempts?: number
+          body: string
+          created_at?: string
+          error_message?: string | null
+          event_id?: string | null
+          guest_id?: string | null
           id?: string
-          name: string
-          opened_count?: number | null
-          sent_count?: number | null
-          started_at?: string | null
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
           status?: string
-          total_recipients?: number
-          updated_at?: string | null
+          subject: string
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          event_id?: string
-          failed_count?: number | null
+          attempts?: number
+          body?: string
+          created_at?: string
+          error_message?: string | null
+          event_id?: string | null
+          guest_id?: string | null
           id?: string
-          name?: string
-          opened_count?: number | null
-          sent_count?: number | null
-          started_at?: string | null
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
           status?: string
-          total_recipients?: number
-          updated_at?: string | null
+          subject?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "email_campaigns_event_id_fkey"
+            foreignKeyName: "email_queue_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "email_campaigns_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "email_queue_guest_id_fkey"
+            columns: ["guest_id"]
             isOneToOne: false
-            referencedRelation: "public_events"
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "invitation_templates"
             referencedColumns: ["id"]
           },
         ]
       }
-      email_queue: {
+      event_landing_pages: {
         Row: {
-          attempts: number | null
-          content: string
-          created_at: string | null
-          error_message: string | null
+          banner_url: string | null
+          created_at: string
+          description: string | null
+          event_id: string
+          form_config: Json
           id: string
-          invitation_id: string
-          last_attempt_at: string | null
-          max_attempts: number | null
-          priority: number | null
-          recipient_email: string
-          scheduled_for: string | null
-          status: string
-          subject: string
-          updated_at: string | null
+          is_active: boolean
+          logo_url: string | null
+          primary_color: string
+          secondary_color: string
+          slug: string
+          social_links: Json
+          terms_text: string | null
+          updated_at: string
         }
         Insert: {
-          attempts?: number | null
-          content: string
-          created_at?: string | null
-          error_message?: string | null
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_id: string
+          form_config?: Json
           id?: string
-          invitation_id: string
-          last_attempt_at?: string | null
-          max_attempts?: number | null
-          priority?: number | null
-          recipient_email: string
-          scheduled_for?: string | null
-          status?: string
-          subject: string
-          updated_at?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          slug: string
+          social_links?: Json
+          terms_text?: string | null
+          updated_at?: string
         }
         Update: {
-          attempts?: number | null
-          content?: string
-          created_at?: string | null
-          error_message?: string | null
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_id?: string
+          form_config?: Json
           id?: string
-          invitation_id?: string
-          last_attempt_at?: string | null
-          max_attempts?: number | null
-          priority?: number | null
-          recipient_email?: string
-          scheduled_for?: string | null
-          status?: string
-          subject?: string
-          updated_at?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          slug?: string
+          social_links?: Json
+          terms_text?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "email_queue_invitation_id_fkey"
-            columns: ["invitation_id"]
+            foreignKeyName: "event_landing_pages_event_id_fkey"
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "invitations"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -751,63 +854,129 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_check_in_scans: {
+        Row: {
+          created_at: string
+          device_info: Json
+          event_id: string
+          guest_id: string | null
+          id: string
+          message: string | null
+          qr_code_hash: string
+          scan_result: string
+          scanned_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json
+          event_id: string
+          guest_id?: string | null
+          id?: string
+          message?: string | null
+          qr_code_hash: string
+          scan_result: string
+          scanned_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json
+          event_id?: string
+          guest_id?: string | null
+          id?: string
+          message?: string | null
+          qr_code_hash?: string
+          scan_result?: string
+          scanned_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_check_in_scans_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_check_in_scans_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
+          access_level: string | null
           checked_in_at: string | null
+          checked_in_by: string | null
           company: string | null
           created_at: string | null
+          custom_fields: Json | null
           email: string
           email_status: string | null
           event_id: string
-          first_name: string
+          first_name: string | null
           id: string
-          invitation_opened_at: string | null
-          invitation_sent_at: string | null
-          last_name: string
+          last_name: string | null
+          notes: string | null
           phone: string | null
-          qr_code: string
-          status: string
-          ticket_type: string
+          qr_code: string | null
+          revocation_reason: string | null
+          revoked_at: string | null
+          status: string | null
+          ticket_type: string | null
           updated_at: string | null
-          zones: string[] | null
+          zone: string | null
+          zones: string[]
         }
         Insert: {
+          access_level?: string | null
           checked_in_at?: string | null
+          checked_in_by?: string | null
           company?: string | null
           created_at?: string | null
+          custom_fields?: Json | null
           email: string
           email_status?: string | null
           event_id: string
-          first_name: string
+          first_name?: string | null
           id?: string
-          invitation_opened_at?: string | null
-          invitation_sent_at?: string | null
-          last_name: string
+          last_name?: string | null
+          notes?: string | null
           phone?: string | null
-          qr_code: string
-          status: string
-          ticket_type?: string
+          qr_code?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          status?: string | null
+          ticket_type?: string | null
           updated_at?: string | null
-          zones?: string[] | null
+          zone?: string | null
+          zones?: string[]
         }
         Update: {
+          access_level?: string | null
           checked_in_at?: string | null
+          checked_in_by?: string | null
           company?: string | null
           created_at?: string | null
+          custom_fields?: Json | null
           email?: string
           email_status?: string | null
           event_id?: string
-          first_name?: string
+          first_name?: string | null
           id?: string
-          invitation_opened_at?: string | null
-          invitation_sent_at?: string | null
-          last_name?: string
+          last_name?: string | null
+          notes?: string | null
           phone?: string | null
-          qr_code?: string
-          status?: string
-          ticket_type?: string
+          qr_code?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          status?: string | null
+          ticket_type?: string | null
           updated_at?: string | null
-          zones?: string[] | null
+          zone?: string | null
+          zones?: string[]
         }
         Relationships: [
           {
@@ -817,44 +986,37 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "guests_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
         ]
       }
       invitation_templates: {
         Row: {
-          content: string
+          content: string | null
           created_at: string | null
           created_by: string | null
           id: string
           is_default: boolean | null
           name: string
-          subject: string
+          subject: string | null
           updated_at: string | null
         }
         Insert: {
-          content: string
+          content?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
           is_default?: boolean | null
           name: string
-          subject: string
+          subject?: string | null
           updated_at?: string | null
         }
         Update: {
-          content?: string
+          content?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
           is_default?: boolean | null
           name?: string
-          subject?: string
+          subject?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -863,47 +1025,41 @@ export type Database = {
         Row: {
           created_at: string | null
           event_id: string
-          generated_at: string | null
-          guest_id: string
+          guest_id: string | null
           id: string
-          is_used: boolean | null
           metadata: Json | null
           opened_at: string | null
-          qr_code_data: string
+          recipient_email: string
           sent_at: string | null
+          status: string | null
           template_id: string | null
           updated_at: string | null
-          used_at: string | null
         }
         Insert: {
           created_at?: string | null
           event_id: string
-          generated_at?: string | null
-          guest_id: string
+          guest_id?: string | null
           id?: string
-          is_used?: boolean | null
           metadata?: Json | null
           opened_at?: string | null
-          qr_code_data: string
+          recipient_email: string
           sent_at?: string | null
+          status?: string | null
           template_id?: string | null
           updated_at?: string | null
-          used_at?: string | null
         }
         Update: {
           created_at?: string | null
           event_id?: string
-          generated_at?: string | null
-          guest_id?: string
+          guest_id?: string | null
           id?: string
-          is_used?: boolean | null
           metadata?: Json | null
           opened_at?: string | null
-          qr_code_data?: string
+          recipient_email?: string
           sent_at?: string | null
+          status?: string | null
           template_id?: string | null
           updated_at?: string | null
-          used_at?: string | null
         }
         Relationships: [
           {
@@ -911,13 +1067,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
             referencedColumns: ["id"]
           },
           {
@@ -936,42 +1085,322 @@ export type Database = {
           },
         ]
       }
-      media_documents: {
+      landing_page_submissions: {
         Row: {
-          document_type: string
-          file_name: string
-          file_path: string
-          file_type: string
+          access_level: string | null
+          accreditation_id: string | null
+          accreditation_type: string | null
+          applicant_message: string | null
+          consent_data_processing: boolean
+          consent_marketing: boolean
+          coverage_description: string | null
+          created_at: string
+          custom_fields: Json
+          decided_at: string | null
+          decided_by: string | null
+          decision_email_sent_at: string | null
+          decision_email_status: string | null
+          email: string
+          event_id: string
+          first_name: string
+          flags: Json
+          guest_id: string | null
           id: string
-          registration_id: string
-          reviewed_at: string | null
-          reviewer_notes: string | null
+          job_title: string | null
+          landing_page_id: string
+          last_name: string
+          media_organization: string | null
+          media_type: string | null
+          pass_issued_at: string | null
+          pass_qr_code: string | null
+          phone: string | null
+          portfolio_url: string | null
+          previous_accreditation: boolean
+          publication_links: string | null
+          requested_access: string | null
+          role: string | null
+          social_media: string | null
           status: string
-          uploaded_at: string
+          updated_at: string
+          verification_explanation: string | null
+          verification_flags: Json
+          verification_notes: string | null
+          verification_overridden_at: string | null
+          verification_overridden_by: string | null
+          verification_risk_level: string | null
+          verification_score: number | null
+          verification_status: string | null
         }
         Insert: {
-          document_type: string
-          file_name: string
-          file_path: string
-          file_type: string
+          access_level?: string | null
+          accreditation_id?: string | null
+          accreditation_type?: string | null
+          applicant_message?: string | null
+          consent_data_processing?: boolean
+          consent_marketing?: boolean
+          coverage_description?: string | null
+          created_at?: string
+          custom_fields?: Json
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_email_sent_at?: string | null
+          decision_email_status?: string | null
+          email: string
+          event_id: string
+          first_name: string
+          flags?: Json
+          guest_id?: string | null
           id?: string
-          registration_id: string
-          reviewed_at?: string | null
-          reviewer_notes?: string | null
+          job_title?: string | null
+          landing_page_id: string
+          last_name: string
+          media_organization?: string | null
+          media_type?: string | null
+          pass_issued_at?: string | null
+          pass_qr_code?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          previous_accreditation?: boolean
+          publication_links?: string | null
+          requested_access?: string | null
+          role?: string | null
+          social_media?: string | null
           status?: string
-          uploaded_at?: string
+          updated_at?: string
+          verification_explanation?: string | null
+          verification_flags?: Json
+          verification_notes?: string | null
+          verification_overridden_at?: string | null
+          verification_overridden_by?: string | null
+          verification_risk_level?: string | null
+          verification_score?: number | null
+          verification_status?: string | null
         }
         Update: {
-          document_type?: string
+          access_level?: string | null
+          accreditation_id?: string | null
+          accreditation_type?: string | null
+          applicant_message?: string | null
+          consent_data_processing?: boolean
+          consent_marketing?: boolean
+          coverage_description?: string | null
+          created_at?: string
+          custom_fields?: Json
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_email_sent_at?: string | null
+          decision_email_status?: string | null
+          email?: string
+          event_id?: string
+          first_name?: string
+          flags?: Json
+          guest_id?: string | null
+          id?: string
+          job_title?: string | null
+          landing_page_id?: string
+          last_name?: string
+          media_organization?: string | null
+          media_type?: string | null
+          pass_issued_at?: string | null
+          pass_qr_code?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          previous_accreditation?: boolean
+          publication_links?: string | null
+          requested_access?: string | null
+          role?: string | null
+          social_media?: string | null
+          status?: string
+          updated_at?: string
+          verification_explanation?: string | null
+          verification_flags?: Json
+          verification_notes?: string | null
+          verification_overridden_at?: string | null
+          verification_overridden_by?: string | null
+          verification_risk_level?: string | null
+          verification_score?: number | null
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_page_submissions_accreditation_id_fkey"
+            columns: ["accreditation_id"]
+            isOneToOne: false
+            referencedRelation: "accreditations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_page_submissions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_page_submissions_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_page_submissions_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "event_landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_contact_outlets: {
+        Row: {
+          contact_id: string
+          created_at: string
+          outlet_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          outlet_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          outlet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_contact_outlets_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "media_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_contact_outlets_outlet_id_fkey"
+            columns: ["outlet_id"]
+            isOneToOne: false
+            referencedRelation: "media_outlets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_contacts: {
+        Row: {
+          approved_count: number
+          checked_in_count: number
+          coverage_count: number
+          created_at: string
+          email: string
+          events_count: number
+          first_name: string | null
+          id: string
+          last_name: string | null
+          no_show_count: number
+          organizer_id: string
+          phone: string | null
+          pr_notes: string | null
+          primary_outlet_id: string | null
+          quality_rating: number | null
+          role: string | null
+          submissions_count: number
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          approved_count?: number
+          checked_in_count?: number
+          coverage_count?: number
+          created_at?: string
+          email: string
+          events_count?: number
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          no_show_count?: number
+          organizer_id: string
+          phone?: string | null
+          pr_notes?: string | null
+          primary_outlet_id?: string | null
+          quality_rating?: number | null
+          role?: string | null
+          submissions_count?: number
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          approved_count?: number
+          checked_in_count?: number
+          coverage_count?: number
+          created_at?: string
+          email?: string
+          events_count?: number
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          no_show_count?: number
+          organizer_id?: string
+          phone?: string | null
+          pr_notes?: string | null
+          primary_outlet_id?: string | null
+          quality_rating?: number | null
+          role?: string | null
+          submissions_count?: number
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_contacts_primary_outlet_id_fkey"
+            columns: ["primary_outlet_id"]
+            isOneToOne: false
+            referencedRelation: "media_outlets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_documents: {
+        Row: {
+          created_at: string | null
+          document_type: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          registration_id: string | null
+          review_notes: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_type?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          registration_id?: string | null
+          review_notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string | null
           file_name?: string
           file_path?: string
-          file_type?: string
+          file_size?: number | null
+          file_type?: string | null
           id?: string
-          registration_id?: string
-          reviewed_at?: string | null
-          reviewer_notes?: string | null
-          status?: string
-          uploaded_at?: string
+          registration_id?: string | null
+          review_notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -983,53 +1412,95 @@ export type Database = {
           },
         ]
       }
+      media_outlets: {
+        Row: {
+          created_at: string
+          domain: string | null
+          id: string
+          media_type: string | null
+          name: string
+          normalized_name: string
+          notes: string | null
+          organizer_id: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          media_type?: string | null
+          name: string
+          normalized_name: string
+          notes?: string | null
+          organizer_id: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          media_type?: string | null
+          name?: string
+          normalized_name?: string
+          notes?: string | null
+          organizer_id?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       media_registrations: {
         Row: {
-          coverage_description: string | null
-          created_at: string
+          coverage_plan: string | null
+          created_at: string | null
           event_id: string
           id: string
-          job_title: string
-          media_organization: string
-          previous_accreditation: boolean | null
-          rejection_reason: string | null
-          reviewer_id: string | null
+          job_title: string | null
+          media_organization: string | null
+          media_type: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           social_media: Json | null
-          status: string
-          updated_at: string
-          user_id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
           website: string | null
         }
         Insert: {
-          coverage_description?: string | null
-          created_at?: string
+          coverage_plan?: string | null
+          created_at?: string | null
           event_id: string
           id?: string
-          job_title: string
-          media_organization: string
-          previous_accreditation?: boolean | null
-          rejection_reason?: string | null
-          reviewer_id?: string | null
+          job_title?: string | null
+          media_organization?: string | null
+          media_type?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           social_media?: Json | null
-          status?: string
-          updated_at?: string
-          user_id: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Update: {
-          coverage_description?: string | null
-          created_at?: string
+          coverage_plan?: string | null
+          created_at?: string | null
           event_id?: string
           id?: string
-          job_title?: string
-          media_organization?: string
-          previous_accreditation?: boolean | null
-          rejection_reason?: string | null
-          reviewer_id?: string | null
+          job_title?: string | null
+          media_organization?: string | null
+          media_type?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           social_media?: Json | null
-          status?: string
-          updated_at?: string
-          user_id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Relationships: [
@@ -1038,13 +1509,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "media_registrations_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
             referencedColumns: ["id"]
           },
         ]
@@ -1058,7 +1522,7 @@ export type Database = {
           last_name: string | null
           organization_name: string | null
           phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
+          role: string
           updated_at: string | null
         }
         Insert: {
@@ -1069,7 +1533,7 @@ export type Database = {
           last_name?: string | null
           organization_name?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: string
           updated_at?: string | null
         }
         Update: {
@@ -1080,8 +1544,125 @@ export type Database = {
           last_name?: string | null
           organization_name?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      submission_verification_events: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          event_id: string
+          event_type: string
+          from_risk: string | null
+          from_score: number | null
+          from_status: string | null
+          id: string
+          metadata: Json
+          note: string | null
+          submission_id: string
+          to_risk: string | null
+          to_score: number | null
+          to_status: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          event_id: string
+          event_type: string
+          from_risk?: string | null
+          from_score?: number | null
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          submission_id: string
+          to_risk?: string | null
+          to_score?: number | null
+          to_status?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          event_id?: string
+          event_type?: string
+          from_risk?: string | null
+          from_score?: number | null
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          submission_id?: string
+          to_risk?: string | null
+          to_score?: number | null
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_verification_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_verification_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "landing_page_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          price_id: string
+          product_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          price_id: string
+          product_id: string
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          price_id?: string
+          product_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1130,13 +1711,6 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "user_notifications_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
         ]
       }
       user_roles: {
@@ -1159,70 +1733,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      webhook_subscriptions: {
-        Row: {
-          created_at: string
-          event_id: string | null
-          events: string[]
-          failure_count: number
-          id: string
-          is_active: boolean
-          last_triggered_at: string | null
-          secret: string
-          updated_at: string
-          url: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          event_id?: string | null
-          events?: string[]
-          failure_count?: number
-          id?: string
-          is_active?: boolean
-          last_triggered_at?: string | null
-          secret: string
-          updated_at?: string
-          url: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          event_id?: string | null
-          events?: string[]
-          failure_count?: number
-          id?: string
-          is_active?: boolean
-          last_triggered_at?: string | null
-          secret?: string
-          updated_at?: string
-          url?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "webhook_subscriptions_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webhook_subscriptions_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webhook_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       wristbands: {
         Row: {
@@ -1267,13 +1777,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wristbands_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
             referencedColumns: ["id"]
           },
           {
@@ -1322,13 +1825,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "zone_presence_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "public_events"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "zone_presence_wristband_id_fkey"
             columns: ["wristband_id"]
             isOneToOne: false
@@ -1339,56 +1835,20 @@ export type Database = {
       }
     }
     Views: {
-      public_events: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          end_date: string | null
-          id: string | null
-          image_url: string | null
-          is_published: boolean | null
-          location: string | null
-          max_guests: number | null
-          start_date: string | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          end_date?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_published?: boolean | null
-          location?: string | null
-          max_guests?: number | null
-          start_date?: string | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          end_date?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_published?: boolean | null
-          location?: string | null
-          max_guests?: number | null
-          start_date?: string | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      generate_guest_qr_code: { Args: never; Returns: string }
+      get_pass_by_token: {
+        Args: { _token: string }
+        Returns: {
+          event_name: string
+          first_name: string
+          last_name: string
+          qr_code: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1401,16 +1861,6 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
-      process_rfid_scan: {
-        Args: {
-          _device_info?: string
-          _event_id: string
-          _rfid_code: string
-          _scanned_by?: string
-          _zone_name: string
-        }
-        Returns: Json
-      }
       process_qr_check_in: {
         Args: {
           _client_scan_id?: string
@@ -1421,10 +1871,19 @@ export type Database = {
         }
         Returns: Json
       }
+      process_rfid_scan: {
+        Args: {
+          _device_info?: string
+          _event_id: string
+          _rfid_code: string
+          _scanned_by?: string
+          _zone_name: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "organizer" | "staff" | "guest"
-      user_role: "admin" | "organizer" | "staff" | "guest"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1550,10 +2009,12 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "organizer", "staff", "guest"],
-      user_role: ["admin", "organizer", "staff", "guest"],
     },
   },
 } as const

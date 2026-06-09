@@ -1,5 +1,5 @@
 
-import { Guest, GuestStatus, GuestTicketType } from "@/types";
+import { Guest, GuestStatus, GuestTicketType, GuestEmailStatus } from "@/types";
 
 /**
  * Map database guest to our frontend Guest type
@@ -15,7 +15,7 @@ export function mapDbGuestToGuest(dbGuest: any): Guest {
     ticketType: (dbGuest.ticket_type || 'uczestnik') as GuestTicketType,
     zones: dbGuest.zones || [],
     status: dbGuest.status as GuestStatus,
-    emailStatus: dbGuest.email_status as any,
+    emailStatus: dbGuest.email_status as GuestEmailStatus,
     qrCode: dbGuest.qr_code,
     invitationSentAt: dbGuest.invitation_sent_at ? new Date(dbGuest.invitation_sent_at) : undefined,
     invitationOpenedAt: dbGuest.invitation_opened_at ? new Date(dbGuest.invitation_opened_at) : undefined,

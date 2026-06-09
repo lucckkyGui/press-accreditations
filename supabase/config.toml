@@ -1,4 +1,4 @@
-project_id = "ajotwgirccdjntuotxzy"
+project_id = "jozgpssnypclwzqnowhh"
 
 [functions.send-invitation-emails]
 verify_jwt = false
@@ -40,4 +40,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.landing-page-register]
+verify_jwt = false
+
+[functions.coverage-submit]
 verify_jwt = false

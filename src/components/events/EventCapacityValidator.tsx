@@ -101,7 +101,7 @@ const EventCapacityValidator: React.FC<EventCapacityValidatorProps> = ({
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Pojemność gości</span>
-            <Badge variant={guestStatus.color as any}>
+            <Badge variant={guestStatus.color as "default" | "secondary" | "destructive" | "outline"}>
               {limits.guests.current}/{limits.guests.hard}
             </Badge>
           </div>
@@ -129,7 +129,7 @@ const EventCapacityValidator: React.FC<EventCapacityValidatorProps> = ({
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Quota emaili (miesięczna)</span>
-            <Badge variant={emailStatus.color as any}>
+            <Badge variant={emailStatus.color as "default" | "secondary" | "destructive" | "outline"}>
               {limits.emails.used}/{limits.emails.monthly}
             </Badge>
           </div>

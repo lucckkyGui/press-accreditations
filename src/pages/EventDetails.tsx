@@ -3,20 +3,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Calendar, MapPin, Users, Bell, Globe, QrCode,
+  Calendar, MapPin, Users, Bell, Globe,
   Link2, Copy, MoreHorizontal, ScanLine, Clock,
   CheckCircle, AlertCircle, Shield,
 } from "lucide-react";
 import { Event, Guest } from "@/types";
 import { GuestsTable } from "@/components/guests/GuestsTable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { qrToDataURL } from "@/utils/qrDataUrl";
 import { toast } from "sonner";
 import GuestDetails from "@/components/guests/GuestDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { features } from "@/config/features";
 import { Sparkline } from "@/components/ui/sparkline";
 import { cn } from "@/lib/utils";
-import AccreditationManagement from "@/components/accreditation/AccreditationManagement";
 import MediaVerificationPanel from "@/components/accreditation/MediaVerificationPanel";
 
 const getEventCode = (id: string) =>
@@ -122,13 +122,11 @@ const EventDetails = () => {
             email: g.email,
             company: g.company || "",
             phone: g.phone || undefined,
-            ticketType: ((g as any).ticket_type || "uczestnik") as Guest["ticketType"],
-            zones: ((g as any).zones || []) as string[],
+            ticketType: (g.ticket_type || "uczestnik") as Guest["ticketType"],
+            zones: (g.zones || []) as string[],
             status: g.status as Guest["status"],
             emailStatus: (g.email_status || "pending") as Guest["emailStatus"],
             qrCode: g.qr_code,
-            invitationSentAt: g.invitation_sent_at ? new Date(g.invitation_sent_at) : undefined,
-            invitationOpenedAt: g.invitation_opened_at ? new Date(g.invitation_opened_at) : undefined,
             checkedInAt: g.checked_in_at ? new Date(g.checked_in_at) : undefined,
           })));
         }
@@ -299,10 +297,6 @@ const EventDetails = () => {
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
                 Bezpieczeństwo
               </TabsTrigger>
-              <TabsTrigger value="accreditations" data-tab="accreditations"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
-                Akredytacje
-              </TabsTrigger>
               <TabsTrigger value="verification" data-tab="verification"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
                 Weryfikacja mediów
@@ -438,15 +432,6 @@ const EventDetails = () => {
               </div>
             </TabsContent>
 
-            {/* Accreditation requests tab */}
-            <TabsContent value="accreditations" className="mt-0">
-              <AccreditationManagement
-                eventId={eventId}
-                title="Wnioski akredytacyjne"
-                description="Przeglądaj i zatwierdzaj wnioski mediów dla tego wydarzenia"
-              />
-            </TabsContent>
-
             {/* Media verification tab */}
             <TabsContent value="verification" className="mt-0">
               {eventId && <MediaVerificationPanel eventId={eventId} />}
@@ -569,15 +554,17 @@ const EventDetails = () => {
           </DialogHeader>
           {currentQRGuest && (
             <div className="flex flex-col items-center space-y-4">
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="h-48 w-48 bg-muted flex items-center justify-center rounded-lg">
-                  <QrCode className="h-32 w-32 text-primary" />
-                </div>
+              <div className="bg-white p-4 rounded-lg border border-border">
+                {currentQRGuest.qrCode
+                  ? <img src={qrToDataURL(currentQRGuest.qrCode, 192)} alt="Kod QR gościa" className="h-48 w-48" />
+                  : <div className="h-48 w-48 grid place-items-center text-xs text-muted-foreground">Brak kodu</div>}
               </div>
               <div className="text-center">
                 <h3 className="font-medium">{currentQRGuest.firstName} {currentQRGuest.lastName}</h3>
                 <p className="text-sm text-muted-foreground">{currentQRGuest.email}</p>
                 {currentQRGuest.company && <p className="text-sm text-muted-foreground">{currentQRGuest.company}</p>}
+                {currentQRGuest.qrCode &&
+                  <code className="mt-2 inline-block rounded bg-muted px-2 py-1 text-xs tracking-wider">{currentQRGuest.qrCode}</code>}
               </div>
             </div>
           )}

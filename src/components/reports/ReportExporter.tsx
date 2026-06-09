@@ -152,7 +152,7 @@ const ReportExporter: React.FC = () => {
                     }`}
                     onClick={() => setReportConfig(prev => ({ 
                       ...prev, 
-                      type: type.id as any,
+                      type: type.id as ReportConfig["type"],
                       includeFields: type.fields.slice(0, 4).map(f => f.id)
                     }))}
                   >
@@ -183,7 +183,7 @@ const ReportExporter: React.FC = () => {
                     value={reportConfig.format}
                     onValueChange={(value) => setReportConfig(prev => ({
                       ...prev,
-                      format: value as any
+                      format: value as ReportConfig["format"]
                     }))}
                   >
                     <SelectTrigger>

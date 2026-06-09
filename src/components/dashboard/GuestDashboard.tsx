@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  Calendar, Ticket, QrCode, Clock, MapPin, CheckCircle, 
+  Calendar, Ticket, QrCode, Clock, MapPin,
   FileText, Bell, Star, ArrowRight, Download, ExternalLink
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -27,11 +27,10 @@ const GuestDashboard = () => {
         .from('accreditations')
         .select(`
           *,
-          events:event_id (id, title, start_date, end_date, location, image_url),
-          accreditation_types:type_id (name, description, access_areas)
+          events:event_id (id, title, start_date, end_date, location, image_url)
         `)
         .eq('user_id', user.id)
-        .order('validity_start', { ascending: true });
+        .order('issued_at', { ascending: true });
       if (error) throw error;
       return data || [];
     },
@@ -77,12 +76,12 @@ const GuestDashboard = () => {
 
   const activeAccreditations = accreditations?.filter(a => {
     const now = new Date();
-    return new Date(a.validity_start) <= now && new Date(a.validity_end) >= now && !a.revoked;
+    return new Date(a.issued_at) <= now && new Date(a.expires_at) >= now && a.status !== 'revoked';
   }) || [];
 
   const upcomingAccreditations = accreditations?.filter(a => {
     const now = new Date();
-    return new Date(a.validity_start) > now && !a.revoked;
+    return new Date(a.issued_at) > now && a.status !== 'revoked';
   }) || [];
 
   const pendingRequests = accreditationRequests?.filter(r => r.status === 'pending') || [];
@@ -209,13 +208,7 @@ const GuestDashboard = () => {
                             <span>{accreditation.events?.location || 'Brak lokalizacji'}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline">{accreditation.accreditation_types?.name}</Badge>
-                            {accreditation.is_checked_in && (
-                              <Badge className="bg-success/15 text-success border-0">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Zameldowany
-                              </Badge>
-                            )}
+                            <Badge variant="outline">{accreditation.type}</Badge>
                           </div>
                         </div>
                       </div>
@@ -258,10 +251,10 @@ const GuestDashboard = () => {
                       <div className="flex items-center gap-4">
                         <div className="text-center p-2 bg-primary/10 rounded-lg min-w-[60px]">
                           <div className="text-lg font-bold text-primary">
-                            {new Date(accreditation.validity_start).getDate()}
+                            {new Date(accreditation.issued_at).getDate()}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(accreditation.validity_start).toLocaleDateString('pl-PL', { month: 'short' })}
+                            {new Date(accreditation.issued_at).toLocaleDateString('pl-PL', { month: 'short' })}
                           </div>
                         </div>
                         <div>
@@ -272,7 +265,7 @@ const GuestDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <Badge variant="outline">{accreditation.accreditation_types?.name}</Badge>
+                      <Badge variant="outline">{accreditation.type}</Badge>
                     </div>
                   ))}
                 </div>

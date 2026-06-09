@@ -60,10 +60,11 @@ function buildEmail(params: {
   applicantName: string;
   accessLabel: string | null;
   applicantMessage: string | null;
-  qrToken: string | null;
+  // passToken = link bearer (/pass); passCode = numeryczny kod skanu pokazywany gościowi.
+  passCode: string | null;
   passUrl: string | null;
 }): EmailContent {
-  const { status, eventName, applicantName, accessLabel, applicantMessage, qrToken, passUrl } = params;
+  const { status, eventName, applicantName, accessLabel, applicantMessage, passCode, passUrl } = params;
   const wrap = (inner: string) => `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#111827;">
       ${inner}
@@ -72,13 +73,13 @@ function buildEmail(params: {
       <p style="color:#6b7280;font-size:12px;">Wiadomość wygenerowana automatycznie przez system akredytacji PressOps.</p>
     </div>`;
 
-  const passBlock = (qrToken && passUrl)
+  const passBlock = passUrl
     ? `
       <div style="text-align:center;margin:24px 0;">
         <a href="${passUrl}" style="display:inline-block;background:#16a34a;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600;">
           Otwórz swój QR pass
         </a>
-        <p style="font-size:12px;color:#6b7280;margin-top:8px;">Pokaż kod QR przy wejściu (check-in). Kod: <code>${esc(qrToken)}</code></p>
+        ${passCode ? `<p style="font-size:12px;color:#6b7280;margin-top:8px;">Pokaż kod QR przy wejściu (check-in). Kod: <code>${esc(passCode)}</code></p>` : ""}
       </div>`
     : "";
 
@@ -197,7 +198,7 @@ serve(async (req: Request): Promise<Response> => {
     // Dane zgłoszenia (service role — RLS blokuje anon)
     const { data: submission } = await service
       .from("landing_page_submissions")
-      .select("first_name, last_name, email, access_level, pass_qr_code")
+      .select("first_name, last_name, email, access_level, pass_qr_code, guest_id")
       .eq("id", body.submission_id)
       .single();
     if (!submission) return json({ error: "Submission not found" }, 404);
@@ -205,10 +206,22 @@ serve(async (req: Request): Promise<Response> => {
     const applicantName = `${submission.first_name ?? ""} ${submission.last_name ?? ""}`.trim() || "Uczestniku";
     const accessLevel = body.access_level ?? submission.access_level ?? null;
     const accessLabel = accessLevel ? (ACCESS_LABEL[accessLevel] ?? accessLevel) : null;
-    const qrToken = body.qr_token ?? submission.pass_qr_code ?? null;
 
+    // passToken = niezgadywalny token linku /pass (NIE jest skanowany).
+    const passToken = body.qr_token ?? submission.pass_qr_code ?? null;
     const appUrl = Deno.env.get("PUBLIC_APP_URL") || "";
-    const passUrl = qrToken && appUrl ? `${appUrl.replace(/\/$/, "")}/pass/${encodeURIComponent(qrToken)}` : null;
+    const passUrl = passToken && appUrl ? `${appUrl.replace(/\/$/, "")}/pass/${encodeURIComponent(passToken)}` : null;
+
+    // passCode = numeryczny kod skanu (guests.qr_code) — pokazywany gościowi w mailu.
+    let passCode: string | null = null;
+    if (submission.guest_id) {
+      const { data: guestRow } = await service
+        .from("guests")
+        .select("qr_code")
+        .eq("id", submission.guest_id)
+        .single();
+      passCode = guestRow?.qr_code ?? null;
+    }
 
     const email = buildEmail({
       status: body.status,
@@ -216,7 +229,7 @@ serve(async (req: Request): Promise<Response> => {
       applicantName,
       accessLabel,
       applicantMessage: body.applicant_message ?? null,
-      qrToken,
+      passCode,
       passUrl,
     });
 
