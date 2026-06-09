@@ -116,13 +116,6 @@ supabase secrets set --project-ref "$STAGING_REF" \
   STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
-Optional — AI features (support chat, face recognition). Skip if not testing them:
-
-```bash
-supabase secrets set --project-ref "$STAGING_REF" \
-  LOVABLE_API_KEY="<key>"
-```
-
 Confirm what's set (values are masked):
 
 ```bash
@@ -198,16 +191,15 @@ Then run the **smoke checklist** in `STAGING-SMOKE-CHECKS.md` (provided separate
 | `ALLOWED_ORIGINS` | ✅ recommended | _shared/cors.ts (CORS allowlist; first origin wins) |
 | `STRIPE_SECRET_KEY` | ⬜ only for billing | stripe-webhook, create-checkout, customer-portal |
 | `STRIPE_WEBHOOK_SECRET` | ⬜ only for billing | stripe-webhook |
-| `LOVABLE_API_KEY` | ⬜ only for AI | ai-support-chat, face-recognition |
 | `SUPABASE_URL` | ❌ auto-injected | 25 references across functions |
-| `SUPABASE_ANON_KEY` | ❌ auto-injected | audit-logs, create-checkout, send-invitation-emails, health-check, send-decision-email, face-recognition, coverage-reminders |
+| `SUPABASE_ANON_KEY` | ❌ auto-injected | audit-logs, create-checkout, send-invitation-emails, health-check, send-decision-email, coverage-reminders |
 | `SUPABASE_SERVICE_ROLE_KEY` | ❌ auto-injected | 19 references across functions |
 
-## Appendix B — Function inventory (19 deployable + `_shared`)
+## Appendix B — Function inventory (17 deployable + `_shared`)
 
 `verify_jwt = false` (public, set in config.toml): send-invitation-emails, public-api,
-webhook-dispatcher, face-recognition, create-checkout, check-subscription, customer-portal,
-ai-support-chat, embed-register, waitlist-manage, stripe-webhook, check-resource-alerts,
+webhook-dispatcher, create-checkout, check-subscription, customer-portal,
+embed-register, waitlist-manage, stripe-webhook, check-resource-alerts,
 gdpr-export, landing-page-register.
 
 `verify_jwt = true` (default — caller must send a valid JWT in `Authorization`):

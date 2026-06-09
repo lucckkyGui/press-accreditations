@@ -52,7 +52,6 @@ const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const EmbedWidget = lazy(() => import("@/pages/EmbedWidget"));
 const EmbedRegisterForm = lazy(() => import("@/pages/EmbedRegisterForm"));
 const Waitlist = lazy(() => import("@/pages/Waitlist"));
-const AIChatSupport = lazy(() => import("@/pages/AIChatSupport"));
 const SponsorReport = lazy(() => import("@/pages/SponsorReport"));
 const LandingPageBuilder = lazy(() => import("@/pages/LandingPageBuilder"));
 const PublicAccreditationPage = lazy(() => import("@/pages/PublicAccreditationPage"));
@@ -65,7 +64,6 @@ const SecurityGdprPage = lazy(() => import("@/pages/SecurityGdprPage"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 
 const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
-const AIDashboard = lazy(() => import("@/pages/AIDashboard"));
 
 const WhiteLabelSettings = lazy(() => import("@/pages/WhiteLabelSettings"));
 const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
@@ -159,8 +157,6 @@ const AppRoutes = () => {
           <Route path="/sponsor-report" element={<SponsorReport />} />
           <Route path="/landing-page/:eventId" element={features.landingPageBuilder ? <LandingPageBuilder /> : disabledOrganizerFeature} />
           <Route path="/admin/monitoring" element={<AdminMonitoring />} />
-          <Route path="/ai-dashboard" element={<AIDashboard />} />
-          
           <Route path="/white-label" element={features.whiteLabel ? <WhiteLabelSettings /> : disabledOrganizerFeature} />
           <Route path="/integrations" element={<IntegrationsHub />} />
           <Route path="/report-builder" element={<ReportBuilder />} />
@@ -186,7 +182,6 @@ const AppRoutes = () => {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
           <Route path="/purchase" element={<Purchase />} />
-          <Route path="/ai-support" element={<AIChatSupport />} />
           <Route path="/help" element={<HelpCenter />} />
         </Route>
 
