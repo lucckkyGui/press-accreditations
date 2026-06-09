@@ -33,7 +33,13 @@ To jest w zakresie R1, ale jeszcze niezrobione:
 Wykryte przy audycie `as any` (kat. a2). Każda to osobna decyzja produktowa: dodać schemat (migracja, R2) czy wygasić kod. Do czasu decyzji `as any` w tych miejscach zostaje (trzyma typecheck na 0).
 - [ ] **Webhooki** — `ApiKeyManagement` czyta/pisze `webhook_subscriptions`, tabeli **brak** na bazie (część `api_keys` działa normalnie). Feature wchodzi czy nie?
 - [ ] **`public_events`** — `EmbedRegisterForm` używa `public_events`; brak w generated types. **Najpierw zweryfikować**, czy to realny VIEW na bazie (→ cast uzasadniony, regen types z viewami) czy martwy odnośnik.
-- [ ] **Face recognition** — `FaceRecognitionCheckIn` czyta `guests.face_photo_url`, kolumny **brak**. Czy rozpoznawanie twarzy w ogóle jest w zakresie?
+- [ ] **Face recognition** — *usunięte* (patrz sekcja „Funkcje AI" niżej); pierwotnie `FaceRecognitionCheckIn` czytał `guests.face_photo_url`, kolumny i tak **brak**.
+
+### Funkcje AI — usunięte (mocki/szkielety od Lovable), do zaprojektowania i wdrożenia od nowa
+Trzy „funkcje AI" odziedziczone po Lovable były niedziałającymi szkieletami/mockami opartymi o gateway `ai.gateway.lovable.dev` + `LOVABLE_API_KEY`. Usunięte w całości (edge functions + strony + trasy + nav + sekrety w docs), żeby odciąć zależność od Lovable. Do ewentualnego wdrożenia **od zera** na własnym dostawcy LLM, z testami i schematem:
+- [ ] **AI support chat** (`ai-support-chat` + strona `/ai-support`) — zamysł: czat-asystent dla organizatorów i gości (Q&A o akredytacjach/wydarzeniu). Wymaga: wybór providera LLM, własny endpoint, rate-limit, kontekst z bazy.
+- [ ] **Face recognition** (`face-recognition` + `FaceRecognitionCheckIn`/`BulkFaceEnrollment`) — zamysł: rozpoznawanie twarzy przy check-in oraz masowy enrollment zdjęć gości. Wymaga: schemat (`guests.face_photo_url` + storage), zgody RODO/biometria, dostawca wizji, hardware bramki. *(Uwaga: to NIE jest `BiometricVerification`/WebAuthn — ta funkcja zostaje.)*
+- [ ] **AI Dashboard** (strona `/ai-dashboard`) — zamysł: predykcje frekwencji, wykrywanie anomalii check-in, smart scheduling wysyłek, generator treści. Cała strona była mockiem (dane na sztywno), generator wołał `ai-support-chat`. Do przeprojektowania jako realna analityka, gdy będą dane i provider.
 
 ---
 
