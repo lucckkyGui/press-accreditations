@@ -47,12 +47,3 @@ export interface BulkEmailRequest {
   subject: string;
   customMessage?: string;
 }
-
-export interface EmailDeliveryStats {
-  sent: number;
-  delivered: number;
-  opened: number;
-  clicked: number;
-  failed: number;
-  bounced: number;
-}

@@ -16,6 +16,7 @@ To jest w zakresie R1, ale jeszcze niezrobione:
 - [ ] **Deploy edge functions + sekrety** (ogon P0-1): `supabase functions deploy` + `RESEND_API_KEY`, `PUBLIC_APP_URL` (**prawdziwy URL, nie `localhost`**), `ALLOWED_ORIGINS`.
 - [ ] **Smoke E2E** głównej ścieżki (P0-5): submission → approve → QR → check-in → coverage → report. Dodać `playwright.config`.
 - [ ] **Merge do `main`** po zielonym E2E.
+- [ ] **Szablony zaproszeń gościa (D3, known-limitation).** `send-guest-invitation` ignoruje `template_id` — używa jednego wbudowanego szablonu; selektor (VIP/prasa/własny) w `BulkEmailSender` jest pozorny. Dorobić realne szablony albo uprościć UI do jednego.
 
 > ✅ **Zrobione w tej sesji** (było tu jako „bloker"): rekonsyliacja schematu kod↔baza — Kroki A/B + P0-3 (deprecacja martwego: Media Portal, invitations/email frontend, `accreditationRequestService`, `AccreditationManagement`; baza=prawda dla aktywnych), **typecheck 103→0**. Higiena `as any` 71→22 (reszta skategoryzowana: a2 drift + third-party + dług generyczny `useApi`).
 

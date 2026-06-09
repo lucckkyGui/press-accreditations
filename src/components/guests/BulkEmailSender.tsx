@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Guest } from '@/types';
-import { BulkEmailRequest, EmailDeliveryStats } from '@/types/guest/guest';
+import { supabase } from '@/integrations/supabase/client';
 import { Mail, Send, Users, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,6 +20,22 @@ interface BulkEmailSenderProps {
   selectedGuests: Guest[];
   eventId: string;
   onEmailSent: () => void;
+}
+
+// Kształt UCZCIWEJ odpowiedzi edge function send-guest-invitation (per gość + podsumowanie).
+interface GuestInviteResult {
+  guest_id: string;
+  email: string | null;
+  ok: boolean;
+  status_code?: number;
+  detail?: string;
+}
+
+interface SendInvitationResponse {
+  success: boolean;
+  sent: number;
+  failed: number;
+  results: GuestInviteResult[];
 }
 
 const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
@@ -34,9 +49,10 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
   const [customMessage, setCustomMessage] = useState('');
   const [templateId, setTemplateId] = useState('default');
   const [isSending, setIsSending] = useState(false);
-  const [sendingProgress, setSendingProgress] = useState(0);
-  const [deliveryStats, setDeliveryStats] = useState<EmailDeliveryStats | null>(null);
+  const [result, setResult] = useState<SendInvitationResponse | null>(null);
 
+  // D3 (known-limitation): selektor zostaje w UI, ale serwer na razie używa jednego
+  // wbudowanego szablonu — template_id jest przekazywany, lecz ignorowany.
   const emailTemplates = [
     { id: 'default', name: 'Standardowe zaproszenie', preview: 'Witamy! Zapraszamy na wydarzenie...' },
     { id: 'vip', name: 'Zaproszenie VIP', preview: 'Ekskluzywne zaproszenie dla VIP...' },
@@ -49,46 +65,40 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
       toast.error('Nie wybrano żadnych gości');
       return;
     }
+    if (!eventId) {
+      toast.error('Brak wydarzenia — nie można wysłać zaproszeń');
+      return;
+    }
 
     setIsSending(true);
-    setSendingProgress(0);
+    setResult(null);
 
     try {
-      const emailRequest: BulkEmailRequest = {
-        eventId,
-        guestIds: selectedGuests.map(g => g.id),
-        templateId,
-        subject,
-        customMessage
-      };
+      const { data, error } = await supabase.functions.invoke('send-guest-invitation', {
+        body: {
+          event_id: eventId,
+          guest_ids: selectedGuests.map((g) => g.id),
+          subject,
+          custom_message: customMessage,
+          template_id: templateId,
+        },
+      });
+      if (error) throw error;
 
-      // Symulacja wysyłania (w rzeczywistej aplikacji byłoby to API call)
-      const batchSize = 50; // Wysyłamy po 50 emaili na raz
-      const totalBatches = Math.ceil(selectedGuests.length / batchSize);
+      const resp = data as SendInvitationResponse;
+      setResult(resp);
 
-      for (let batch = 0; batch < totalBatches; batch++) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Symulacja opóźnienia
-        
-        const progress = ((batch + 1) / totalBatches) * 100;
-        setSendingProgress(progress);
+      if (resp.failed === 0) {
+        toast.success(`Wysłano ${resp.sent} ${resp.sent === 1 ? 'zaproszenie' : 'zaproszeń'}`);
+      } else if (resp.sent === 0) {
+        toast.error(`Nie wysłano żadnego zaproszenia (${resp.failed} ${resp.failed === 1 ? 'błąd' : 'błędów'})`);
+      } else {
+        toast.warning(`Wysłano ${resp.sent}, nieudane: ${resp.failed}`);
       }
 
-      // Symulacja statystyk dostawy
-      const stats: EmailDeliveryStats = {
-        sent: selectedGuests.length,
-        delivered: Math.floor(selectedGuests.length * 0.95), // 95% dostarczonych
-        opened: Math.floor(selectedGuests.length * 0.65), // 65% otwartych
-        clicked: Math.floor(selectedGuests.length * 0.25), // 25% kliknięć
-        failed: Math.floor(selectedGuests.length * 0.02), // 2% niepowodzeń
-        bounced: Math.floor(selectedGuests.length * 0.03) // 3% odbić
-      };
-
-      setDeliveryStats(stats);
-      toast.success(`Wysłano ${selectedGuests.length} zaproszeń!`);
       onEmailSent();
-
     } catch (error) {
-      toast.error('Wystąpił błąd podczas wysyłania zaproszeń');
+      toast.error(`Błąd wysyłki zaproszeń: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsSending(false);
     }
@@ -98,15 +108,17 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
     setSubject('Zaproszenie na wydarzenie');
     setCustomMessage('');
     setTemplateId('default');
-    setSendingProgress(0);
-    setDeliveryStats(null);
+    setResult(null);
     setIsSending(false);
   };
 
   const handleClose = () => {
+    if (isSending) return;
     resetForm();
     onOpenChange(false);
   };
+
+  const failures = result?.results.filter((r) => !r.ok) ?? [];
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -117,7 +129,7 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
             Wyślij zaproszenia
           </DialogTitle>
           <DialogDescription>
-            Wyślij spersonalizowane zaproszenia z unikalnym QR kodem do {selectedGuests.length} wybranych gości
+            Wyślij spersonalizowane zaproszenia z unikalnym QR pass do {selectedGuests.length} wybranych gości
           </DialogDescription>
         </DialogHeader>
 
@@ -180,72 +192,69 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
             />
           </div>
 
-          {/* Informacja o QR kodach */}
+          {/* Informacja o QR pass */}
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Każde zaproszenie będzie zawierało unikalny QR kod dla danego gościa. 
-              QR kod umożliwi szybkie sprawdzenie obecności podczas wydarzenia.
+              Każde zaproszenie zawiera link do personalnego QR pass gościa.
+              QR umożliwia szybkie sprawdzenie obecności podczas wydarzenia.
             </AlertDescription>
           </Alert>
 
-          {/* Progress bar podczas wysyłania */}
-          {isSending && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Postęp wysyłania:</span>
-                <span className="text-sm font-medium">{Math.round(sendingProgress)}%</span>
-              </div>
-              <Progress value={sendingProgress} className="w-full" />
-            </div>
-          )}
-
-          {/* Statystyki dostawy */}
-          {deliveryStats && (
+          {/* Wynik wysyłki (REALNY — z odpowiedzi funkcji) */}
+          {result && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  Statystyki wysyłki
+                  {result.failed === 0 ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  )}
+                  Wynik wysyłki
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{deliveryStats.sent}</div>
+                    <div className="text-2xl font-bold text-green-600">{result.sent}</div>
                     <div className="text-xs text-muted-foreground">Wysłane</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{deliveryStats.delivered}</div>
-                    <div className="text-xs text-muted-foreground">Dostarczone</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{deliveryStats.opened}</div>
-                    <div className="text-xs text-muted-foreground">Otwarte</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">{deliveryStats.clicked}</div>
-                    <div className="text-xs text-muted-foreground">Kliknięte</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">{deliveryStats.failed}</div>
-                    <div className="text-xs text-muted-foreground">Niepowodzenia</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">{deliveryStats.bounced}</div>
-                    <div className="text-xs text-muted-foreground">Odbicia</div>
+                    <div className="text-2xl font-bold text-red-600">{result.failed}</div>
+                    <div className="text-xs text-muted-foreground">Nieudane</div>
                   </div>
                 </div>
+
+                {failures.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">Nieudane wysyłki</Label>
+                    {failures.map((f) => (
+                      <div
+                        key={f.guest_id}
+                        className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-2 text-xs"
+                      >
+                        <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <div className="font-medium break-all">{f.email ?? '(brak e-maila)'}</div>
+                          <div className="text-muted-foreground break-words">
+                            {f.status_code ? `HTTP ${f.status_code}: ` : ''}{f.detail ?? 'Nieznany błąd'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
           {/* Przyciski akcji */}
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={handleClose}>
-              {deliveryStats ? 'Zamknij' : 'Anuluj'}
+            <Button variant="outline" onClick={handleClose} disabled={isSending}>
+              {result ? 'Zamknij' : 'Anuluj'}
             </Button>
-            {!deliveryStats && (
+            {!result && (
               <Button
                 onClick={handleSendEmails}
                 disabled={isSending || !subject.trim() || selectedGuests.length === 0}
