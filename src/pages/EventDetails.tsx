@@ -139,7 +139,25 @@ const EventDetails = () => {
       onEdit={() => toast.info("Edycja gościa będzie dostępna wkrótce")}
       onDelete={(id) => { const g = guests.find(x => x.id === id); if (g) handleDeleteGuest(g); }}
       onViewQR={(g) => { setCurrentQRGuest(g); setQrDialogOpen(true); }}
-      onResendInvite={(g) => toast.success(`Zaproszenie wysłane do ${g.firstName} ${g.lastName}`)}
+      onResendInvite={async (g) => {
+        if (!eventId) { toast.error("Brak wydarzenia — nie można wysłać zaproszenia"); return; }
+        if (!g.email) { toast.error(`Gość ${g.firstName} ${g.lastName} nie ma adresu e-mail`); return; }
+        try {
+          const { data, error } = await supabase.functions.invoke("send-guest-invitation", {
+            body: { event_id: eventId, guest_ids: [g.id] },
+          });
+          if (error) throw error;
+          const res = data as { error?: string; results?: Array<{ ok: boolean; detail?: string }> };
+          const r = res?.results?.[0];
+          if (!r?.ok) {
+            toast.error(`Nie wysłano zaproszenia: ${r?.detail ?? res?.error ?? "nieznany błąd"}`);
+            return;
+          }
+          toast.success(`Zaproszenie wysłane do ${g.firstName} ${g.lastName}`);
+        } catch (err) {
+          toast.error(`Błąd wysyłki: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }}
       onViewDetails={(g) => { setSelectedGuest(g); setGuestDetailsOpen(true); }}
       selectedGuests={selectedGuests}
       setSelectedGuests={setSelectedGuests}
