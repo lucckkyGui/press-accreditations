@@ -61,7 +61,7 @@ const Dashboard = () => {
                 <QrCode className="h-4 w-4" />
                 Skaner QR
               </Button>
-              <Button onClick={() => navigate("/events")} className="gap-2 rounded-lg">
+              <Button onClick={() => navigate("/events?new=1")} className="gap-2 rounded-lg">
                 <CalendarPlus className="h-4 w-4" />
                 Nowe wydarzenie
               </Button>

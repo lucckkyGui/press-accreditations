@@ -64,7 +64,7 @@ const UpcomingEventsCard: React.FC<UpcomingEventsCardProps> = ({ events, eventsL
           size="sm"
           variant="outline"
           className="rounded-md h-7 px-2.5 gap-1 text-[12px]"
-          onClick={() => navigate("/events")}
+          onClick={() => navigate("/events?new=1")}
         >
           <Plus className="h-3 w-3" /> Dodaj
         </Button>

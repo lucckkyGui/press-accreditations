@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Search, Download, Upload, CalendarDays } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -57,8 +57,19 @@ const formatTime = (date: Date) =>
 
 const Events = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   usePageTitle("Wydarzenia");
   const [open, setOpen] = useState(false);
+
+  // Otwórz kreator od razu przy wejściu z ?new=1 (przyciski pulpitu, paleta komend).
+  // Czyścimy parametr, żeby odświeżenie/wstecz nie otwierało dialogu ponownie.
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      setOpen(true);
+      searchParams.delete("new");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
   const { events, createEvent, isCreating, isEventsLoading } = useEvents();
