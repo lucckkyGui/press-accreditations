@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar, MapPin, Users, Bell, Globe,
   Link2, Copy, MoreHorizontal, ScanLine, Clock,
-  CheckCircle, AlertCircle, Shield,
+  CheckCircle, AlertCircle,
 } from "lucide-react";
 import { Event, Guest } from "@/types";
 import { GuestsTable } from "@/components/guests/GuestsTable";
@@ -37,35 +37,6 @@ const getEventStatus = (event: Event): EventStatus => {
   if (now >= start && now <= end) return "live";
   if (now > end) return "past";
   return "upcoming";
-};
-
-// ── Zone rows (mock — replace with real data when zones are implemented)
-const MOCK_ZONES = [
-  { name: "Press · Sala konf.", used: 84, total: 100 },
-  { name: "Press · Foto",       used: 38, total: 40  },
-  { name: "VIP · Loża",         used: 19, total: 25  },
-  { name: "Foto · Płyta",       used: 12, total: 20  },
-  { name: "Backstage",          used: 8,  total: 15  },
-];
-
-const ZoneRow = ({ name, used, total }: { name: string; used: number; total: number }) => {
-  const pct = Math.min(Math.round((used / total) * 100), 100);
-  return (
-    <div className="flex items-center gap-3 py-2">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm text-foreground truncate">{name}</span>
-          <span className="text-xs text-muted-foreground tabular-nums ml-2 shrink-0">{used}/{total}</span>
-        </div>
-        <div className="h-1 rounded-full bg-muted overflow-hidden">
-          <div
-            className={cn("h-full rounded-full transition-all", pct >= 95 ? "bg-destructive" : pct >= 80 ? "bg-warning" : "bg-success")}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const EventDetails = () => {
@@ -188,8 +159,24 @@ const EventDetails = () => {
   const capacity   = event.maxGuests || 0;
   const checkInPct = capacity > 0 ? Math.round((checkedIn / capacity) * 100) : 0;
 
-  // Fake sparkline for check-in chart
-  const sparkData = [0, 12, 28, 55, 80, 140, 210, 280, 342];
+  // Realna krzywa check-inów: skumulowana liczba zameldowań w równych przedziałach czasu.
+  const checkinSeries = (() => {
+    const times = guests
+      .map((g) => g.checkedInAt?.getTime())
+      .filter((t): t is number => typeof t === "number")
+      .sort((a, b) => a - b);
+    if (times.length < 2) return [] as number[];
+    const buckets = 12;
+    const min = times[0];
+    const span = Math.max(times[times.length - 1] - min, 1);
+    const counts = new Array(buckets).fill(0);
+    times.forEach((t) => {
+      const idx = Math.min(buckets - 1, Math.floor(((t - min) / span) * buckets));
+      counts[idx] += 1;
+    });
+    let acc = 0;
+    return counts.map((c) => (acc += c));
+  })();
 
   const publicSlug = event.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
@@ -306,7 +293,7 @@ const EventDetails = () => {
             {/* Overview tab */}
             <TabsContent value="overview" className="space-y-4 mt-0">
               {/* Stat cards row */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Accreditations */}
                 <div className="rounded-lg border border-border bg-card shadow-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -350,55 +337,26 @@ const EventDetails = () => {
                       <span className="text-muted-foreground text-sm mb-1">/ {capacity}</span>
                     )}
                   </div>
-                  <Sparkline data={sparkData} color="primary" height={36} />
-                </div>
-
-                {/* Zones */}
-                <div className="rounded-lg border border-border bg-card shadow-card p-4 space-y-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Strefy</span>
-                    <Shield className="h-4 w-4 text-muted-foreground/50" />
-                  </div>
-                  {MOCK_ZONES.map(z => (
-                    <ZoneRow key={z.name} {...z} />
-                  ))}
+                  {checkinSeries.length >= 2 ? (
+                    <Sparkline data={checkinSeries} color="primary" height={36} />
+                  ) : (
+                    <div className="h-9 flex items-center text-[11px] text-muted-foreground/60">
+                      Wykres pojawi się po pierwszych check-inach
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Plan dnia */}
               <div className="rounded-lg border border-border bg-card shadow-card p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">Plan dnia</h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {formatDateTime(event.startDate)}
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline" className="rounded-lg h-7 text-xs">
-                    + Dodaj punkt
-                  </Button>
+                <div className="mb-2">
+                  <h3 className="font-semibold text-foreground text-sm">Plan dnia</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {formatDateTime(event.startDate)}
+                  </p>
                 </div>
-                <div className="space-y-0 text-sm">
-                  {[
-                    { time: "16:00", label: "Otwarcie strefy press",     sub: "Akredytacje wydane, kontrola dokumentów", active: false },
-                    { time: "18:00", label: "Open Doors (publiczność)",   sub: "Bramki QR aktywne, RFID synchronizacja",   active: false },
-                    { time: "19:30", label: "Briefing prasowy + foto-call", sub: "Strefa konf. · 30 min",                  active: true  },
-                    { time: "20:00", label: "Start koncertu",             sub: "Backstage zamknięty",                      active: false },
-                    { time: "22:30", label: "Spotkania prasowe",          sub: "Sala konf. · sloty 15 min, lista wcześniej", active: false },
-                  ].map(item => (
-                    <div key={item.time} className="flex gap-4 py-2.5 border-b border-border/50 last:border-0">
-                      <div className={cn("font-mono text-[12px] w-12 shrink-0 pt-0.5", item.active ? "text-primary font-semibold" : "text-muted-foreground")}>
-                        {item.time}
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <div className={cn("h-1.5 w-1.5 rounded-full mt-1.5 shrink-0", item.active ? "bg-primary pulse-live" : "bg-muted-foreground/30")} />
-                        <div>
-                          <div className={cn("text-sm", item.active ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</div>
-                          <div className="text-[11px] text-muted-foreground/70 mt-0.5">{item.sub}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  Harmonogram będzie dostępny wkrótce.
                 </div>
               </div>
             </TabsContent>
@@ -486,27 +444,6 @@ const EventDetails = () => {
               </p>
             </div>
           )}
-
-          {/* Team */}
-          <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Zespół</p>
-            {[
-              { initials: "MK", name: "Marta Kowalska",  role: "Organizator"       },
-              { initials: "TW", name: "Tomasz Wójcik",   role: "Koordynator press" },
-              { initials: "AB", name: "Aneta Bąk",       role: "Security lead"     },
-              { initials: "KS", name: "Kamil Sosnowski", role: "Foto-pit"          },
-            ].map(member => (
-              <div key={member.name} className="flex items-center gap-2.5">
-                <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                  {member.initials}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-foreground leading-none">{member.name}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{member.role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Activity feed */}
           <div className="rounded-lg border border-border bg-card p-4 space-y-3">
