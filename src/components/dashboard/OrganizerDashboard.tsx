@@ -191,15 +191,17 @@ const OrganizerDashboard = () => {
   });
 
   const guestsStats = useMemo(() => {
-    if (!guestsData?.length) return { total: 0, checkedIn: 0, byTicketType: {} as Record<string, number> };
+    if (!guestsData?.length) return { total: 0, checkedIn: 0, accredited: 0, byTicketType: {} as Record<string, number> };
     const total = guestsData.length;
     const checkedIn = guestsData.filter((g) => g.checked_in_at).length;
+    // Akredytowani = wydane akredytacje: status confirmed (zatwierdzony + pass) lub checked-in.
+    const accredited = guestsData.filter((g) => g.status === "confirmed" || g.status === "checked-in").length;
     const byTicketType: Record<string, number> = {};
     guestsData.forEach((g) => {
       const t = g.ticket_type || "uczestnik";
       byTicketType[t] = (byTicketType[t] || 0) + 1;
     });
-    return { total, checkedIn, byTicketType };
+    return { total, checkedIn, accredited, byTicketType };
   }, [guestsData]);
 
   const { data: accreditationRequests } = useQuery({
@@ -380,11 +382,10 @@ const OrganizerDashboard = () => {
       <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
         <LiveEventActivityCard
           event={activeEvents[0] ?? null}
-          accreditationsApproved={accreditationRequests?.length ?? 0}
+          accreditationsApproved={guestsStats.accredited}
           accreditationsCapacity={guestsStats.total}
           checkedIn={guestsStats.checkedIn}
           inQueue={pendingCount}
-          denials={0}
           onOpenEvent={() => navigate("/events")}
         />
 

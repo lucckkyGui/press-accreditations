@@ -58,10 +58,11 @@ const LiveEventActivityCard: React.FC<LiveEventActivityCardProps> = ({
   accreditationsCapacity = 0,
   checkedIn = 0,
   inQueue = 0,
-  denials = 0,
+  denials,
   feed = [],
   onOpenEvent,
 }) => {
+  const showDenials = typeof denials === "number";
   if (!event) {
     return (
       <div className="card-glow rounded-xl flex flex-col items-center justify-center text-center py-14 px-6">
@@ -105,7 +106,7 @@ const LiveEventActivityCard: React.FC<LiveEventActivityCardProps> = ({
       </header>
 
       {/* KPI strip */}
-      <div className="px-4 py-3 border-b border-border grid grid-cols-4 gap-0">
+      <div className={`px-4 py-3 border-b border-border grid ${showDenials ? "grid-cols-4" : "grid-cols-3"} gap-0`}>
         <Kpi
           label="Akredytowani"
           value={accreditationsApproved.toLocaleString("pl-PL")}
@@ -117,13 +118,15 @@ const LiveEventActivityCard: React.FC<LiveEventActivityCardProps> = ({
           sub={accreditationsApproved ? `${Math.round((checkedIn / accreditationsApproved) * 100)}%` : undefined}
           divider
         />
-        <Kpi label="W kolejce" value={inQueue.toLocaleString("pl-PL")} sub="≈ 4 min" divider />
-        <Kpi
-          label="Odrzucenia"
-          value={denials.toLocaleString("pl-PL")}
-          sub={checkedIn + denials ? `${((denials / (checkedIn + denials)) * 100).toFixed(1)}%` : "0%"}
-          divider
-        />
+        <Kpi label="W kolejce" value={inQueue.toLocaleString("pl-PL")} divider />
+        {showDenials && (
+          <Kpi
+            label="Odrzucenia"
+            value={denials.toLocaleString("pl-PL")}
+            sub={checkedIn + denials ? `${((denials / (checkedIn + denials)) * 100).toFixed(1)}%` : "0%"}
+            divider
+          />
+        )}
       </div>
 
       {/* Activity feed header */}
@@ -131,8 +134,6 @@ const LiveEventActivityCard: React.FC<LiveEventActivityCardProps> = ({
         <span className="mono text-[11px] tracking-wider uppercase text-muted-foreground">
           Aktywność · {feed[0]?.ts ?? "—"}
         </span>
-        <div className="flex-1" />
-        <span className="mono text-[10.5px] text-muted-foreground/70">↻ co 1s</span>
       </div>
 
       {/* Feed list */}

@@ -16,7 +16,7 @@ interface AISuggestionCardProps {
   body: React.ReactNode;
   primaryAction?: { label: string; onClick: () => void };
   secondaryAction?: { label: string; onClick: () => void };
-  /** Override the eyebrow label. Default: "SUGESTIA AI" */
+  /** Override the eyebrow label. Default: "SUGESTIA" */
   eyebrow?: string;
 }
 
@@ -25,7 +25,7 @@ const AISuggestionCard: React.FC<AISuggestionCardProps> = ({
   body,
   primaryAction,
   secondaryAction,
-  eyebrow = "SUGESTIA AI",
+  eyebrow = "SUGESTIA",
 }) => {
   return (
     <div className="card-glow rounded-xl p-4 relative">
