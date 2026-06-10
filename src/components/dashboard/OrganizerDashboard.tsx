@@ -220,6 +220,22 @@ const OrganizerDashboard = () => {
     enabled: !!eventsData?.length,
   });
 
+  // Liczniki statusów liczone na WSZYSTKICH wydarzeniach organizatora (nie limit(5)),
+  // żeby kafelek „Wydarzenia" pokazywał uczciwą sumę i rozbicie.
+  const { data: eventStatusRows } = useQuery({
+    queryKey: ["organizerEventStatusCounts", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("events")
+        .select("start_date, end_date, is_published")
+        .eq("organizer_id", user.id);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
   useEffect(() => {
     if (isOnline && wasOffline) {
       toast({
@@ -245,6 +261,32 @@ const OrganizerDashboard = () => {
     () => events.filter((e) => new Date(e.start_date) > now),
     [events, now]
   );
+
+  // Rozbicie statusów (spójne z zakładkami w /events): niepublikowane = szkic;
+  // opublikowane → w trakcie (start ≤ teraz ≤ koniec) / zakończone / zaplanowane.
+  const eventCounts = useMemo(() => {
+    const rows = eventStatusRows || [];
+    let live = 0, upcoming = 0, past = 0, draft = 0;
+    for (const e of rows) {
+      if (!e.is_published) { draft++; continue; }
+      const start = new Date(e.start_date);
+      const end = new Date(e.end_date || e.start_date);
+      if (start <= now && end >= now) live++;
+      else if (end < now) past++;
+      else upcoming++;
+    }
+    return { total: rows.length, live, upcoming, past, draft };
+  }, [eventStatusRows, now]);
+
+  const eventCountsLabel =
+    eventCounts.total === 0
+      ? "brak wydarzeń"
+      : [
+          `${eventCounts.live} w trakcie`,
+          `${eventCounts.upcoming} zaplanowane`,
+          `${eventCounts.past} zakończone`,
+          ...(eventCounts.draft ? [`${eventCounts.draft} szkic.`] : []),
+        ].join(" · ");
 
   const aiSuggestion = useMemo(
     () => getAISuggestion(checkInRate, pendingCount, guestsStats.total),
@@ -305,10 +347,10 @@ const OrganizerDashboard = () => {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             title="Wydarzenia"
-            value={events.length}
+            value={eventCounts.total}
             icon={<Calendar className="h-4 w-4" />}
-            description={`${activeEvents.length} aktywnych teraz`}
-            tone={activeEvents.length ? "success" : "info"}
+            description={eventCountsLabel}
+            tone={eventCounts.live ? "success" : "info"}
           />
           <StatCard
             title="Goście"
