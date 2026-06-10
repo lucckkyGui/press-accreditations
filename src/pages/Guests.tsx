@@ -87,7 +87,7 @@ const Guests = () => {
         </div>
         <h2 className="text-base font-semibold text-foreground mb-2">Brak wydarzeń</h2>
         <p className="text-muted-foreground mb-6 text-sm">Utwórz wydarzenie, aby zarządzać gośćmi</p>
-        <Button className="rounded-lg" onClick={() => navigate('/events')}>Utwórz wydarzenie</Button>
+        <Button className="rounded-lg" onClick={() => navigate('/events?new=1')}>Utwórz wydarzenie</Button>
       </div>
     );
   }

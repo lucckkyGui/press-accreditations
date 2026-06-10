@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar, MapPin, Users, Bell, Globe,
   Link2, Copy, MoreHorizontal, ScanLine, Clock,
-  CheckCircle, AlertCircle, Shield,
+  CheckCircle, AlertCircle, Pencil, Trash2,
 } from "lucide-react";
 import { Event, Guest } from "@/types";
 import { GuestsTable } from "@/components/guests/GuestsTable";
@@ -18,6 +18,11 @@ import { features } from "@/config/features";
 import { Sparkline } from "@/components/ui/sparkline";
 import { cn } from "@/lib/utils";
 import MediaVerificationPanel from "@/components/accreditation/MediaVerificationPanel";
+import EventForm from "@/components/events/EventForm";
+import { eventService } from "@/services/eventService";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const getEventCode = (id: string) =>
   `EVT-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
@@ -39,46 +44,20 @@ const getEventStatus = (event: Event): EventStatus => {
   return "upcoming";
 };
 
-// ── Zone rows (mock — replace with real data when zones are implemented)
-const MOCK_ZONES = [
-  { name: "Press · Sala konf.", used: 84, total: 100 },
-  { name: "Press · Foto",       used: 38, total: 40  },
-  { name: "VIP · Loża",         used: 19, total: 25  },
-  { name: "Foto · Płyta",       used: 12, total: 20  },
-  { name: "Backstage",          used: 8,  total: 15  },
-];
-
-const ZoneRow = ({ name, used, total }: { name: string; used: number; total: number }) => {
-  const pct = Math.min(Math.round((used / total) * 100), 100);
-  return (
-    <div className="flex items-center gap-3 py-2">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm text-foreground truncate">{name}</span>
-          <span className="text-xs text-muted-foreground tabular-nums ml-2 shrink-0">{used}/{total}</span>
-        </div>
-        <div className="h-1 rounded-full bg-muted overflow-hidden">
-          <div
-            className={cn("h-full rounded-full transition-all", pct >= 95 ? "bg-destructive" : pct >= 80 ? "bg-warning" : "bg-success")}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const EventDetails = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [currentQRGuest, setCurrentQRGuest] = useState<Guest | null>(null);
   const [guestDetailsOpen, setGuestDetailsOpen] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [selectedGuests, setSelectedGuests] = useState<Guest[]>([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!eventId) return;
@@ -110,6 +89,16 @@ const EventDetails = () => {
             createdBy: eventData.organizer_id || "",
           });
         }
+
+        // Realny slug publicznej strony akredytacji (event_landing_pages) — tylko gdy aktywna.
+        const { data: lp } = await supabase
+          .from("event_landing_pages")
+          .select("slug")
+          .eq("event_id", eventId)
+          .eq("is_active", true)
+          .maybeSingle();
+        setLandingSlug(lp?.slug ?? null);
+
         const { data: guestsData } = await supabase
           .from("guests")
           .select("*")
@@ -147,6 +136,35 @@ const EventDetails = () => {
     toast.success("Gość został usunięty");
   }, []);
 
+  const handleUpdate = async (data: Partial<Event>) => {
+    if (!eventId) return;
+    setIsSaving(true);
+    const res = await eventService.updateEvent(eventId, data);
+    setIsSaving(false);
+    if (res.error) { toast.error("Nie udało się zapisać zmian"); return; }
+    if (res.data) setEvent(res.data);
+    setEditOpen(false);
+    toast.success("Zapisano zmiany");
+  };
+
+  const handleTogglePublish = async () => {
+    if (!eventId || !event) return;
+    const next = !event.isPublished;
+    const res = await eventService.updateEvent(eventId, { isPublished: next });
+    if (res.error) { toast.error("Nie udało się zmienić publikacji"); return; }
+    setEvent((prev) => (prev ? { ...prev, isPublished: next } : prev));
+    toast.success(next ? "Wydarzenie opublikowane" : "Publikacja cofnięta");
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!eventId || !event) return;
+    if (!window.confirm(`Usunąć wydarzenie „${event.name}"? Tej operacji nie można cofnąć.`)) return;
+    const res = await eventService.deleteEvent(eventId);
+    if (res.error) { toast.error("Nie udało się usunąć wydarzenia"); return; }
+    toast.success("Wydarzenie usunięte");
+    navigate("/events");
+  };
+
   const renderGuestsTable = (filteredGuests: Guest[]) => (
     <GuestsTable
       guests={filteredGuests}
@@ -157,7 +175,25 @@ const EventDetails = () => {
       onEdit={() => toast.info("Edycja gościa będzie dostępna wkrótce")}
       onDelete={(id) => { const g = guests.find(x => x.id === id); if (g) handleDeleteGuest(g); }}
       onViewQR={(g) => { setCurrentQRGuest(g); setQrDialogOpen(true); }}
-      onResendInvite={(g) => toast.success(`Zaproszenie wysłane do ${g.firstName} ${g.lastName}`)}
+      onResendInvite={async (g) => {
+        if (!eventId) { toast.error("Brak wydarzenia — nie można wysłać zaproszenia"); return; }
+        if (!g.email) { toast.error(`Gość ${g.firstName} ${g.lastName} nie ma adresu e-mail`); return; }
+        try {
+          const { data, error } = await supabase.functions.invoke("send-guest-invitation", {
+            body: { event_id: eventId, guest_ids: [g.id] },
+          });
+          if (error) throw error;
+          const res = data as { error?: string; results?: Array<{ ok: boolean; detail?: string }> };
+          const r = res?.results?.[0];
+          if (!r?.ok) {
+            toast.error(`Nie wysłano zaproszenia: ${r?.detail ?? res?.error ?? "nieznany błąd"}`);
+            return;
+          }
+          toast.success(`Zaproszenie wysłane do ${g.firstName} ${g.lastName}`);
+        } catch (err) {
+          toast.error(`Błąd wysyłki: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }}
       onViewDetails={(g) => { setSelectedGuest(g); setGuestDetailsOpen(true); }}
       selectedGuests={selectedGuests}
       setSelectedGuests={setSelectedGuests}
@@ -188,10 +224,24 @@ const EventDetails = () => {
   const capacity   = event.maxGuests || 0;
   const checkInPct = capacity > 0 ? Math.round((checkedIn / capacity) * 100) : 0;
 
-  // Fake sparkline for check-in chart
-  const sparkData = [0, 12, 28, 55, 80, 140, 210, 280, 342];
-
-  const publicSlug = event.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  // Realna krzywa check-inów: skumulowana liczba zameldowań w równych przedziałach czasu.
+  const checkinSeries = (() => {
+    const times = guests
+      .map((g) => g.checkedInAt?.getTime())
+      .filter((t): t is number => typeof t === "number")
+      .sort((a, b) => a - b);
+    if (times.length < 2) return [] as number[];
+    const buckets = 12;
+    const min = times[0];
+    const span = Math.max(times[times.length - 1] - min, 1);
+    const counts = new Array(buckets).fill(0);
+    times.forEach((t) => {
+      const idx = Math.min(buckets - 1, Math.floor(((t - min) / span) * buckets));
+      counts[idx] += 1;
+    });
+    let acc = 0;
+    return counts.map((c) => (acc += c));
+  })();
 
   return (
     <div className="space-y-6">
@@ -306,7 +356,7 @@ const EventDetails = () => {
             {/* Overview tab */}
             <TabsContent value="overview" className="space-y-4 mt-0">
               {/* Stat cards row */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Accreditations */}
                 <div className="rounded-lg border border-border bg-card shadow-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -350,55 +400,26 @@ const EventDetails = () => {
                       <span className="text-muted-foreground text-sm mb-1">/ {capacity}</span>
                     )}
                   </div>
-                  <Sparkline data={sparkData} color="primary" height={36} />
-                </div>
-
-                {/* Zones */}
-                <div className="rounded-lg border border-border bg-card shadow-card p-4 space-y-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Strefy</span>
-                    <Shield className="h-4 w-4 text-muted-foreground/50" />
-                  </div>
-                  {MOCK_ZONES.map(z => (
-                    <ZoneRow key={z.name} {...z} />
-                  ))}
+                  {checkinSeries.length >= 2 ? (
+                    <Sparkline data={checkinSeries} color="primary" height={36} />
+                  ) : (
+                    <div className="h-9 flex items-center text-[11px] text-muted-foreground/60">
+                      Wykres pojawi się po pierwszych check-inach
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Plan dnia */}
               <div className="rounded-lg border border-border bg-card shadow-card p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">Plan dnia</h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {formatDateTime(event.startDate)}
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline" className="rounded-lg h-7 text-xs">
-                    + Dodaj punkt
-                  </Button>
+                <div className="mb-2">
+                  <h3 className="font-semibold text-foreground text-sm">Plan dnia</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {formatDateTime(event.startDate)}
+                  </p>
                 </div>
-                <div className="space-y-0 text-sm">
-                  {[
-                    { time: "16:00", label: "Otwarcie strefy press",     sub: "Akredytacje wydane, kontrola dokumentów", active: false },
-                    { time: "18:00", label: "Open Doors (publiczność)",   sub: "Bramki QR aktywne, RFID synchronizacja",   active: false },
-                    { time: "19:30", label: "Briefing prasowy + foto-call", sub: "Strefa konf. · 30 min",                  active: true  },
-                    { time: "20:00", label: "Start koncertu",             sub: "Backstage zamknięty",                      active: false },
-                    { time: "22:30", label: "Spotkania prasowe",          sub: "Sala konf. · sloty 15 min, lista wcześniej", active: false },
-                  ].map(item => (
-                    <div key={item.time} className="flex gap-4 py-2.5 border-b border-border/50 last:border-0">
-                      <div className={cn("font-mono text-[12px] w-12 shrink-0 pt-0.5", item.active ? "text-primary font-semibold" : "text-muted-foreground")}>
-                        {item.time}
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <div className={cn("h-1.5 w-1.5 rounded-full mt-1.5 shrink-0", item.active ? "bg-primary pulse-live" : "bg-muted-foreground/30")} />
-                        <div>
-                          <div className={cn("text-sm", item.active ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</div>
-                          <div className="text-[11px] text-muted-foreground/70 mt-0.5">{item.sub}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  Harmonogram będzie dostępny wkrótce.
                 </div>
               </div>
             </TabsContent>
@@ -453,13 +474,29 @@ const EventDetails = () => {
             <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate(`/notifications/${eventId}`)}>
               <Bell className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-lg shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-lg shrink-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                  <Pencil className="h-4 w-4 mr-2" /> Edytuj wydarzenie
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTogglePublish}>
+                  <Globe className="h-4 w-4 mr-2" /> {event.isPublished ? "Cofnij publikację" : "Opublikuj"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleDeleteEvent} className="text-destructive focus:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" /> Usuń wydarzenie
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Public link */}
-          {event.isPublished && (
+          {landingSlug && (
             <div className="rounded-lg border border-border bg-card p-4 space-y-2">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                 Publiczny link akredytacji
@@ -468,14 +505,14 @@ const EventDetails = () => {
                 <div className="flex items-center gap-2 flex-1 min-w-0 rounded-lg border border-border bg-muted/30 px-3 py-2">
                   <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="text-[12px] text-muted-foreground truncate font-mono">
-                    press.pl/{publicSlug}
+                    {`${window.location.host}/${landingSlug}`}
                   </span>
                 </div>
                 <Button
                   size="icon"
                   variant="ghost"
                   className="h-9 w-9 rounded-lg shrink-0"
-                  onClick={() => { navigator.clipboard.writeText(`https://press.pl/${publicSlug}`); toast.success("Skopiowano link"); }}
+                  onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/${landingSlug}`); toast.success("Skopiowano link"); }}
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </Button>
@@ -486,27 +523,6 @@ const EventDetails = () => {
               </p>
             </div>
           )}
-
-          {/* Team */}
-          <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Zespół</p>
-            {[
-              { initials: "MK", name: "Marta Kowalska",  role: "Organizator"       },
-              { initials: "TW", name: "Tomasz Wójcik",   role: "Koordynator press" },
-              { initials: "AB", name: "Aneta Bąk",       role: "Security lead"     },
-              { initials: "KS", name: "Kamil Sosnowski", role: "Foto-pit"          },
-            ].map(member => (
-              <div key={member.name} className="flex items-center gap-2.5">
-                <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                  {member.initials}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-foreground leading-none">{member.name}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{member.role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Activity feed */}
           <div className="rounded-lg border border-border bg-card p-4 space-y-3">
@@ -568,6 +584,16 @@ const EventDetails = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit event dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[760px] rounded-lg border-border shadow-card max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edytuj wydarzenie</DialogTitle>
+          </DialogHeader>
+          <EventForm event={event} onSubmit={handleUpdate} onCancel={() => setEditOpen(false)} isSubmitting={isSaving} />
         </DialogContent>
       </Dialog>
 
