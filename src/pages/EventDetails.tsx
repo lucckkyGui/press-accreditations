@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar, MapPin, Users, Bell, Globe,
   Link2, Copy, MoreHorizontal, ScanLine, Clock,
-  CheckCircle, AlertCircle,
+  CheckCircle, AlertCircle, Pencil, Trash2,
 } from "lucide-react";
 import { Event, Guest } from "@/types";
 import { GuestsTable } from "@/components/guests/GuestsTable";
@@ -18,6 +18,11 @@ import { features } from "@/config/features";
 import { Sparkline } from "@/components/ui/sparkline";
 import { cn } from "@/lib/utils";
 import MediaVerificationPanel from "@/components/accreditation/MediaVerificationPanel";
+import EventForm from "@/components/events/EventForm";
+import { eventService } from "@/services/eventService";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const getEventCode = (id: string) =>
   `EVT-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
@@ -51,6 +56,8 @@ const EventDetails = () => {
   const [guestDetailsOpen, setGuestDetailsOpen] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [selectedGuests, setSelectedGuests] = useState<Guest[]>([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!eventId) return;
@@ -128,6 +135,35 @@ const EventDetails = () => {
     setGuests(prev => prev.filter(g => g.id !== guest.id));
     toast.success("Gość został usunięty");
   }, []);
+
+  const handleUpdate = async (data: Partial<Event>) => {
+    if (!eventId) return;
+    setIsSaving(true);
+    const res = await eventService.updateEvent(eventId, data);
+    setIsSaving(false);
+    if (res.error) { toast.error("Nie udało się zapisać zmian"); return; }
+    if (res.data) setEvent(res.data);
+    setEditOpen(false);
+    toast.success("Zapisano zmiany");
+  };
+
+  const handleTogglePublish = async () => {
+    if (!eventId || !event) return;
+    const next = !event.isPublished;
+    const res = await eventService.updateEvent(eventId, { isPublished: next });
+    if (res.error) { toast.error("Nie udało się zmienić publikacji"); return; }
+    setEvent((prev) => (prev ? { ...prev, isPublished: next } : prev));
+    toast.success(next ? "Wydarzenie opublikowane" : "Publikacja cofnięta");
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!eventId || !event) return;
+    if (!window.confirm(`Usunąć wydarzenie „${event.name}"? Tej operacji nie można cofnąć.`)) return;
+    const res = await eventService.deleteEvent(eventId);
+    if (res.error) { toast.error("Nie udało się usunąć wydarzenia"); return; }
+    toast.success("Wydarzenie usunięte");
+    navigate("/events");
+  };
 
   const renderGuestsTable = (filteredGuests: Guest[]) => (
     <GuestsTable
@@ -438,9 +474,25 @@ const EventDetails = () => {
             <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate(`/notifications/${eventId}`)}>
               <Bell className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-lg shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-lg shrink-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                  <Pencil className="h-4 w-4 mr-2" /> Edytuj wydarzenie
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTogglePublish}>
+                  <Globe className="h-4 w-4 mr-2" /> {event.isPublished ? "Cofnij publikację" : "Opublikuj"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleDeleteEvent} className="text-destructive focus:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" /> Usuń wydarzenie
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Public link */}
@@ -532,6 +584,16 @@ const EventDetails = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit event dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[760px] rounded-lg border-border shadow-card max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edytuj wydarzenie</DialogTitle>
+          </DialogHeader>
+          <EventForm event={event} onSubmit={handleUpdate} onCancel={() => setEditOpen(false)} isSubmitting={isSaving} />
         </DialogContent>
       </Dialog>
 
