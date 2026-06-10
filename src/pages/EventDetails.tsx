@@ -44,6 +44,7 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [currentQRGuest, setCurrentQRGuest] = useState<Guest | null>(null);
@@ -81,6 +82,16 @@ const EventDetails = () => {
             createdBy: eventData.organizer_id || "",
           });
         }
+
+        // Realny slug publicznej strony akredytacji (event_landing_pages) — tylko gdy aktywna.
+        const { data: lp } = await supabase
+          .from("event_landing_pages")
+          .select("slug")
+          .eq("event_id", eventId)
+          .eq("is_active", true)
+          .maybeSingle();
+        setLandingSlug(lp?.slug ?? null);
+
         const { data: guestsData } = await supabase
           .from("guests")
           .select("*")
@@ -177,8 +188,6 @@ const EventDetails = () => {
     let acc = 0;
     return counts.map((c) => (acc += c));
   })();
-
-  const publicSlug = event.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
   return (
     <div className="space-y-6">
@@ -417,7 +426,7 @@ const EventDetails = () => {
           </div>
 
           {/* Public link */}
-          {event.isPublished && (
+          {landingSlug && (
             <div className="rounded-lg border border-border bg-card p-4 space-y-2">
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                 Publiczny link akredytacji
@@ -426,14 +435,14 @@ const EventDetails = () => {
                 <div className="flex items-center gap-2 flex-1 min-w-0 rounded-lg border border-border bg-muted/30 px-3 py-2">
                   <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="text-[12px] text-muted-foreground truncate font-mono">
-                    press.pl/{publicSlug}
+                    {`${window.location.host}/${landingSlug}`}
                   </span>
                 </div>
                 <Button
                   size="icon"
                   variant="ghost"
                   className="h-9 w-9 rounded-lg shrink-0"
-                  onClick={() => { navigator.clipboard.writeText(`https://press.pl/${publicSlug}`); toast.success("Skopiowano link"); }}
+                  onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/${landingSlug}`); toast.success("Skopiowano link"); }}
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </Button>
