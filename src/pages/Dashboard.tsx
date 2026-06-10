@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, CalendarPlus, LayoutDashboard, QrCode, Smartphone, Zap } from "lucide-react";
-import RealTimeDashboard from "@/components/dashboard/RealTimeDashboard";
 import SmartInvitationSystem from "@/components/invitations/SmartInvitationSystem";
 import SectionErrorBoundary from "@/components/common/SectionErrorBoundary";
 
@@ -75,15 +74,11 @@ const Dashboard = () => {
               <h2 className="text-sm font-semibold uppercase text-muted-foreground">Tryb pracy</h2>
               <p className="text-sm text-muted-foreground">Wybierz widok odpowiadający aktualnemu zadaniu.</p>
             </div>
-            <TabsList className="grid w-full grid-cols-2 rounded-lg border border-border bg-muted/50 p-1 sm:w-auto sm:grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 rounded-lg border border-border bg-muted/50 p-1 sm:w-auto sm:grid-cols-3">
             <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <BarChart3 className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">Przegląd</span>
               <span className="sm:hidden">Panel</span>
-            </TabsTrigger>
-            <TabsTrigger value="realtime" className="flex items-center gap-1.5 text-xs sm:text-sm">
-              <BarChart3 className="h-4 w-4 shrink-0" />
-              <span>Na żywo</span>
             </TabsTrigger>
             <TabsTrigger value="invitations" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <Zap className="h-4 w-4 shrink-0" />
@@ -100,11 +95,6 @@ const Dashboard = () => {
           <TabsContent value="overview">
             <SectionErrorBoundary fallbackTitle="Błąd ładowania przeglądu">
               <OrganizerDashboard />
-            </SectionErrorBoundary>
-          </TabsContent>
-          <TabsContent value="realtime">
-            <SectionErrorBoundary fallbackTitle="Błąd dashboardu na żywo">
-              <RealTimeDashboard />
             </SectionErrorBoundary>
           </TabsContent>
           <TabsContent value="invitations">
