@@ -40,7 +40,10 @@ export const guestQueryService = {
         }
 
         if (params.search) {
-          query = query.or(`first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,company.ilike.%${params.search}%`);
+          // Przecinek/nawiasy sterują składnią .or() PostgREST, a %_\ wzorcem ilike —
+          // bez escapowania wyszukanie „Kowalski, Jan" psuło filtr (idiom jak w eventService).
+          const sanitized = params.search.replace(/[%_\\]/g, "\\$&").replace(/[,()]/g, " ").slice(0, 100);
+          query = query.or(`first_name.ilike.%${sanitized}%,last_name.ilike.%${sanitized}%,email.ilike.%${sanitized}%,company.ilike.%${sanitized}%`);
         }
 
         // Handle pagination

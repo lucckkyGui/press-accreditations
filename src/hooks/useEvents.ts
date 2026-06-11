@@ -7,9 +7,12 @@ import { EventsQueryParams } from '@/types/event/event';
 import { toast } from 'sonner';
 
 export const useEvents = () => {
+  // pageSize 10 ucinało listę organizatora z >10 wydarzeniami bez żadnych kontrolek
+  // stronicowania w UI. 200 = praktyczny sufit do czasu realnej paginacji (refaktor
+  // generyków useApi — ETAP B); paginacja.total i tak nie przechodzi przez useApiQuery.
   const [queryParams, setQueryParams] = useState<EventsQueryParams>({
     page: 0,
-    pageSize: 10,
+    pageSize: 200,
     status: 'all'
   });
 
