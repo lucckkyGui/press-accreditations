@@ -34,6 +34,24 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
 
     if (req.method === "GET") {
+      // Odczyt logów wyłącznie dla admina — strona /audit-trail jest admin-only,
+      // a service role poniżej omija RLS, więc gate musi być tutaj (nie tylko client-side).
+      const supabaseAdminCheck = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: adminRole } = await supabaseAdminCheck
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (!adminRole) {
+        return new Response(JSON.stringify({ error: "Forbidden - admin only" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 403,
+        });
+      }
       // Read audit logs
       const action = url.searchParams.get("action");
       const severity = url.searchParams.get("severity");
@@ -61,7 +79,11 @@ Deno.serve(async (req) => {
         query = query.eq("severity", severity);
       }
       if (search) {
-        query = query.or(`details.ilike.%${search}%,user_email.ilike.%${search}%`);
+        // Escape znaków sterujących filtrów PostgREST (przecinek rozdziela warunki .or)
+        const safe = search.replace(/[,%()]/g, " ").trim();
+        if (safe) {
+          query = query.or(`details.ilike.%${safe}%,user_email.ilike.%${safe}%`);
+        }
       }
       if (resourceId) {
         query = query.eq("resource_id", resourceId);
@@ -88,6 +110,21 @@ Deno.serve(async (req) => {
 
       if (!action || !resource) {
         return new Response(JSON.stringify({ error: "action and resource are required" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+
+      // Twarde limity treści — tożsamość (user_id/email/ip/ua) i tak narzucana z JWT/nagłówków.
+      const ALLOWED_SEVERITIES = ["info", "warning", "error", "critical"];
+      if (severity && !ALLOWED_SEVERITIES.includes(severity)) {
+        return new Response(JSON.stringify({ error: "invalid severity" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+      if (String(action).length > 100 || String(resource).length > 100 || (details && String(details).length > 2000)) {
+        return new Response(JSON.stringify({ error: "field too long" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
         });
