@@ -492,7 +492,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Akredytacje <noreply@notify.bookingartistagency.com>",
+            from: Deno.env.get("EMAIL_FROM") ?? "Akredytacje <noreply@notify.bookingartistagency.com>",
             to: [email],
             subject: `Potwierdzenie zgłoszenia akredytacyjnego (${reference})`,
             html: `
@@ -554,7 +554,7 @@ Deno.serve(async (req) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                from: "Akredytacje <noreply@notify.bookingartistagency.com>",
+                from: Deno.env.get("EMAIL_FROM") ?? "Akredytacje <noreply@notify.bookingartistagency.com>",
                 to: [organizerEmail],
                 subject: `Nowe zgłoszenie akredytacyjne — ${ev.title ?? ""} (${reference})`,
                 html: `

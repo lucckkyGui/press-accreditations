@@ -113,7 +113,7 @@ async function sendConfirmationEmail(params: {
         Authorization: `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from: "Rejestracja <onboarding@resend.dev>",
+        from: Deno.env.get("EMAIL_FROM") ?? "Rejestracja <onboarding@resend.dev>",
         to: [params.to],
         subject,
         html,

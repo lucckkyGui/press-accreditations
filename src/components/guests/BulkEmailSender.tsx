@@ -33,6 +33,7 @@ interface GuestInviteResult {
 
 interface SendInvitationResponse {
   success: boolean;
+  error?: string;
   sent: number;
   failed: number;
   results: GuestInviteResult[];
@@ -88,7 +89,11 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
       const resp = data as SendInvitationResponse;
       setResult(resp);
 
-      if (resp.failed === 0) {
+      // Funkcja może zwrócić 200 z success=false (np. brak RESEND_API_KEY) —
+      // sent=0 i failed=0 NIE jest wtedy sukcesem.
+      if (resp.success === false && resp.sent === 0) {
+        toast.error(`Wysyłka niemożliwa: ${resp.error ?? "błąd konfiguracji"}`);
+      } else if (resp.failed === 0) {
         toast.success(`Wysłano ${resp.sent} ${resp.sent === 1 ? 'zaproszenie' : 'zaproszeń'}`);
       } else if (resp.sent === 0) {
         toast.error(`Nie wysłano żadnego zaproszenia (${resp.failed} ${resp.failed === 1 ? 'błąd' : 'błędów'})`);

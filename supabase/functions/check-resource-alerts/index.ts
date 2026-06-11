@@ -31,6 +31,34 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Auth: funkcja iteruje po wszystkich adminach i wysyła maile/notyfikacje —
+    // wyłącznie service role (cron/serwer) albo zalogowany admin. Nigdy anonim.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authed = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claims } = await authed.auth.getClaims(authHeader.replace("Bearer ", ""));
+    if (!claims?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (claims.claims.role !== "service_role") {
+      const { data: adminRole } = await supabase
+        .from("user_roles").select("role")
+        .eq("user_id", claims.claims.sub as string).eq("role", "admin").maybeSingle();
+      if (!adminRole) {
+        return new Response(JSON.stringify({ error: "Forbidden - admin or service role only" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Get admin/organizer emails from profiles
     const { data: adminProfiles } = await supabase
       .from("user_roles")
@@ -181,7 +209,7 @@ const handler = async (req: Request): Promise<Response> => {
       for (const email of adminEmails) {
         try {
           await resend.emails.send({
-            from: "EventManager <onboarding@resend.dev>",
+            from: Deno.env.get("EMAIL_FROM") ?? "EventManager <onboarding@resend.dev>",
             to: [email],
             subject: `⚠️ Alert zasobów – ${alerts.length} zasob(ów) przekroczyło 80% limitu`,
             html: emailHtml,
