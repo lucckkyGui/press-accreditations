@@ -9,28 +9,29 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Download, Globe, Lock, Settings2, Shield, User2, Users, Webhook } from "lucide-react";
+import { Building2, Globe, Lock, Settings2, Shield, Users } from "lucide-react";
 import UserManagement from "@/components/settings/UserManagement";
-import ExportSettings from "@/components/settings/ExportSettings";
 import ApiKeyManagement from "@/components/settings/ApiKeyManagement";
 import GDPRSettings from "@/components/settings/GDPRSettings";
-import WebhookTestingPanel from "@/components/settings/WebhookTestingPanel";
 
 const Settings = () => {
   usePageTitle("Ustawienia");
+  // Formularze tych sekcji nie mają jeszcze backendu (brak schematu ustawień
+  // organizacji/powiadomień/bezpieczeństwa). Uczciwy komunikat zamiast
+  // fałszywego „zapisano".
   const handleSaveOrganizationSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Ustawienia organizacji zostały zapisane");
+    toast.info("Zapis ustawień organizacji będzie dostępny wkrótce — formularz nie jest jeszcze podłączony");
   };
-  
+
   const handleSaveNotificationSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Ustawienia powiadomień zostały zapisane");
+    toast.info("Zapis ustawień powiadomień będzie dostępny wkrótce — formularz nie jest jeszcze podłączony");
   };
 
   const handleSaveSecuritySettings = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Ustawienia bezpieczeństwa zostały zapisane");
+    toast.info("Zapis ustawień bezpieczeństwa będzie dostępny wkrótce — formularz nie jest jeszcze podłączony");
   };
   
   return (
@@ -60,21 +61,13 @@ const Settings = () => {
             <Users className="h-4 w-4" /> 
             <span className="hidden sm:inline">Użytkownicy</span>
           </TabsTrigger>
-          <TabsTrigger value="export" className="gap-2 whitespace-nowrap">
-            <Download className="h-4 w-4" /> 
-            <span className="hidden sm:inline">Eksport</span>
-          </TabsTrigger>
           <TabsTrigger value="api" className="gap-2 whitespace-nowrap">
             <Globe className="h-4 w-4" /> 
             <span className="hidden sm:inline">API</span>
           </TabsTrigger>
           <TabsTrigger value="gdpr" className="gap-2 whitespace-nowrap">
-            <Shield className="h-4 w-4" /> 
+            <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">RODO</span>
-          </TabsTrigger>
-          <TabsTrigger value="webhooks" className="gap-2 whitespace-nowrap">
-            <Webhook className="h-4 w-4" /> 
-            <span className="hidden sm:inline">Webhooks</span>
           </TabsTrigger>
         </TabsList>
         
@@ -374,10 +367,6 @@ const Settings = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="export">
-          <ExportSettings />
-        </TabsContent>
-        
         <TabsContent value="api">
           <Card>
             <CardContent className="pt-6">
@@ -388,10 +377,6 @@ const Settings = () => {
 
         <TabsContent value="gdpr">
           <GDPRSettings />
-        </TabsContent>
-
-        <TabsContent value="webhooks">
-          <WebhookTestingPanel />
         </TabsContent>
       </Tabs>
       

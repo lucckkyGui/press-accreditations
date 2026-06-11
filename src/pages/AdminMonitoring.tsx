@@ -3,9 +3,8 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Database, Server, Shield, RefreshCw, CheckCircle2, AlertTriangle, XCircle, Cpu, HardDrive, Wifi, Clock, TrendingUp, BarChart3, Globe } from "lucide-react";
+import { Activity, Database, Shield, RefreshCw, CheckCircle2, AlertTriangle, XCircle, HardDrive } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -34,16 +33,6 @@ const AdminMonitoring = () => {
   const [health, setHealth] = useState<HealthCheck | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<{ time: string; latency: number; status: string }[]>([]);
-  const [metrics] = useState({
-    cpu: Math.round(15 + Math.random() * 30),
-    memory: Math.round(40 + Math.random() * 25),
-    disk: Math.round(20 + Math.random() * 15),
-    connections: Math.round(5 + Math.random() * 20),
-    requestsPerMin: Math.round(50 + Math.random() * 200),
-    avgResponseTime: Math.round(80 + Math.random() * 120),
-    errorRate: +(Math.random() * 2).toFixed(2),
-    uptime: 99.97,
-  });
 
   const fetchHealth = async () => {
     setLoading(true);
@@ -97,7 +86,6 @@ const AdminMonitoring = () => {
       <Tabs defaultValue="services" className="space-y-4">
         <TabsList>
           <TabsTrigger value="services">Usługi</TabsTrigger>
-          <TabsTrigger value="metrics">Metryki</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
 
@@ -127,33 +115,6 @@ const AdminMonitoring = () => {
             ))}
             {!health && [1,2,3].map(i => (
               <Card key={i}><CardContent className="pt-6 h-32 flex items-center justify-center text-muted-foreground">Ładowanie...</CardContent></Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="metrics">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "CPU", value: metrics.cpu, icon: Cpu, suffix: "%" },
-              { label: "Pamięć RAM", value: metrics.memory, icon: Server, suffix: "%" },
-              { label: "Dysk", value: metrics.disk, icon: HardDrive, suffix: "%" },
-              { label: "Połączenia DB", value: metrics.connections, icon: Database, suffix: "" },
-              { label: "Zapytania/min", value: metrics.requestsPerMin, icon: TrendingUp, suffix: "" },
-              { label: "Śr. odpowiedź", value: metrics.avgResponseTime, icon: Clock, suffix: "ms" },
-              { label: "Współczynnik błędów", value: metrics.errorRate, icon: AlertTriangle, suffix: "%" },
-              { label: "Uptime", value: metrics.uptime, icon: Globe, suffix: "%" },
-            ].map(m => (
-              <Card key={m.label}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2 text-muted-foreground">
-                    <m.icon className="h-4 w-4" /> {m.label}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{m.value}{m.suffix}</p>
-                  <Progress value={typeof m.value === "number" && m.suffix === "%" ? m.value : 50} className="mt-2" />
-                </CardContent>
-              </Card>
             ))}
           </div>
         </TabsContent>

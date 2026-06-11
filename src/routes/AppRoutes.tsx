@@ -63,7 +63,6 @@ const AdminMonitoring = lazy(() => import("@/pages/AdminMonitoring"));
 const WhiteLabelSettings = lazy(() => import("@/pages/WhiteLabelSettings"));
 const IntegrationsHub = lazy(() => import("@/pages/IntegrationsHub"));
 const ReportBuilder = lazy(() => import("@/pages/ReportBuilder"));
-const EventMarketplace = lazy(() => import("@/pages/EventMarketplace"));
 const AuditTrail = lazy(() => import("@/pages/AuditTrail"));
 const DigitalPassPage = lazy(() => import("@/pages/DigitalPassPage"));
 
@@ -77,7 +76,6 @@ const ORGANIZER_ROLES = ['admin', 'organizer'] as const;
 const ADMIN_ROLES = ['admin'] as const;
 const ALL_AUTHENTICATED = ['admin', 'organizer', 'moderator', 'staff', 'user', 'guest'] as const;
 
-const disabledPublicFeature = <Navigate to="/" replace />;
 const disabledOrganizerFeature = <Navigate to="/dashboard" replace />;
 
 const AppRoutes = () => {
@@ -109,7 +107,6 @@ const AppRoutes = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/embed/register/:eventId" element={<EmbedRegisterForm />} />
         <Route path="/access-denied" element={<AccessDenied />} />
-        <Route path="/marketplace" element={features.marketplace ? <EventMarketplace /> : disabledPublicFeature} />
         {/* Public QR pass (link z e-maila decyzyjnego) - before catch-all /:slug */}
         <Route path="/pass/:token" element={<PassView />} />
         {/* Public coverage form (secure token link z remindera) - before catch-all */}

@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Shield, Search, Download, Eye, UserCheck, Trash2, Edit, Plus, Key, AlertTriangle, Settings, RefreshCw, Loader2 } from "lucide-react";
+import { Shield, Search, Download, Eye, UserCheck, Trash2, Edit, Plus, Key, AlertTriangle, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchAuditLogs, type AuditLog } from "@/services/audit/auditService";
 import { format } from "date-fns";
@@ -72,22 +71,8 @@ const AuditTrail = () => {
     a.download = `audit_logs_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Eksport CSV gotowy");
+    toast.success(`Wyeksportowano bieżącą stronę (${logs.length} wpisów)`);
   };
-
-  const retentionPolicies = [
-    { table: "user_notifications", retention: "90 dni", autoDelete: true },
-    { table: "access_logs", retention: "180 dni", autoDelete: true },
-    { table: "audit_logs", retention: "365 dni", autoDelete: false },
-    { table: "chat_messages", retention: "365 dni", autoDelete: false },
-    { table: "email_queue", retention: "30 dni", autoDelete: true },
-  ];
-
-  const ssoProviders = [
-    { name: "Google Workspace", type: "OIDC", status: "active", domain: "*.company.com" },
-    { name: "Microsoft Azure AD", type: "SAML", status: "inactive", domain: "—" },
-    { name: "Okta", type: "SAML", status: "inactive", domain: "—" },
-  ];
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -97,14 +82,12 @@ const AuditTrail = () => {
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <Shield className="h-8 w-8 text-primary" /> Bezpieczeństwo i Audyt
         </h1>
-        <p className="text-muted-foreground">Ścieżka audytu, retencja danych i konfiguracja SSO</p>
+        <p className="text-muted-foreground">Ścieżka audytu zdarzeń w systemie</p>
       </div>
 
       <Tabs defaultValue="audit" className="space-y-4">
         <TabsList>
           <TabsTrigger value="audit">Logi audytu</TabsTrigger>
-          <TabsTrigger value="retention">Retencja danych</TabsTrigger>
-          <TabsTrigger value="sso">SSO</TabsTrigger>
         </TabsList>
 
         <TabsContent value="audit">
@@ -235,68 +218,6 @@ const AuditTrail = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="retention">
-          <Card>
-            <CardHeader>
-              <CardTitle>Polityki retencji danych</CardTitle>
-              <CardDescription>Konfiguruj automatyczne usuwanie starych danych</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tabela</TableHead>
-                    <TableHead>Okres retencji</TableHead>
-                    <TableHead>Auto-usuwanie</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {retentionPolicies.map(p => (
-                    <TableRow key={p.table}>
-                      <TableCell className="font-mono text-sm">{p.table}</TableCell>
-                      <TableCell>{p.retention}</TableCell>
-                      <TableCell><Switch defaultChecked={p.autoDelete} /></TableCell>
-                      <TableCell><Button variant="ghost" size="sm"><Settings className="h-4 w-4" /></Button></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sso">
-          <Card>
-            <CardHeader>
-              <CardTitle>Single Sign-On (SSO)</CardTitle>
-              <CardDescription>Konfiguruj SAML/OIDC dla enterprise login</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {ssoProviders.map(p => (
-                  <div key={p.name} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Key className="h-8 w-8 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{p.name}</p>
-                        <p className="text-sm text-muted-foreground">{p.type} · {p.domain}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={p.status === "active" ? "default" : "outline"}>
-                        {p.status === "active" ? "Aktywny" : "Nieaktywny"}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        {p.status === "active" ? "Konfiguracja" : "Połącz"}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

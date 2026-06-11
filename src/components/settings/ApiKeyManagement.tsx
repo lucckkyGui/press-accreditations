@@ -7,19 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Key, Plus, Trash2, Copy, Globe, Bell, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Key, Plus, Trash2, Copy, Globe, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
-const WEBHOOK_EVENT_TYPES = [
-  { value: 'guest.checked_in', label: 'Gość zameldowany' },
-  { value: 'guest.created', label: 'Nowy gość dodany' },
-  { value: 'guest.updated', label: 'Gość zaktualizowany' },
-  { value: 'guest.deleted', label: 'Gość usunięty' },
-  { value: 'event.updated', label: 'Wydarzenie zaktualizowane' },
-];
+// Webhooki usunięte z UI (R2/R3): tabela webhook_subscriptions nie istnieje na bazie,
+// a webhook-dispatcher nie jest wpięty w żadne zdarzenie — subskrypcje nigdy by się
+// nie odpaliły. Kod dispatchera zostaje w supabase/functions (uśpiony).
 
 function generateApiKey(): string {
   return `pk_${generateSecureToken(32)}`;
@@ -32,10 +27,6 @@ async function hashKey(key: string): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function generateWebhookSecret(): string {
-  return `whsec_${generateSecureToken(32)}`;
-}
-
 function generateSecureToken(byteLength: number): string {
   const bytes = new Uint8Array(byteLength);
   crypto.getRandomValues(bytes);
@@ -43,42 +34,17 @@ function generateSecureToken(byteLength: number): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
-function validateWebhookUrl(value: string): string {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== 'https:') {
-      throw new Error();
-    }
-    return url.toString();
-  } catch {
-    throw new Error('Webhook URL musi być poprawnym adresem HTTPS');
-  }
-}
-
 export default function ApiKeyManagement() {
   const queryClient = useQueryClient();
   const [newKeyDialog, setNewKeyDialog] = useState(false);
-  const [newWebhookDialog, setNewWebhookDialog] = useState(false);
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [keyName, setKeyName] = useState('');
   const [keyEventId, setKeyEventId] = useState<string>('all');
-  const [webhookUrl, setWebhookUrl] = useState('');
-  const [webhookEventId, setWebhookEventId] = useState<string>('all');
-  const [webhookEvents, setWebhookEvents] = useState<string[]>(['guest.checked_in']);
 
   const { data: apiKeys, isLoading: keysLoading } = useQuery({
     queryKey: ['api-keys'],
     queryFn: async () => {
       const { data, error } = await supabase.from('api_keys').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: webhooks, isLoading: webhooksLoading } = useQuery({
-    queryKey: ['webhook-subscriptions'],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any).from('webhook_subscriptions').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
@@ -130,44 +96,6 @@ export default function ApiKeyManagement() {
     },
   });
 
-  const createWebhookMutation = useMutation({
-    mutationFn: async () => {
-      const secret = generateWebhookSecret();
-      const url = validateWebhookUrl(webhookUrl);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await (supabase as any).from('webhook_subscriptions').insert({
-        user_id: user.id,
-        url,
-        secret,
-        event_id: webhookEventId === 'all' ? null : webhookEventId,
-        events: webhookEvents,
-      });
-      if (error) throw error;
-      return secret;
-    },
-    onSuccess: (secret) => {
-      queryClient.invalidateQueries({ queryKey: ['webhook-subscriptions'] });
-      toast.success(`Webhook utworzony. Secret: ${secret}`, { duration: 10000 });
-      setNewWebhookDialog(false);
-      setWebhookUrl('');
-      setWebhookEvents(['guest.checked_in']);
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  const deleteWebhookMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from('webhook_subscriptions').delete().eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['webhook-subscriptions'] });
-      toast.success('Webhook usunięty');
-    },
-  });
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success('Skopiowano do schowka');
@@ -180,9 +108,6 @@ export default function ApiKeyManagement() {
       <TabsList>
         <TabsTrigger value="keys" className="gap-2">
           <Key className="h-4 w-4" /> Klucze API
-        </TabsTrigger>
-        <TabsTrigger value="webhooks" className="gap-2">
-          <Bell className="h-4 w-4" /> Webhooks
         </TabsTrigger>
         <TabsTrigger value="docs" className="gap-2">
           <Globe className="h-4 w-4" /> Dokumentacja
@@ -275,107 +200,6 @@ export default function ApiKeyManagement() {
                     </p>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => deleteKeyMutation.mutate(key.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </TabsContent>
-
-      {/* Webhooks Tab */}
-      <TabsContent value="webhooks" className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="text-lg font-semibold">Webhooks</h3>
-            <p className="text-sm text-muted-foreground">Otrzymuj powiadomienia o zdarzeniach w czasie rzeczywistym</p>
-          </div>
-          <Dialog open={newWebhookDialog} onOpenChange={setNewWebhookDialog}>
-            <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" /> Nowy webhook</Button>
-            </DialogTrigger>
-            <DialogContent aria-describedby={undefined}>
-              <DialogHeader>
-                <DialogTitle>Dodaj webhook</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>URL</Label>
-                  <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="https://your-app.com/webhook" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Wydarzenie (opcjonalnie)</Label>
-                  <Select value={webhookEventId} onValueChange={setWebhookEventId}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Wszystkie wydarzenia</SelectItem>
-                      {events?.map(e => <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Zdarzenia</Label>
-                  <div className="space-y-2">
-                    {WEBHOOK_EVENT_TYPES.map(evt => (
-                      <div key={evt.value} className="flex items-center gap-2">
-                        <Checkbox
-                          checked={webhookEvents.includes(evt.value)}
-                          onCheckedChange={(checked) => {
-                            setWebhookEvents(prev =>
-                              checked ? [...prev, evt.value] : prev.filter(e => e !== evt.value)
-                            );
-                          }}
-                        />
-                        <span className="text-sm">{evt.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={() => createWebhookMutation.mutate()} disabled={!webhookUrl || webhookEvents.length === 0 || createWebhookMutation.isPending}>
-                    Utwórz webhook
-                  </Button>
-                </DialogFooter>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {webhooksLoading ? (
-          <p className="text-muted-foreground">Ładowanie...</p>
-        ) : (webhooks || []).length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Brak webhooków. Dodaj pierwszy webhook.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {(webhooks || []).map((wh: any) => (
-              <Card key={wh.id}>
-                <CardContent className="flex items-center justify-between py-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium font-mono text-sm">{wh.url}</span>
-                      <Badge variant={wh.is_active ? 'default' : 'destructive'}>
-                        {wh.is_active ? 'Aktywny' : 'Wyłączony'}
-                      </Badge>
-                      {wh.failure_count > 0 && (
-                        <Badge variant="outline" className="text-destructive">{wh.failure_count} błędów</Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {wh.events?.map((evt: string) => (
-                        <Badge key={evt} variant="secondary" className="text-xs">{evt}</Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {wh.last_triggered_at ? `Ostatnio: ${new Date(wh.last_triggered_at).toLocaleString('pl')}` : 'Nigdy nie wywołany'}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => deleteWebhookMutation.mutate(wh.id)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </CardContent>
