@@ -30,7 +30,7 @@ const DigitalPassGenerator = () => {
       return;
     }
     setGenerated(true);
-    toast.success("Pass wygenerowany! (podgląd)");
+    toast.info("Podgląd passu — generowanie plików Wallet będzie dostępne wkrótce");
   };
 
   return (
@@ -158,10 +158,9 @@ const DigitalPassGenerator = () => {
 
               {/* Status overlay */}
               {generated && (
-                <div className="absolute inset-0 bg-success/10 rounded-[2rem] flex items-center justify-center backdrop-blur-[1px]">
-                  <Badge className="bg-success text-success-foreground text-sm px-4 py-2 shadow-lg">
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Wygenerowano!
+                <div className="absolute inset-0 bg-muted/20 rounded-[2rem] flex items-center justify-center backdrop-blur-[1px]">
+                  <Badge variant="secondary" className="text-sm px-4 py-2 shadow-lg">
+                    Podgląd — generowanie wkrótce
                   </Badge>
                 </div>
               )}

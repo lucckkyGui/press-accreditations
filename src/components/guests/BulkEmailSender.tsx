@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -48,18 +47,11 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
 }) => {
   const [subject, setSubject] = useState('Zaproszenie na wydarzenie');
   const [customMessage, setCustomMessage] = useState('');
-  const [templateId, setTemplateId] = useState('default');
   const [isSending, setIsSending] = useState(false);
   const [result, setResult] = useState<SendInvitationResponse | null>(null);
 
-  // D3 (known-limitation): selektor zostaje w UI, ale serwer na razie używa jednego
-  // wbudowanego szablonu — template_id jest przekazywany, lecz ignorowany.
-  const emailTemplates = [
-    { id: 'default', name: 'Standardowe zaproszenie', preview: 'Witamy! Zapraszamy na wydarzenie...' },
-    { id: 'vip', name: 'Zaproszenie VIP', preview: 'Ekskluzywne zaproszenie dla VIP...' },
-    { id: 'press', name: 'Akredytacja prasowa', preview: 'Zaproszenie dla mediów...' },
-    { id: 'custom', name: 'Własny szablon', preview: 'Dostosowany szablon...' }
-  ];
+  // D5: serwer ma jeden wbudowany szablon — pozorny selektor (VIP/prasa/własny)
+  // usunięty z UI do czasu realnych szablonów (R2-4 kreator zaproszeń).
 
   const handleSendEmails = async () => {
     if (selectedGuests.length === 0) {
@@ -81,7 +73,6 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
           guest_ids: selectedGuests.map((g) => g.id),
           subject,
           custom_message: customMessage,
-          template_id: templateId,
         },
       });
       if (error) throw error;
@@ -112,7 +103,6 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
   const resetForm = () => {
     setSubject('Zaproszenie na wydarzenie');
     setCustomMessage('');
-    setTemplateId('default');
     setResult(null);
     setIsSending(false);
   };
@@ -153,26 +143,6 @@ const BulkEmailSender: React.FC<BulkEmailSenderProps> = ({
               </div>
             </CardContent>
           </Card>
-
-          {/* Wybór szablonu */}
-          <div className="space-y-2">
-            <Label htmlFor="template">Szablon emaila</Label>
-            <Select value={templateId} onValueChange={setTemplateId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Wybierz szablon" />
-              </SelectTrigger>
-              <SelectContent>
-                {emailTemplates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    <div>
-                      <div className="font-medium">{template.name}</div>
-                      <div className="text-xs text-muted-foreground">{template.preview}</div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           {/* Temat */}
           <div className="space-y-2">

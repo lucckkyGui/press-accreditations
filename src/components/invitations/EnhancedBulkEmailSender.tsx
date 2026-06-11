@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Guest, Event } from '@/types';
 import { Mail, Send, Users, CheckCircle, AlertCircle, Clock, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GeneratedInvitation {
   guestId: string;
@@ -84,36 +85,27 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
     return newBatches;
   };
 
-  const sendEmailBatch = async (batch: EmailBatch): Promise<boolean> => {
+  // Realna wysyłka przez edge fn send-guest-invitation (Resend, wynik per gość).
+  // Zwraca uczciwe liczniki z payloadu — nie sam status HTTP.
+  const sendEmailBatch = async (batch: EmailBatch): Promise<{ sent: number; failed: number }> => {
     try {
-      // Symulacja wysyłki email (tu byłaby integracja z rzeczywistym serwisem email)
-      // W rzeczywistej implementacji tutaj byłby call do API email
-      // np. do Resend, SendGrid, itp.
-      const emailPromises = batch.guests.map(async (guest) => {
-        const invitation = batch.invitations.find(inv => inv.guestId === guest.id);
-        if (!invitation) {
-          throw new Error(`Brak zaproszenia dla gościa ${guest.id}`);
-        }
-
-        // Symulacja wysyłki pojedynczego emaila
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 100));
-        
-        // 95% success rate dla symulacji
-        if (Math.random() > 0.95) {
-          throw new Error(`Błąd wysyłki do ${guest.email}`);
-        }
-
-        return {
-          guestId: guest.id,
-          email: guest.email,
-          status: 'sent'
-        };
+      const { data, error } = await supabase.functions.invoke('send-guest-invitation', {
+        body: {
+          event_id: event.id,
+          guest_ids: batch.guests.map((g) => g.id),
+          subject,
+          custom_message: customMessage || null,
+        },
       });
-
-      await Promise.all(emailPromises);
-      return true;
-    } catch (error) {
-      return false;
+      if (error) return { sent: 0, failed: batch.guests.length };
+      const resp = data as { success?: boolean; error?: string; sent?: number; failed?: number } | null;
+      if (!resp || (resp.success === false && (resp.sent ?? 0) === 0)) {
+        if (resp?.error) toast.error(`Wysyłka niemożliwa: ${resp.error}`);
+        return { sent: 0, failed: batch.guests.length };
+      }
+      return { sent: resp.sent ?? 0, failed: resp.failed ?? 0 };
+    } catch {
+      return { sent: 0, failed: batch.guests.length };
     }
   };
 
@@ -144,23 +136,14 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
             : b
         ));
 
-        const success = await sendEmailBatch(batch);
-        
-        if (success) {
-          totalSent += batch.guests.length;
-          setBatches(prev => prev.map(b => 
-            b.batchNumber === batch.batchNumber 
-              ? { ...b, status: 'sent' }
-              : b
-          ));
-        } else {
-          totalFailed += batch.guests.length;
-          setBatches(prev => prev.map(b => 
-            b.batchNumber === batch.batchNumber 
-              ? { ...b, status: 'failed' }
-              : b
-          ));
-        }
+        const result = await sendEmailBatch(batch);
+        totalSent += result.sent;
+        totalFailed += result.failed;
+        setBatches(prev => prev.map(b =>
+          b.batchNumber === batch.batchNumber
+            ? { ...b, status: result.failed === 0 ? 'sent' : 'failed' }
+            : b
+        ));
 
         // Aktualizuj statystyki i progress
         setEmailStats({
@@ -178,8 +161,14 @@ const EnhancedBulkEmailSender: React.FC<EnhancedBulkEmailSenderProps> = ({
         }
       }
 
-      toast.success(`Wysłano ${totalSent} zaproszeń! ${totalFailed > 0 ? `Błędów: ${totalFailed}` : ''}`);
-      onEmailSent();
+      if (totalSent === 0) {
+        toast.error(`Nie wysłano żadnego zaproszenia (błędów: ${totalFailed})`);
+      } else if (totalFailed > 0) {
+        toast.warning(`Wysłano ${totalSent}, nieudane: ${totalFailed}`);
+      } else {
+        toast.success(`Wysłano ${totalSent} zaproszeń`);
+      }
+      if (totalSent > 0) onEmailSent();
 
     } catch (error) {
       toast.error('Wystąpił błąd podczas wysyłania zaproszeń');

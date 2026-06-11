@@ -47,9 +47,9 @@ const GuestsInvitationManager: React.FC<GuestsInvitationManagerProps> = ({
   };
 
   const handleEmailSent = () => {
+    // Uczciwy wynik (sent/failed) toastuje już EnhancedBulkEmailSender — tu bez dubla.
     setShowEmailDialog(false);
     onInvitationsSent();
-    toast.success('Zaproszenia zostały wysłane!');
   };
 
   const downloadAllInvitations = () => {

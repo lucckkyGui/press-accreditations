@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Plus, Search, Download, Upload, CalendarDays } from "lucide-react";
+import { Plus, Search, Download, CalendarDays } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +123,37 @@ const Events = () => {
     if (!response.error) setOpen(false);
   };
 
+  // Realny eksport CSV bieżącej listy (po filtrach) — dane już załadowane.
+  const handleExportCsv = () => {
+    if (filtered.length === 0) {
+      toast({ title: "Brak wydarzeń do eksportu" });
+      return;
+    }
+    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const rows = [
+      ["kod", "nazwa", "lokalizacja", "start", "koniec", "status", "goscie", "limit"].join(","),
+      ...filtered.map(e => [
+        esc(getEventCode(e.id)),
+        esc(e.name),
+        esc(e.location ?? ""),
+        esc(new Date(e.startDate).toISOString()),
+        esc(e.endDate ? new Date(e.endDate).toISOString() : ""),
+        esc(STATUS_CONFIG[e._status].label),
+        esc(guestCounts[e.id] || 0),
+        esc(e.maxGuests || ""),
+      ].join(",")),
+    ].join("\n");
+    // BOM, żeby Excel poprawnie czytał polskie znaki
+    const blob = new Blob(["﻿" + rows], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `wydarzenia_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `Wyeksportowano ${filtered.length} wydarzeń` });
+  };
+
   const eventsWithStatus = useMemo(
     () => events.map(e => ({ ...e, _status: getEventStatus(e) })),
     [events]
@@ -162,11 +193,8 @@ const Events = () => {
           <p className="text-sm text-muted-foreground mt-0.5">Zarządzaj kalendarzem, akredytacjami i biletami.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8">
+          <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> Eksport
-          </Button>
-          <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8">
-            <Upload className="h-3.5 w-3.5" /> Import .csv
           </Button>
           <Button
             size="sm"

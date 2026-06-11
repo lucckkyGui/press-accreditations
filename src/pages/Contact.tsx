@@ -10,32 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-const contactInfo = [
-  {
-    icon: Mail,
-    title: "Email",
-    value: "kontakt@pressaccreditations.com",
-    description: "Odpowiadamy w ciągu 24h"
-  },
-  {
-    icon: Phone,
-    title: "Telefon",
-    value: "+48 123 456 789",
-    description: "Pon-Pt: 9:00 - 17:00"
-  },
-  {
-    icon: MapPin,
-    title: "Adres",
-    value: "ul. Przykładowa 123",
-    description: "00-001 Warszawa, Polska"
-  },
-  {
-    icon: Clock,
-    title: "Godziny pracy",
-    value: "Pon - Pt: 9:00 - 17:00",
-    description: "Weekendy: nieczynne"
-  }
-];
+// Realne dane kontaktowe do uzupełnienia przez właściciela — poprzednie
+// (telefon +48 123 456 789, ul. Przykładowa 123, kontakt@pressaccreditations.com)
+// były zmyślone i zostały usunięte.
+const contactInfo: { icon: React.ElementType; title: string; value: string; description: string }[] = [];
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -55,14 +33,9 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast.success("Wiadomość została wysłana! Odpowiemy najszybciej jak to możliwe.");
-    setFormData({ name: "", email: "", subject: "", topic: "", message: "" });
-    setIsSubmitting(false);
+    // Brak backendu wysyłki — wcześniej formularz po 1,5 s fałszywie raportował
+    // „Wiadomość została wysłana!", a treść szła donikąd.
+    toast.info("Formularz kontaktowy będzie dostępny wkrótce — wiadomość nie została wysłana");
   };
 
   return (

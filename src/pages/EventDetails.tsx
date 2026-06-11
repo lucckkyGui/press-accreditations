@@ -316,17 +316,6 @@ const EventDetails = () => {
         <div className="space-y-5 min-w-0">
           <Tabs defaultValue="overview">
             <TabsList className="mb-5 bg-transparent border-b border-border w-full justify-start rounded-none p-0 h-auto gap-0">
-              {[
-                { value: "overview", label: "Przegląd" },
-                { value: "guests",   label: `Goście · ${guests.length}` },
-                { value: "checked",  label: `Check-in · ${checkedIn}` },
-              ].map(tab => (
-                <button
-                  key={tab.value}
-                  onClick={() => document.querySelector(`[data-tab="${tab.value}"]`)?.dispatchEvent(new MouseEvent("click", { bubbles: true }))}
-                  className="hidden"
-                />
-              ))}
               <TabsTrigger value="overview" data-tab="overview"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent text-muted-foreground hover:text-foreground px-4 pb-2 pt-0 h-auto font-medium text-sm">
                 Przegląd
@@ -471,7 +460,7 @@ const EventDetails = () => {
               <ScanLine className="h-4 w-4" />
               Otwórz skaner
             </Button>
-            <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate(`/notifications/${eventId}`)}>
+            <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate("/notifications")}>
               <Bell className="h-4 w-4" />
             </Button>
             <DropdownMenu>

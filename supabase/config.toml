@@ -1,8 +1,5 @@
 project_id = "jozgpssnypclwzqnowhh"
 
-[functions.send-invitation-emails]
-verify_jwt = false
-
 [functions.public-api]
 verify_jwt = false
 
