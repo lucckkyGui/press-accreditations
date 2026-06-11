@@ -6,7 +6,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import HomePage from '@/pages/HomePage';
 
 const Index = () => {
-  const { isLoading, isAuthenticated, isOrganizer, rolesLoaded } = useAuth();
+  const { isLoading, isAuthenticated, rolesLoaded } = useAuth();
 
   // Wait until both auth state and roles are resolved
   if (isLoading || (isAuthenticated && !rolesLoaded)) {
@@ -21,9 +21,9 @@ const Index = () => {
   }
 
   if (isAuthenticated) {
-    // Only organizers / admins land on the dashboard.
-    // Guest users (press / attendees) go to the accreditation catalogue.
-    return <Navigate to={isOrganizer ? "/dashboard" : "/accreditation-categories"} replace />;
+    // Wszyscy zalogowani lądują na /dashboard — komponent Dashboard sam rozdziela
+    // widok organizatora i gościa (GuestDashboard). Mockowy katalog akredytacji usunięty.
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <HomePage />;

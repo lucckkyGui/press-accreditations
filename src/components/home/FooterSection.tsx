@@ -32,7 +32,6 @@ const FooterSection = () => {
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.pricing')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.faq')}</Button></li>
               <li><Button variant="link" className="p-0 h-auto">{t('footer.product.forWhom')}</Button></li>
-              <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate('/accreditation-categories')}>{t('navigation.accreditation') || 'Akredytacja'}</Button></li>
             </ul>
           </div>
           

@@ -231,13 +231,6 @@ export const frozenModules: Array<{
     reason: "E-commerce / discovery layer — post-pilot roadmap",
   },
   {
-    id: "cart",
-    pressopsLabel: "Cart & Checkout",
-    url: "/cart",
-    scope: "frozen",
-    reason: "E-commerce not in PressOps core scope",
-  },
-  {
     id: "digital-pass",
     pressopsLabel: "Digital Pass (Apple/Google Wallet)",
     url: "/digital-pass",

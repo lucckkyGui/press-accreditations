@@ -5,7 +5,7 @@ import {
   ArrowLeft, Users, Target, Award, Zap, Globe, Shield, 
   QrCode, Mail, BarChart3, Calendar, WifiOff,
   TrendingUp, DollarSign, MapPin, Rocket, LineChart,
-  Layers, CheckCircle2, Building2, Briefcase
+  Layers, CheckCircle2, Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,10 +47,6 @@ const About = () => {
             <ArrowLeft className="h-4 w-4" />
             Powrót
           </Button>
-          <Button onClick={() => navigate("/pitch")} className="gap-2">
-            <Briefcase className="h-4 w-4" />
-            Pitch Deck
-          </Button>
         </div>
       </header>
 
@@ -73,10 +69,7 @@ const About = () => {
               w 3 lata</strong> i ekspansja na 10 rynków europejskich.
             </p>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Button size="lg" onClick={() => navigate("/pitch")}>
-                Zobacz Pitch Deck
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/contact")}>
+              <Button size="lg" onClick={() => navigate("/contact")}>
                 Umów rozmowę
               </Button>
             </div>
@@ -394,19 +387,10 @@ const About = () => {
               prezentacji demo platformy i poznania naszego zespołu.
             </p>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 size="lg"
-                onClick={() => navigate("/pitch")}
                 className="gap-2"
-              >
-                <Briefcase className="h-4 w-4" />
-                Pitch Deck
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
                 onClick={() => navigate("/contact")}
               >
                 Skontaktuj się z nami

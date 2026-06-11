@@ -158,14 +158,6 @@ const ValuePropositionSection: React.FC = () => {
                 Zacznij za darmo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button 
-                size="lg"
-                variant="ghost"
-                onClick={() => navigate("/pitch")}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-sm"
-              >
-                Zobacz jak to działa
-              </Button>
             </div>
           </div>
         </motion.div>

@@ -30,8 +30,6 @@ const PressReleasePage = lazy(() => import("@/pages/PressReleasePage"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Products = lazy(() => import("@/pages/products/Products"));
 const ProductDetails = lazy(() => import("@/pages/products/ProductDetails"));
-const Cart = lazy(() => import("@/pages/Cart"));
-const Checkout = lazy(() => import("@/pages/Checkout"));
 const Orders = lazy(() => import("@/pages/Orders"));
 const OrderDetails = lazy(() => import("@/pages/OrderDetails"));
 const Purchase = lazy(() => import("@/pages/Purchase"));
@@ -39,9 +37,6 @@ const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Terms = lazy(() => import("@/pages/Terms"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
-const AccreditationCategories = lazy(() => import("@/pages/AccreditationCategories"));
-const AccreditationEvents = lazy(() => import("@/pages/AccreditationEvents"));
-const AccreditationRequest = lazy(() => import("@/pages/AccreditationRequest"));
 const InvitationEditor = lazy(() => import("@/pages/InvitationEditor"));
 const RfidScanner = lazy(() => import("@/pages/RfidScanner"));
 const WristbandManagement = lazy(() => import("@/pages/WristbandManagement"));
@@ -106,8 +101,6 @@ const AppRoutes = () => {
         {/* Public pages */}
         <Route path="/products" element={<Products />} />
         <Route path="/products/:productId" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
@@ -124,18 +117,12 @@ const AppRoutes = () => {
         {/* Public accreditation landing page - must be before catch-all */}
         <Route path="/:slug" element={<PublicAccreditationPage />} />
         
-        {/* Public accreditation */}
-        <Route path="/accreditation-categories" element={<AccreditationCategories />} />
-        <Route path="/accreditation-events/:categoryId" element={<AccreditationEvents />} />
-        <Route path="/accreditation-request/:eventId" element={<AccreditationRequest />} />
-
         {/* Organizer & Admin routes */}
         <Route element={
           <ProtectedRoute allowedRoles={[...ORGANIZER_ROLES]}>
             <MainLayout />
           </ProtectedRoute>
         }>
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/guests" element={<Guests />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:eventId" element={<EventDetails />} />
@@ -174,6 +161,9 @@ const AppRoutes = () => {
             <MainLayout />
           </ProtectedRoute>
         }>
+          {/* Dashboard sam rozdziela widok po roli (Organizer/Guest) — dostępny
+              dla wszystkich zalogowanych; wcześniej gość lądował na AccessDenied. */}
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/settings/profile" element={<ProfileSettings />} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Play, ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 
 const Counter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
@@ -76,15 +76,6 @@ const HeroSection = () => {
               >
                 Wypróbuj za darmo
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="gap-2 px-7 border-border bg-background/60 hover:bg-muted transition-all duration-200 hover:-translate-y-px"
-                onClick={() => navigate("/pitch")}
-              >
-                <Play className="h-4 w-4 text-primary fill-primary" />
-                Zobacz demo · 90s
               </Button>
             </div>
 
