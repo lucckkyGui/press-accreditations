@@ -12,7 +12,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 
 const corsHeaders = buildCorsHeaders();
-const FROM = "Akredytacje <noreply@notify.bookingartistagency.com>";
+const FROM = Deno.env.get("EMAIL_FROM") ?? "Akredytacje <onboarding@resend.dev>";
 
 type Stage = "24h" | "72h" | "7d";
 const OFFSET_HOURS: Record<Stage, number> = { "24h": 24, "72h": 72, "7d": 168 };
@@ -69,50 +69,80 @@ serve(async (req: Request): Promise<Response> => {
     const body = await req.json().catch(() => ({}));
     const mode = body.mode === "cron" ? "cron" : "manual";
 
-    // Autoryzacja dla trybu manual: organizer/admin
-    if (mode === "manual") {
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
-      const authed = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-        { global: { headers: { Authorization: authHeader } } },
-      );
-      const { data: claims } = await authed.auth.getClaims(authHeader.replace("Bearer ", ""));
-      if (!claims?.claims) return json({ error: "Unauthorized" }, 401);
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
+    const authed = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: claims } = await authed.auth.getClaims(authHeader.replace("Bearer ", ""));
+    if (!claims?.claims) return json({ error: "Unauthorized" }, 401);
+
+    // Tryb cron = pełny przegląd bazy → wyłącznie service role (pg_cron / wywołanie serwerowe).
+    if (mode === "cron" && claims.claims.role !== "service_role") {
+      return json({ error: "Forbidden - cron mode requires service role" }, 403);
     }
 
     // Zbierz prośby do przetworzenia
     let requests: Array<Record<string, any>> = [];
-    if (mode === "manual" && Array.isArray(body.request_ids) && body.request_ids.length > 0) {
+    if (mode === "manual") {
+      // Manual bez jawnych id = dawniej cicha wysyłka do całej bazy — teraz twardy błąd.
+      if (!Array.isArray(body.request_ids) || body.request_ids.length === 0) {
+        return json({ error: "request_ids required in manual mode" }, 400);
+      }
       const { data } = await service.from("coverage_requests")
         .select("*").in("id", body.request_ids.slice(0, 500));
       requests = data ?? [];
+
+      // Własność: wszystkie eventy żądanych próśb muszą należeć do wołającego (albo admin).
+      const userId = claims.claims.sub as string;
+      const { data: adminRole } = await service
+        .from("user_roles").select("role")
+        .eq("user_id", userId).eq("role", "admin").maybeSingle();
+      if (!adminRole) {
+        const eventIds = [...new Set(requests.map((r) => r.event_id).filter(Boolean))];
+        const { data: evs } = await service
+          .from("events").select("id, organizer_id").in("id", eventIds);
+        const owned = new Set((evs ?? []).filter((e) => e.organizer_id === userId).map((e) => e.id));
+        if (requests.some((r) => !owned.has(r.event_id))) {
+          return json({ error: "Forbidden - not organizer of requested events" }, 403);
+        }
+      }
     } else {
       const { data } = await service.from("coverage_requests")
         .select("*").in("status", ["coverage_pending", "coverage_missing"]).limit(1000);
       requests = data ?? [];
     }
 
-    let sent = 0;
+    if (!resendKey) {
+      // Bez klucza nic nie wysyłamy i NICZEGO nie oznaczamy jako wysłane.
+      return json({ ok: false, error: "missing_resend_key", processed: requests.length, sent: 0, failed: 0, skipped: requests.length });
+    }
+
+    let sent = 0, failed = 0, skipped = 0;
     for (const r of requests) {
       const { data: ev } = await service.from("events").select("title, end_date").eq("id", r.event_id).maybeSingle();
       const sentStages: string[] = Array.isArray(r.reminders_sent) ? r.reminders_sent : [];
       const stage: Stage | null = mode === "cron"
         ? dueStage(ev?.end_date ?? null, sentStages, now)
         : (STAGES.find((s) => !sentStages.includes(s)) ?? "7d");
-      if (!stage) continue;
+      if (!stage) { skipped++; continue; }
+      if (!r.email) { skipped++; continue; }
 
       const link = appUrl ? `${appUrl}/coverage/${encodeURIComponent(r.token)}` : "";
-      if (resendKey && r.email) {
-        const email = buildEmail({ firstName: r.first_name ?? "", eventName: ev?.title ?? "wydarzenie", link, stage });
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: FROM, to: [r.email], subject: email.subject, html: email.html }),
-        });
-        if (!res.ok) { console.error("reminder send failed", await res.text()); continue; }
+      const email = buildEmail({ firstName: r.first_name ?? "", eventName: ev?.title ?? "wydarzenie", link, stage });
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: FROM, to: [r.email], subject: email.subject, html: email.html }),
+      });
+      if (!res.ok) {
+        console.error("reminder send failed", await res.text());
+        failed++;
+        continue;
       }
 
+      // Etap oznaczamy WYŁĄCZNIE po realnie wysłanym mailu.
       await service.from("coverage_requests").update({
         reminders_sent: [...sentStages, stage],
         last_reminder_at: now.toISOString(),
@@ -121,7 +151,7 @@ serve(async (req: Request): Promise<Response> => {
       sent++;
     }
 
-    return json({ ok: true, processed: requests.length, sent });
+    return json({ ok: true, processed: requests.length, sent, failed, skipped });
   } catch (err) {
     console.error("coverage-reminders error:", err);
     return json({ error: "unexpected" }, 500);

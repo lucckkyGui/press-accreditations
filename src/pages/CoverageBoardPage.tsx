@@ -85,9 +85,16 @@ const CoverageBoardPage = () => {
 
   const bulkReminderMutation = useMutation({
     mutationFn: () => sendBulkCoverageReminders([...selected]),
-    onSuccess: (ok) => {
+    onSuccess: (res) => {
       refresh(); setSelected(new Set());
-      if (ok) toast.success("Remindery wysłane"); else toast.warning("Wysyłka nieudana");
+      if (!res) { toast.error("Wysyłka nieudana"); return; }
+      if (res.sent > 0 && res.failed === 0 && res.skipped === 0) {
+        toast.success(`Wysłano ${res.sent} reminderów`);
+      } else if (res.sent > 0) {
+        toast.warning(`Wysłano ${res.sent}, nieudane: ${res.failed}, pominięte: ${res.skipped}`);
+      } else {
+        toast.warning(`Nic nie wysłano (nieudane: ${res.failed}, pominięte: ${res.skipped})`);
+      }
     },
     onError: (e) => toast.error("Błąd remindera", { description: String(e) }),
   });
@@ -251,7 +258,8 @@ const CoverageBoardPage = () => {
                     </Button>
                   )}
                   <Button size="sm" variant="outline" className="gap-1.5" disabled={bulkReminderMutation.isPending}
-                    onClick={() => sendBulkCoverageReminders([detail.id]).then((ok) => ok ? toast.success("Reminder wysłany") : toast.warning("Nieudane"))}>
+                    onClick={() => sendBulkCoverageReminders([detail.id]).then((res) =>
+                      res && res.sent > 0 ? toast.success("Reminder wysłany") : toast.warning("Reminder nie został wysłany"))}>
                     <Mail className="h-4 w-4" /> Reminder
                   </Button>
                 </div>

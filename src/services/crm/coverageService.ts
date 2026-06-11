@@ -213,29 +213,36 @@ export async function reopenCoverage(req: CoverageRequest, actor: Actor): Promis
 // Reminders (przez edge function — best-effort)
 // ─────────────────────────────────────────────────────────────
 
-/** Wysyła reminder dla pojedynczej prośby (manualnie z boardu). */
-export async function sendCoverageReminder(requestId: string): Promise<boolean> {
+export interface ReminderResult {
+  sent: number;
+  failed: number;
+  skipped: number;
+}
+
+/**
+ * Bulk reminder dla wielu próśb. Czyta UCZCIWY wynik z payloadu funkcji
+ * (sent/failed/skipped), nie sam status HTTP. null = błąd transportu/auth.
+ */
+export async function sendBulkCoverageReminders(requestIds: string[]): Promise<ReminderResult | null> {
+  if (requestIds.length === 0) return null;
   try {
-    const { error } = await supabase.functions.invoke("coverage-reminders", {
-      body: { mode: "manual", request_ids: [requestId] },
+    const { data, error } = await supabase.functions.invoke("coverage-reminders", {
+      body: { mode: "manual", request_ids: requestIds },
     });
-    return !error;
+    if (error) return null;
+    const d = data as { ok?: boolean; error?: string; sent?: number; failed?: number; skipped?: number } | null;
+    if (!d || d.ok !== true) {
+      console.error("coverage reminders rejected:", d?.error);
+      return null;
+    }
+    return { sent: d.sent ?? 0, failed: d.failed ?? 0, skipped: d.skipped ?? 0 };
   } catch (e) {
-    console.error("coverage reminder failed (non-critical):", e);
-    return false;
+    console.error("bulk coverage reminders failed (non-critical):", e);
+    return null;
   }
 }
 
-/** Bulk reminder dla wielu próśb. Zwraca liczbę zaakceptowanych przez backend. */
-export async function sendBulkCoverageReminders(requestIds: string[]): Promise<boolean> {
-  if (requestIds.length === 0) return false;
-  try {
-    const { error } = await supabase.functions.invoke("coverage-reminders", {
-      body: { mode: "manual", request_ids: requestIds },
-    });
-    return !error;
-  } catch (e) {
-    console.error("bulk coverage reminders failed (non-critical):", e);
-    return false;
-  }
+/** Wysyła reminder dla pojedynczej prośby (manualnie z boardu). */
+export async function sendCoverageReminder(requestId: string): Promise<ReminderResult | null> {
+  return sendBulkCoverageReminders([requestId]);
 }
