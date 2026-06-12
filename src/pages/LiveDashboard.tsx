@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Users, Radio, TrendingUp, Clock, ArrowRightLeft, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const ZONES = ['VIP', 'Backstage', 'Press', 'General', 'Artist Lounge'];
 
-// Demo data for when no real data is available
+// Dane demonstracyjne — pokazywane WYŁĄCZNIE w trybie ?demo=1 (nigdy cicho
+// jako podmianka za realny event bez aktywności).
 const DEMO_ZONE_STATS: Record<string, number> = {
   VIP: 23, Backstage: 12, Press: 18, General: 247, 'Artist Lounge': 8,
 };
@@ -23,6 +24,8 @@ const DEMO_SCANS = [
 ];
 
 const LiveDashboard = () => {
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get('demo') === '1';
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [eventTitle, setEventTitle] = useState('');
@@ -31,7 +34,7 @@ const LiveDashboard = () => {
   const [guestCount, setGuestCount] = useState(0);
   const [checkedInCount, setCheckedInCount] = useState(0);
   const [clock, setClock] = useState(new Date());
-  const [isDemo, setIsDemo] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => setClock(new Date()), 1000);
@@ -40,24 +43,27 @@ const LiveDashboard = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
-      if (data && data.length > 0) {
-        setEvents(data);
-        setSelectedEvent(data[0].id);
-        setEventTitle(data[0].title);
-      } else {
-        // No events — use demo mode
-        setIsDemo(true);
-        setEventTitle('Festiwal Muzyczny 2026 — Demo');
+      if (isDemo) {
+        // Tryb demonstracyjny wyłącznie na żądanie (?demo=1).
+        setEventTitle('Wydarzenie demonstracyjne — DEMO');
         setZoneStats(DEMO_ZONE_STATS);
         setRecentScans(DEMO_SCANS);
         setGuestCount(520);
         setCheckedInCount(308);
         setSelectedEvent('demo');
+        setLoading(false);
+        return;
       }
+      const { data } = await supabase.from('events').select('id, title').order('start_date', { ascending: false });
+      if (data && data.length > 0) {
+        setEvents(data);
+        setSelectedEvent(data[0].id);
+        setEventTitle(data[0].title);
+      }
+      setLoading(false);
     };
     load();
-  }, []);
+  }, [isDemo]);
 
   useEffect(() => {
     if (!selectedEvent || isDemo) return;
@@ -85,20 +91,11 @@ const LiveDashboard = () => {
 
       const guests = guestsRes.data || [];
 
-      // If no real data, switch to demo
-      const hasRealData = Object.keys(stats).length > 0 || scans.length > 0 || guests.length > 0;
-      if (!hasRealData) {
-        setIsDemo(true);
-        setZoneStats(DEMO_ZONE_STATS);
-        setRecentScans(DEMO_SCANS);
-        setGuestCount(520);
-        setCheckedInCount(308);
-      } else {
-        setZoneStats(stats);
-        setRecentScans(scans);
-        setGuestCount(guests.length);
-        setCheckedInCount(guests.filter((g: any) => g.checked_in_at).length);
-      }
+      // Realne dane — także gdy wszystko na zero (uczciwy pusty stan, nie demo).
+      setZoneStats(stats);
+      setRecentScans(scans);
+      setGuestCount(guests.length);
+      setCheckedInCount(guests.filter((g: any) => g.checked_in_at).length);
     };
 
     loadData();
@@ -117,10 +114,27 @@ const LiveDashboard = () => {
     }
   };
 
-  if (!selectedEvent) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <p className="text-2xl">Ładowanie...</p>
+      </div>
+    );
+  }
+
+  if (!isDemo && !selectedEvent) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center gap-4 text-center px-6">
+        <p className="text-2xl font-semibold">Brak wydarzeń</p>
+        <p className="max-w-md text-white/50">
+          Utwórz wydarzenie, aby zobaczyć dane wejść na żywo. Podgląd demonstracyjny:
+          dodaj <code className="text-amber-400">?demo=1</code> do adresu.
+        </p>
+        <Link to="/dashboard">
+          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Powrót do pulpitu
+          </Button>
+        </Link>
       </div>
     );
   }
