@@ -25,16 +25,10 @@ const SettingsPage = lazy(() => import("@/pages/Settings"));
 const ProfileSettings = lazy(() => import("@/pages/settings/ProfileSettings"));
 const AccountSettings = lazy(() => import("@/pages/settings/AccountSettings"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
-const Ticketing = lazy(() => import("@/pages/Ticketing"));
 const PressReleasePage = lazy(() => import("@/pages/PressReleasePage"));
 const UserProfile = lazy(() => import("@/pages/UserProfile"));
 const Products = lazy(() => import("@/pages/products/Products"));
 const ProductDetails = lazy(() => import("@/pages/products/ProductDetails"));
-const Cart = lazy(() => import("@/pages/Cart"));
-const Checkout = lazy(() => import("@/pages/Checkout"));
-const Orders = lazy(() => import("@/pages/Orders"));
-const OrderDetails = lazy(() => import("@/pages/OrderDetails"));
-const Purchase = lazy(() => import("@/pages/Purchase"));
 const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Terms = lazy(() => import("@/pages/Terms"));
@@ -106,8 +100,6 @@ const AppRoutes = () => {
         {/* Public pages */}
         <Route path="/products" element={<Products />} />
         <Route path="/products/:productId" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
@@ -142,7 +134,6 @@ const AppRoutes = () => {
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/invitation-editor" element={<InvitationEditor />} />
-          <Route path="/ticketing" element={<Ticketing />} />
           <Route path="/press-releases" element={<PressReleasePage />} />
           <Route path="/media-crm" element={<MediaCrmPage />} />
           <Route path="/coverage-board" element={<CoverageBoardPage />} />
@@ -179,9 +170,6 @@ const AppRoutes = () => {
           <Route path="/settings/profile" element={<ProfileSettings />} />
           <Route path="/settings/account" element={<AccountSettings />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:id" element={<OrderDetails />} />
-          <Route path="/purchase" element={<Purchase />} />
           <Route path="/help" element={<HelpCenter />} />
         </Route>
 

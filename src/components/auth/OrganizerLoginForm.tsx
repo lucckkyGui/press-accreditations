@@ -134,7 +134,7 @@ export const OrganizerLoginForm = ({
             variant="link"
             size="sm"
             className="p-0 h-auto text-primary font-medium"
-            onClick={() => navigate("/purchase")}
+            onClick={() => navigate("/auth/register")}
           >
             {t('auth.register')}
           </Button>

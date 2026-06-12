@@ -3,8 +3,6 @@ import React, { useState, useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileInfo from "@/components/profile/UserProfileInfo";
-import PurchasedTickets from "@/components/profile/PurchasedTickets";
-import { EnhancedProfileEditForm } from "@/components/profile/EnhancedProfileEditForm";
 import SubscriptionManagement from "@/components/profile/SubscriptionManagement";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
@@ -12,7 +10,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Ticket as TicketType } from "@/hooks/useTickets";
 import { NotificationPermission } from "@/components/notifications/NotificationPermission";
 import { InstallPWA } from "@/components/common/InstallPWA";
 
@@ -21,7 +18,6 @@ const UserProfile = () => {
   const { user, profile, isOrganizer, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const searchParams = new URLSearchParams(location.search);
   const initialTab = searchParams.get("tab") || "profile";
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -40,8 +36,6 @@ const UserProfile = () => {
     description: "",
     createdAt: new Date()
   });
-  
-  const [tickets, setTickets] = useState<TicketType[]>([]);
   
   // Fetch user profile data
   useEffect(() => {
@@ -91,22 +85,6 @@ const UserProfile = () => {
     navigate({ search: newSearchParams.toString() }, { replace: true });
   }, [activeTab, navigate, location.search]);
   
-  // Handle profile update
-  const handleSaveProfile = async (formData: Partial<typeof userData>) => {
-    try {
-      // In a real app, this would update the database
-      setUserData(prev => ({
-        ...prev,
-        ...formData
-      }));
-      
-      toast.success("Profile updated successfully");
-      setIsEditFormOpen(false);
-    } catch (error) {
-      toast.error("Failed to update profile");
-    }
-  };
-  
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       {/* Header */}
@@ -130,32 +108,20 @@ const UserProfile = () => {
           <TabsList className="mb-8">
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="subscription">Subskrypcja</TabsTrigger>
-            <TabsTrigger value="tickets">Bilety ({tickets.length})</TabsTrigger>
             <TabsTrigger value="notifications">Powiadomienia</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
-            <UserProfileInfo 
-              user={userData} 
-              onEditProfile={() => setIsEditFormOpen(true)}
-            />
-            
-            <EnhancedProfileEditForm
+            <UserProfileInfo
               user={userData}
-              isOpen={isEditFormOpen}
-              onClose={() => setIsEditFormOpen(false)}
-              onSave={handleSaveProfile}
+              onEditProfile={() => navigate("/settings/profile")}
             />
           </TabsContent>
 
           <TabsContent value="subscription">
             <SubscriptionManagement />
           </TabsContent>
-          
-          <TabsContent value="tickets">
-            <PurchasedTickets tickets={tickets} />
-          </TabsContent>
-          
+
           <TabsContent value="notifications" className="space-y-4">
             <div className="bg-card p-6 rounded-lg border border-border shadow-card">
               <h2 className="text-xl font-semibold mb-4">Ustawienia powiadomień</h2>

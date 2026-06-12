@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Star, Zap, Building2, Crown, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
 
 const productsData: Record<string, {
   id: string;
@@ -175,7 +174,6 @@ const productsData: Record<string, {
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
-  const [isLoading, setIsLoading] = useState(false);
 
   const product = productId ? productsData[productId] : null;
 
@@ -194,22 +192,13 @@ const ProductDetails = () => {
 
   const IconComponent = product.icon;
 
-  const handlePurchase = async () => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (product.price === 0) {
-        toast.success("Rozpoczęto darmowy plan!");
-        navigate("/auth/register");
-      } else {
-        toast.success("Przekierowuję do płatności...");
-        // TODO: Integrate with payment provider
-      }
-    } catch (error) {
-      toast.error("Wystąpił błąd");
-    } finally {
-      setIsLoading(false);
+  const handlePurchase = () => {
+    if (product.price === 0) {
+      navigate("/auth/register");
+    } else {
+      // Realny wybór planu + checkout Stripe (create-checkout) jest na /products.
+      // Tu NIE udajemy płatności — kierujemy do realnego flow.
+      navigate("/products");
     }
   };
 
@@ -331,15 +320,12 @@ const ProductDetails = () => {
                   </li>
                 </ul>
                 
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   size="lg"
                   onClick={handlePurchase}
-                  disabled={isLoading}
                 >
-                  {isLoading ? "Przetwarzanie..." : (
-                    product.price === 0 ? "Zacznij za darmo" : "Wybierz ten plan"
-                  )}
+                  {product.price === 0 ? "Zacznij za darmo" : "Wybierz ten plan"}
                 </Button>
                 
                 <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
