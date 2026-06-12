@@ -31,6 +31,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/auth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
@@ -182,7 +183,7 @@ const AppSidebar = () => {
   const initials =
     [profile?.firstName?.[0], profile?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "U";
 
-  const planUsedPct = 68; // można podłączyć useSubscription.usage
+  const { subscribed } = useSubscription();
 
   return (
     <Sidebar collapsible="icon">
@@ -203,7 +204,7 @@ const AppSidebar = () => {
               <>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-[13px] font-semibold truncate leading-none">{orgName}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-none mono">workspace · pro</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-none mono">workspace</p>
                 </div>
                 <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground shrink-0" />
               </>
@@ -279,28 +280,25 @@ const AppSidebar = () => {
       <SidebarFooter className="p-2 gap-2">
         {!collapsed && (
           <div className="card-glow rounded-md p-3 relative">
-            <div className="flex items-center justify-between mb-2 relative">
+            <div className="flex items-center justify-between mb-1 relative">
               <div className="flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[11px] font-semibold text-foreground">Plan Pro</span>
+                <span className="text-[11px] font-semibold text-foreground">
+                  {subscribed ? "Plan aktywny" : "Plan Free"}
+                </span>
               </div>
-              <span className="chip chip-acc">
-                <span className="chip-dot" />
-                aktywny
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-[10.5px] text-muted-foreground mb-1.5 relative mono">
-              <span>Wydarzenia</span>
-              <span>{Math.round(planUsedPct / 2)} / 50</span>
-            </div>
-            <div className="h-0.5 rounded-full bg-muted overflow-hidden relative">
-              <div className="h-full bg-primary rounded-full" style={{ width: `${planUsedPct}%` }} />
+              {subscribed && (
+                <span className="chip chip-acc">
+                  <span className="chip-dot" />
+                  aktywny
+                </span>
+              )}
             </div>
             <Link
-              to="/settings"
-              className="block mt-2 text-[11px] text-foreground/80 hover:text-foreground underline underline-offset-2 decoration-border relative"
+              to={subscribed ? "/profile?tab=subscription" : "/products"}
+              className="block mt-1 text-[11px] text-foreground/80 hover:text-foreground underline underline-offset-2 decoration-border relative"
             >
-              Przejdź na Enterprise →
+              {subscribed ? "Zarządzaj subskrypcją →" : "Zobacz plany →"}
             </Link>
           </div>
         )}
