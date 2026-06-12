@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types';
 import { GuestsSkeleton } from '@/components/common/PageSkeleton';
-import { CalendarDays, Shield, FileDown, Brain, Fingerprint, BarChart3, Users } from 'lucide-react';
+import { CalendarDays, Shield, Brain, Fingerprint, BarChart3, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -20,10 +20,8 @@ import { features } from '@/config/features';
 // Lazy-load heavy advanced tab components
 const ZoneManagement = lazy(() => import('@/components/guests/advanced/ZoneManagement'));
 const BlacklistWhitelistManager = lazy(() => import('@/components/guests/advanced/BlacklistWhitelistManager'));
-const ReportExporter = lazy(() => import('@/components/reports/ReportExporter'));
 const AIFraudDetection = lazy(() => import('@/components/security/AIFraudDetection'));
 const BiometricVerification = lazy(() => import('@/components/security/BiometricVerification'));
-const PredictiveAnalytics = lazy(() => import('@/components/analytics/PredictiveAnalytics'));
 const BlockchainCredentials = lazy(() => import('@/components/guests/advanced/BlockchainCredentials'));
 
 const LazyTab = ({ children }: { children: React.ReactNode }) => (
@@ -171,12 +169,6 @@ const AdvancedGuestsPanel = () => {
       label: 'Kontrola',
       content: <BlacklistWhitelistManager />,
     },
-    {
-      value: 'reports',
-      icon: FileDown,
-      label: 'Raporty',
-      content: <ReportExporter />,
-    },
     ...(features.aiFraud ? [{
       value: 'ai-fraud',
       icon: Brain,
@@ -189,12 +181,6 @@ const AdvancedGuestsPanel = () => {
       label: 'Biometria',
       content: <BiometricVerification />,
     }] : []),
-    {
-      value: 'analytics',
-      icon: Brain,
-      label: 'Analityka',
-      content: <PredictiveAnalytics />,
-    },
     ...(features.blockchain ? [{
       value: 'blockchain',
       icon: Shield,
