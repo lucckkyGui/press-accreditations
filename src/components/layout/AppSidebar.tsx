@@ -229,6 +229,7 @@ const AppSidebar = () => {
         )}
 
         {/* ── Main nav ────────────────────────────── */}
+        {visibleMainNav.length > 0 && (
         <SidebarGroup className="py-0">
           {!collapsed && (
             <SidebarGroupLabel className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 px-2.5 h-7 flex items-center">
@@ -250,11 +251,13 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
         {/* ── Hairline ───────────────────────────── */}
-        <div className="mx-1 my-2 hair-t" />
+        {secondaryNav.length > 0 && <div className="mx-1 my-2 hair-t" />}
 
         {/* ── Secondary nav ──────────────────────── */}
+        {secondaryNav.length > 0 && (
         <SidebarGroup className="py-0">
           {!collapsed && (
             <SidebarGroupLabel className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/50 px-2.5 h-7 flex items-center">
@@ -274,6 +277,7 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
       </SidebarContent>
 
       {/* ── Footer: plan card + user ───────────── */}
