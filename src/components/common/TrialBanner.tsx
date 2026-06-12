@@ -40,17 +40,17 @@ const TrialBanner: React.FC = () => {
           <div>
             <p className="font-bold text-sm sm:text-base">Wypróbuj plan Professional za darmo przez 14 dni</p>
             <p className="text-xs sm:text-sm opacity-90 mt-0.5">
-              Pełny dostęp do analityki, mass mailingu i własnego brandingu. Bez karty kredytowej.
+              Pełny dostęp do analityki, mass mailingu i własnego brandingu.
             </p>
           </div>
         </div>
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => navigate('/#pricing')}
+          onClick={() => navigate('/products')}
           className="shrink-0 rounded-xl font-semibold bg-primary-foreground text-primary hover:bg-primary-foreground/90"
         >
-          Rozpocznij trial
+          Zobacz plany
         </Button>
       </div>
     </div>

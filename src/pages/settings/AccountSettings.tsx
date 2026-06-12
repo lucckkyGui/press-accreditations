@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/auth";
@@ -37,7 +36,6 @@ const AccountSettings = () => {
     confirmPassword: ""
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -178,26 +176,11 @@ const AccountSettings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="font-medium">
-                  Status: {twoFactorEnabled ? (
-                    <span className="text-green-600">Włączone</span>
-                  ) : (
-                    <span className="text-muted-foreground">Wyłączone</span>
-                  )}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Po włączeniu będziesz potrzebować kodu z aplikacji do logowania.
-                </p>
-              </div>
-              <Switch
-                checked={twoFactorEnabled}
-                onCheckedChange={(checked) => {
-                  setTwoFactorEnabled(checked);
-                  toast.info(checked ? "2FA zostanie włączone" : "2FA zostanie wyłączone");
-                }}
-              />
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                Uwierzytelnianie dwuskładnikowe (2FA) będzie dostępne wkrótce.
+              </p>
+              <span className="shrink-0 rounded bg-muted px-2 py-1 text-xs text-muted-foreground">Wkrótce</span>
             </div>
           </CardContent>
         </Card>

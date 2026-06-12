@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useI18n } from "@/hooks/useI18n";
 import { useAuth } from "@/hooks/auth";
-import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -202,19 +201,6 @@ const Register = () => {
                 {isLoading ? "Tworzenie konta..." : "Utwórz konto"}
               </Button>
             </form>
-            
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  lub kontynuuj przez
-                </span>
-              </div>
-            </div>
-            
-            <SocialLoginButtons />
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-muted-foreground">

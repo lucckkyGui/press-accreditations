@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Loader2, Mail, Lock } from "lucide-react";
-import { SocialLoginButtons } from "./SocialLoginButtons";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
@@ -105,18 +104,6 @@ export const OrganizerLoginForm = ({
             />
           </div>
         </div>
-        
-        <div className="pt-1">
-          <div className="relative flex items-center justify-center my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/60" />
-            </div>
-            <span className="relative bg-card px-3 text-xs text-muted-foreground">
-              {t('auth.orLoginWith')}
-            </span>
-          </div>
-          <SocialLoginButtons />
-        </div>
       </CardContent>
       <CardFooter className="flex-col gap-3 pt-2">
         <Button type="submit" className="w-full h-11 rounded-xl font-medium shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 transition-all" disabled={isLoading}>
@@ -134,7 +121,7 @@ export const OrganizerLoginForm = ({
             variant="link"
             size="sm"
             className="p-0 h-auto text-primary font-medium"
-            onClick={() => navigate("/purchase")}
+            onClick={() => navigate("/auth/register")}
           >
             {t('auth.register')}
           </Button>

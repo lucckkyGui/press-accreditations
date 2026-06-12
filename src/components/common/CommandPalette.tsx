@@ -24,7 +24,6 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
-  Bell,
   Calendar,
   CalendarDays,
   FileText,
@@ -77,7 +76,6 @@ const CommandPalette: React.FC = () => {
       { id: "n-scanner",    label: "Check-in QR",        path: "/scanner",          icon: QrCode,          keywords: "scanner check-in",     kind: "navigation", shortcut: "G S" },
       { id: "n-coverage",   label: "Coverage & raporty", path: "/post-event-report", icon: BarChart3,      keywords: "coverage reports raporty wartość medialna", kind: "navigation" },
       { id: "n-diag",       label: "Diagnostyka",       path: "/diagnostics",      icon: Stethoscope,     keywords: "offline sync manifest", kind: "navigation" },
-      { id: "n-notif",      label: "Powiadomienia",     path: "/notifications",    icon: Bell,            keywords: "notifications",        kind: "navigation" },
       { id: "n-settings",   label: "Ustawienia",        path: "/settings",         icon: Settings,        keywords: "settings konfiguracja", kind: "navigation" },
       { id: "n-profile",    label: "Profil",            path: "/profile",          icon: User,            keywords: "profile konto",        kind: "navigation" },
     ];

@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Calendar, Ticket, QrCode, Clock, MapPin,
-  FileText, Bell, Star, ArrowRight, Download, ExternalLink
+  FileText, Bell, Star, ArrowRight, ExternalLink
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/auth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const GuestDashboard = () => {
   const navigate = useNavigate();
@@ -27,7 +28,8 @@ const GuestDashboard = () => {
         .from('accreditations')
         .select(`
           *,
-          events:event_id (id, title, start_date, end_date, location, image_url)
+          events:event_id (id, title, start_date, end_date, location, image_url),
+          guests:guest_id (pass_token)
         `)
         .eq('user_id', user.id)
         .order('issued_at', { ascending: true });
@@ -212,7 +214,16 @@ const GuestDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => {
+                          const token = accreditation.guests?.pass_token;
+                          if (token) navigate(`/pass/${token}`);
+                          else toast.info("Twój QR pass znajdziesz w e-mailu z zaproszeniem");
+                        }}
+                      >
                         <QrCode className="h-4 w-4" />
                         Pokaż QR
                       </Button>
@@ -356,13 +367,9 @@ const GuestDashboard = () => {
                 <Star className="h-4 w-4" />
                 Edytuj profil
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => navigate('/ticketing')}>
-                <Ticket className="h-4 w-4" />
-                Moje bilety
-              </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Download className="h-4 w-4" />
-                Pobierz przepustki
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => navigate('/help')}>
+                <FileText className="h-4 w-4" />
+                Centrum pomocy
               </Button>
             </CardContent>
           </Card>
@@ -378,7 +385,7 @@ const GuestDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Sprawdź naszą dokumentację lub skontaktuj się z organizatorem
                 </p>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => navigate('/help')}>
                   Centrum pomocy
                   <ExternalLink className="h-4 w-4 ml-2" />
                 </Button>

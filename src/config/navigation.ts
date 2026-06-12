@@ -16,7 +16,6 @@ import {
   FileBarChart,
   FileText,
   Globe,
-  Plug,
   QrCode,
   Settings,
   Shield,
@@ -150,14 +149,6 @@ export const supportingNav: NavItem[] = [
 
 export const systemNav: NavItem[] = [
   {
-    id: "integrations",
-    title: "Integracje",
-    pressopsLabel: "Integrations",
-    url: "/integrations",
-    icon: Plug,
-    scope: "supporting",
-  },
-  {
     id: "audit-trail",
     title: "Bezpieczeństwo",
     pressopsLabel: "Security & Audit",
@@ -203,13 +194,6 @@ export const frozenModules: Array<{
   reason: string;
 }> = [
   {
-    id: "ticketing",
-    pressopsLabel: "Ticketing",
-    url: "/ticketing",
-    scope: "frozen",
-    reason: "Out of PressOps core scope — generic event ticketing, not press accreditation",
-  },
-  {
     id: "rfid-scanner",
     pressopsLabel: "RFID Scanner",
     url: "/rfid-scanner",
@@ -229,13 +213,6 @@ export const frozenModules: Array<{
     url: "/marketplace",
     scope: "frozen",
     reason: "E-commerce / discovery layer — post-pilot roadmap",
-  },
-  {
-    id: "cart",
-    pressopsLabel: "Cart & Checkout",
-    url: "/cart",
-    scope: "frozen",
-    reason: "E-commerce not in PressOps core scope",
   },
   {
     id: "digital-pass",
@@ -293,14 +270,11 @@ export const routeLabels: Record<string, string> = {
   profile: "Profil",
   notifications: "Powiadomienia",
   help: "Pomoc",
-  orders: "Zamówienia",
-  purchase: "Zakup",
   account: "Konto",
   "invitation-editor": "Edytor akredytacji",
   "embed-widget": "Widget embed",
   waitlist: "Lista oczekujących",
   // frozen — still accessible via direct URL
-  ticketing: "Bilety",
   "rfid-scanner": "Skaner RFID",
   wristbands: "Opaski RFID",
   "digital-pass": "Digital Pass",

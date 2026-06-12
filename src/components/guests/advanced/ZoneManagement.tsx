@@ -1,44 +1,24 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import ZoneTabs from './zones/ZoneTabs';
-import { useZoneManagement } from './zones/useZoneManagement';
+import { MapPin } from 'lucide-react';
 
-const ZoneManagement: React.FC = () => {
-  const {
-    zones,
-    showAddZone,
-    newZone,
-    setShowAddZone,
-    setNewZone,
-    handleAddZone,
-    handleDeleteZone,
-    handleEditZone
-  } = useZoneManagement();
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Zarządzanie strefami dostępu</h2>
-        <Button onClick={() => setShowAddZone(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Dodaj strefę
-        </Button>
-      </div>
-
-      <ZoneTabs
-        zones={zones}
-        showAddZone={showAddZone}
-        newZone={newZone}
-        onZoneChange={setNewZone}
-        onAddZone={handleAddZone}
-        onCancelAdd={() => setShowAddZone(false)}
-        onEditZone={handleEditZone}
-        onDeleteZone={handleDeleteZone}
-      />
+/**
+ * Strefy dostępu — uczciwy placeholder.
+ *
+ * Poprzednia wersja trzymała zaszyte (seed) strefy w stanie lokalnym z
+ * dodawaniem/edycją/usuwaniem bez backendu i fałszywymi toastami sukcesu.
+ * Realny builder stref (mapa, pojemności, podgląd wypełnienia) = R2-1.
+ */
+const ZoneManagement: React.FC = () => (
+  <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <MapPin className="h-7 w-7" />
     </div>
-  );
-};
+    <h2 className="text-lg font-semibold text-foreground">Strefy dostępu — wkrótce</h2>
+    <p className="mt-1 max-w-md text-sm text-muted-foreground">
+      Wizualny edytor stref (mapa, pojemności, podgląd wypełnienia) jest w przygotowaniu.
+      Goście już dziś mają realne pole stref przy akredytacji.
+    </p>
+  </div>
+);
 
 export default ZoneManagement;
