@@ -131,10 +131,10 @@ const HelpCenter = () => {
         <CardContent className="flex items-center justify-between py-6">
           <div>
             <h3 className="font-semibold text-foreground">Potrzebujesz więcej pomocy?</h3>
-            <p className="text-sm text-muted-foreground">Porozmawiaj z naszym AI asystentem</p>
+            <p className="text-sm text-muted-foreground">Napisz do nas — odpowiemy najszybciej jak to możliwe.</p>
           </div>
-          <Button onClick={() => navigate('/ai-support')} className="gap-2">
-            AI Support <ArrowRight className="h-4 w-4" />
+          <Button onClick={() => navigate('/contact')} className="gap-2">
+            Kontakt <ArrowRight className="h-4 w-4" />
           </Button>
         </CardContent>
       </Card>

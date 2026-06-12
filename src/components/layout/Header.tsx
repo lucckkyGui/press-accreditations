@@ -88,15 +88,6 @@ const Header: React.FC = () => {
         {/* Right cluster */}
         <div className="flex items-center gap-1 shrink-0">
 
-          {/* LIVE chip */}
-          <div className="hidden md:flex chip chip-ok mr-1">
-            <span
-              className="chip-dot pulse-live"
-              style={{ width: "6px", height: "6px" }}
-            />
-            LIVE
-          </div>
-
           {/* Search ⌘K — desktop */}
           {!isMobile && (
             <button
