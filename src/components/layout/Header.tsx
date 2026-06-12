@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Settings, Search, Bell, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Menu, Settings, Search, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/hooks/useI18n";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
@@ -164,12 +164,6 @@ const Header: React.FC = () => {
 
                 <Button variant="ghost" size="sm" asChild className="justify-start gap-2 h-9">
                   <Link to="/profile">{t("navigation.profile")}</Link>
-                </Button>
-                <Button variant="ghost" size="sm" asChild className="justify-start gap-2 h-9">
-                  <Link to="/notifications">
-                    <Bell className="h-4 w-4" />
-                    {t("navigation.notifications")}
-                  </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild className="justify-start gap-2 h-9">
                   <Link to="/settings">

@@ -471,7 +471,7 @@ const EventDetails = () => {
               <ScanLine className="h-4 w-4" />
               Otwórz skaner
             </Button>
-            <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate(`/notifications/${eventId}`)}>
+            <Button variant="outline" size="icon" className="rounded-lg shrink-0" onClick={() => navigate("/notifications")}>
               <Bell className="h-4 w-4" />
             </Button>
             <DropdownMenu>
