@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Download, Globe, Lock, Settings2, Shield, User2, Users, Webhook } from "lucide-react";
 import UserManagement from "@/components/settings/UserManagement";
@@ -28,9 +29,32 @@ const Settings = () => {
     toast.success("Ustawienia powiadomień zostały zapisane");
   };
 
-  const handleSaveSecuritySettings = (e: React.FormEvent) => {
+  // Realna zmiana hasła (supabase.auth.updateUser) — koniec fałszywego
+  // „Ustawienia bezpieczeństwa zostały zapisane".
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const handleSaveSecuritySettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Ustawienia bezpieczeństwa zostały zapisane");
+    if (newPassword.length < 8) {
+      toast.error("Hasło musi mieć co najmniej 8 znaków");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Hasła nie są identyczne");
+      return;
+    }
+    setSavingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setSavingPassword(false);
+    if (error) {
+      toast.error(`Nie udało się zmienić hasła: ${error.message}`);
+      return;
+    }
+    setNewPassword("");
+    setConfirmPassword("");
+    toast.success("Hasło zostało zmienione");
   };
   
   return (
@@ -288,79 +312,42 @@ const Settings = () => {
             <CardContent>
               <form id="security-form" onSubmit={handleSaveSecuritySettings} className="space-y-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Hasło</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="current-password">Obecne hasło</Label>
-                      <Input id="current-password" type="password" />
-                    </div>
-                  </div>
-                  
+                  <h3 className="text-lg font-medium">Zmień hasło</h3>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="new-password">Nowe hasło</Label>
-                      <Input id="new-password" type="password" />
+                      <Input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        autoComplete="new-password"
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="confirm-password">Potwierdź hasło</Label>
-                      <Input id="confirm-password" type="password" />
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        autoComplete="new-password"
+                      />
                     </div>
                   </div>
-                  
+
                   <div className="border p-3 rounded-md bg-muted/30">
                     <p className="text-sm text-muted-foreground">
-                      Hasło powinno zawierać co najmniej 8 znaków, w tym wielkie i małe litery, cyfry oraz znaki specjalne.
+                      Hasło powinno mieć co najmniej 8 znaków.
                     </p>
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Uwierzytelnianie dwuskładnikowe</h3>
-                  
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                    <div>
-                      <p className="font-medium">Status: <span className="text-red-500">Wyłączone</span></p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Dodaj dodatkową warstwę zabezpieczeń dla swojego konta. 
-                        Po włączeniu będziesz potrzebować kodu z aplikacji do logowania.
-                      </p>
-                    </div>
-                    <Button variant="outline" className="w-full sm:w-auto shrink-0">Włącz 2FA</Button>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Sesje aktywne</h3>
-                    
-                    <div className="border rounded-md divide-y">
-                      <div className="p-4 flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">Chrome / Windows</p>
-                          <p className="text-sm text-muted-foreground">Warszawa, Polska · Aktywna teraz</p>
-                        </div>
-                        <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Aktualna</div>
-                      </div>
-                      <div className="p-4 flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">Safari / iPhone</p>
-                          <p className="text-sm text-muted-foreground">Warszawa, Polska · 2 dni temu</p>
-                        </div>
-                        <Button variant="outline" size="sm">Wyloguj</Button>
-                      </div>
-                    </div>
-                    
-                    <Button variant="outline" className="w-full">Wyloguj ze wszystkich urządzeń</Button>
                   </div>
                 </div>
               </form>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button type="submit" form="security-form">
-                Zapisz ustawienia
+              <Button type="submit" form="security-form" disabled={savingPassword}>
+                {savingPassword ? "Zapisywanie..." : "Zmień hasło"}
               </Button>
             </CardFooter>
           </Card>

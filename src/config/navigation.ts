@@ -16,7 +16,6 @@ import {
   FileBarChart,
   FileText,
   Globe,
-  Plug,
   QrCode,
   Settings,
   Shield,
@@ -149,14 +148,6 @@ export const supportingNav: NavItem[] = [
 // ── System nav ─────────────────────────────────────────────────────────────
 
 export const systemNav: NavItem[] = [
-  {
-    id: "integrations",
-    title: "Integracje",
-    pressopsLabel: "Integrations",
-    url: "/integrations",
-    icon: Plug,
-    scope: "supporting",
-  },
   {
     id: "audit-trail",
     title: "Bezpieczeństwo",
