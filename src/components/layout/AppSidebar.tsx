@@ -165,13 +165,18 @@ const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile, signOut, user, roles, isAdmin } = useAuth();
+  const { profile, signOut, user, roles, isAdmin, isOrganizer } = useAuth();
   const { data: counts } = useSidebarCounts(user?.id);
 
+  // Cała nawigacja workflow (core + supporting + system) to funkcje organizatora/
+  // admina — gość nie powinien jej widzieć (linki i tak prowadziłyby do /access-denied).
+  const isStaffOrAbove = isOrganizer || isAdmin;
+  const visibleMainNav = isStaffOrAbove ? mainNav : [];
+
   // Secondary nav = supporting + system modules. adminOnly items hidden for non-admins.
-  const secondaryNav = [...supportingNav, ...systemNav].filter(
-    (item) => !item.adminOnly || isAdmin
-  );
+  const secondaryNav = isStaffOrAbove
+    ? [...supportingNav, ...systemNav].filter((item) => !item.adminOnly || isAdmin)
+    : [];
 
   const orgName = profile?.organizationName || "Moja organizacja";
   const initials =
@@ -231,7 +236,7 @@ const AppSidebar = () => {
           )}
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
-              {mainNav.map((item) => (
+              {visibleMainNav.map((item) => (
                 <NavItem
                   key={item.url}
                   item={item}
